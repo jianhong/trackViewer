@@ -1,0 +1,36 @@
+\name{optimizeStyle}
+\alias{optimizeStyle}
+
+\title{
+Optimize the style of plot
+}
+\description{
+Automatic optimize the stlye of trackViewer
+}
+\usage{
+optimizeStyle(trackList, viewerStyle=trackViewerStyle())
+}
+\arguments{
+  \item{trackList}{An object of \code{\link{trackList}}}
+  \item{viewerStyle}{An object of \code{\link{trackViewerStyle}}}
+}
+\value{
+a list of a \code{\link{trackList}} and a \code{\link{trackViewerStyle}}
+}
+\author{
+Jianhong Ou
+}
+\seealso{
+    See Also as \code{\link{viewTracks}}
+}
+\examples{
+    extdata <- system.file("extdata", package="trackViewer",
+                       mustWork=TRUE)
+    files <- dir(extdata, ".wig")
+    tracks <- lapply(paste(extdata, files, sep="/"), 
+                        importScore, format="WIG")
+    re <- optimizeStyle(trackList(tracks))
+    trackList <- re$tracks
+    viewerStyle <- re$style
+}
+\keyword{ plot }

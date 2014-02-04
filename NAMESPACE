@@ -1,0 +1,33 @@
+import(methods, GenomicRanges, GenomicFeatures, grid)
+import(Rsamtools)
+import(GenomicAlignments)
+importFrom(rtracklayer, import)
+importFrom(Gviz, GeneRegionTrack)
+import(pbapply)
+importFrom(scales, rescale)
+import(gWidgetstcltk)
+
+exportClasses("pos", 
+              "trackStyle",
+              "trackViewerStyle", 
+              "track",
+              "trackList",
+              "xscale",
+              "yaxisStyle")
+exportMethods(setTrackViewerStyleParam,
+              setTrackStyleParam,
+              setTrackXscaleParam,
+              setTrackYaxisParam,
+              "$", "$<-")
+export(addArrowMark,
+       addGuideLine,
+       coverageGR,
+       geneModelFromTxdb,
+       getCurTrackViewport,
+       importBam,
+       importScore,
+       interactiveViewer,
+       optimizeStyle,
+       trackList,
+       trackViewerStyle,
+       viewTracks)

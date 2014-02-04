@@ -1,0 +1,275 @@
+%\VignetteIndexEntry{trackViewer Vignette}
+%\VignetteDepends{trackViewer}
+%\VignetteKeywords{genomic browser}
+%\VignettePackage{trackViewer}
+\documentclass[12pt]{article}
+
+<<style, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage[numbers]{natbib}
+\usepackage{graphicx}
+\bibliographystyle{plainnat}
+
+\author{Jianhong Ou\thanks{jianhong.ou@umassmed.edu}, 
+Lihua Julie Zhu\thanks{julie.zhu@umassmed.edu} 
+\thanks{The authors would like to acknowledge Paul Shannon for technical advice during development.}}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{trackViewer guide}
+
+\maketitle
+
+\tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+We already have \Biocpkg{rtracklayer} and \Biocpkg{Gviz} to visualize the genomic data. 
+\Biocpkg{rtracklayer} provides an interface for genome browsers and their 
+annotation tracks. And \Biocpkg{Gviz} can plot data and annotation information 
+along genomic coordinates. \Biocpkg{trackViewer} is another visualization tool 
+developed based on \Biocpkg{Gviz}, which is minimal designed, easy to use and a 
+low system consumption package to generate neat figures for publication. 
+
+<<plotComp,echo=TRUE,fig=FALSE,include=FALSE>>=
+library(Gviz)
+library(rtracklayer)
+library(trackViewer)
+extdata <- system.file("extdata", package="trackViewer",
+                       mustWork=TRUE)
+fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED")
+fox2$dat <- coverageGR(fox2$dat)
+gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
+
+viewTracks(trackList(fox2), gr=gr, autoOptimizeStyle=TRUE, newpage=FALSE)
+
+dt <- DataTrack(range=fox2$dat[strand(fox2$dat)=="-"] , 
+                genome="hg19", type="hist", name="fox2", 
+                window=-1, chromosome="chr11", 
+                fill.histogram="black", col.histogram="NA",
+                background.title="white",
+                col.frame="white", col.axis="black",
+                col="black", col.title="black")
+plotTracks(dt, from=122929275, to=122930122, strand="-")
+@
+<<Gviz,echo=FALSE,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+viewerStyle <- trackViewerStyle()
+setTrackViewerStyleParam(viewerStyle, "margin", c(.01, .13, .02, .02))
+empty <- DataTrack(showAxis=FALSE, showTitle=FALSE, background.title="white")
+plotTracks(list(empty, dt), from=122929275, to=122930122, strand="-")
+pushViewport(viewport(0, .5, 1, .5, just=c(0, 0)))
+viewTracks(trackList(fox2), viewerStyle=viewerStyle, 
+                 gr=gr, autoOptimizeStyle=TRUE, newpage=FALSE)
+popViewport()
+grid.text(label="Gviz track", x=.3, y=.4)
+grid.text(label="trackViewer track", x=.3, y=.9)
+@
+\incfig{trackViewer-Gviz}{0.8\textwidth}{}
+{Plot data with \Biocpkg{Gviz} and \Biocpkg{trackViewer}. Note that \Biocpkg{trackViewer} can generate 
+similar figure as \Biocpkg{Gviz} with several lines of simple codes.}
+
+\Biocpkg{trackViewer} has different styles from \Biocpkg{Gviz} to show the data as shown in Figure \ref{trackViewer-GvizLost}. 
+The minimal designed style is to strip everything down to data and to achieve simplicity. 
+The minimal designed style of \Biocpkg{trackViewer} including the simplified and right-side y-axis, 
+multiple possible position of track labels, dual channels of the single track and the inner
+x-scale. Further goal of trackViewer (try ?\Rfunction{interactiveViewer} to get more information)
+is to provide interactive browser for genomic data.
+
+<<lostcode,echo=TRUE,fig=FALSE>>=
+gr <- GRanges("chr1", IRanges(c(1, 6, 10), c(3, 6, 12)), score=c(3, 4, 1))
+dt <- DataTrack(range=gr, data="score", type="hist")
+plotTracks(dt, from=2, to=11)
+tr <- new("track", dat=gr, type="data", format="BED")
+viewTracks(trackList(tr), chromosome="chr1", start=2, end=11)
+@
+<<GvizLost,echo=FALSE,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+plotTracks(list(empty, dt), from=2, to=11)
+pushViewport(viewport(0, .5, 1, .5, just=c(0, 0)))
+viewTracks(trackList(tr), viewerStyle=viewerStyle, 
+           chromosome="chr1", start=2, end=11, 
+           autoOptimizeStyle=TRUE, newpage=FALSE)
+popViewport()
+grid.text(label="Gviz track", x=.3, y=.4)
+grid.text(label="trackViewer track", x=.3, y=.9)
+@
+\incfig{trackViewer-GvizLost}{0.8\textwidth}{}
+{Plot data with \Biocpkg{Gviz} and \Biocpkg{trackViewer}. 
+Note that \Biocpkg{trackViewer} is not only including 
+more details but also showing all the data involved in the given range.}
+
+To handle big wig files requires huge memory space. To solve this problem,
+\Biocpkg{trackViewer} rewrote the import function to import whole file first
+and parse it later when plot. 
+\Biocpkg{trackViewer} provides higher import speed (21 min vs. over 180 min) 
+and acceptable memory cost (5.32G vs. over 10G) for a half giga wig file 
+(GSM917672) comparing to other packages.
+
+\section{Steps of using \Biocpkg{trackViewer}}
+\subsection{step1 import data}
+Function \Rfunction{importScore} is used to import BED, WIG, bedGraph or BigWig files. 
+Function \Rfunction{importBam} is employed to import bam file. Here is the example.
+
+<<importData>>=
+library(trackViewer)
+extdata <- system.file("extdata", package="trackViewer",
+                       mustWork=TRUE)
+repA <- importScore(file.path(extdata, "cpsf160.repA_-.wig"),
+                    file.path(extdata, "cpsf160.repA_+.wig"),
+                    format="WIG")
+## because the wig file does not contain strand info, 
+## we need to set it manually
+strand(repA$dat) <- "-"
+strand(repA$dat2) <- "+"
+@
+
+Function \Rfunction{coverageGR} could be used to calculate coverage after importing if
+necessary.
+
+<<coverage>>=
+fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED")
+dat <- coverageGR(fox2$dat)
+## we can split the data by strand into two different track channels
+## here we set the dat2 slot to save the negative strand info, 
+## reverse order as previous. 
+fox2$dat <- dat[strand(dat)=="+"]
+fox2$dat2 <- dat[strand(dat)=="-"]
+@
+
+\subsection{step2 build gene model}
+The gene model can be built by \Rfunction{geneModelFromTxdb} function. We use \Robject{TranscriptDb}
+object as input to get gene model in a given genomic range.
+
+<<geneModel>>=
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
+                         "chr11", 122929275, 122930122, "-")
+@
+
+\subsection{step3 view the tracks}
+Use \Rfunction{viewTracks} function to plot data and annotation information along genomic coordinates.
+And use \Rfunction{addGuideLine} or \Rfunction{addArrowMark} to highlight the peaks.
+(Figure \ref{trackViewer-viewTracks}).
+    
+<<viewTracks,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
+viewerStyle <- trackViewerStyle()
+setTrackViewerStyleParam(viewerStyle, "margin", c(.1, .05, .02, .02))
+vp <- viewTracks(trackList(repA, fox2, trs), 
+                 gr=gr, viewerStyle=viewerStyle, 
+                 autoOptimizeStyle=TRUE)
+addGuideLine(c(122929767, 122929969), vp=vp)
+addArrowMark(list(x=unit(.5, "npc"), 
+                  y=unit(.39, "npc")),
+             col="blue")
+@
+\incfig{trackViewer-viewTracks}{0.8\textwidth}{}
+{plot data and annotation information along genomic coordinates}
+
+\section{Adjust the styles}
+\subsection{adjust x axis or x-scale}
+In most cases people only focus on the relevant position of peaks from the gene model. 
+Gene model or guide line (adding by \Rfunction{addGuideLine} Function) combined with an 
+x-scale can help us to save the margin space of x-axis. Figure \ref{trackViewer-viewTracksXaxis} 
+shows how to add an x-scale and remove x-axis.
+<<optSty,include=FALSE>>=
+optSty <- optimizeStyle(trackList(repA, fox2, trs))
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+@
+<<viewTracksXaxis,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+setTrackViewerStyleParam(viewerStyle, "xaxis", FALSE)
+setTrackViewerStyleParam(viewerStyle, "margin", c(.01, .05, .01, .01))
+setTrackXscaleParam(trackList[[1]], "draw", TRUE)
+setTrackXscaleParam(trackList[[1]], "gp", list(cex=.5))
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksXaxis}{0.8\textwidth}{}
+{plot data with x-scale}
+
+\subsection{adjust y axis}
+y-axis can be put to right side of the track by setting main slot to FALSE in y-axis slot 
+of each track (Figure \ref{trackViewer-viewTracksYaxis}).
+<<viewTracksYaxis,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+setTrackViewerStyleParam(viewerStyle, "margin", c(.01, .05, .01, .05))
+setTrackYaxisParam(trackList[[1]], "main", FALSE)
+setTrackYaxisParam(trackList[[2]], "main", FALSE)
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksYaxis}{0.8\textwidth}{}
+{plot data with y-axis in right side}
+
+\subsection{adjust y label}
+Y label style can be changed by setting the ylabgp slot in style of each track 
+(Figure \ref{trackViewer-viewTracksYlab}).
+<<viewTracksYlab,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+setTrackStyleParam(trackList[[1]], "ylabgp", list(cex=.8, col="green"))
+## set cex to avoid automatic adjust
+setTrackStyleParam(trackList[[2]], "ylabgp", list(cex=.8, col="blue"))
+setTrackStyleParam(trackList[[2]], "marginBottom", .2)
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksYlab}{0.8\textwidth}{}
+{plot data with adjusted color and size of y label}
+
+Y label can be also put to top or bottom of each track 
+(Figure \ref{trackViewer-viewTracksYlabTopBottom}).
+<<viewTracksYlabTopBottom,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+setTrackStyleParam(trackList[[1]], "ylabpos", "bottomleft")
+setTrackStyleParam(trackList[[1]], "marginBottom", .2)
+## set cex to avoid automatic adjust
+setTrackStyleParam(trackList[[2]], "ylabpos", "topright")
+setTrackStyleParam(trackList[[2]], "marginTop", .2)
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksYlabTopBottom}{0.8\textwidth}{}
+{plot data with adjusted y label position}
+
+\subsection{adjust track color}
+The track color can be changed by setting the color slot in style of each track 
+(Figure \ref{trackViewer-viewTracksCol}). The first color is for dat slot of 
+\Robject{track} and seconde color is for dat2 slot.
+<<viewTracksCol,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+setTrackStyleParam(trackList[[1]], "color", c("green", "black"))
+setTrackStyleParam(trackList[[2]], "color", c("black", "blue"))
+for(i in 3:length(trackList)) 
+    setTrackStyleParam(trackList[[i]], "color", "black")
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksCol}{0.8\textwidth}{}
+{plot data with adjusted track color}
+
+\subsection{change track names}
+If you want to change the track names such as gene model names, it can be done
+easily by changing the names of \Robject{trackList} (Figure \ref{trackViewer-viewTracksNames}).
+
+<<viewTracksNames,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+names(trackList) <- c("cpsf160", "fox2", rep("HSPA8", 5))
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksNames}{0.8\textwidth}{}
+{change the track names}
+
+\subsection{show paired data in the same track}
+\Biocpkg{trackViewer} can be used to show to-be-compared data in the same track side by side 
+(Figure \ref{trackViewer-viewTracksPaired}).
+
+<<viewTracksPaired,fig=TRUE,include=FALSE,width=6,height=1.2>>=
+cpsf160 <- importScore(file.path(extdata, "cpsf160.repA_-.wig"),
+                       file.path(extdata, "cpsf160.repB_-.wig"),
+                       format="WIG")
+strand(cpsf160$dat) <- strand(cpsf160$dat2) <- "-"
+setTrackStyleParam(cpsf160, "color", c("black", "red"))
+viewTracks(trackList(trs, cpsf160), gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksPaired}{0.8\textwidth}{}
+{show two data in the same track}
+
+\clearpage
+\section{Session Info}
+<<sessionInfo, results=tex, print=TRUE>>=
+toLatex(sessionInfo())
+@
+
+\end{document}
