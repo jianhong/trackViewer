@@ -9,7 +9,15 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
             .idx <- sample(1:length(.dat), trackViewerCache$step)
             .idx <- unique(c(.idx, .width))
             .idx <- .idx[order(.idx)]
-            .dat <- .dat[.idx]
+            .dat1 <- .dat[-.idx]
+            .datM <- reduce(.dat1, with.mapping=TRUE)
+            .map <- .datM$mapping
+            .gp <- rep(1:length(.map), sapply(.map, length))
+            .datM$score <- floor(sapply(split(.dat1$score[unlist(.map)], 
+                                              .gp), mean))
+            .datM$mapping <- NULL
+            .dat <- c(.dat[.idx], .datM)
+            .dat <- orderedGR(.dat)
         }
         .dat <- c(.dat, GRanges(seqnames=chr, 
                                 IRanges(start=scale, end=scale), 
