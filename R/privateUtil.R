@@ -67,10 +67,10 @@ orderedGR <- function(gr=GRanges()){
 }
 
 condenceGRs <- function(gr=GRanges(), FUN=sum){
-    .gr <- reduce(gr, min.gapwidth=0, with.mapping=TRUE)
+    .gr <- reduce(gr, min.gapwidth=0, with.revmap=TRUE)
     scores <- score(gr)
-    .gr$score <- sapply(.gr$mapping, function(.id) FUN(scores[.id]))
-    .gr$mapping <- NULL
+    .gr$score <- sapply(.gr$revmap, function(.id) FUN(scores[.id]))
+    .gr$revmap <- NULL
     .gr
 }
 

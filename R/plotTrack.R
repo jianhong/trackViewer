@@ -10,12 +10,12 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
             .idx <- unique(c(.idx, .width))
             .idx <- .idx[order(.idx)]
             .dat1 <- .dat[-.idx]
-            .datM <- reduce(.dat1, with.mapping=TRUE)
-            .map <- .datM$mapping
+            .datM <- reduce(.dat1, with.revmap=TRUE)
+            .map <- .datM$revmap
             .gp <- rep(1:length(.map), sapply(.map, length))
             .datM$score <- floor(sapply(split(.dat1$score[unlist(.map)], 
                                               .gp), mean))
-            .datM$mapping <- NULL
+            .datM$revmap <- NULL
             .dat <- c(.dat[.idx], .datM)
             .dat <- orderedGR(.dat)
         }
