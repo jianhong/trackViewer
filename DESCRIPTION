@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: light package to plot elegant track layers
-Version: 0.99.7
+Version: 1.0.0
 Date: 2014-4-3
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
