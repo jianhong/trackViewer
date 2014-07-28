@@ -138,7 +138,7 @@ fox2$dat2 <- dat[strand(dat)=="-"]
 @
 
 \subsection{step2 build gene model}
-The gene model can be built by \Rfunction{geneModelFromTxdb} function. We use \Robject{TranscriptDb}
+The gene model can be built by \Rfunction{geneModelFromTxdb} function. We use \Robject{TxDb}
 object as input to get gene model in a given genomic range.
 
 <<geneModel>>=

@@ -1,7 +1,7 @@
 \name{geneModelFromTxdb}
 \alias{geneModelFromTxdb}
 \title{
-Prepare gene model from an object of TranscriptDb
+Prepare gene model from an object of TxDb
 }
 \description{
 Generate an object of \code{\link{track}} for \code{\link{viewTracks}} by given 
@@ -11,7 +11,7 @@ parameters.
 geneModelFromTxdb(txdb, chrom, start, end, strand=c("*", "+", "-"), txdump=NULL)
 }
 \arguments{
-  \item{txdb}{An object of \code{\link[GenomicFeatures]{TranscriptDb}}}
+  \item{txdb}{An object of \code{\link[GenomicFeatures]{TxDb}}}
   \item{chrom}{chromosome name, must be a seqname of txdb}
   \item{start}{start position}
   \item{end}{end position}

@@ -1,8 +1,8 @@
 geneModelFromTxdb <- function(txdb, chrom, start, end, strand=c("*", "+", "-"), txdump=NULL){
     if(missing(txdb)||missing(chrom)||missing(start)||missing(end))
         stop("All inputs are required!")
-    if(class(txdb)!="TranscriptDb")
-        stop("txdb must be an object of TranscriptDb")
+    if(class(txdb)!="TxDb")
+        stop("txdb must be an object of TxDb")
     strand <- match.arg(strand)
 #     activeSeq <- isActiveSeq(txdb)
 #     namesActiveSeq <- names(activeSeq)
