@@ -15,7 +15,7 @@ importBam(file, file2, ranges=GRanges(), pairs=FALSE)
   \item{ranges}{An object of \code{\link[GenomicRanges]{GRanges}} to indicate
   the range to be imported}
   \item{pairs}{logical object to indicate the BAM is paired or not. See 
-  \code{\link[GenomicAlignments]{readGAlignmentsFromBam}}}
+  \code{\link[GenomicAlignments]{readGAlignments}}}
 }
 \value{
 a \code{\link{track}} object 
