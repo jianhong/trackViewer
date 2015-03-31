@@ -134,6 +134,15 @@ setClass("track", representation(dat="GRanges",
              return(TRUE)
          })
 
+setMethod("show", "track", function(object){
+    cat("This is an object of track\n", "slot name:", object@name, "\n", 
+        "slot type:", object@type, "\n", "slot format:", object@format, "\n")
+    cat("slot dat:\n")
+    show(object@dat)
+    cat("slot dat2:\n")
+    show(object@dat2)
+    cat("slot style: try object$style to see details.\n")
+})
 setMethod("$", "track", function(x, name) slot(x, name))
 setReplaceMethod("$", "track", 
                  function(x, name, value){

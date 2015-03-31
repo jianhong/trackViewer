@@ -13,6 +13,7 @@
 \alias{setTrackYaxisParam,track,character,ANY-method}
 \alias{$,track-method}
 \alias{$<-,track-method}
+\alias{show,track-method}
 
 \title{Class \code{"track"}}
 \description{
@@ -57,6 +58,7 @@
         \item{setTrackYaxisParam}{change the \code{\link{yaxisStyle}} 
         values for an object of \code{track}}
         \item{$, $<-}{Get or set the slot of \code{\link{track}}}
+        \item{show}{show the detials of \code{\link{track}}}
     }
 }
 \examples{

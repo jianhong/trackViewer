@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.3.1
+-----------------------
+
+NEW FEATURES
+
+    o add new function plotGRanges for quick view GRanges data
+    o add ranges when importScore
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.1.1
 -----------------------
 

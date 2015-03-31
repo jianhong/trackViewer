@@ -18,7 +18,7 @@ exportMethods(setTrackViewerStyleParam,
               setTrackStyleParam,
               setTrackXscaleParam,
               setTrackYaxisParam,
-              "$", "$<-")
+              "$", "$<-", show)
 export(addArrowMark,
        addGuideLine,
        coverageGR,
@@ -28,6 +28,7 @@ export(addArrowMark,
        importScore,
        interactiveViewer,
        optimizeStyle,
+       plotGRanges,
        trackList,
        trackViewerStyle,
        viewTracks)

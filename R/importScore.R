@@ -1,10 +1,37 @@
 importScore <- function(file, file2, 
-                        format=c("BED", "bedGraph", "WIG", "BigWig")){
+                        format=c("BED", "bedGraph", "WIG", "BigWig"),
+                        ranges=GRanges()){
     if(missing(file))
         stop("file is required.")
     ##    on.exit(closeAllConnections())
     format <- match.arg(format)
     #    res <- GRanges(score=numeric(0))
+    if(class(ranges)!="GRanges") stop("ranges must be an object of GRanges.")
+    ranges <- orderedGR(ranges)
+    filterByRange <- function(r){
+        if(length(ranges)>0){
+            ## find in ranges
+            seqn <- unique(as.character(seqnames(ranges)))
+            r <- r[r[1] %in% seqn, , drop=FALSE]
+            nr <- nrow(r)
+            if(nr>0){
+                ## split r and findOverlaps
+                idx <- rep(FALSE, nr)
+                l <- floor(nr/1000)
+                for(i in 0:l){
+                    f <- min(i*1000+1, nr)
+                    t <- min((i+1)*1000, nr)
+                    x <- r[f:t, , drop=FALSE]
+                    xgr <- GRanges(x[,1], IRanges(start=as.numeric(x[,2]),
+                                                  end=as.numeric(x[,3])))
+                    ol <- findOverlaps(xgr, ranges)
+                    if(length(ol)>0) idx[queryHits(ol)+i*1000] <- TRUE
+                }
+                r <- r[idx, , drop=FALSE]
+            }
+        }
+        r
+    }
     getWigInfo <- function(firstline){
         firstline <- unlist(strsplit(firstline, "\\s"))
         firstline <- firstline[firstline!=""]
@@ -62,6 +89,10 @@ importScore <- function(file, file2,
         r <- do.call(rbind, r)
         buf <- lapply(buf, "[", -1)
         buf <- CharacterList(buf, compress=TRUE)
+        ## filter by range
+        r <- cbind(r, rid=1:nrow(r))
+        r <- filterByRange(r)
+        buf <- buf[as.numeric(r[,"rid"]),,drop=FALSE]
         GRanges(seqnames=r[,1], 
                 ranges=IRanges(start=as.numeric(r[,2]),
                                end=as.numeric(r[,3])),
@@ -98,11 +129,21 @@ importScore <- function(file, file2,
         }
         if(ncol(buf)==5) buf <- cbind(buf, "*")
         buf[!buf[,6] %in% c("+", "-"), 6] <- "*"
-        GRanges(seqnames=buf[,1], 
-                ranges=IRanges(start=as.numeric(buf[,2])+1,##0 based, half open
-                               end=as.numeric(buf[,3])),
-                strand=buf[,6],
-                score=as.numeric(buf[,5]))
+        ##filter by range
+        buf <- filterByRange(buf)
+        if(nrow(buf)>0){
+            GRanges(seqnames=buf[,1], 
+                    ranges=IRanges(start=as.numeric(buf[,2])+1,##0 based, half open
+                                   end=as.numeric(buf[,3])),
+                    strand=buf[,6],
+                    score=as.numeric(buf[,5]))
+        }else{##create a length=0 GRanges
+            GRanges(seqnames=buf[,1], 
+                    ranges=IRanges(start=as.numeric(buf[,2]),
+                                   end=as.numeric(buf[,3])),
+                    strand=buf[,6],
+                    score=as.numeric(buf[,5]))
+        }
     }
     readFourCols <- function(buf){
         buf <- gsub("^\\s+", "", buf)
@@ -113,16 +154,29 @@ importScore <- function(file, file2,
         buf <- buf[len==4]
         if(length(buf)<1) return(GRanges(score=numeric(0)))
         buf <- do.call(rbind, buf)
-        GRanges(seqnames=buf[,1], 
-                ranges=IRanges(start=as.numeric(buf[,2])+1,##0 based, half open
-                               end=as.numeric(buf[,3])),
-                score=as.numeric(buf[,4]))
+        ##filter by range
+        buf <- filterByRange(buf) 
+        if(nrow(buf)>0){
+            GRanges(seqnames=buf[,1], 
+                    ranges=IRanges(start=as.numeric(buf[,2])+1,##0 based, half open
+                                   end=as.numeric(buf[,3])),
+                    score=as.numeric(buf[,4]))
+        }else{##create a length=0 GRanges
+            GRanges(seqnames=buf[,1], 
+                    ranges=IRanges(start=as.numeric(buf[,2]),##0 based, half open
+                                   end=as.numeric(buf[,3])),
+                    score=as.numeric(buf[,4]))
+        }
     }
     readbedGraph <- function(buf){
         readFourCols(buf)
     }
     readBigWig <- function(file){
-        import(con=file, format="BigWig")
+        if(length(ranges)>0){
+            import(con=file, format="BigWig", which=ranges)
+        }else{
+            import(con=file, format="BigWig")
+        }
     }
     readFile <- function(file){
         s <- file.info(file)$size

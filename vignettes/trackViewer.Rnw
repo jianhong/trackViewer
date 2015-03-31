@@ -35,9 +35,10 @@ library(rtracklayer)
 library(trackViewer)
 extdata <- system.file("extdata", package="trackViewer",
                        mustWork=TRUE)
-fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED")
-fox2$dat <- coverageGR(fox2$dat)
 gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
+fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED",
+                    ranges=gr)
+fox2$dat <- coverageGR(fox2$dat)
 
 viewTracks(trackList(fox2), gr=gr, autoOptimizeStyle=TRUE, newpage=FALSE)
 
@@ -114,7 +115,8 @@ Function \Rfunction{coverageGR} could be used to calculate coverage after import
 needed.
 
 <<coverage>>=
-fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED")
+fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED",
+                    ranges=GRanges("chr11", IRanges(122929000, 122931000)))
 dat <- coverageGR(fox2$dat)
 ## we can split the data by strand into two different track channels
 ## here we set the dat2 slot to save the negative strand info, 
