@@ -7,11 +7,11 @@ importScore <- function(file, file2,
     format <- match.arg(format)
     #    res <- GRanges(score=numeric(0))
     if(class(ranges)!="GRanges") stop("ranges must be an object of GRanges.")
-    ranges <- orderedGR(ranges)
+    gr <- orderedGR(ranges)
     filterByRange <- function(r){
-        if(length(ranges)>0){
+        if(length(gr)>0){
             ## find in ranges
-            seqn <- unique(as.character(seqnames(ranges)))
+            seqn <- unique(as.character(seqnames(gr)))
             r <- r[r[1] %in% seqn, , drop=FALSE]
             nr <- nrow(r)
             if(nr>0){
@@ -24,7 +24,7 @@ importScore <- function(file, file2,
                     x <- r[f:t, , drop=FALSE]
                     xgr <- GRanges(x[,1], IRanges(start=as.numeric(x[,2]),
                                                   end=as.numeric(x[,3])))
-                    ol <- findOverlaps(xgr, ranges)
+                    ol <- findOverlaps(xgr, gr)
                     if(length(ol)>0) idx[queryHits(ol)+i*1000] <- TRUE
                 }
                 r <- r[idx, , drop=FALSE]
@@ -172,8 +172,8 @@ importScore <- function(file, file2,
         readFourCols(buf)
     }
     readBigWig <- function(file){
-        if(length(ranges)>0){
-            import(con=file, format="BigWig", which=ranges)
+        if(length(gr)>0){
+            import(con=file, format="BigWig", which=gr)
         }else{
             import(con=file, format="BigWig")
         }
