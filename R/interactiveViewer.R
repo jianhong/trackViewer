@@ -98,7 +98,7 @@ interactiveViewer <- function(trackList, chromosome, start, end, strand,
                     selectedfilesFormat <- sapply(selectedfilesFormat, svalue)
                     selectedfilesFormat <- selectedfilesFormat[sapply(selectedfiles, svalue)]
                 }
-                gr <- GRanges(chromosome, IRanges(1, 249250621), strand)
+                gr <- GRanges(chromosome, IRanges(max(0, start-100000), end+100000), strand)
  #               pb <- tkProgressBar("import progress bar", "imported", 
  #                                   max=length(filename), width=300)
                 
@@ -106,7 +106,7 @@ interactiveViewer <- function(trackList, chromosome, start, end, strand,
                     if(format=="BAM"){
                         importBam(.ele, ranges=gr)
                     }else{
-                        .dat <- importScore(.ele, format=format)
+                        .dat <- importScore(.ele, format=format, ranges=gr)
                         if(format!="WIG"){
                             .dat@dat <- coverageGR(.dat@dat)
                         }

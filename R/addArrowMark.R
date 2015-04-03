@@ -26,30 +26,30 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
     cex <- trimLen(cex, len)
     for(i in 1:len){
         if(class(x[i]) %in% c("numeric", "integer")){
-            if(x[i]>=0 && x<=1){
+            if(findInterval(x[i], c(0, 1))==1){
                 xi <- unit(x[i], "npc")
             }else{
-                if(!is.null(vp)) {
-                    r <- vp$xscale
-                    if(x[i]<=r[2] && x[i]>=r[1]){
+                #if(!is.null(vp)) {
+                    #r <- sort(vp$xscale)
+                    #if(findInterval(x[i], r)==1){
                         xi <- unit(x[i], "native")
-                    }
-                }
+                    #}
+                #}
             }
             if(class(xi)!="unit") stop("'pos$x' argument must be a unit object.")
         }else{
             xi <- x[i]
         }
         if(class(y[i]) %in% c("numeric", "integer")){
-            if(y[i]>=0 && x<=1){
+            if(findInterval(y[i], c(0, 1))==1){
                 yi <- unit(y[i], "npc")
             }else{
-                if(!is.null(vp)) {
-                    r <- vp$yscale
-                    if(y[i]<=r[2] && y[i]>=r[1]){
+                #if(!is.null(vp)) {
+                    #r <- vp$yscale
+                    #if(y[i]<=r[2] && y[i]>=r[1]){
                         yi <- unit(y[i], "native")
-                    }
-                }
+                    #}
+                #}
             }
             if(class(yi)!="unit") stop("'pos$y' argument must be a unit object.")
         }else{

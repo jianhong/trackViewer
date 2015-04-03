@@ -70,6 +70,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
 #    if(interactive()) close(pb)
     popViewport()
     
+    if(viewerStyle@flip) xscale <- rev(xscale)
     return(invisible(viewport(x=margin[2], y=margin[1], 
                               height=1 - margin[1]- margin[3], 
                               width=1 -margin[2] - margin[4],

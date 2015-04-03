@@ -66,6 +66,12 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                       yscale, height, xlim, chr, strand){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
+    
+    if(curViewStyle@flip){ 
+        xscale <- rev(xlim)
+    }else{
+        xscale <- xlim
+    }
     if(length(style@marginBottom)>0){
         yHeightBottom <- style@marginBottom
     }
@@ -91,7 +97,9 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               height=1, 
                               width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
                               clip="on",
-                              just=c(0,0), xscale=xlim, yscale=yscale))
+                              just=c(0,0), 
+                              xscale=xscale, 
+                              yscale=yscale))
         ##grid.clip()
         ##for dat
         xy <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
@@ -117,7 +125,8 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               height=1, 
                               width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
                               clip="on",
-                              just=c(0,0), xscale=xlim))
+                              just=c(0,0), 
+                              xscale=xscale))
         plotGeneModel(track, xlim)
     }
     popViewport()

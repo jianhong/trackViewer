@@ -14,7 +14,7 @@
 \section{Objects from the Class}{
   Objects can be created by calls of the form 
   \code{new("trackViewerStyle", margin, xlas, 
-                                xgp, xaxis, autolas)}.
+                                xgp, xaxis, autolas, flip)}.
                           
 }
 \section{constructor}{
@@ -32,6 +32,7 @@
     parameter settings of x-axis. For y-axis, see \code{\link{yaxisStyle}}}
     \item{\code{xaxis}}{\code{"logical"}, draw x-axis or not}
     \item{\code{autolas}}{\code{"logical"} automatic determine y label direction}
+    \item{\code{flip}}{\code{"logical"} flip the x-axis or not, default FALSE}
   }
 }
 

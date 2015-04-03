@@ -8,10 +8,10 @@ importScore <- function(file, file2,
     #    res <- GRanges(score=numeric(0))
     if(class(ranges)!="GRanges") stop("ranges must be an object of GRanges.")
     gr <- orderedGR(ranges)
+    seqn <- unique(as.character(seqnames(gr)))
     filterByRange <- function(r){
         if(length(gr)>0){
             ## find in ranges
-            seqn <- unique(as.character(seqnames(gr)))
             r <- r[r[1] %in% seqn, , drop=FALSE]
             nr <- nrow(r)
             if(nr>0){
@@ -56,7 +56,7 @@ importScore <- function(file, file2,
                 stop("WIG file must contain track definition line, 
                      which should start by variableStep or fixedStep.")
             }
-            }else{
+        }else{
                 stop("WIG file must contain track definition line, 
                      which should start by variableStep or fixedStep.")
         }
@@ -90,9 +90,14 @@ importScore <- function(file, file2,
         buf <- lapply(buf, "[", -1)
         buf <- CharacterList(buf, compress=TRUE)
         ## filter by range
-        r <- cbind(r, rid=1:nrow(r))
-        r <- filterByRange(r)
-        buf <- buf[as.numeric(r[,"rid"]),,drop=FALSE]
+        if(length(gr)>0){
+            r <- cbind(r, rid=1:nrow(r))
+            r <- filterByRange(r)
+            buf <- buf[as.numeric(r[,"rid"]),,drop=FALSE]
+            ## in case the buf is too big for each item
+            ## TODO: parseWIG at this stage.
+        }
+        
         GRanges(seqnames=r[,1], 
                 ranges=IRanges(start=as.numeric(r[,2]),
                                end=as.numeric(r[,3])),

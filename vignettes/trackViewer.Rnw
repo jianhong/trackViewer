@@ -257,6 +257,25 @@ viewTracks(trackList(trs, cpsf160), gr=gr, viewerStyle=viewerStyle)
 \incfig{trackViewer-viewTracksPaired}{0.8\textwidth}{}
 {show two data in the same track}
 
+\subsection{flip the x-axis}
+The x-axis can be horizotally flipped for the genes in negative strand 
+(Figure \ref{trackViewer-viewTracksFlipped}).
+
+<<viewTracksFlipped,fig=TRUE,include=FALSE,width=6,height=2>>=
+setTrackViewerStyleParam(viewerStyle, "flip", TRUE)
+setTrackViewerStyleParam(viewerStyle, "xaxis", TRUE)
+setTrackViewerStyleParam(viewerStyle, "margin", c(.1, .05, .01, .01))
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+addGuideLine(c(122929767, 122929969), vp=vp)
+addArrowMark(list(x=122929650,
+                  y=unit(.39, "npc")),
+             label="label",
+             col="blue",
+             vp=vp)
+@
+\incfig{trackViewer-viewTracksFlipped}{0.8\textwidth}{}
+{show data in the flipped track}
+
 \clearpage
 \section{Session Info}
 <<sessionInfo, results=tex, print=TRUE>>=

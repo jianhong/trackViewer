@@ -5,6 +5,7 @@ parseWIG <- function(trackScore, chrom, from, to){
         stop("format must be WIG")
     
     parser <- function(data, chrom, from, to){
+        data <- data[seqnames(data)==chrom]
         if(length(data)<1) return(GRanges(score=numeric(0)))
         res <- mapply(function(chr, start, data, span, step, 
                                structure, from, to, strand){
@@ -19,7 +20,7 @@ parseWIG <- function(trackScore, chrom, from, to){
                 data <- do.call(rbind, strsplit(data, "\\s+"))
                 if(structure=="variableStep"){
                     pos1 <- as.numeric(data[, 1])
-                    if(!is.na(span)) span <- 1
+                    if(is.na(span)) span <- 1
                     pos2 <- pos1 + as.numeric(span)
                     score <- as.numeric(data[, 2])
                 }else{##structure=="fixedStep"

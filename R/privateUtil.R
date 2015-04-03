@@ -182,6 +182,7 @@ drawXaxis <- function(xscale, style){
     start <- ceiling(xscale[1]/interval)
     end <- floor(xscale[2]/interval)
     label <- interval * start:end
+    if(style@flip) xscale <- rev(xscale)
     at <- rescale(label, from=xscale)
     gp <- style@xgp
     class(gp) <- "gpar"

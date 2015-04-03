@@ -25,8 +25,11 @@ getCurTrackViewport <- function(curViewerStyle, start, end){
         stop("curViewerStyle must be an object of trackViewerStyle")
     margin <- curViewerStyle@margin
     xscale <- c(start, end)
+    if(curViewerStyle@flip) xscale <- rev(xscale)
     return(viewport(x=margin[2], y=margin[1], 
                     height=1 - margin[1]- margin[3], 
                     width=1 -margin[2] - margin[4],
-                    just=c(0,0), xscale=xscale, yscale=c(0,1)))
+                    just=c(0,0), 
+                    xscale=xscale, 
+                    yscale=c(0,1)))
 }

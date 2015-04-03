@@ -4,13 +4,15 @@ setClass("trackViewerStyle",
              xlas="numeric",
              xgp="list",
              xaxis="logical",
-             autolas="logical"),
+             autolas="logical",
+             flip="logical"),
          prototype(
              margin=c(.01, .05, 0, 0),
              xlas=0,
              xgp=list(),
              xaxis=FALSE,
-             autolas=FALSE
+             autolas=FALSE,
+             flip=FALSE
              ),
          validity=function(object){
              if(!(object@xlas %in% 0:3))
@@ -30,7 +32,7 @@ setGeneric("setTrackViewerStyleParam", function(tvs, attr, value)
 setMethod("setTrackViewerStyleParam", 
           signature(tvs="trackViewerStyle", attr="character", value="ANY"),
           function(tvs, attr, value){
-              if(!attr %in% c("margin", "xlas", "xgp", "xaxis", "autolas"))
+              if(!attr %in% c("margin", "xlas", "xgp", "xaxis", "autolas", "flip"))
                   stop("attr must be a slot name of trackViewerStyle")
               x <- tvs
               slot(x, attr, check = TRUE) <- value
