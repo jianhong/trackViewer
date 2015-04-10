@@ -1,4 +1,5 @@
 viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
+                       ignore.strand=TRUE,
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
                        newpage=TRUE){
     if(missing(trackList)){
@@ -23,6 +24,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         end <- GenomicRanges::end(gr)[1]
         strand <- as.character(GenomicRanges::strand(gr))[1]
     }
+    if(ignore.strand) strand <- "*"
+    if(end < start) stop("end should be greater than start.")
     
     if(class(viewerStyle)!="trackViewerStyle"){
         stop("viewerStyle must be an object of 'trackViewerStyle'.")

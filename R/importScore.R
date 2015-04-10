@@ -1,6 +1,6 @@
 importScore <- function(file, file2, 
                         format=c("BED", "bedGraph", "WIG", "BigWig"),
-                        ranges=GRanges()){
+                        ranges=GRanges(), ignore.strand=TRUE){
     if(missing(file))
         stop("file is required.")
     ##    on.exit(closeAllConnections())
@@ -12,7 +12,7 @@ importScore <- function(file, file2,
     filterByRange <- function(r){
         if(length(gr)>0){
             ## find in ranges
-            r <- r[r[1] %in% seqn, , drop=FALSE]
+            r <- r[r[, 1] %in% seqn, , drop=FALSE]
             nr <- nrow(r)
             if(nr>0){
                 ## split r and findOverlaps
@@ -24,7 +24,7 @@ importScore <- function(file, file2,
                     x <- r[f:t, , drop=FALSE]
                     xgr <- GRanges(x[,1], IRanges(start=as.numeric(x[,2]),
                                                   end=as.numeric(x[,3])))
-                    ol <- findOverlaps(xgr, gr)
+                    suppressWarnings(ol <- findOverlaps(xgr, gr, ignore.strand=ignore.strand))
                     if(length(ol)>0) idx[queryHits(ol)+i*1000] <- TRUE
                 }
                 r <- r[idx, , drop=FALSE]
@@ -32,6 +32,7 @@ importScore <- function(file, file2,
         }
         r
     }
+    
     getWigInfo <- function(firstline){
         firstline <- unlist(strsplit(firstline, "\\s"))
         firstline <- firstline[firstline!=""]
@@ -44,7 +45,7 @@ importScore <- function(file, file2,
         names(info) <- c("structure", "chrom","span","start","step")
         return(info)
     }
-    readWIG <- function(buf){
+    readWIG <- function(buf, lastWigInfo=NULL){
         ##remove browser lines and track lines
         buf <- gsub("^\\s+", "", buf)
         buf <- gsub("\\s+$", "", buf)
@@ -52,14 +53,27 @@ importScore <- function(file, file2,
         infoLine <- grep("Step", buf)
         if(length(infoLine)>0){
             if(infoLine[1]!=1){
-                ##1 line is the info line
-                stop("WIG file must contain track definition line, 
+                if(is.null(lastWigInfo[1])){
+                    ##1 line is the info line
+                    stop("WIG file must contain track definition line, 
                      which should start by variableStep or fixedStep.")
+                }else{
+                    buf <- c(lastWigInfo, buf)
+                    infoLine <- grep("Step", buf)
+                }
             }
         }else{
+            if(is.null(lastWigInfo[1])){
                 stop("WIG file must contain track definition line, 
                      which should start by variableStep or fixedStep.")
+            }else{
+                buf <- c(lastWigInfo, buf)
+                infoLine <- grep("Step", buf)
+            }
         }
+        
+        lastWigInfo <- buf[infoLine[length(infoLine)]]
+        
         while(infoLine[length(infoLine)]==length(buf)){
             buf <- buf[-length(buf)]
         }
@@ -67,7 +81,7 @@ importScore <- function(file, file2,
         dif <- diff(block)
         block <- rep(infoLine, dif)
         buf <- split(buf, block)
-        r <- pblapply(buf, function(.ele) {
+        r <- lapply(buf, function(.ele) {
             wiginfo <- getWigInfo(.ele[1])
             span <- wiginfo["span"]
             step <- as.numeric(wiginfo["step"])
@@ -87,25 +101,31 @@ importScore <- function(file, file2,
             c(wiginfo["chrom"], start, end, span, step, wiginfo["structure"])
         })
         r <- do.call(rbind, r)
+        wiginfo <- getWigInfo(lastWigInfo)
+        if(wiginfo["structure"]=="fixedStep"){
+            lastWigInfo <- gsub("start=\\d+(\\s)", 
+                                paste("start=",
+                                      as.numeric(r[nrow(r), 3])+1,
+                                      "\\1", sep=""), lastWigInfo)
+        }
         buf <- lapply(buf, "[", -1)
         buf <- CharacterList(buf, compress=TRUE)
         ## filter by range
         if(length(gr)>0){
             r <- cbind(r, rid=1:nrow(r))
             r <- filterByRange(r)
-            buf <- buf[as.numeric(r[,"rid"]),,drop=FALSE]
-            ## in case the buf is too big for each item
-            ## TODO: parseWIG at this stage.
+            buf <- buf[as.numeric(r[,"rid"])]
         }
         
-        GRanges(seqnames=r[,1], 
+        list(gr=GRanges(seqnames=r[,1], 
                 ranges=IRanges(start=as.numeric(r[,2]),
                                end=as.numeric(r[,3])),
                 score=buf,
                 span=as.numeric(r[,4]),
                 step=as.numeric(r[,5]),
-                structure=r[,6])
-            }
+                structure=r[,6]),
+             lastWigInfo=lastWigInfo)
+    }
     readBED <- function(buf){
         ##c("chrom", "chromStart", "chromEnd", "name", "score", "strand", ...)
         ##remove annotations
@@ -181,13 +201,46 @@ importScore <- function(file, file2,
             import(con=file, format="BigWig", which=gr)
         }else{
             import(con=file, format="BigWig")
-        }
+        } 
     }
-    readFile <- function(file){
-        s <- file.info(file)$size
-        buf <- readChar(file, s, useBytes=TRUE)
-        buf <- strsplit(buf, "\n", fixed=TRUE, useBytes=TRUE)[[1]]
-        return(buf)
+    readFile <- function(file, format, FUN){
+        if(format=="WIG"){
+            res <- NULL
+            con <- file(file, open="r")
+            lastWigInfo <- NULL
+            while(length(buf <- readLines(con, n=1000000, warn=FALSE))>0){
+                buf <- FUN(buf, lastWigInfo)
+                lastWigInfo <- buf$lastWigInfo
+                if(length(res)<1) {
+                    res <- buf$gr
+                }else{
+                    suppressWarnings(res <- c(res, buf$gr))
+                }
+            }
+            close(con)
+        }else{
+            s <- file.info(file)$size
+            if(s<100000000){
+                buf <- readChar(file, s, useBytes=TRUE)
+                buf <- strsplit(buf, "\n", fixed=TRUE, useBytes=TRUE)[[1]]
+                res <- FUN(buf)
+            }else{
+                message("file is too huge. Please consider to use bedtools or bedops to subset the data.")
+                res <- NULL
+                con <- file(file, open="r")
+                while(length(buf <- readLines(con, n=1000000, warn=FALSE))>0){
+                    buf <- FUN(buf)
+                    if(length(res)<1) {
+                        res <- buf
+                    }else{
+                        suppressWarnings(res <- c(res, buf))
+                    }
+                }
+                close(con)
+            }
+        }
+        res <- unique(res)
+        return(res)
     }
     readFiles <- function(file, format){
         FUN <- get(paste("read", format, sep=""))
@@ -196,9 +249,9 @@ importScore <- function(file, file2,
                 stop("rtracklayer can't read bigWig files on a Windows computer. Type in  ?`BigWigFile-class` to get the help.")
             res <- unique(FUN(file))
         }else{
-            buf <- readFile(file)
-            res <- unique(FUN(buf))
+            res <- readFile(file, format, FUN)
         }
+        return(res)
     }
     res <- readFiles(file, format)
     if(!missing(file2)){

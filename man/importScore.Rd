@@ -9,7 +9,7 @@ Read a \code{\link{track}} object from a BED, bedGraph, WIG or BigWig file
 \usage{
 importScore(file, file2, 
             format=c("BED", "bedGraph", "WIG", "BigWig"), 
-            ranges=GRanges())
+            ranges=GRanges(), ignore.strand=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,7 @@ importScore(file, file2,
   \item{format}{The format of import file. Could be BED, bedGraph, WIG or BigWig}
   \item{ranges}{An object of \code{\link[GenomicRanges]{GRanges}} to indicate
   the range to be imported}
+  \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
 }
 \value{
 a \code{\link{track}} object 

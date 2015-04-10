@@ -34,6 +34,8 @@ locateScale <- function(x, y, maxY, scale){
     start <- c()
     end <- c()
     START <- TRUE
+    y <- y[order(x)]
+    x <- x[order(x)]
     for(i in 1:length(x)){
         if(y[i]>threshold){
             if(START){
@@ -63,7 +65,11 @@ locateScale <- function(x, y, maxY, scale){
 }
 
 orderedGR <- function(gr=GRanges()){
-    gr[order(as.character(seqnames(gr)), start(gr))]
+    if(length(gr)>0){
+        gr[order(as.character(seqnames(gr)), start(gr))]
+    }else{
+        gr
+    }
 }
 
 condenceGRs <- function(gr=GRanges(), FUN=sum){
@@ -78,6 +84,9 @@ condenceGRs <- function(gr=GRanges(), FUN=sum){
 filterTracks <- function(tl, chrom, from, to, st){
     for(i in 1:length(tl)){
         if(tl[[i]]@type=="data"){
+            if(tl[[i]]@format=="WIG") {
+                tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
+            }
             dat <- tl[[i]]@dat
             tl[[i]]@dat <- dat[end(dat)>=from &
                                    start(dat)<=to &
@@ -95,9 +104,6 @@ filterTracks <- function(tl, chrom, from, to, st){
                     dat2 <- tl[[i]]@dat2
                     tl[[i]]@dat2 <- dat2[strand(dat2)==st]
                 }
-            }
-            if(tl[[i]]@format=="WIG") {
-                tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
             }
         }else{
             dat <- range(tl[[i]]@dat)

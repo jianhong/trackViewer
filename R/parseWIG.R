@@ -53,6 +53,7 @@ parseWIG <- function(trackScore, chrom, from, to){
             .ele}, res, as.numeric(names(res)))
         res <- unlist(GRangesList(res))
         names(res) <- NULL
+        if(length(res)<1) res <- GRanges(score=numeric(0))
         return(orderedGR(res))
     }
     trackScore@dat <- parser(trackScore@dat, chrom, from, to)

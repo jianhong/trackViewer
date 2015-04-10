@@ -8,6 +8,7 @@
 }
 \usage{
 viewTracks(trackList, chromosome, start, end, strand, gr=GRanges(),
+           ignore.strand=TRUE,
            viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
            newpage=TRUE)
 }
@@ -18,6 +19,7 @@ viewTracks(trackList, chromosome, start, end, strand, gr=GRanges(),
   \item{end}{end position}
   \item{strand}{strand}
   \item{gr}{an object of \code{\link[GenomicRanges]{GRanges}}}
+  \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
   \item{viewerStyle}{an object of \code{\link{trackViewerStyle}}}
   \item{autoOptimizeStyle}{should use \code{\link{optimizeStyle}} to optimize style}
   \item{newpage}{should be draw on a new page?}
