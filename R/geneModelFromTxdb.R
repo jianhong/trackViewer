@@ -50,7 +50,7 @@ geneModelFromTxdb <- function(txdb, chrom, start, end, strand=c("*", "+", "-"), 
                                                  txdump$transcripts$tx_end>start(r), , drop=FALSE]
         txdump$genes <- txdump$genes[txdump$genes$tx_id %in% txdump$transcripts$tx_id, , drop=FALSE]
         txdump$splicings <- txdump$splicings[txdump$splicings$tx_id %in% txdump$transcripts$tx_id, , drop=FALSE]
-        txdb <- do.call(makeTranscriptDb, txdump)
+        txdb <- do.call(makeTxDb, txdump)
         exons <- GeneRegionTrack(txdb, chromosome=chrom,
                                  start=start(r), end=end(r), strand=strand)##time comsuming
         exons <- exons@range
