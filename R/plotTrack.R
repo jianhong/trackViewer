@@ -63,7 +63,8 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
     return(list(x=xt, y=yt))
 }
 plotTrack <- function(name, track, curViewStyle, curYpos,
-                      yscale, height, xlim, chr, strand){
+                      yscale, height, xlim, chr, strand,
+                      operator){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
     
@@ -83,7 +84,14 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0)))
     ##put ylab
-    putYlab(curViewStyle, style, name, yHeightBottom, yHeightTop, height)
+    if(track@type=="gene" && style@ylabpos %in% c("upstream", "downstream")){
+        putGeneYlab(curViewStyle, style, name, height, xscale,
+                    range(track@dat))
+    }else{
+        if(style@ylabpos=="upstream") style@ylabpos <- "left"
+        if(style@ylabpos=="downstream") style@ylabpos <- "right"
+        putYlab(curViewStyle, style, name, yHeightBottom, yHeightTop, height)
+    }
     
     pushViewport(viewport(x=0, y=yHeightBottom, 
                           height=1 - yHeightTop - yHeightBottom,
@@ -117,7 +125,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
         }
         ##for dat2
         if(length(track@dat2)>0){
-            track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
+            if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
             xy <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2])
         }
     }else{##track@type=="gene"

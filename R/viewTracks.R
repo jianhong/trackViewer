@@ -1,7 +1,12 @@
 viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                        ignore.strand=TRUE,
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
-                       newpage=TRUE){
+                       newpage=TRUE, operator=NULL){
+    if(!is.null(operator)){
+        if(!operator %in% c("+", "-", "*", "/", "^", "%%")){
+            stop('operator must be one of "+", "-", "*", "/", "^", "%%"')
+        }
+    }
     if(missing(trackList)){
         stop("trackList is required.")
     }
@@ -34,6 +39,23 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     
     trackList <- filterTracks(trackList, chromosome, start, end, strand)
     
+    if(!is.null(operator)){
+        ##change dat as operator(dat, dat2)
+        ##dat2 no change
+        trackList <- lapply(trackList, function(.ele){
+            if(.ele@type=="data" && 
+                   length(.ele@dat2)>0 &&
+                   length(.ele@dat)>0){
+                .ele@dat <- GRoperator(.ele@dat, 
+                                       .ele@dat2, 
+                                       col="score", 
+                                       operator=operator)
+                if(operator!="+") .ele@dat2 <- GRanges()
+            }
+            .ele
+        })
+    }
+    
     if(newpage) grid.newpage()
     
     if(autoOptimizeStyle){
@@ -47,7 +69,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     ##xscale, yscale
     xscale <- c(start, end)
     
-    yscales <- getYlim(trackList)
+    yscales <- getYlim(trackList, operator)
     yHeights <- getYheight(trackList)
     
     pushViewport(viewport(x=margin[2], y=margin[1], width=1-margin[2]-margin[4],
@@ -66,7 +88,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         plotTrack(names(trackList)[i], trackList[[i]], 
                   viewerStyle, ht,
                   yscales[[i]], yHeights[i], xscale,
-                  chromosome, strand)
+                  chromosome, strand, operator)
         ht <- ht + yHeights[i]
 #        if(interactive()) setTxtProgressBar(pb, i)
     }

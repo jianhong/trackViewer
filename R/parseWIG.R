@@ -21,7 +21,7 @@ parseWIG <- function(trackScore, chrom, from, to){
                 if(structure=="variableStep"){
                     pos1 <- as.numeric(data[, 1])
                     if(is.na(span)) span <- 1
-                    pos2 <- pos1 + as.numeric(span)
+                    pos2 <- pos1 + as.numeric(span) - 1
                     score <- as.numeric(data[, 2])
                 }else{##structure=="fixedStep"
                     pos1 <- start + (1:nrow(data) - 1) * step

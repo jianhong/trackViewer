@@ -10,7 +10,7 @@
 viewTracks(trackList, chromosome, start, end, strand, gr=GRanges(),
            ignore.strand=TRUE,
            viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
-           newpage=TRUE)
+           newpage=TRUE, operator=NULL)
 }
 \arguments{
   \item{trackList}{an object of \code{\link{trackList}}}
@@ -23,6 +23,7 @@ viewTracks(trackList, chromosome, start, end, strand, gr=GRanges(),
   \item{viewerStyle}{an object of \code{\link{trackViewerStyle}}}
   \item{autoOptimizeStyle}{should use \code{\link{optimizeStyle}} to optimize style}
   \item{newpage}{should be draw on a new page?}
+  \item{operator}{operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, and so on.}
 }
 \value{
 An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}

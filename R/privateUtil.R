@@ -80,6 +80,15 @@ condenceGRs <- function(gr=GRanges(), FUN=sum){
     .gr
 }
 
+disjoinGRs <- function(gr=GRanges(), FUN=sum){
+    if(length(gr)<1) return(gr)
+    .gr <- disjoin(gr)
+    ol <- findOverlaps(.gr, gr, maxgap=0L, minoverlap=1L)
+    s <- tapply(score(gr[subjectHits(ol)]), queryHits(ol), FUN=FUN)
+    .gr$score <- 0
+    .gr$score[as.numeric(names(s))] <- s
+    .gr
+}
 
 filterTracks <- function(tl, chrom, from, to, st){
     for(i in 1:length(tl)){
@@ -88,11 +97,13 @@ filterTracks <- function(tl, chrom, from, to, st){
                 tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
             }
             dat <- tl[[i]]@dat
+            dat <- disjoinGRs(dat)
             tl[[i]]@dat <- dat[end(dat)>=from &
                                    start(dat)<=to &
                                    seqnames(dat)==chrom]
             if(length(tl[[i]]@dat2)>0){
                 dat2 <- tl[[i]]@dat2
+                dat2 <- disjoinGRs(dat2)
                 tl[[i]]@dat2 <- dat2[end(dat2)>=from &
                                         start(dat2)<=to &
                                         seqnames(dat2)==chrom]
@@ -123,7 +134,7 @@ filterTracks <- function(tl, chrom, from, to, st){
     tl
 }
 
-getYlim <- function(tl){
+getYlim <- function(tl, op){
     yscales <- lapply(tl, function(.ele){
         ylim <- .ele@style@ylim
         if(length(ylim)!=2){
@@ -133,7 +144,7 @@ getYlim <- function(tl){
                 }else{
                     ylim <- c(0, 0)
                 }
-                if(length(.ele@dat2)>0){
+                if(length(.ele@dat2)>0 && is.null(op)){
                     ylim2 <- unique(round(range(.ele@dat2$score)))
                     ylim <- c(ylim, -1*ylim2)
                 }
@@ -196,6 +207,42 @@ drawXaxis <- function(xscale, style){
     grid.xaxis(at=at, label=label, gp=gp,
                edits = gEdit(gPath="labels", rot=rot),
                draw=style@xaxis)
+}
+putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang){
+    gap <- (xscale[2] - xscale[1])/100
+    just <- style@ylabpos=="upstream"
+    strand <- as.character(strand(rang))
+    if(curViewStyle@flip){
+        if(strand=="+"){
+            x <- ifelse(just, start(rang) + gap, end(rang) - gap)
+            just <- ifelse(just, "left", "right")
+        }else{
+            x <- ifelse(just, end(rang) - gap, start(rang) + gap)
+            just <- ifelse(just, "right", "left")
+        }
+    }else{
+        if(strand=="+"){
+            x <- ifelse(just, start(rang) - gap, end(rang) + gap)
+            just <- ifelse(just, "right", "left")
+        }else{
+            x <- ifelse(just, end(rang) + gap, start(rang) - gap)
+            just <- ifelse(just, "left", "right")
+        }
+    }
+    
+    gp <- style@ylabgp
+    class(gp) <- "gpar"
+    if(is.null(gp$cex)) gp$cex <- optFontSize("z", curViewStyle, 
+                                              height=height)
+    pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                          height=1, 
+                          width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                          clip="off",
+                          just=c(0,0), 
+                          xscale=xscale))
+    grid.text(x=x, y=.5, label=name, rot=0, just=just, gp=gp, 
+              default.units="native")
+    popViewport()
 }
 
 putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height){

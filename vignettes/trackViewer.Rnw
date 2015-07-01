@@ -208,14 +208,30 @@ Y label can be also put to top or bottom of each track
 (Figure \ref{trackViewer-viewTracksYlabTopBottom}).
 <<viewTracksYlabTopBottom,fig=TRUE,include=FALSE,width=6,height=1.5>>=
 setTrackStyleParam(trackList[[1]], "ylabpos", "bottomleft")
-setTrackStyleParam(trackList[[1]], "marginBottom", .2)
-## set cex to avoid automatic adjust
 setTrackStyleParam(trackList[[2]], "ylabpos", "topright")
 setTrackStyleParam(trackList[[2]], "marginTop", .2)
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 @
 \incfig{trackViewer-viewTracksYlabTopBottom}{0.8\textwidth}{}
 {plot data with adjusted y label position}
+
+For each transcript, the transcript name can be put to upstream or downstream of
+the transcript (Figure \ref{trackViewer-viewTracksYlabUpsDown}).
+
+<<viewTracksYlabUpsDown,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+trackListN <- trackList
+setTrackStyleParam(trackListN[[3]], "ylabpos", "upstream")
+setTrackStyleParam(trackListN[[4]], "ylabpos", "downstream")
+## set cex to avoid automatic adjust
+setTrackStyleParam(trackListN[[3]], "ylabgp", list(cex=.6))
+setTrackStyleParam(trackListN[[4]], "ylabgp", list(cex=.6))
+gr1 <- range(unlist(GRangesList(sapply(trs, function(.ele) .ele$dat))))
+start(gr1) <- start(gr1) - 2000
+end(gr1) <- end(gr1) + 2000
+viewTracks(trackListN, gr=gr1, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksYlabUpsDown}{0.8\textwidth}{}
+{plot data with adjusted transcripts name position}
 
 \subsection{adjust track color}
 The track color can be changed by setting the color slot in style of each track 
@@ -230,6 +246,23 @@ viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 @
 \incfig{trackViewer-viewTracksCol}{0.8\textwidth}{}
 {plot data with adjusted track color}
+
+\subsection{adjust track height}
+The track height can be changed by setting the height slot in style of each track 
+(Figure \ref{trackViewer-viewTracksHeight}). However, the total height for all 
+the tracks should be 1.
+<<viewTracksHeight,fig=TRUE,include=FALSE,width=6,height=1.5>>=
+trackListH <- trackList
+setTrackStyleParam(trackListH[[1]], "height", .1)
+setTrackStyleParam(trackListH[[2]], "height", .44)
+for(i in 3:length(trackListH)){
+    setTrackStyleParam(trackListH[[i]], "height", 
+                       (1-(0.1+0.44))/(length(trackListH)-2))
+}
+viewTracks(trackListH, gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksHeight}{0.8\textwidth}{}
+{plot data with adjusted track height}
 
 \subsection{change track names}
 The track names such as gene model names can also be edited easily by changing the names of \Robject{trackList} 
@@ -262,10 +295,11 @@ The x-axis can be horizotally flipped for the genes in negative strand
 (Figure \ref{trackViewer-viewTracksFlipped}).
 
 <<viewTracksFlipped,fig=TRUE,include=FALSE,width=6,height=2>>=
-setTrackViewerStyleParam(viewerStyle, "flip", TRUE)
-setTrackViewerStyleParam(viewerStyle, "xaxis", TRUE)
-setTrackViewerStyleParam(viewerStyle, "margin", c(.1, .05, .01, .01))
-vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+viewerStyleF <- viewerStyle
+setTrackViewerStyleParam(viewerStyleF, "flip", TRUE)
+setTrackViewerStyleParam(viewerStyleF, "xaxis", TRUE)
+setTrackViewerStyleParam(viewerStyleF, "margin", c(.1, .05, .01, .01))
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyleF)
 addGuideLine(c(122929767, 122929969), vp=vp)
 addArrowMark(list(x=122929650,
                   y=unit(.39, "npc")),
@@ -275,6 +309,40 @@ addArrowMark(list(x=122929650,
 @
 \incfig{trackViewer-viewTracksFlipped}{0.8\textwidth}{}
 {show data in the flipped track}
+
+\section{Operators}
+If there are two tracks and we want to draw the two track by adding or substract 
+one from another, we can try operators 
+(Figure \ref{trackViewer-viewTracksOperator1},\ref{trackViewer-viewTracksOperator2}).
+
+<<viewTracksOperator1,fig=TRUE,include=FALSE,width=6,height=2>>=
+newtrack <- repA
+## must keep same format for dat and dat2
+newtrack <- parseWIG(newtrack, "chr11", 122929275, 122930122)
+newtrack$dat2 <- newtrack$dat
+newtrack$dat <- fox2$dat2
+setTrackStyleParam(newtrack, "color", c("blue", "red"))
+viewTracks(trackList(newtrack, trs), 
+           gr=gr, viewerStyle=viewerStyle, operator="+")
+@
+\incfig{trackViewer-viewTracksOperator1}{0.8\textwidth}{}
+{show data with operator "+"}
+<<viewTracksOperator2,fig=TRUE,include=FALSE,width=6,height=2>>=
+viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle, operator="-")
+@
+\incfig{trackViewer-viewTracksOperator2}{0.8\textwidth}{}
+{show data with operator "-"}
+
+Or try \Rfunction{GRoperator} before view tracks (Figure 
+\ref{trackViewer-viewTracksOperator3})).
+
+<<viewTracksOperator3,fig=TRUE,include=FALSE,width=6,height=2>>=
+newtrack$dat <- GRoperator(newtrack$dat, newtrack$dat2, col="score", operator="-")
+newtrack$dat2 <- GRanges()
+viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle)
+@
+\incfig{trackViewer-viewTracksOperator3}{0.8\textwidth}{}
+{show data with operator "-"}
 
 \clearpage
 \section{Session Info}

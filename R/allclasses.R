@@ -93,8 +93,8 @@ setClass("trackStyle",
              ylabgp=list()
          ),
          validity=function(object){
-             if(!object@ylabpos %in% c("left", "right", "topleft", "bottomleft", "topright", "bottomright"))
-                 return("ylabpos should be 'left', 'right', 'topleft', 'bottomleft', 'topright' or 'bottomright'.")
+             if(!object@ylabpos %in% c("left", "right", "topleft", "bottomleft", "topright", "bottomright", "upstream", "downstream"))
+                 return("ylabpos should be 'left', 'right', 'topleft', 'bottomleft', 'topright' or 'bottomright', 'upstream', 'downstream'.")
              if(!(object@ylablas %in% 0:3))
                 return("ylas should be numeric in {0,1,2,3}. See ?par")
              if(!object@tracktype %in% c("peak", "cluster"))

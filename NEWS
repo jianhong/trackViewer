@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.5.2
+-----------------------
+
+NEW FEATURES
+
+    o Add GRanges operators: +, -, *, /
+    o export parseWIG function.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.3.4
 -----------------------
 
