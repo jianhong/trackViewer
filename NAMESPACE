@@ -1,11 +1,13 @@
-import(methods, GenomicRanges, GenomicFeatures, grid)
+import(methods, IRanges, GenomicRanges, GenomicFeatures, grid)
 import(Rsamtools)
 import(GenomicAlignments)
-importFrom(rtracklayer, import)
 importFrom(Gviz, GeneRegionTrack)
 import(pbapply)
 importFrom(scales, rescale)
+import(gWidgets)
 import(gWidgetstcltk)
+import(rtracklayer)
+importFrom(tools, file_ext)
 
 exportClasses("pos", 
               "trackStyle",
@@ -26,6 +28,7 @@ export(addArrowMark,
        getCurTrackViewport,
        GRoperator,
        importBam,
+       importData,
        importScore,
        interactiveViewer,
        optimizeStyle,

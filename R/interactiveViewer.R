@@ -56,15 +56,15 @@ interactiveViewer <- function(trackList, chromosome, start, end, strand,
             selectedfiles <- gcheckbox("NULL", checked=TRUE, container=tmpselgp)
             
             tmp <- gframe("genomic coordinates", container=info.group, expand=TRUE, horizontal=FALSE)
-            availGenome <- c("TxDb.Athaliana.BioMart.plantsmart10", "TxDb.Athaliana.BioMart.plantsmart12", 
-                             "TxDb.Athaliana.BioMart.plantsmart14", "TxDb.Athaliana.BioMart.plantsmart16", 
-                             "TxDb.Athaliana.BioMart.plantsmart19", "TxDb.Celegans.UCSC.ce6.ensGene", 
-                             "TxDb.Dmelanogaster.UCSC.dm3.ensGene", "TxDb.Hsapiens.UCSC.hg18.knownGene", 
-                             "TxDb.Hsapiens.UCSC.hg19.knownGene", "TxDb.Hsapiens.UCSC.hg19.lincRNAsTranscripts", 
-                             "TxDb.Mmusculus.UCSC.mm10.ensGene", "TxDb.Mmusculus.UCSC.mm10.knownGene", 
-                             "TxDb.Mmusculus.UCSC.mm9.knownGene", "TxDb.Rnorvegicus.UCSC.rn4.ensGene", 
-                             "TxDb.Rnorvegicus.UCSC.rn5.refGene", "TxDb.Scerevisiae.UCSC.sacCer2.sgdGene", 
-                             "TxDb.Scerevisiae.UCSC.sacCer3.sgdGene")
+            availGenome <- c("TxDb.Athaliana.BioMart.plantsmart22", "TxDb.Athaliana.BioMart.plantsmart25",
+                            "TxDb.Celegans.UCSC.ce6.ensGene", "TxDb.Dmelanogaster.UCSC.dm3.ensGene", 
+                            "TxDb.Hsapiens.BioMart.igis", "TxDb.Hsapiens.UCSC.hg18.knownGene", 
+                            "TxDb.Hsapiens.UCSC.hg19.knownGene", "TxDb.Hsapiens.UCSC.hg19.lincRNAsTranscripts", 
+                            "TxDb.Hsapiens.UCSC.hg38.knownGene", "TxDb.Mmusculus.UCSC.mm10.ensGene", 
+                            "TxDb.Mmusculus.UCSC.mm10.knownGene", "TxDb.Mmusculus.UCSC.mm9.knownGene", 
+                            "TxDb.Rnorvegicus.BioMart.igis", "TxDb.Rnorvegicus.UCSC.rn4.ensGene", 
+                            "TxDb.Rnorvegicus.UCSC.rn5.refGene", "TxDb.Scerevisiae.UCSC.sacCer2.sgdGene", 
+                            "TxDb.Scerevisiae.UCSC.sacCer3.sgdGene")
             genome <- gradio(availGenome, selected=9, container=tmp, horizontal=FALSE)
             tmp <- gframe("genome", container=info.group, expand=TRUE, horizontal=FALSE) 
             ltmp <- ggroup(horizontal=TRUE, container=tmp)
@@ -136,7 +136,7 @@ interactiveViewer <- function(trackList, chromosome, start, end, strand,
         }
         stopped <- FALSE
         trackList <- NULL
-        if(missing(chromosome)) chromosome <- ""
+        if(missing(chromosome)) chromosome <- "chr3"
         if(missing(start)) start <- 122929275
         if(missing(end)) end <- 122930122 ##249250621
         if(missing(strand)) strand <- "*"

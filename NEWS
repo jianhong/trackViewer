@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.5.3
+-----------------------
+
+NEW FEATURES
+
+    o export importData function to import data to RleList.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.5.2
 -----------------------
 
