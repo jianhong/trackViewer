@@ -6,7 +6,7 @@ import(pbapply)
 importFrom(scales, rescale)
 import(gWidgets)
 import(gWidgetstcltk)
-import(rtracklayer)
+importFrom(rtracklayer, import)
 importFrom(tools, file_ext)
 
 exportClasses("pos", 
@@ -32,6 +32,7 @@ export(addArrowMark,
        importScore,
        interactiveViewer,
        optimizeStyle,
+       parse2GRanges,
        parseWIG,
        plotGRanges,
        trackList,
