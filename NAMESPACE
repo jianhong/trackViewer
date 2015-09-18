@@ -4,8 +4,8 @@ import(GenomicAlignments)
 importFrom(Gviz, GeneRegionTrack)
 import(pbapply)
 importFrom(scales, rescale)
-import(gWidgets)
-import(gWidgetstcltk)
+#import(gWidgets)
+#import(gWidgetstcltk)
 importFrom(rtracklayer, import)
 importFrom(tools, file_ext)
 
@@ -30,7 +30,7 @@ export(addArrowMark,
        importBam,
        importData,
        importScore,
-       interactiveViewer,
+#       interactiveViewer,
        optimizeStyle,
        parse2GRanges,
        parseWIG,

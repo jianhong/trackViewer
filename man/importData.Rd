@@ -23,9 +23,6 @@ a list of \code{\link[IRanges]{RleList}}.
 \author{
 Jianhong Ou
 }
-\seealso{
-See Also as \code{\link{interactiveViewer}}
-}
 \examples{
 #import a BED file
 bedfile <- system.file("tests", "test.bed", package="rtracklayer",
