@@ -27,7 +27,7 @@ optFontSize <- function(axis, viewerStyle, height){
     return(cex)
 }
 
-optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle()){
+optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL){
     if(missing(trackList))
         stop("trackList must be an object of 'trackList'")
     if(class(trackList)!="trackList" && 
@@ -75,5 +75,36 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle()){
     }
     ##about ylab, direction, fontsize
     viewerStyle@autolas <- TRUE
+    if(!is.null(theme)){
+        if(theme=="bw"){
+            for(i in 1:length(trackList)){
+                if(trackList[[i]]@type=="data"){
+                    trackList[[i]]@style@ylabpos="bottomleft"
+                    trackList[[i]]@style@ylabgp=list(cex=1, col="black")
+                    trackList[[i]]@style@marginBottom=.2
+                }else{
+                    trackList[[i]]@style@ylabpos="upstream"
+                }
+                trackList[[i]]@style@color=c("black", "black")
+                trackList[[i]]@style@yaxis@main=FALSE
+            }
+            if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
+        }
+        if(theme=="col"){
+            for(i in 1:length(trackList)){
+                if(trackList[[i]]@type=="data"){
+                    trackList[[i]]@style@ylabpos="bottomleft"
+                    trackList[[i]]@style@ylabgp=
+                        list(cex=1, col=palette()[i+1])
+                    trackList[[i]]@style@marginBottom=.2
+                }else{
+                    trackList[[i]]@style@ylabpos="upstream"
+                }
+                trackList[[i]]@style@color=rep(palette()[i+1], 2)
+                trackList[[i]]@style@yaxis@main=FALSE
+            }
+            if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
+        }
+    }
     return(list(tracks=trackList, style=viewerStyle))
 }

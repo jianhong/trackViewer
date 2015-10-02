@@ -8,11 +8,12 @@ Optimize the style of plot
 Automatic optimize the stlye of trackViewer
 }
 \usage{
-optimizeStyle(trackList, viewerStyle=trackViewerStyle())
+optimizeStyle(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
 }
 \arguments{
   \item{trackList}{An object of \code{\link{trackList}}}
   \item{viewerStyle}{An object of \code{\link{trackViewerStyle}}}
+  \item{theme}{A character string. Could be "bw" or "col".}
 }
 \value{
 a list of a \code{\link{trackList}} and a \code{\link{trackViewerStyle}}
