@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for plotting elegant track layers
-Version: 1.5.6
+Version: 1.6.0
 Date: 2015-10-02
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
