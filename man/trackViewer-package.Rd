@@ -28,8 +28,12 @@ Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
 \keyword{ package }
 \examples{
     library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(org.Hs.eg.db)
     trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
-                             "chr11", 122929275, 122930122, "-")
+                             org.Hs.eg.db,
+                             chrom="chr11", 
+                             start=122929275, 
+                             end=122930122)
     extdata <- system.file("extdata", package="trackViewer",
                        mustWork=TRUE)
     repA <- importScore(paste(extdata, "cpsf160.repA_+.wig", sep="/"),

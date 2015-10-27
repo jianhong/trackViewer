@@ -26,12 +26,17 @@ optFontSize <- function(axis, viewerStyle, height){
     if(cex < .3) cex <- .3
     return(cex)
 }
+optFontSize1 <- function(height){
+    fontHeight <- convertHeight(stringHeight("0123456789"), 
+                                unitTo="npc", valueOnly=TRUE)
+    cex <- height/3/fontHeight
+}
 
 optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL){
     if(missing(trackList))
         stop("trackList must be an object of 'trackList'")
     if(class(trackList)!="trackList" && 
-           !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
+       !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
     }
@@ -80,10 +85,15 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
             for(i in 1:length(trackList)){
                 if(trackList[[i]]@type=="data"){
                     trackList[[i]]@style@ylabpos="bottomleft"
-                    trackList[[i]]@style@ylabgp=list(cex=1, col="black")
                     trackList[[i]]@style@marginBottom=.2
+                    trackList[[i]]@style@ylabgp=
+                        list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
+                             col="black")
                 }else{
                     trackList[[i]]@style@ylabpos="upstream"
+                    trackList[[i]]@style@ylabgp=
+                        list(cex=optFontSize1(trackList[[i]]@style@height), 
+                             col="black")
                 }
                 trackList[[i]]@style@color=c("black", "black")
                 trackList[[i]]@style@yaxis@main=FALSE
@@ -94,17 +104,22 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
             for(i in 1:length(trackList)){
                 if(trackList[[i]]@type=="data"){
                     trackList[[i]]@style@ylabpos="bottomleft"
-                    trackList[[i]]@style@ylabgp=
-                        list(cex=1, col=palette()[i+1])
                     trackList[[i]]@style@marginBottom=.2
+                    trackList[[i]]@style@ylabgp=
+                        list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
+                             col=rep(palette(), ceiling(i/7))[i+1])
                 }else{
                     trackList[[i]]@style@ylabpos="upstream"
+                    trackList[[i]]@style@ylabgp=
+                        list(cex=optFontSize1(trackList[[i]]@style@height), 
+                             col=rep(palette(), ceiling(i/7))[i+1])
                 }
-                trackList[[i]]@style@color=rep(palette()[i+1], 2)
+                trackList[[i]]@style@color=
+                    rep(rep(palette(), ceiling(i/7))[i+1], 2)
                 trackList[[i]]@style@yaxis@main=FALSE
             }
             if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
         }
     }
     return(list(tracks=trackList, style=viewerStyle))
-}
+    }

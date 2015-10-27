@@ -115,8 +115,11 @@ function which uses **TranscriptDb** object as input.
 
 ```{r geneModel}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
 trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
-                         "chr11", 122929275, 122930122, "-")
+                         org.Hs.eg.db,
+                         gr=gr)
 ```
 
 ## step3 view the tracks
@@ -124,7 +127,6 @@ Use **viewTracks** function to plot data and annotation information along genomi
 **addGuideLine** or **addArrowMark** can be used to highlight the peaks.
     
 ```{r viewTracks,fig.cap='plot data and annotation information along genomic coordinates',fig.width=6,fig.height=1.5}
-gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
 viewerStyle <- trackViewerStyle()
 setTrackViewerStyleParam(viewerStyle, "margin", c(.1, .05, .02, .02))
 vp <- viewTracks(trackList(repA, fox2, trs), 
