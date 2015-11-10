@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for plotting elegant track layers
-Version: 1.7.1
+Version: 1.7.2
 Date: 2015-10-27
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
@@ -9,7 +9,7 @@ Description: visualize mapped reads along with annotation as track layers for NG
 License: GPL (>= 2)
 Depends: R (>= 3.1.0), methods, GenomicRanges, grid
 Imports: GenomicAlignments, GenomicFeatures, Gviz, pbapply, Rsamtools,
-        rtracklayer, scales, tools, IRanges, AnnotationDbi
+        rtracklayer, scales, tools, IRanges, AnnotationDbi, grImport
 Suggests: biomaRt, TxDb.Hsapiens.UCSC.hg19.knownGene, RUnit, org.Hs.eg.db,
         BiocGenerics, BiocStyle, knitr
 biocViews: Visualization

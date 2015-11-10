@@ -315,6 +315,85 @@ newtrack$dat2 <- GRanges()
 viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle)
 ```
 
+# Lolliplot
+Lolliplot is a mutation distribution graphics tool. 
+```{r lolliplot1, fig.width=6, fig.height=3}
+SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
+x <- sample.int(100, length(SNP))
+sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
+features <- GRanges("chr1", IRanges(c(1, 501, 1001), 
+                                    width=c(120, 400, 405),
+                                    names=paste0("block", 1:3)))
+lolliplot(sample.gr, features)
+```
+
+## Change lolliplot colors
+### Change the color of features.
+```{r lolliplot2, fig.width=6, fig.height=3}
+features$fill <- c("#FF8833", "#51C6E6", "#DFA32D")
+lolliplot(sample.gr, features)
+```
+
+### Change the color of lollipop.
+```{r lolliplot3, fig.width=6, fig.height=3}
+sample.gr$color <- sample.int(6, length(SNP), replace=TRUE)
+sample.gr$border <- sample(c("gray80", "gray30"), length(SNP), replace=TRUE)
+lolliplot(sample.gr, features)
+```
+
+## Change the height of features
+```{r lolliplot4, fig.width=6, fig.height=3}
+features$height <- c(0.02, 0.05, 0.08)
+lolliplot(sample.gr, features)
+```
+
+## Change the height of lolliplot
+```{r lolliplot4.1, fig.width=6, fig.height=3.5}
+sample.gr$score <- sample.int(5, length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features)
+```
+
+## Change the type of lolliplot
+
+### Google pin
+```{r lolliplot5, fig.width=6, fig.height=3}
+lolliplot(sample.gr, features, type="pin")
+sample.gr$color <- lapply(sample.gr$color, function(.ele) c(.ele, sample.int(6, 1)))
+sample.gr$border <- sample.int(6, length(SNP), replace=TRUE)
+lolliplot(sample.gr, features, type="pin")
+```
+
+### Pie plot
+```{r lolliplot6, fig.width=6, fig.height=3}
+x <- sample.int(100, length(SNP))
+sample.gr$value1 <- x
+sample.gr$value2 <- 100 - x
+## the length of color should be no less than the values number
+sample.gr$color <- rep(list(c("red", 'blue')), length(SNP))
+sample.gr$border <- "black"
+lolliplot(sample.gr, features, type="pie")
+```
+
+## Plot multiple samples
+```{r lolliplot7, fig.width=6, fig.height=6}
+SNP2 <- sample(4000:8000, 30)
+x2 <- sample.int(100, length(SNP2), replace=TRUE)
+sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)), 
+             value1=x2, value2=100-x2)
+sample2.gr$color <- rep(list(c('blue', 'green')), length(SNP2))
+sample2.gr$border <- "black"
+sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns
+mcols(sample2.gr) <- mcols(sample2.gr)[, colnames(mcols(sample.gr))]
+features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001), 
+                                    width=c(500, 500, 405),
+                                    names=paste0("block", 4:6)),
+                    fill=c("orange", "gray30", "lightblue"),
+                    height=c(0.1, 0.05, 0.08))
+lolliplot(GRangesList(A=sample.gr, B=sample2.gr), 
+          GRangesList(x=features, y=features2), 
+          type="pie")
+```
+
 # Session Info
 ```{r sessionInfo, results='asis'}
 sessionInfo()

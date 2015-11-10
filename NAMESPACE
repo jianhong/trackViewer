@@ -8,6 +8,8 @@ importFrom(scales, rescale)
 #import(gWidgets)
 #import(gWidgetstcltk)
 importFrom(rtracklayer, import)
+importFrom(grImport, readPicture, grid.picture)
+importClassesFrom(grImport, "Picture")
 importFrom(tools, file_ext)
 
 exportClasses("pos", 
@@ -32,6 +34,7 @@ export(addArrowMark,
        importData,
        importScore,
 #       interactiveViewer,
+       lolliplot,
        optimizeStyle,
        parse2GRanges,
        parseWIG,
