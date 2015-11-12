@@ -47,11 +47,12 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            type=c("circle", "pie", "pin"),
                            ratio.yx=1,
                            pin=NULL,
-                           scoreMax){
+                           scoreMax,
+                           scoreType){
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
     if(type!="pie"){
-        this.score <- if(length(percent$score)>0) ceiling(percent$score) else 1
+        this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
         if(type=="circle"){
             grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+scoreMax*ratio.yx), 
                        gp=gpar(col=border))
@@ -72,8 +73,14 @@ grid.lollipop <- function (x1=.5, y1=.5,
     }
     switch(type,
            circle={
-               for(i in 1:this.score){
-                   grid.circle(x=x2, y=y2+y3+y4/2+2*radius*ratio.yx*(i-.5),
+               if(scoreType){
+                   for(i in 1:this.score){
+                       grid.circle(x=x2, y=y2+y3+y4/2+2*radius*ratio.yx*(i-.5),
+                                   r=radius*ratio.yx, 
+                                   gp=gpar(col=border, fill=col))
+                   }
+               }else{
+                   grid.circle(x=x2, y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
                                r=radius*ratio.yx, 
                                gp=gpar(col=border, fill=col))
                }
@@ -134,7 +141,7 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
         }else{
             center <- length(this.pos)/2 + .5
         }
-        this.pos <- this.pos + ((1:length(this.pos))-center) * weight * lineW
+        this.pos <- this.pos + ((1:length(this.pos))-center) * (weight-.1) * lineW
     })
     names(adj.pos) <- NULL
     adj.pos <- unlist(adj.pos)

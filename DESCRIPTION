@@ -1,8 +1,8 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for plotting elegant track layers
-Version: 1.7.2
-Date: 2015-10-27
+Version: 1.7.3
+Date: 2015-11-11
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
 Description: visualize mapped reads along with annotation as track layers for NGS dataset such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq.

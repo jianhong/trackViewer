@@ -349,14 +349,24 @@ lolliplot(sample.gr, features)
 
 ## Change the height of lolliplot
 ```{r lolliplot4.1, fig.width=6, fig.height=3.5}
+#Note: the score value is integer less than 10
 sample.gr$score <- sample.int(5, length(sample.gr), replace = TRUE)
 lolliplot(sample.gr, features)
+```
+```{r lolliplot4.2, fig.width=6, fig.height=4.5}
+#Try score value greater than 10
+sample.gr$score <- sample.int(20, length(sample.gr), replace=TRUE)
+lolliplot(sample.gr, features)
+#Try float numeric score
+sample.gr$score <- runif(length(sample.gr))*10
+lolliplot(sample.gr, features)
+# score should not be smaller than 1
 ```
 
 ## Change the type of lolliplot
 
 ### Google pin
-```{r lolliplot5, fig.width=6, fig.height=3}
+```{r lolliplot5, fig.width=6, fig.height=4.5}
 lolliplot(sample.gr, features, type="pin")
 sample.gr$color <- lapply(sample.gr$color, function(.ele) c(.ele, sample.int(6, 1)))
 sample.gr$border <- sample.int(6, length(SNP), replace=TRUE)
@@ -369,8 +379,8 @@ x <- sample.int(100, length(SNP))
 sample.gr$value1 <- x
 sample.gr$value2 <- 100 - x
 ## the length of color should be no less than the values number
-sample.gr$color <- rep(list(c("red", 'blue')), length(SNP))
-sample.gr$border <- "black"
+sample.gr$color <- rep(list(c("#87CEFA", '#98CE31')), length(SNP))
+sample.gr$border <- "gray30"
 lolliplot(sample.gr, features, type="pie")
 ```
 
@@ -380,8 +390,8 @@ SNP2 <- sample(4000:8000, 30)
 x2 <- sample.int(100, length(SNP2), replace=TRUE)
 sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)), 
              value1=x2, value2=100-x2)
-sample2.gr$color <- rep(list(c('blue', 'green')), length(SNP2))
-sample2.gr$border <- "black"
+sample2.gr$color <- rep(list(c('#DB7575', '#FFD700')), length(SNP2))
+sample2.gr$border <- "gray30"
 sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns
 mcols(sample2.gr) <- mcols(sample2.gr)[, colnames(mcols(sample.gr))]
 features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001), 

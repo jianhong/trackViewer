@@ -44,7 +44,7 @@ lolliplot <- function(SNP.gr, features=NULL,
         lineH <- as.numeric(convertY(unit(1, "line"), "npc"))
         ## ylab
         if(length(names(SNP.gr))>0){
-            grid.text(names(SNP.gr)[i], x = 2 * lineW, 
+            grid.text(names(SNP.gr)[i], x = lineW, 
                       y = .5, rot = 90)
         }
         
@@ -77,7 +77,7 @@ lolliplot <- function(SNP.gr, features=NULL,
                       gp=gpar(col=color, fill=fill))
             popViewport()
         }
-        pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
+        pushViewport(viewport(x=1.5*lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
                               width= 1 - 6*lineW,
                               height= 1 - (bottomblank+2)*lineH,
                               xscale=c(start(ranges[i]), end(ranges[i]))))
@@ -104,8 +104,20 @@ lolliplot <- function(SNP.gr, features=NULL,
                                 xscale=c(start(ranges[i]), end(ranges[i])), 
                                 lineW=lineW)
         if(length(SNPs)>0){
-            scoreMax <- if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
+            scoreMax0 <- scoreMax <- if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
+            if(scoreMax>10) {
+                SNPs$score <- 10*SNPs$score/scoreMax 
+                scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
+            }
+            scoreType <- if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+            if(scoreMax>1 && ((!scoreType) || type=="pin") && type!="pie"){
+                grid.yaxis(vp=viewport(x=.5-lineW,
+                                       y=width+5.25*gap+scoreMax*lineW*ratio.yx/2,
+                                       width=1,
+                                       height=scoreMax*lineW*ratio.yx,
+                                       yscale=c(0, scoreMax0+.5)))
+            }
             for(m in 1:length(SNPs)){
                 this.dat <- SNPs[m]
                 color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
@@ -123,7 +135,8 @@ lolliplot <- function(SNP.gr, features=NULL,
                               type=type,
                               ratio.yx=ratio.yx,
                               pin=pin,
-                              scoreMax=(scoreMax-0.5) * lineW)
+                              scoreMax=(scoreMax-0.5) * lineW,
+                              scoreType=scoreType)
             }
             if(length(names(SNPs))>0){
                 switch(type,
