@@ -1,4 +1,4 @@
-lolliplot <- function(SNP.gr, features=NULL, 
+lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                           type=c("circle", "pie", "pin"),
                           newpage=TRUE){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
@@ -17,14 +17,18 @@ lolliplot <- function(SNP.gr, features=NULL,
     }
     len <- length(SNP.gr)
     features.name <- deparse(substitute(features))
-    if(class(features)=="GRanges"){
-        ranges <- range(features)[rep(1, len)]
+    if(length(ranges)>0){
+        stopifnot(class(ranges)=="GRanges"&length(ranges)==length(SNP.gr))
     }else{
-        if(length(features)!=len){
-            stop("if both SNP.gr and features is GRangesList,",
-                 " the lengthes of them should be identical.")
+        if(class(features)=="GRanges"){
+            ranges <- range(features)[rep(1, len)]
+        }else{
+            if(length(features)!=len){
+                stop("if both SNP.gr and features is GRangesList,",
+                     " the lengthes of them should be identical.")
+            }
+            ranges <- unlist(GRangesList(lapply(features, range)))
         }
-        ranges <- unlist(GRangesList(lapply(features, range)))
     }
     if(class(ranges)=="GRanges"){
         ##cut all SNP.gr by the range
@@ -53,6 +57,8 @@ lolliplot <- function(SNP.gr, features=NULL,
         }else{
             feature <- features
         }
+        start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
+        end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
         baseline <- max(c(unlist(feature$height)/2, .0001)) + 0.2 * lineH
         gap <- .2 * lineH
         bottomblank <- 4
@@ -86,6 +92,7 @@ lolliplot <- function(SNP.gr, features=NULL,
         
         ##baseline
         grid.lines(x=c(0, 1), y=c(baseline, baseline)) #baseline
+        
         for(m in 1:length(feature)){
             this.dat <- feature[m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color

@@ -7,7 +7,8 @@
  Plot variants and somatic mutations
 }
 \usage{
-lolliplot(SNP.gr, features = NULL, type = c("circle", "pie", "pin"), newpage = TRUE)
+lolliplot(SNP.gr, features = NULL, ranges = NULL, 
+          type = c("circle", "pie", "pin"), newpage = TRUE)
 }
 
 \arguments{
@@ -16,6 +17,9 @@ lolliplot(SNP.gr, features = NULL, type = c("circle", "pie", "pin"), newpage = T
     All the width of GRanges must be 1.
 }
   \item{features}{
+    A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.
+}
+  \item{ranges}{
     A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.
 }
   \item{type}{

@@ -4,8 +4,8 @@ author: "Jianhong Ou, Lihua Julie Zhu"
 date: "`r doc_date()`"
 package: "`r pkg_ver('trackViewer')`"
 abstract: >
-  visualize mapped reads along with annotation as track layers for NGS dataset 
-  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq.
+  Visualize mapped reads along with annotation as track layers for NGS dataset 
+  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 vignette: >
   %\VignetteIndexEntry{trackViewer Vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,12 +14,24 @@ output:
   BiocStyle::html_document
 ---
 
+```{r, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+    library(trackViewer)
+    library(rtracklayer)
+    library(Gviz)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(org.Hs.eg.db)
+    library(VariantAnnotation)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
 # Introduction
 
 There are two packages available in Bioconductor for visualizing genomic data: **rtracklayer** and **Gviz**. **rtracklayer** provides an interface to genome browsers and associated annotation tracks. **Gviz** plots data and annotation information along genomic coordinates. **TrackViewer** is a light-weighted visualization tool for generating neat figures for publication. It utilizes **Gviz**, is easy to use, and has a low memory and cpu consumption.
 
 ```{r plotComp,echo=TRUE,fig.keep='none'}
-suppressPackageStartupMessages(library(Gviz))
+library(Gviz)
 library(rtracklayer)
 library(trackViewer)
 extdata <- system.file("extdata", package="trackViewer",
@@ -404,6 +416,50 @@ lolliplot(GRangesList(A=sample.gr, B=sample2.gr),
           type="pie")
 ```
 
+## Variant Call Format (VCF) data
+```{r VCF, fig.width=6, fig.height=5}
+library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+gr <- GRanges("22", IRanges(50968014, 50970514, names="TYMP"))
+tab <- TabixFile(fl)
+vcf <- readVcf(fl, "hg19", param=gr)
+mutation.frequency <- rowRanges(vcf)
+mcols(mutation.frequency) <- cbind(mcols(mutation.frequency), 
+                                   VariantAnnotation::info(vcf))
+mutation.frequency$border <- "gray30"
+mutation.frequency$color <- 
+    ifelse(grepl("^rs", names(mutation.frequency)), "lightcyan", "lavender")
+## plot Global Allele Frequency based on AC/AN
+mutation.frequency$score <- mutation.frequency$AF*100
+seqlevelsStyle(gr) <- seqlevelsStyle(mutation.frequency) <- "UCSC" 
+trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
+                         org.Hs.eg.db,
+                         gr=gr)
+features <- c(range(trs[[1]]$dat), range(trs[[5]]$dat))
+names(features) <- c(trs[[1]]$name, trs[[5]]$name)
+features$fill <- c("lightblue", "mistyrose")
+features$height <- c(.02, .04)
+lolliplot(mutation.frequency, features, ranges=gr)
+```
+
+## Methylation data
+```{r methylation, eval=FALSE, echo=TRUE}
+library(rtracklayer)
+session <- browserSession()
+query <- ucscTableQuery(session, track="HAIB Methyl RRBS", 
+                        range=GRangesForUCSCGenome("hg19", seqnames(gr), ranges(gr)))
+tableName(query) <- tableNames(query)[1]
+methy <- track(query)
+methy <- GRanges(methy)
+```
+```{r methylation.hide, echo=FALSE}
+methy <- import(system.file("extdata", "methy.bed", package="trackViewer"), "BED")
+```
+```{r fig.width=6,fig.height=4}
+lolliplot(methy, features, ranges=gr, type="pin")
+```
 # Session Info
 ```{r sessionInfo, results='asis'}
 sessionInfo()
