@@ -48,14 +48,19 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            ratio.yx=1,
                            pin=NULL,
                            scoreMax,
-                           scoreType){
+                           scoreType,
+                           id=NA, id.col="black"){
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
     if(type!="pie"){
         this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
         if(type=="circle"){
-            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+scoreMax*ratio.yx), 
+            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
                        gp=gpar(col=border))
+            grid.lines(x=c(x2, x2), 
+                       y=c(y2+y3+y4+(this.score-.5)*2*radius*ratio.yx, 
+                           y2+y3+y4+scoreMax*ratio.yx), 
+                       gp=gpar(col="gray80", lty=3))
         }else{
             grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
                        gp=gpar(col=border))
@@ -83,6 +88,11 @@ grid.lollipop <- function (x1=.5, y1=.5,
                    grid.circle(x=x2, y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
                                r=radius*ratio.yx, 
                                gp=gpar(col=border, fill=col))
+                   if(!is.na(id)){
+                       grid.text(label=id, x=x2, 
+                                 y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
+                                 just="centre", gp=gpar(col=id.col, cex=.75))
+                   }
                }
                },
            pie=grid.pie(x=x2, y=y2+y3+y4+radius, 
@@ -91,10 +101,17 @@ grid.lollipop <- function (x1=.5, y1=.5,
                              border = border, 
                              percent=percent,
                              edges=edges),
-           pin=grid.picture(picture=pin, x=x2, 
+           pin={
+               grid.picture(picture=pin, x=x2, 
                             y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
                             width=2*radius*ratio.yx,
-                            height=3*radius*ratio.yx+y4),
+                            height=3*radius*ratio.yx+y4)
+               if(!is.na(id)){
+                   grid.text(label=id, x=x2, 
+                             y=y2+y3+(this.score-.25)*2*radius*ratio.yx+2*y4/3,
+                             just="centre", gp=gpar(col=id.col, cex=.5))
+               }
+               },
            grid.pie(x=x2, y=y2+y3+y4+radius, 
                     radius = radius, 
                     col = col, 
@@ -141,7 +158,15 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
         }else{
             center <- length(this.pos)/2 + .5
         }
-        this.pos <- this.pos + ((1:length(this.pos))-center) * (weight-.1) * lineW
+        if(length(this.pos)>5){ ## too much, how to jitter?
+            this.pos <- this.pos + 
+                ((1:length(this.pos))-center) * (weight-.1) * 
+                lineW/ceiling(log(length(this.pos), 5))
+        }else{
+            this.pos <- this.pos + 
+                ((1:length(this.pos))-center) * (weight-.1) * lineW
+        }
+        this.pos
     })
     names(adj.pos) <- NULL
     adj.pos <- unlist(adj.pos)

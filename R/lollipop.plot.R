@@ -1,6 +1,6 @@
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                           type=c("circle", "pie", "pin"),
-                          newpage=TRUE){
+                          newpage=TRUE, ylab=TRUE, yaxis=TRUE){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -47,8 +47,15 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         lineW <- as.numeric(convertX(unit(1, "line"), "npc"))
         lineH <- as.numeric(convertY(unit(1, "line"), "npc"))
         ## ylab
-        if(length(names(SNP.gr))>0){
-            grid.text(names(SNP.gr)[i], x = lineW, 
+        if(is.logical(ylab)){
+            if(ylab && length(names(SNP.gr))>0){
+                grid.text(names(SNP.gr)[i], x = lineW, 
+                          y = .5, rot = 90)
+            }
+        }
+        if(is.character(ylab)){
+            if(length(ylab)==1) ylab <- rep(ylab, len)
+            grid.text(ylab[i], x = lineW,
                       y = .5, rot = 90)
         }
         
@@ -83,8 +90,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       gp=gpar(col=color, fill=fill))
             popViewport()
         }
-        pushViewport(viewport(x=1.5*lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
-                              width= 1 - 6*lineW,
+        pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
+                              width= 1 - 7*lineW,
                               height= 1 - (bottomblank+2)*lineH,
                               xscale=c(start(ranges[i]), end(ranges[i]))))
         ## axis
@@ -118,7 +125,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
             scoreType <- if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            if(scoreMax>1 && ((!scoreType) || type=="pin") && type!="pie"){
+            if(yaxis && 
+               scoreMax>1 && ((!scoreType) || type=="pin") && type!="pie"){
                 grid.yaxis(vp=viewport(x=.5-lineW,
                                        y=width+5.25*gap+scoreMax*lineW*ratio.yx/2,
                                        width=1,
@@ -130,6 +138,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
                 border <- if(is.list(this.dat$border)) this.dat$border[[1]] else this.dat$border
                 fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
+                id <- if(is.character(this.dat$label)) this.dat$label else NA
+                id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
                 grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
                               y1=baseline,
                               x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), y2=width,
@@ -143,7 +153,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                               ratio.yx=ratio.yx,
                               pin=pin,
                               scoreMax=(scoreMax-0.5) * lineW,
-                              scoreType=scoreType)
+                              scoreType=scoreType,
+                              id=id, id.col=id.col)
             }
             if(length(names(SNPs))>0){
                 switch(type,

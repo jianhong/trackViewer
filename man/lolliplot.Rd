@@ -8,7 +8,8 @@
 }
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, 
-          type = c("circle", "pie", "pin"), newpage = TRUE)
+          type = c("circle", "pie", "pin"), newpage = TRUE,
+          ylab=TRUE, yaxis=TRUE)
 }
 
 \arguments{
@@ -27,6 +28,12 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 }
   \item{newpage}{
   plot in the new page or not.
+}
+  \item{ylab}{
+  plot ylab or not. If it is a character vector, the vector will be used as ylab.
+}
+  \item{yaxis}{
+  plot yaxis or not.
 }
 }
 \details{

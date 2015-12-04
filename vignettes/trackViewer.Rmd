@@ -353,6 +353,14 @@ sample.gr$border <- sample(c("gray80", "gray30"), length(SNP), replace=TRUE)
 lolliplot(sample.gr, features)
 ```
 
+
+### Add index labels in the node
+```{r lolliplot.index, fig.width=6, fig.height=3}
+sample.gr$label <- as.character(1:length(sample.gr))
+sample.gr$label.col <- "white"
+lolliplot(sample.gr, features)
+```
+
 ## Change the height of features
 ```{r lolliplot4, fig.width=6, fig.height=3}
 features$height <- c(0.02, 0.05, 0.08)
@@ -387,6 +395,9 @@ lolliplot(sample.gr, features, type="pin")
 
 ### Pie plot
 ```{r lolliplot6, fig.width=6, fig.height=3}
+sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns
+sample.gr$label <- NULL
+sample.gr$label.col <- NULL
 x <- sample.int(100, length(SNP))
 sample.gr$value1 <- x
 sample.gr$value2 <- 100 - x
@@ -404,7 +415,6 @@ sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)),
              value1=x2, value2=100-x2)
 sample2.gr$color <- rep(list(c('#DB7575', '#FFD700')), length(SNP2))
 sample2.gr$border <- "gray30"
-sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns
 mcols(sample2.gr) <- mcols(sample2.gr)[, colnames(mcols(sample.gr))]
 features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001), 
                                     width=c(500, 500, 405),
