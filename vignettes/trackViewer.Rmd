@@ -354,7 +354,7 @@ lolliplot(sample.gr, features)
 ```
 
 
-### Add index labels in the node
+## Add index labels in the node
 ```{r lolliplot.index, fig.width=6, fig.height=3}
 sample.gr$label <- as.character(1:length(sample.gr))
 sample.gr$label.col <- "white"
@@ -381,6 +381,31 @@ lolliplot(sample.gr, features)
 sample.gr$score <- runif(length(sample.gr))*10
 lolliplot(sample.gr, features)
 # score should not be smaller than 1
+```
+
+## Customize xaxis label positions
+```{r lolliplot.xaxis, fig.width=6, fig.height=4.5}
+xaxis <- c(1, 200, 400, 701, 1000, 1200, 1402) ## define the position
+lolliplot(sample.gr, features, xaxis=xaxis)
+names(xaxis) <- xaxis # define the labels
+names(xaxis)[4] <- "center" 
+lolliplot(sample.gr, features, xaxis=xaxis)
+```
+
+## Add legend
+```{r lolliplot.legend, fig.width=6, fig.height=5}
+legend <- 1:6 ## legend fill color
+names(legend) <- paste0("legend", letters[1:6]) ## legend labels
+lolliplot(sample.gr, features, legend=legend)
+## use list to define more attributes. see ?grid::gpar to get more details.
+legend <- list(labels=paste0("legend", LETTERS[1:6]), 
+               col=palette()[6:1], 
+               fill=palette()[legend])
+lolliplot(sample.gr, features, legend=legend)
+## if you have multiple tracks, try to set the legend by list.
+## see more in section [Plot multiple samples](#plot-multiple-samples)
+legend <- list(legend)
+lolliplot(sample.gr, features, legend=legend)
 ```
 
 ## Change the type of lolliplot
@@ -421,9 +446,11 @@ features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001),
                                     names=paste0("block", 4:6)),
                     fill=c("orange", "gray30", "lightblue"),
                     height=c(0.1, 0.05, 0.08))
+legends <- list(list(labels=c("WT", "MUT"), fill=c("#87CEFA", '#98CE31')), 
+                list(labels=c("WT", "MUT"), fill=c('#DB7575', '#FFD700')))
 lolliplot(GRangesList(A=sample.gr, B=sample2.gr), 
           GRangesList(x=features, y=features2), 
-          type="pie")
+          type="pie", legend=legends)
 ```
 
 ## Variant Call Format (VCF) data

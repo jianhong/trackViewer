@@ -9,7 +9,7 @@
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, 
           type = c("circle", "pie", "pin"), newpage = TRUE,
-          ylab=TRUE, yaxis=TRUE)
+          ylab=TRUE, yaxis=TRUE, xaxis=TRUE, legend=NULL, ...)
 }
 
 \arguments{
@@ -34,6 +34,18 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 }
   \item{yaxis}{
   plot yaxis or not.
+}
+  \item{xaxis}{
+  plot xaxis or not. If it is a numeric vector with length greater than 1, 
+  the vector will be used as the 
+  points at which tick-marks are to be drawn. And the names of the vector will be
+  used to as labels to be placed at the tick points if it has names. 
+}
+  \item{legend}{
+  If it is a list with named color vectors, a legend will be added.
+}
+  \item{...}{
+  not used.
 }
 }
 \details{

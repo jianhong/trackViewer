@@ -1,6 +1,7 @@
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
-                          type=c("circle", "pie", "pin"),
-                          newpage=TRUE, ylab=TRUE, yaxis=TRUE){
+                      type=c("circle", "pie", "pin"),
+                      newpage=TRUE, ylab=TRUE, yaxis=TRUE,
+                      xaxis=TRUE, legend=NULL, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -16,6 +17,35 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         names(SNP.gr) <- SNP.gr.name
     }
     len <- length(SNP.gr)
+    if(length(legend)>0){
+        if(!is.list(legend)){
+            tmp <- legend
+            legend <- list()
+            length(legend) <- len
+            legend[[len]] <- tmp
+            rm(tmp)
+        }else{
+            if(length(legend)==1){
+                tmp <- legend[[1]]
+                legend <- list()
+                length(legend) <- len
+                legend[[len]] <- tmp
+                rm(tmp)
+            }else{
+                if("labels" %in% names(legend)){
+                    tmp <- legend
+                    legend <- list()
+                    length(legend) <- len
+                    legend[[len]] <- tmp
+                    rm(tmp)
+                }else{
+                    if(length(legend)<len){
+                        length(legend) <- len
+                    }
+                }
+            }
+        }
+    }
     features.name <- deparse(substitute(features))
     if(length(ranges)>0){
         stopifnot(class(ranges)=="GRanges"&length(ranges)==length(SNP.gr))
@@ -70,7 +100,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         gap <- .2 * lineH
         bottomblank <- 4
         if(length(names(feature))>0){
-            sW <- max(as.numeric(convertX(stringWidth(names(feature)), "line"))) + 1
+            sW <- max(as.numeric(convertX(stringWidth(names(feature)), "line"))) + 3
             ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
                               sW / as.numeric(convertX(stringWidth("W"), "line")))
             bottomblank <- max(ceiling(length(names(feature)) / ncol), 4)
@@ -95,7 +125,14 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                               height= 1 - (bottomblank+2)*lineH,
                               xscale=c(start(ranges[i]), end(ranges[i]))))
         ## axis
-        grid.xaxis()
+        if(length(xaxis)==1 && as.logical(xaxis)) {
+            grid.xaxis()
+        }
+        if(length(xaxis)>1 && is.numeric(xaxis)){
+            xaxisLabel <- names(xaxis)
+            if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
+            grid.xaxis(at=xaxis, label=xaxisLabel)
+        }
         
         ##baseline
         grid.lines(x=c(0, 1), y=c(baseline, baseline)) #baseline
@@ -177,6 +214,79 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                      label = names(SNPs), rot=90, just="left", 
                                      default.units = "native")
                        })
+            }
+            ## legend
+            if(length(legend[[i]])>0){
+                switch(type,
+                       circle={
+                           if(length(names(SNPs))>0){
+                               maxStrHeight <- 
+                                   max(as.numeric(
+                                       convertY(stringWidth(names(SNPs)), "npc")
+                                       ))+lineW/2
+                           }else{
+                               maxStrHeight <- 0
+                           }
+                           ypos <- width + lineW*max(ratio.yx, 1.2) + 6.5*gap + 
+                               (scoreMax-0.5) * lineW * ratio.yx + maxStrHeight
+                       },
+                       pin={
+                           if(length(names(SNPs))>0){
+                               thisStrHeight <- as.numeric(
+                                   convertY(stringWidth(names(SNPs)), "npc"))+lineW/2
+                           }else{
+                               thisStrHeight <- 0
+                           }
+                           if(length(SNPs$score)>0){
+                               ypos <- 
+                                   max(width + lineW*max(ratio.yx, 1.2) + 
+                                           6.5*gap + 
+                                           (SNPs$score-0.5) * lineW * ratio.yx + 
+                                           thisStrHeight)
+                           }else{
+                               ypos <- max(width + lineW*max(ratio.yx, 1.2) + 
+                                               6.5*gap + thisStrHeight)
+                           }
+                       },
+                       pie={
+                           if(length(names(SNPs))>0){
+                               maxStrHeight <- 
+                                   max(as.numeric(
+                                       convertY(stringWidth(names(SNPs)), "npc")
+                                   ))+lineW/2
+                           }else{
+                               maxStrHeight <- 0
+                           }
+                           ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap + maxStrHeight
+                       }
+                       )
+                if(is.list(legend[[i]])){
+                    thisLabels <- legend[[i]][["labels"]]
+                    gp <- legend[[i]][names(legend[[i]])!="labels"]
+                    class(gp) <- "gpar"
+                }else{
+                    thisLabels <- names(legend[[i]])
+                    gp <- gpar(fill=legend[[i]]) 
+                }
+                if(length(thisLabels)>0){
+                    sW <- 
+                        max(as.numeric(convertX(stringWidth(thisLabels), 
+                                                "line"))) + 3
+                    ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
+                                      sW / as.numeric(convertX(stringWidth("W"),
+                                                               "line")))
+                    topblank <- ceiling(length(thisLabels) / ncol)
+                    pushViewport(viewport(x=.5, y=ypos+topblank*lineH/2, 
+                                          width=1,
+                                          height=topblank*lineH,
+                                          just="bottom"))
+                    grid.legend(label=thisLabels, ncol=ncol,
+                                byrow=TRUE, vgap=unit(.2, "lines"),
+                                pch=21,
+                                gp=gp)
+                    popViewport()
+                }
             }
         }
         
