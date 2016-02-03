@@ -33,10 +33,16 @@ importData <-
     if(length(BigWigs)>0){
         ## import by rtracklayer
         ### if format == "BigWig"
-        covBW <- sapply(BigWigs, import, 
-                       format="BigWig", 
-                       which=ranges, 
-                       as="RleList")
+        ## rtracklayer can't read bigWig files on a Windows computer. 
+        ## Type in  ?`BigWigFile-class` to get the help.
+        if (.Platform$OS.type != "windows") {
+            covBW <- sapply(BigWigs, import, 
+                            format="BigWig", 
+                            which=ranges, 
+                            as="RleList")
+        }else{
+            stop("Can not import the bigWig files on a Windows computer.")
+        }
     }
     if(length(BEDs)>0){
         covBED <- sapply(BEDs, importScore, 

@@ -1,7 +1,8 @@
-lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
-                      type=c("circle", "pie", "pin"),
-                      newpage=TRUE, ylab=TRUE, yaxis=TRUE,
-                      xaxis=TRUE, legend=NULL, cex=1, ...){
+dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
+                      type=c("fan", "circle", "pie", "pin"),
+                      newpage=TRUE, ylab=TRUE, 
+                      xaxis=TRUE, legend=NULL, 
+                      cex=1, maxgaps=1/50, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -116,9 +117,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             pch <- if(length(unlist(feature.s$pch))==length(feature.s)) 
                 unlist(feature.s$pch) else 22
             grid.legend(label=names(feature.s), ncol=ncol,
-                      byrow=TRUE, vgap=unit(.2, "lines"),
-                      pch=pch,
-                      gp=gpar(col=color, fill=fill))
+                        byrow=TRUE, vgap=unit(.2, "lines"),
+                        pch=pch,
+                        gp=gpar(col=color, fill=fill))
             popViewport()
         }
         pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
@@ -149,124 +150,67 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       just="left", gp=gpar(col=color, fill=fill), default.units = "native")
         }
         SNPs <- SNP.gr[[i]]
-        strand(SNPs) <- "*"
-        SNPs <- sort(SNPs)
-        width <- 2 * baseline + 2*gap
-        lab.pos <- jitterLables(start(SNPs), 
-                                xscale=c(start(ranges[i]), end(ranges[i])), 
-                                lineW=lineW*cex)
         if(length(SNPs)>0){
-            scoreMax0 <- scoreMax <- if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
-            if(scoreMax>10) {
-                SNPs$score <- 10*SNPs$score/scoreMax 
-                scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
-            }
-            scoreType <- if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
+            strand(SNPs) <- "*"
+            SNPs <- sort(SNPs)
+            width <- 2 * baseline + 2*gap
+            SNPs.gap <- gaps(SNPs)
+            SNPs.gap <- SNPs.gap[as.character(seqnames(SNPs.gap)) %in% as.character(seqnames(ranges[i])) & as.character(strand(SNPs.gap))=="*" & start(SNPs.gap)>=start(ranges[i]) & end(SNPs.gap)<=end(ranges[i])]
+            SNPs.gap$w <- width(SNPs.gap)
+            range.width <- floor(width(ranges[i])*maxgaps)
+            SNPs.groups <- SNPs
+            mcols(SNPs.groups) <- NULL
+            SNPs.groups$w <- 0
+            SNPs.groups$idx <- 1:length(SNPs)
+            SNPs.gap$idx <- 0
+            SNPs.groups <- sort(c(SNPs.gap, SNPs.groups))
+            SNPs.groups$gps <- cumsum(SNPs.groups$w >=range.width)
+            SNPs.groups <- SNPs.groups[SNPs.groups$idx>0]
+            SNPs.groups <- SNPs.groups[order(SNPs.groups$idx)]
+            SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), lineW, width, cex)
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            if(yaxis && 
-               scoreMax>1 && ((!scoreType) || type=="pin") && type!="pie"){
-                grid.yaxis(vp=viewport(x=.5-lineW,
-                                       y=width+5.25*gap+scoreMax*lineW*ratio.yx/2*cex,
-                                       width=1,
-                                       height=scoreMax*lineW*ratio.yx*cex,
-                                       yscale=c(0, scoreMax0+.5)))
-            }
+            scoreMax <- max(SNPs.groups$Y2)
             for(m in 1:length(SNPs)){
                 this.dat <- SNPs[m]
+                this.dat.grp <- SNPs.groups[m]
                 color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
                 border <- if(is.list(this.dat$border)) this.dat$border[[1]] else this.dat$border
                 fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
                 lwd <- if(is.list(this.dat$lwd)) this.dat$lwd[[1]] else this.dat$lwd
                 id <- if(is.character(this.dat$label)) this.dat$label else NA
                 id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
-                grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
-                              y1=baseline,
-                              x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), y2=width,
-                              y3=4*gap, y4=2.5*gap, 
+                grid.dandelion(x0=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
+                              y0=baseline,
+                              x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]),
+                              y1=this.dat.grp$Y1,
+                              x2=(this.dat.grp$X2-start(ranges[i]))/width(ranges[i]), 
+                              y2=this.dat.grp$Y2, 
                               radius=cex*lineW/2,
                               col=color,
                               border=border,
                               percent=mcols(this.dat),
                               edges=100,
+                              alpha=this.dat.grp$alpha,
                               type=type,
                               ratio.yx=ratio.yx,
                               pin=pin,
-                              scoreMax=(scoreMax-0.5) * lineW,
-                              scoreType=scoreType,
-                              id=id, id.col=id.col,
+                              scoreMax=scoreMax,
+                              id=id, id.col=id.col, 
+                              name=names(this.dat), 
                               cex=cex, lwd=lwd)
-            }
-            if(length(names(SNPs))>0){
-                switch(type,
-                       circle={
-                           grid.text(x=lab.pos, 
-                                     y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap + (scoreMax-0.5) * lineW * ratio.yx, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
-                       },
-                       pin={
-                           this.scores <- if(length(SNPs$score)>0) ceiling(SNPs$score) else .5
-                           this.scores[is.na(this.scores)] <- .5
-                           grid.text(x=lab.pos, 
-                                     y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap + (this.scores-0.5) * lineW * ratio.yx, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
-                       },
-                       pie={
-                           grid.text(x=lab.pos, y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
-                       })
             }
             ## legend
             if(length(legend[[i]])>0){
-                switch(type,
-                       circle={
-                           if(length(names(SNPs))>0){
-                               maxStrHeight <- 
-                                   max(as.numeric(
-                                       convertY(stringWidth(names(SNPs)), "npc")
-                                       ))+lineW/2
-                           }else{
-                               maxStrHeight <- 0
-                           }
-                           ypos <- width + lineW*max(ratio.yx, 1.2) + 6.5*gap + 
-                               (scoreMax-0.5) * lineW * ratio.yx + maxStrHeight
-                       },
-                       pin={
-                           if(length(names(SNPs))>0){
-                               thisStrHeight <- as.numeric(
-                                   convertY(stringWidth(names(SNPs)), "npc"))+lineW/2
-                           }else{
-                               thisStrHeight <- 0
-                           }
-                           if(length(SNPs$score)>0){
-                               ypos <- 
-                                   max(width + lineW*max(ratio.yx, 1.2) + 
-                                           6.5*gap + 
-                                           (SNPs$score-0.5) * lineW * ratio.yx + 
-                                           thisStrHeight)
-                           }else{
-                               ypos <- max(width + lineW*max(ratio.yx, 1.2) + 
-                                               6.5*gap + thisStrHeight)
-                           }
-                       },
-                       pie={
-                           if(length(names(SNPs))>0){
-                               maxStrHeight <- 
-                                   max(as.numeric(
-                                       convertY(stringWidth(names(SNPs)), "npc")
-                                   ))+lineW/2
-                           }else{
-                               maxStrHeight <- 0
-                           }
-                           ypos <- width + lineW*max(ratio.yx, 1.2) + 
-                               6.5*gap + maxStrHeight
-                       }
-                       )
+                if(length(names(SNPs))>0){
+                    maxStrHeight <- 
+                        max(as.numeric(
+                            convertY(stringWidth(names(SNPs)), "npc")
+                        ))+lineW/2
+                }else{
+                    maxStrHeight <- 0
+                }
+                ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                    (scoreMax-0.5) * lineW * ratio.yx + maxStrHeight
                 if(is.list(legend[[i]])){
                     thisLabels <- legend[[i]][["labels"]]
                     gp <- legend[[i]][names(legend[[i]])!="labels"]

@@ -497,6 +497,39 @@ methy <- import(system.file("extdata", "methy.bed", package="trackViewer"), "BED
 ```{r fig.width=6,fig.height=4}
 lolliplot(methy, features, ranges=gr, type="pin")
 ```
+
+## Change node size
+In above sample, some of the nodes overlap each other. To change the node size, cex prameter could be used.
+```{r fig.width=6,fig.height=2.5}
+methy$lwd <- .5
+lolliplot(methy, features, ranges=gr, type="pin", cex=.5)
+lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
+lolliplot(methy, features, ranges=gr, type="pie", cex=.5)
+```
+
+# Dandelion Plot
+Sometimes, there are too many SNPs invoved in one gene. If you want to plot such as more than handred SNPs, Dandelion plot may be the good chioce. Please note, the height of the dandelion means the desity of the SNPs.
+```{r fig.width=6,fig.height=3}
+dandelion.plot(methy, features, ranges=gr, type="pin")
+```
+
+## change the type of Dandelion plot
+There are one more type for dandelion plot, type "fan". The eare of the fan can indicate the percentage of methylation or rate of mutation.
+```{r fig.width=6,fig.height=3}
+methy$color <- 3
+methy$border <- "gray"
+## score info is required, the score must be a number in [0, 1]
+methy$score <- methy$score/max(methy$score)
+dandelion.plot(methy, features, ranges=gr, type="fan")
+```
+
+## change the number of dandelions
+```{r fig.width=6,fig.height=3}
+## want less
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
+## want more
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
+```
 # Session Info
 ```{r sessionInfo, results='asis'}
 sessionInfo()

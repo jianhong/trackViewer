@@ -3,7 +3,8 @@ grid.pie <- function (x=.5, y=.5,
                       col=NULL,
                       border=NULL,
                       percent=NULL,
-                      edges=100) {
+                      edges=100,
+                      lwd=1) {
     if(length(percent)>0) percent <- unlist(percent[, sapply(percent, is.numeric)])
     if(length(percent)<1){
         percent <- 1
@@ -27,7 +28,7 @@ grid.pie <- function (x=.5, y=.5,
     for (i in 1L:nx) {
         n <- max(2, floor(edges * dx[i]))
         P <- t2xy(seq.int(percent[i], percent[i + 1], length.out = n))
-        grid.polygon(unit(c(P$x, 0)+x,"npc"), unit(c(P$y, 0)+y, "npc"), gp=gpar(col = border[i], fill = col[i]))
+        grid.polygon(unit(c(P$x, 0)+x,"npc"), unit(c(P$y, 0)+y, "npc"), gp=gpar(col = border[i], fill = col[i], lwd=lwd))
     }
     invisible(NULL)
 }
@@ -49,7 +50,8 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            pin=NULL,
                            scoreMax,
                            scoreType,
-                           id=NA, id.col="black"){
+                           id=NA, id.col="black",
+                           cex=1, lwd=1){
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
     if(type!="pie"){
@@ -82,25 +84,26 @@ grid.lollipop <- function (x1=.5, y1=.5,
                    for(i in 1:this.score){
                        grid.circle(x=x2, y=y2+y3+y4/2+2*radius*ratio.yx*(i-.5),
                                    r=radius*ratio.yx, 
-                                   gp=gpar(col=border, fill=col))
+                                   gp=gpar(col=border, fill=col, lwd=lwd))
                    }
                }else{
                    grid.circle(x=x2, y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
                                r=radius*ratio.yx, 
-                               gp=gpar(col=border, fill=col))
+                               gp=gpar(col=border, fill=col, lwd=lwd))
                    if(!is.na(id)){
                        grid.text(label=id, x=x2, 
                                  y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
-                                 just="centre", gp=gpar(col=id.col, cex=.75))
+                                 just="centre", gp=gpar(col=id.col, cex=.75*cex))
                    }
                }
                },
            pie=grid.pie(x=x2, y=y2+y3+y4+radius, 
-                             radius = radius, 
-                             col = col, 
-                             border = border, 
-                             percent=percent,
-                             edges=edges),
+                        radius = radius, 
+                        col = col, 
+                        border = border, 
+                        percent=percent,
+                        edges=edges,
+                        lwd=lwd),
            pin={
                grid.picture(picture=pin, x=x2, 
                             y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
@@ -109,7 +112,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                if(!is.na(id)){
                    grid.text(label=id, x=x2, 
                              y=y2+y3+(this.score-.25)*2*radius*ratio.yx+2*y4/3,
-                             just="centre", gp=gpar(col=id.col, cex=.5))
+                             just="centre", gp=gpar(col=id.col, cex=.5*cex))
                }
                },
            grid.pie(x=x2, y=y2+y3+y4+radius, 
@@ -117,7 +120,8 @@ grid.lollipop <- function (x1=.5, y1=.5,
                     col = col, 
                     border = border, 
                     percent=percent,
-                    edges=edges))
+                    edges=edges,
+                    lwd=lwd))
 }
 
 jitterLables <- function(coor, xscale, lineW, weight=1.2){
@@ -137,7 +141,9 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
     idx.grp <- rle(idx.diff)
     idx.grp$values[idx.grp$values==1] <- length(pos) + 1:sum(idx.grp$values==1)
     idx.grp <- inverse.rle(idx.grp)
-    idx.grp[which(idx.grp>length(pos))-1] <- idx.grp[idx.grp>length(pos)]
+    idx.grp.w <- which(idx.grp>length(pos))-1
+    idx.grp.w <- idx.grp.w[idx.grp.w>0]
+    idx.grp[idx.grp.w] <- idx.grp[idx.grp.w+1]
     idx.grp <- split(idx, idx.grp)
     flag <- as.numeric(names(idx.grp))>length(pos)
     idx.grp.mul <- lapply(idx.grp[flag], function(.ele){
