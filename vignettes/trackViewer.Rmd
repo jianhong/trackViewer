@@ -420,7 +420,7 @@ lolliplot(sample.gr, features, type="pin")
 
 ### Pie plot
 ```{r lolliplot6, fig.width=6, fig.height=3}
-sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns
+sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns except column "color", "fill", "lwd", "id" and "id.col".
 sample.gr$label <- NULL
 sample.gr$label.col <- NULL
 x <- sample.int(100, length(SNP))
@@ -504,29 +504,39 @@ In above sample, some of the nodes overlap each other. To change the node size, 
 methy$lwd <- .5
 lolliplot(methy, features, ranges=gr, type="pin", cex=.5)
 lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
+methy$score2 <- max(methy$score) - methy$score
 lolliplot(methy, features, ranges=gr, type="pie", cex=.5)
 ```
 
 # Dandelion Plot
 Sometimes, there are too many SNPs invoved in one gene. If you want to plot such as more than handred SNPs, Dandelion plot may be the good chioce. Please note, the height of the dandelion means the desity of the SNPs.
-```{r fig.width=6,fig.height=3}
+```{r fig.width=4.5,fig.height=3}
 dandelion.plot(methy, features, ranges=gr, type="pin")
 ```
 
 ## change the type of Dandelion plot
-There are one more type for dandelion plot, type "fan". The eare of the fan can indicate the percentage of methylation or rate of mutation.
-```{r fig.width=6,fig.height=3}
+There are one more type for dandelion plot, type "fan". The area of the fan indicate the percentage of methylation or rate of mutation.
+```{r fig.width=4.5,fig.height=3}
 methy$color <- 3
 methy$border <- "gray"
 ## score info is required, the score must be a number in [0, 1]
-methy$score <- methy$score/max(methy$score)
+m <- max(methy$score)
+methy$score <- methy$score/m
 dandelion.plot(methy, features, ranges=gr, type="fan")
+```
+```{r fig.width=4.5,fig.height=4}
+methy$color <- rep(list(c(3, 5)), length(methy))
+methy$score2 <- methy$score2/m
+legends <- list(list(labels=c("s1", "s2"), fill=c(3, 5)))
+dandelion.plot(methy, features, ranges=gr, type="pie", legend=legends)
 ```
 
 ## change the number of dandelions
-```{r fig.width=6,fig.height=3}
+```{r fig.width=4.5,fig.height=2.5}
 ## want less
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
+```
+```{r fig.width=4.5,fig.height=4.5}
 ## want more
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```

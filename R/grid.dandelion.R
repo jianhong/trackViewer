@@ -7,7 +7,7 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex){
         t2p <- angle * t - (angle-pi)/2
         list(x = -rX * cos(t2p), y = rY * sin(t2p))
     }
-    Y1 <- 1:length(sg) * lineW
+    Y1 <- 1:length(sg) * lineW * ratio.yx
     radius <- sapply(sg, function(.ele) floor(width(range(.ele))/2) * ratio.Yy *ratio.yx)
     radius <- radius[order(as.numeric(names(radius)))]
     names(Y1) <- names(sg)
@@ -88,7 +88,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                          ratio.yx=ratio.yx, 
                          lwd=lwd)},
            circle={
-               grid.circle(x=x2, y=y2+radius*ratio.yx,
+               grid.circle(x=x2, y=y2,
                            r=radius*ratio.yx, 
                            gp=gpar(col=border, fill=col, lwd=lwd))
                if(!is.na(id)){
@@ -97,7 +97,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                              just="centre", gp=gpar(col=id.col, cex=.75*cex))
                }
            },
-           pie=grid.pie(x=x2, y=y2+radius, 
+           pie=grid.pie(x=x2, y=y2, 
                         radius = radius, 
                         col = col, 
                         border = border, 
@@ -106,7 +106,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                         lwd=lwd),
            pin={
                grid.picture(picture=pin, x=x2, 
-                            y=y2+radius*ratio.yx,
+                            y=y2+1.5*radius*ratio.yx,
                             width=2*radius*ratio.yx,
                             height=3*radius*ratio.yx)
                if(!is.na(id)){
@@ -115,7 +115,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                              just="centre", gp=gpar(col=id.col, cex=.5*cex))
                }
            },
-           grid.pie(x=x2, y=y2+radius, 
+           grid.pie(x=x2, y=y2, 
                     radius = radius, 
                     col = col, 
                     border = border, 
