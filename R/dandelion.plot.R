@@ -102,9 +102,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         bottomblank <- 4
         if(length(names(feature))>0){
             feature.s <- feature[!duplicated(names(feature))]
-            sW <- max(as.numeric(convertX(stringWidth(names(feature.s)), "line"))) + 3
-            ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
-                              sW / as.numeric(convertX(stringWidth("W"), "line")))
+            ncol <- getColNum(names(feature.s))
             bottomblank <- max(ceiling(length(names(feature.s)) / ncol), 4)
             pushViewport(viewport(x=.5, y=bottomblank*lineH/2, 
                                   width=1,
@@ -222,12 +220,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                     gp <- gpar(fill=legend[[i]]) 
                 }
                 if(length(thisLabels)>0){
-                    sW <- 
-                        max(as.numeric(convertX(stringWidth(thisLabels), 
-                                                "line"))) + 3
-                    ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
-                                      sW / as.numeric(convertX(stringWidth("W"),
-                                                               "line")))
+                    ncol <- getColNum(thisLabels)
                     topblank <- ceiling(length(thisLabels) / ncol)
                     pushViewport(viewport(x=.5, y=ypos+topblank*lineH/2, 
                                           width=1,

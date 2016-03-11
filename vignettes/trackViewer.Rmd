@@ -372,6 +372,8 @@ lolliplot(sample.gr, features)
 #Note: the score value is integer less than 10
 sample.gr$score <- sample.int(5, length(sample.gr), replace = TRUE)
 lolliplot(sample.gr, features)
+##remove yaxis
+lolliplot(sample.gr, features, yaxis=FALSE)
 ```
 ```{r lolliplot4.2, fig.width=6, fig.height=4.5}
 #Try score value greater than 10

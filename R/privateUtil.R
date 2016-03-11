@@ -367,3 +367,16 @@ drawXscale <- function(scale){
               just="bottom",
               default.units=scale@from@unit)
 }
+
+maxStringWidth <- function(labels, spaces="WWWWW"){
+    max(as.numeric(convertX(stringWidth(paste0(labels, spaces)), "line")))
+}
+
+getColNum <- function(labels, spaces="WWWWW"){
+    ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
+                      maxStringWidth(labels, spaces=spaces) / 
+              as.numeric(convertX(stringWidth("W"), "line")))
+    nrow <- ceiling(length(labels) / ncol)
+    ncol <- ceiling(length(labels) / nrow)
+    ncol
+}

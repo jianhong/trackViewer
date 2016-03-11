@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.7.9
+-----------------------
+    o fix the bug that legend write to outside.
+    
 CHANGES IN VERSION 1.7.8
 -----------------------
     o fix the typo in documentation.
