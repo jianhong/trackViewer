@@ -24,10 +24,10 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
     end <- start + gr@ranges@width - 1
     if(strand=="*"){
         genes <- transcripts(txdb, columns="exon_id", 
-                       vals=list(tx_chrom=chrom))
+                       filter=list(tx_chrom=chrom))
     }else{
         genes <- transcripts(txdb, columns="exon_id", 
-                       vals=list(tx_chrom=chrom, tx_strand=strand))
+                       filter=list(tx_chrom=chrom, tx_strand=strand))
     }
     ignore.strand <- strand=="*"
     ol <- findOverlaps(gr, genes, ignore.strand=ignore.strand)
