@@ -31,7 +31,7 @@ addArrowMark(pos=grid.locator(), label=NULL, angle=15,
   \item{vp}{A Grid viewport object. It must be output of \code{\link{viewTracks}}}
 }
 \value{
-NULL
+invisible x, y position value.
 }
 \author{
 Jianhong Ou
@@ -45,5 +45,10 @@ See Also as \code{\link{addGuideLine}}, \code{\link[grid:arrow]{arrow}}
                       y=unit(.5, "npc")), 
                  label="label1",
                  col="blue")
+    ## how to get the position by mouse click
+    if(interactive()){
+        pos <- addArrowMark(label="byClick")
+        addArrowMark(pos, label="samePosAsAbove")
+    }
 }
 \keyword{ ~misc }

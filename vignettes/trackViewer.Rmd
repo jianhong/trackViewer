@@ -175,12 +175,16 @@ viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 
 
 ## adjust y axis
-y-axis can be put to right side of the track by setting main slot to FALSE in y-axis slot 
-of each track.
+y-axis can be put to right side of the track by setting main slot to FALSE in y-axis slot of each track. 
+And ylim can be set by **setTrackStyleParam**. 
 ```{r viewTracksYaxis,fig.cap='plot data with y-axis in right side',fig.width=6,fig.height=1.5}
 setTrackViewerStyleParam(viewerStyle, "margin", c(.01, .05, .01, .05))
-setTrackYaxisParam(trackList[[1]], "main", FALSE)
-setTrackYaxisParam(trackList[[2]], "main", FALSE)
+for(i in 1:2){
+    setTrackYaxisParam(trackList[[i]], "main", FALSE)
+}
+## adjust y scale
+setTrackStyleParam(trackList[[1]], "ylim", c(0, 25))
+setTrackStyleParam(trackList[[2]], "ylim", c(-25, 0))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 

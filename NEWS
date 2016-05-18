@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.2
+-----------------------
+    o update documentation to include the how to set ylim.
+
 CHANGES IN VERSION 1.7.9
 -----------------------
     o fix the bug that legend write to outside.
