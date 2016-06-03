@@ -122,7 +122,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
                               width= 1 - 7*lineW,
                               height= 1 - (bottomblank+2)*lineH,
-                              xscale=c(start(ranges[i]), end(ranges[i]))))
+                              xscale=c(start(ranges[i]), end(ranges[i])),
+                              clip="off"))
         ## axis
         if(length(xaxis)==1 && as.logical(xaxis)) {
             grid.xaxis()
@@ -183,6 +184,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
                 this.dat.mcols <- mcols(this.dat)
                 this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col"), drop=FALSE]
+                this.dat.mcols <- this.dat.mcols[, !grepl("^label.parameter", colnames(this.dat.mcols)), drop=FALSE]
                 grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
                               y1=baseline,
                               x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), y2=width,
@@ -200,32 +202,59 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                               id=id, id.col=id.col,
                               cex=cex, lwd=lwd)
             }
+            labels.rot <- 90
             if(length(names(SNPs))>0){
+                labels.x <- lab.pos
+                labels.text <- names(SNPs)
+                labels.just <- "left"
+                labels.hjust <- NULL
+                labels.vjust <- NULL
+                labels.check.overlap <- FALSE
+                labels.default.units <- "native"
+                labels.gp <- gpar(cex=cex)
                 switch(type,
                        circle={
-                           grid.text(x=lab.pos, 
-                                     y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + (scoreMax-0.5) * lineW * ratio.yx*cex, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
+                           labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap*cex + 
+                               (scoreMax-0.5) * lineW * ratio.yx*cex
                        },
                        pin={
                            this.scores <- if(length(SNPs$score)>0) ceiling(SNPs$score) else .5
                            this.scores[is.na(this.scores)] <- .5
-                           grid.text(x=lab.pos, 
-                                     y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + (this.scores-0.5) * lineW * ratio.yx*cex, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
+                           labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap*cex + 
+                               (this.scores-0.5) * lineW * ratio.yx*cex
                        },
                        pie={
-                           grid.text(x=lab.pos, y=width + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex, 
-                                     label = names(SNPs), rot=90, just="left", 
-                                     default.units = "native",
-                                     gp=gpar(cex=cex))
+                           labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap*cex
                        })
+                ## change the parameter by use definations.
+                for(label.parameter in c("x", "y", "just", "hjust", "vjust",
+                                         "rot", "check.overlap", "default.units",
+                                         "gp")){
+                    label.para <- paste0("label.parameter.", label.parameter)
+                    if(label.para %in% colnames(mcols(SNPs))){
+                        assign(paste0("labels.", label.parameter), 
+                               mcols(SNPs)[, label.para])
+                    }
+                }
+                labels.gp <- c(labels.gp, cex=cex)
+                labels.gp[duplicated(names(labels.gp))] <- NULL
+                labels.gp <- do.call(gpar, labels.gp)
+                
+                grid.text(x=labels.x, y=labels.y, 
+                          label = labels.text,  
+                          just=labels.just, 
+                          hjust = labels.hjust,
+                          vjust = labels.vjust,
+                          rot=labels.rot,
+                          check.overlap = labels.check.overlap,
+                          default.units = labels.default.units,
+                          gp=labels.gp)
             }
             ## legend
+            labels.length.rate <- max(cospi((labels.rot-90)/180), 0)
             if(length(legend[[i]])>0){
                 switch(type,
                        circle={
@@ -237,6 +266,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            }else{
                                maxStrHeight <- 0
                            }
+                           maxStrHeight <- maxStrHeight * labels.length.rate
                            ypos <- width + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + 
                                (scoreMax-0.5) * lineW * ratio.yx*cex + maxStrHeight*cex
                        },
@@ -247,6 +277,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            }else{
                                thisStrHeight <- 0
                            }
+                           thisStrHeight <- thisStrHeight * labels.length.rate
                            if(length(SNPs$score)>0){
                                ypos <- 
                                    max(width + lineW*max(ratio.yx, 1.2) + 
@@ -267,6 +298,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            }else{
                                maxStrHeight <- 0
                            }
+                           maxStrHeight <- maxStrHeight * labels.length.rate
                            ypos <- width + lineW*max(ratio.yx, 1.2) + 
                                6.5*gap*cex + maxStrHeight*cex
                        }

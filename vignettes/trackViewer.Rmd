@@ -414,6 +414,21 @@ legend <- list(legend)
 lolliplot(sample.gr, features, legend=legend)
 ```
 
+## Control the labels
+
+Use can control the paramters of labels by name the metadata start as 
+label.parameter.<properties>  such as label.parameter.rot, 
+label.parameter.gp. The parameter is used for \link[grid]{grid.text}.
+
+```{r lolliplot.labels.control, fig.width=6, fig.height=5}
+sample.gr.rot <- sample.gr
+sample.gr.rot$label.parameter.rot <- 45
+lolliplot(sample.gr.rot, features, legend=legend)
+sample.gr.rot$label.parameter.rot <- 60
+sample.gr.rot$label.parameter.gp <- gpar(col="brown")
+lolliplot(sample.gr.rot, features, legend=legend)
+```
+
 ## Change the type of lolliplot
 
 ### Google pin
