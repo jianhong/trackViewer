@@ -476,7 +476,7 @@ lolliplot(GRangesList(A=sample.gr, B=sample2.gr),
 ```
 
 ### pie.stack layout
-```{r lolliplot.pie.stack, fig.width=6, fig.height=6}
+```{r lolliplot.pie.stack, fig.width=6, fig.height=5}
 rand.id <- sample.int(length(sample.gr), 3*length(sample.gr), replace=TRUE)
 rand.id <- sort(rand.id)
 sample.gr.mul.patient <- sample.gr[rand.id]
