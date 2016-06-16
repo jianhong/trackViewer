@@ -45,7 +45,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            border=NULL,
                            percent=NULL,
                            edges=100,
-                           type=c("circle", "pie", "pin"),
+                           type=c("circle", "pie", "pin", "pie.stack"),
                            ratio.yx=1,
                            pin=NULL,
                            scoreMax,
@@ -54,7 +54,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            cex=1, lwd=1){
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
-    if(type!="pie"){
+    if(!type %in% c("pie", "pie.stack")){
         this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
         if(type=="circle"){
             grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
@@ -69,8 +69,18 @@ grid.lollipop <- function (x1=.5, y1=.5,
         }
         
     }else{
-        grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
-                   gp=gpar(col=border))
+        if(type=="pie.stack"){
+            if(percent$stack.factor.first){
+                grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
+                           gp=gpar(col=border))
+                grid.lines(x=c(x2, x2), 
+                           y=c(y2+y3+y4, y2+y3+y4+scoreMax*ratio.yx),
+                           gp=gpar(col="gray80", lty=3))
+            }
+        }else{
+            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
+                       gp=gpar(col=border))
+        }
     }
     
     if(length(pin)>0){
@@ -97,13 +107,23 @@ grid.lollipop <- function (x1=.5, y1=.5,
                    }
                }
                },
-           pie=grid.pie(x=x2, y=y2+y3+y4+radius, 
+           pie=grid.pie(x=x2, y=y2+y3+y4+radius*ratio.yx, 
                         radius = radius, 
                         col = col, 
                         border = border, 
                         percent=percent,
                         edges=edges,
                         lwd=lwd),
+           pie.stack=grid.pie(x=x2, 
+                              y=y2+y3+y4+(2*percent$stack.factor.order-1)*radius*ratio.yx, 
+                              radius = radius, 
+                              col = col, 
+                              border = border, 
+                              percent=percent[, !colnames(percent) %in% 
+                                                  c("stack.factor.order", 
+                                                    "stack.factor.first")],
+                              edges=edges,
+                              lwd=lwd),
            pin={
                grid.picture(picture=pin, x=x2, 
                             y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
@@ -115,7 +135,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                              just="centre", gp=gpar(col=id.col, cex=.5*cex))
                }
                },
-           grid.pie(x=x2, y=y2+y3+y4+radius, 
+           grid.pie(x=x2, y=y2+y3+y4+radius*ratio.yx, 
                     radius = radius, 
                     col = col, 
                     border = border, 

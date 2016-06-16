@@ -1,5 +1,5 @@
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
-                      type=c("circle", "pie", "pin"),
+                      type=c("circle", "pie", "pin", "pie.stack"),
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
                       xaxis=TRUE, legend=NULL, cex=1, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
@@ -151,12 +151,50 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         strand(SNPs) <- "*"
         SNPs <- sort(SNPs)
         width <- 2 * baseline + 2*gap
-        lab.pos <- jitterLables(start(SNPs), 
-                                xscale=c(start(ranges[i]), end(ranges[i])), 
-                                lineW=lineW*cex)
+        if(type=="pie.stack" && length(SNPs$stack.factor)>0){
+            stopifnot(is.vector(SNPs$stack.factor, mode="character"))
+            if(length(SNPs$stack.factor.order)>0 || 
+               length(SNPs$stack.factor.first)>0){
+                warning("stack.factor.order and stack.factor.first are used by this function!",
+                        "The values in these column will be removed.")
+            }
+            ## condense the SNPs
+            stack.factors <- unique(as.character(SNPs$stack.factor))
+            stack.factors.order <- 1:length(stack.factors)
+            names(stack.factors.order) <- stack.factors
+            SNPs <- SNPs[order(as.character(seqnames(SNPs)), start(SNPs), 
+                               as.character(SNPs$stack.factor))]
+            SNPs$stack.factor.order <- stack.factors.order[SNPs$stack.factor]
+            SNPs$stack.factor.first <- !duplicated(SNPs)
+            SNPs.condense <- SNPs
+            SNPs.condense$oid <- 1:length(SNPs)
+            SNPs.condense$factor <- paste(as.character(seqnames(SNPs)), start(SNPs), end(SNPs))
+            SNPs.condense <- split(SNPs.condense, SNPs.condense$factor)
+            SNPs.condense <- lapply(SNPs.condense, function(.ele){
+                .oid <- .ele$oid
+                .gr <- .ele[1]
+                mcols(.gr) <- NULL
+                .gr$oid <- NumericList(.oid)
+                .gr
+            })
+            SNPs.condense <- unlist(GRangesList(SNPs.condense), use.names = FALSE)
+            SNPs.condense <- sort(SNPs.condense)
+            lab.pos.condense <- jitterLables(start(SNPs.condense), 
+                                    xscale=c(start(ranges[i]), end(ranges[i])), 
+                                    lineW=lineW*cex)
+            condense.ids <- SNPs.condense$oid
+            lab.pos <- rep(lab.pos.condense, elementNROWS(condense.ids))
+            lab.pos <- lab.pos[order(unlist(condense.ids))]
+        }else{
+            lab.pos <- jitterLables(start(SNPs), 
+                                    xscale=c(start(ranges[i]), end(ranges[i])), 
+                                    lineW=lineW*cex)
+        }
+        
         if(length(SNPs)>0){
             scoreMax0 <- scoreMax <- if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
-            if(type!="pie"){
+            if(type=="pie.stack") scoreMax <- length(stack.factors)
+            if(!type %in% c("pie", "pie.stack")){
                 if(scoreMax>10) {
                     SNPs$score <- 10*SNPs$score/scoreMax 
                     scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
@@ -167,7 +205,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
             
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            if(yaxis && scoreMax>1 && type!="pie"){
+            if(yaxis && scoreMax>1 && !type %in% c("pie", "pie.stack")){
                 grid.yaxis(vp=viewport(x=.5-lineW,
                                        y=width+5.25*gap*cex+scoreMax*lineW*ratio.yx/2*cex,
                                        width=1,
@@ -183,7 +221,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 id <- if(is.character(this.dat$label)) this.dat$label else NA
                 id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
                 this.dat.mcols <- mcols(this.dat)
-                this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col"), drop=FALSE]
+                this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col", "stack.factor"), drop=FALSE]
+                if(type!="pie.stack"){
+                    this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("stack.factor.order", "stack.factor.first"), drop=FALSE]
+                }
                 this.dat.mcols <- this.dat.mcols[, !grepl("^label.parameter", colnames(this.dat.mcols)), drop=FALSE]
                 grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
                               y1=baseline,
@@ -204,6 +245,12 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
             labels.rot <- 90
             if(length(names(SNPs))>0){
+                if(type=="pie.stack"){
+                    ## unique lab.pos and SNPs
+                    idx <- !duplicated(names(SNPs))
+                    lab.pos <- lab.pos[idx]
+                    SNPs <- SNPs[idx]
+                }
                 labels.x <- lab.pos
                 labels.text <- names(SNPs)
                 labels.just <- "left"
@@ -228,6 +275,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                        pie={
                            labels.y <- width + lineW*max(ratio.yx, 1.2) + 
                                6.5*gap*cex
+                       },
+                       pie.stack={
+                           labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap*cex + 
+                               (scoreMax-0.5) * lineW * ratio.yx*cex
                        })
                 ## change the parameter by use definations.
                 for(label.parameter in c("x", "y", "just", "hjust", "vjust",
@@ -301,6 +353,20 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            maxStrHeight <- maxStrHeight * labels.length.rate
                            ypos <- width + lineW*max(ratio.yx, 1.2) + 
                                6.5*gap*cex + maxStrHeight*cex
+                       },
+                       pie.stack={
+                           if(length(names(SNPs))>0){
+                               maxStrHeight <- 
+                                   max(as.numeric(
+                                       convertY(stringWidth(names(SNPs)), "npc")
+                                   ))+lineW/2
+                           }else{
+                               maxStrHeight <- 0
+                           }
+                           maxStrHeight <- maxStrHeight * labels.length.rate
+                           ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                               6.5*gap*cex + maxStrHeight*cex +
+                               (scoreMax-0.5) * lineW * ratio.yx*cex
                        }
                        )
                 if(is.list(legend[[i]])){

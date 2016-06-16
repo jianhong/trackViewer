@@ -454,6 +454,7 @@ lolliplot(sample.gr, features, type="pie")
 ```
 
 ## Plot multiple samples
+### multiple layers
 ```{r lolliplot7, fig.width=6, fig.height=6}
 SNP2 <- sample(4000:8000, 30)
 x2 <- sample.int(100, length(SNP2), replace=TRUE)
@@ -472,6 +473,27 @@ legends <- list(list(labels=c("WT", "MUT"), fill=c("#87CEFA", '#98CE31')),
 lolliplot(GRangesList(A=sample.gr, B=sample2.gr), 
           GRangesList(x=features, y=features2), 
           type="pie", legend=legends)
+```
+### pie.stack layout
+```{r lolliplot.pie.stack, fig.width=6, fig.height=6}
+rand.id <- sample.int(length(sample.gr), 3*length(sample.gr), replace=TRUE)
+rand.id <- sort(rand.id)
+sample.gr.mul.patient <- sample.gr[rand.id]
+## pie.stack require metadata "stack.factor", and the metadata can not be 
+## stack.factor.order or stack.factor.first
+stack.factors <- paste0("patient", 1:max(table(rand.id)))
+sample.gr.mul.patient$stack.factor <- 
+    unlist(lapply(table(rand.id), sample, x=stack.factors))
+sample.gr.mul.patient$value1 <- 
+    sample.int(100, length(sample.gr.mul.patient), replace=TRUE)
+sample.gr.mul.patient$value2 <- 100 - sample.gr.mul.patient$value1
+patient.color.set <- as.list(as.data.frame(rbind(2:6, 8)))
+names(patient.color.set) <- stack.factors
+sample.gr.mul.patient$color <- 
+    patient.color.set[sample.gr.mul.patient$stack.factor]
+legend <- list(labels=stack.factors, col="gray80", 
+               fill=sapply(patient.color.set, `[`, 1))
+lolliplot(sample.gr.mul.patient, features, type="pie.stack", legend=legend)
 ```
 
 ## Variant Call Format (VCF) data

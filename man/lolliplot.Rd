@@ -8,7 +8,7 @@
 }
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, 
-          type = c("circle", "pie", "pin"), newpage = TRUE,
+          type = c("circle", "pie", "pin", "pie.stack"), newpage = TRUE,
           ylab=TRUE, yaxis=TRUE, xaxis=TRUE, legend=NULL, cex=1, ...)
 }
 
@@ -24,7 +24,7 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
     A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.
 }
   \item{type}{
-    Character. Could be circle, pie or pin.
+    Character. Could be circle, pie, pin or pie.stack.
 }
   \item{newpage}{
   plot in the new page or not.

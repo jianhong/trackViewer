@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.4
+-----------------------
+    o add pie.stack layout for lolliplot.
+    
 CHANGES IN VERSION 1.9.3
 -----------------------
     o add controls for lolliplot labels.
