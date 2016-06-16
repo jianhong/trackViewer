@@ -474,6 +474,7 @@ lolliplot(GRangesList(A=sample.gr, B=sample2.gr),
           GRangesList(x=features, y=features2), 
           type="pie", legend=legends)
 ```
+
 ### pie.stack layout
 ```{r lolliplot.pie.stack, fig.width=6, fig.height=6}
 rand.id <- sample.int(length(sample.gr), 3*length(sample.gr), replace=TRUE)
