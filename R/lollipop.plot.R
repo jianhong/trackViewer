@@ -275,7 +275,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                        },
                        pie={
                            labels.y <- width + lineW*max(ratio.yx, 1.2) + 
-                               6.5*gap*cex
+                               6.5*gap*cex + 0.5 * lineW * ratio.yx * cex
                        },
                        pie.stack={
                            labels.y <- width + lineW*max(ratio.yx, 1.2) + 
