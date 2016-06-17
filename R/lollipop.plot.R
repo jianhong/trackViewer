@@ -1,7 +1,7 @@
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("circle", "pie", "pin", "pie.stack"),
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
-                      xaxis=TRUE, legend=NULL, cex=1, ...){
+                      xaxis=TRUE, legend=NULL, cex=1, dashline.col="gray80", ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -160,6 +160,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
             ## condense the SNPs
             stack.factors <- unique(as.character(SNPs$stack.factor))
+            stack.factors <- sort(stack.factors)
             stack.factors.order <- 1:length(stack.factors)
             names(stack.factors.order) <- stack.factors
             SNPs <- SNPs[order(as.character(seqnames(SNPs)), start(SNPs), 
@@ -241,7 +242,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                               scoreMax=(scoreMax-0.5) * lineW * cex,
                               scoreType=scoreType,
                               id=id, id.col=id.col,
-                              cex=cex, lwd=lwd)
+                              cex=cex, lwd=lwd, dashline.col=dashline.col)
             }
             labels.rot <- 90
             if(length(names(SNPs))>0){

@@ -51,7 +51,8 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            scoreMax,
                            scoreType,
                            id=NA, id.col="black",
-                           cex=1, lwd=1){
+                           cex=1, lwd=1,
+                           dashline.col="gray80"){
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
     if(!type %in% c("pie", "pie.stack")){
@@ -62,7 +63,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
             grid.lines(x=c(x2, x2), 
                        y=c(y2+y3+y4+(this.score-.5)*2*radius*ratio.yx, 
                            y2+y3+y4+scoreMax*ratio.yx), 
-                       gp=gpar(col="gray80", lty=3))
+                       gp=gpar(col=dashline.col, lty=3))
         }else{
             grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
                        gp=gpar(col=border))
@@ -75,7 +76,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            gp=gpar(col=border))
                 grid.lines(x=c(x2, x2), 
                            y=c(y2+y3+y4, y2+y3+y4+scoreMax*ratio.yx),
-                           gp=gpar(col="gray80", lty=3))
+                           gp=gpar(col=dashline.col, lty=3))
             }
         }else{
             grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
