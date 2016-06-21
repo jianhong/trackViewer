@@ -429,6 +429,16 @@ sample.gr.rot$label.parameter.gp <- gpar(col="brown")
 lolliplot(sample.gr.rot, features, legend=legend)
 ```
 
+If you want to change the text in ylab, please try to set the labels in ylab.
+**lolliplot** does not support the parameters for title and xlab. If you want to 
+add title and xlab, please try to add them by \link[grid]{grid.text}.
+```{r lolliplot.xlab.ylab.title, fig.width=6, fig.height=5.2}
+lolliplot(sample.gr.rot, features, legend=legend, ylab="y label here")
+grid.text("x label here", x=.5, y=.01, just="bottom")
+grid.text("title here", x=.5, y=.98, just="top", 
+          gp=gpar(cex=1.5, fontface="bold"))
+```
+
 ## Change the type of lolliplot
 
 ### Google pin

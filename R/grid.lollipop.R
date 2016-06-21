@@ -155,7 +155,7 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
     if(length(idx)<1){
         return(coor)
     }
-    if(all(idx %in% c(1, length(pos)))){
+    if(all(idx %in% c(1, length(pos)+1))){
         return(coor)
     }
     idx.diff <- diff(c(-1, idx))
