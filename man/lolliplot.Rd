@@ -15,11 +15,13 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 
 \arguments{
   \item{SNP.gr}{
-    A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.
+    A object of \link[GenomicRanges]{GRanges}, \link[GenomicRanges]{GRangesList}
+     or a list of \link[GenomicRanges]{GRanges}.
     All the width of GRanges must be 1.
 }
   \item{features}{
-    A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.
+    A object of \link[GenomicRanges]{GRanges}, \link[GenomicRanges]{GRangesList}
+     or a list of \link[GenomicRanges]{GRanges}.
 }
   \item{ranges}{
     A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.

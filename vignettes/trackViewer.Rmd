@@ -465,7 +465,7 @@ lolliplot(sample.gr, features, type="pie")
 
 ## Plot multiple samples
 ### multiple layers
-```{r lolliplot7, fig.width=6, fig.height=6}
+```{r lolliplot7, fig.width=6, fig.height=5.5}
 SNP2 <- sample(4000:8000, 30)
 x2 <- sample.int(100, length(SNP2), replace=TRUE)
 sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)), 
@@ -480,9 +480,17 @@ features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001),
                     height=c(0.1, 0.05, 0.08))
 legends <- list(list(labels=c("WT", "MUT"), fill=c("#87CEFA", '#98CE31')), 
                 list(labels=c("WT", "MUT"), fill=c('#DB7575', '#FFD700')))
-lolliplot(GRangesList(A=sample.gr, B=sample2.gr), 
-          GRangesList(x=features, y=features2), 
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features, y=features2), 
           type="pie", legend=legends)
+```
+
+Different layouts are also be possible.
+```{r lolliplot.multiple.type, fig.width=6, fig.height=7.5}
+sample2.gr$score <- sample2.gr$value1 ## circle layout need score column 
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features, y=features2), 
+          type=c("pie", "circle"), legend=legends)
 ```
 
 ### pie.stack layout

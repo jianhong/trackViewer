@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.7
+-----------------------
+    o lolliplot could accept multiple types for multiple layers.
+    
 CHANGES IN VERSION 1.9.6
 -----------------------
     o fix the bugs for the lolliplot when the last snp need to be jittered.
