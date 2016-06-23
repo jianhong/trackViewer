@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.8
+-----------------------
+    o lolliplot could accept multiple features for one layer.
+    
 CHANGES IN VERSION 1.9.7
 -----------------------
     o lolliplot could accept multiple types for multiple layers.

@@ -21,7 +21,8 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 }
   \item{features}{
     A object of \link[GenomicRanges]{GRanges}, \link[GenomicRanges]{GRangesList}
-     or a list of \link[GenomicRanges]{GRanges}.
+     or a list of \link[GenomicRanges]{GRanges}. The metadata 'featureLayerID' 
+     are used for drawing features in different layers. See details in vignette.
 }
   \item{ranges}{
     A object of \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList}.

@@ -110,9 +110,15 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         }else{
             feature <- features
         }
+        if(length(feature$featureLayerID)!=length(feature)){
+            feature$featureLayerID <- rep("1", length(feature))
+        }
+        feature$featureLayerID <- as.character(feature$featureLayerID)
         start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
         end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
-        baseline <- max(c(unlist(feature$height)/2, .0001)) + 0.2 * lineH
+        feature.splited <- split(feature, feature$featureLayerID)
+        baseline <- 
+            max(c(unlist(feature.splited[[1]]$height)/2, .0001)) + 0.2 * lineH
         gap <- .2 * lineH
         bottomblank <- 4
         if(length(names(feature))>0){
@@ -150,23 +156,36 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             grid.xaxis(at=xaxis, label=xaxisLabel)
         }
         
-        ##baseline
-        grid.lines(x=c(0, 1), y=c(baseline, baseline)) #baseline
         
-        for(m in 1:length(feature)){
-            this.dat <- feature[m]
-            color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
-            fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
-            this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
-            width <- if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*baseline
-            rot <- if(length(this.dat$rot)>0) this.dat$rot[[1]][1] else 45
-            grid.rect(x=start(this.dat), y=baseline, width=width(this.dat), height=width,
-                      just="left", gp=gpar(col=color, fill=fill), default.units = "native")
+        feature.height <- 0
+        ##plot features
+        for(n in 1:length(feature.splited)){
+            this.feature.height <- 
+                max(c(unlist(feature.splited[[n]]$height)/2, .0001)) + 0.2 * lineH
+            feature.height <- feature.height + this.feature.height
+            ##baseline
+            grid.lines(x=c(0, 1), y=c(feature.height, feature.height))
+            for(m in 1:length(feature.splited[[n]])){
+                this.dat <- feature.splited[[n]][m]
+                color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
+                fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
+                this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
+                this.feature.height.m <- 
+                    if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*this.feature.height
+                rot <- if(length(this.dat$rot)>0) this.dat$rot[[1]][1] else 45
+                grid.rect(x=start(this.dat), y=feature.height, 
+                          width=width(this.dat), 
+                          height=this.feature.height.m,
+                          just="left", gp=gpar(col=color, fill=fill), 
+                          default.units = "native")
+            }
+            feature.height <- feature.height + this.feature.height
         }
+        
         SNPs <- SNP.gr[[i]]
         strand(SNPs) <- "*"
         SNPs <- sort(SNPs)
-        width <- 2 * baseline + 2*gap
+        feature.height <- feature.height + 2*gap
         if(type=="pie.stack" && length(SNPs$stack.factor)>0){
             stopifnot(is.vector(SNPs$stack.factor, mode="character"))
             if(length(SNPs$stack.factor.order)>0 || 
@@ -224,7 +243,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
             if(yaxis && scoreMax>1 && !type %in% c("pie", "pie.stack")){
                 grid.yaxis(vp=viewport(x=.5-lineW,
-                                       y=width+5.25*gap*cex+scoreMax*lineW*ratio.yx/2*cex,
+                                       y=feature.height+5.25*gap*cex+scoreMax*lineW*ratio.yx/2*cex,
                                        width=1,
                                        height=scoreMax*lineW*ratio.yx*cex,
                                        yscale=c(0, scoreMax0+.5)))
@@ -245,7 +264,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 this.dat.mcols <- this.dat.mcols[, !grepl("^label.parameter", colnames(this.dat.mcols)), drop=FALSE]
                 grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
                               y1=baseline,
-                              x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), y2=width,
+                              x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), 
+                              y2=feature.height,
                               y3=4*gap*cex, y4=2.5*gap*cex, 
                               radius=cex*lineW/2,
                               col=color,
@@ -263,23 +283,23 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             labels.rot <- 90
             switch(type,
                    circle={
-                       labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + 
                            (scoreMax-0.5) * lineW * ratio.yx*cex
                    },
                    pin={
                        this.scores <- if(length(SNPs$score)>0) ceiling(SNPs$score) else .5
                        this.scores[is.na(this.scores)] <- .5
-                       labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + 
                            (this.scores-0.5) * lineW * ratio.yx*cex
                    },
                    pie={
-                       labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + 0.5 * lineW * ratio.yx * cex
                    },
                    pie.stack={
-                       labels.y <- width + lineW*max(ratio.yx, 1.2) + 
+                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + 
                            (scoreMax-0.5) * lineW * ratio.yx*cex
                    })
@@ -338,7 +358,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            maxStrHeight <- 0
                        }
                        maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- width + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + 
+                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + 
                            (scoreMax-0.5) * lineW * ratio.yx*cex + maxStrHeight*cex
                    },
                    pin={
@@ -351,12 +371,12 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                        thisStrHeight <- thisStrHeight * labels.length.rate
                        if(length(SNPs$score)>0){
                            ypos <- 
-                               max(width + lineW*max(ratio.yx, 1.2) + 
+                               max(feature.height + lineW*max(ratio.yx, 1.2) + 
                                        6.5*gap*cex + 
                                        (SNPs$score-0.5) * lineW * ratio.yx*cex + 
                                        thisStrHeight*cex)
                        }else{
-                           ypos <- max(width + lineW*max(ratio.yx, 1.2) + 
+                           ypos <- max(feature.height + lineW*max(ratio.yx, 1.2) + 
                                            6.5*gap*cex + thisStrHeight*cex)
                        }
                    },
@@ -370,7 +390,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            maxStrHeight <- 0
                        }
                        maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + maxStrHeight*cex
                    },
                    pie.stack={
@@ -383,7 +403,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                            maxStrHeight <- 0
                        }
                        maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 
                            6.5*gap*cex + maxStrHeight*cex +
                            (scoreMax-0.5) * lineW * ratio.yx*cex
                    }

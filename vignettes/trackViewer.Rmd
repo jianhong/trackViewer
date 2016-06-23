@@ -334,12 +334,15 @@ viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle)
 # Lolliplot
 Lolliplot is a mutation distribution graphics tool. 
 ```{r lolliplot1, fig.width=6, fig.height=3}
-SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
-x <- sample.int(100, length(SNP))
+SNP <- c(10, 12, 1400, 1402)
 sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
 features <- GRanges("chr1", IRanges(c(1, 501, 1001), 
                                     width=c(120, 400, 405),
                                     names=paste0("block", 1:3)))
+lolliplot(sample.gr, features)
+## more SNPs
+SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
+sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
 lolliplot(sample.gr, features)
 ```
 
@@ -369,6 +372,24 @@ lolliplot(sample.gr, features)
 ```{r lolliplot4, fig.width=6, fig.height=3}
 features$height <- c(0.02, 0.05, 0.08)
 lolliplot(sample.gr, features)
+```
+
+## Multiple transcripts in the features
+The metadata 'featureLayerID' are used for drawing features in different layers.
+```{r lolliplot.mul.features, fig.width=6, fig.height=3}
+features.mul <- rep(features, 2)
+features.mul$fill <- c("#FF8833", "#F9712A", "#DFA32D", 
+                       "#51C6E6", "#009DDA", "#4B9CDF")
+end(features.mul)[5] <- end(features.mul[5])+50
+features.mul$featureLayerID <- 
+    paste("tx", rep(1:2, each=length(features)), sep="_")
+names(features.mul) <- 
+    paste(features.mul$featureLayerID, 
+          rep(1:length(features), 2), sep="_")
+lolliplot(sample.gr, features.mul)
+## one name per transcripts
+names(features.mul) <- features.mul$featureLayerID
+lolliplot(sample.gr, features.mul)
 ```
 
 ## Change the height of lolliplot
@@ -608,6 +629,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ## want more
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
+
 # Session Info
 ```{r sessionInfo, results='asis'}
 sessionInfo()
