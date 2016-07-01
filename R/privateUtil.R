@@ -342,6 +342,17 @@ drawYaxis <- function(ylim, yaxisStyle, curViewStyle){
 drawXscale <- function(scale){
     gp <- scale@gp
     class(gp) <- "gpar"
+    line1 <- abs(as.numeric(convertY(unit(1, "line"), 
+                                 scale@from@unit)))
+    if(length(gp$cex)>0){
+        if(is.numeric(gp$cex)){
+            line1 <- line1 * gp$cex
+        }
+    }
+    if(scale@from@y<0){
+        scale@from@y <- scale@from@y - line1
+        scale@to@y <- scale@to@y - line1
+    }
     grid.segments(x0=scale@from@x, 
                   y0=scale@from@y,
                   x1=scale@to@x,
@@ -351,18 +362,18 @@ drawXscale <- function(scale){
     grid.segments(x0=scale@from@x,
                   y0=scale@from@y,
                   x1=scale@from@x,
-                  y1=scale@from@y * 1.05,
+                  y1=scale@from@y + 0.25 * line1,
                   default.units=scale@from@unit,
                   gp=gp)
     grid.segments(x0=scale@to@x,
                   y0=scale@to@y,
                   x1=scale@to@x,
-                  y1=scale@to@y * 1.05,
+                  y1=scale@to@y + 0.25 * line1,
                   default.units=scale@to@unit,
                   gp=gp)
     grid.text(label=scale@label, 
               x=(scale@from@x + scale@to@x)/2,
-              y=(scale@from@y + scale@to@y)/2*1.025,
+              y=(scale@from@y + scale@to@y)/2 + line1 * 0.2,
               gp=gp,
               just="bottom",
               default.units=scale@from@unit)

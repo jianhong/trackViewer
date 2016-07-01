@@ -14,6 +14,17 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
     if(!quadrant %in% 1:4)
         stop("quadrant must be a integer in 1, 2, 3, 4")
     len <- length(x)
+    lastTrackViewer <- getOption("LastTrackViewer")
+    if(all(class(y) %in% c("numeric", "integer"))){
+        if(all(floor(y)==y &ceiling(y)==y)){
+            xy <- lastTrackViewer$xy
+            yHeights <- c(0, lastTrackViewer$yHeights)
+            yHeights <- cumsum(yHeights)
+            yscales <- lastTrackViewer$yscales
+            xscale <- lastTrackViewer$xscale
+        }
+    }
+    
     trimLen <- function(obj, len){
         if(length(obj)<len) 
             obj <- rep(obj, len)[1:len]
@@ -50,6 +61,35 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                         yi <- unit(y[i], "native")
                     #}
                 #}
+                 if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native"){
+                     curViewStyle <- lastTrackViewer$viewerStyle
+                     yvp <- list(vp1=viewport(x=0, y=yHeights[y[i]], 
+                                              height=diff(yHeights)[y[i]],
+                                              width=1, 
+                                              just=c(0,0),
+                                              clip="off"),
+                                 vp2=viewport(x=0, y=lastTrackViewer$yHeightBottom[y[i]], 
+                                              height=1 - lastTrackViewer$yHeightTop[y[i]] - 
+                                                  lastTrackViewer$yHeightBottom[y[i]],
+                                              width=1, 
+                                              just=c(0,0),
+                                              clip="off"),
+                                 vp3=viewport(x=curViewStyle@margin[2], y=0, 
+                                              height=1, 
+                                              width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                              clip="off",
+                                              just=c(0,0), 
+                                              xscale=xscale, 
+                                              yscale=yscales[[y[i]]]))
+                     yi <- xy[[y[i]]]
+                     yi <- yi$y[c(0, yi$x[-length(yi$x)])<=x[i] & c(yi$x[-1], .Machine$integer.max)>=x[i]]
+                     if(length(yi)>0){
+                         yi <- yi[1]
+                     }else{
+                         yi <- 0
+                     }
+                     yi <- unit(yi, "native")
+                 }
             }
             if(class(yi)!="unit") stop("'pos$y' argument must be a unit object.")
         }else{
@@ -59,25 +99,54 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
         hjust <- switch(quadrant, 0, 1, 1, 0, 0)
         if(!is.null(vp)){
             pushViewport(vp)
+            popv <- FALSE
+            if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native" && 
+               (class(y[i]) %in% c("numeric", "integer"))){
+                pushViewport(yvp$vp1)
+                pushViewport(yvp$vp2)
+                pushViewport(yvp$vp3)
+                popv <- TRUE
+            }
             xi <- as.numeric(convertUnit(xi, "native", axisFrom="x"))
             yi <- as.numeric(convertUnit(yi, "native", axisFrom="y"))
-            xi1 <- switch(quadrant,
-                          xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1],
-                          xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + vp$xscale[1],
-                          xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + vp$xscale[1],
-                          xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1],
-                          xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1])
-            yi1 <- switch(quadrant,
-                          yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - vp$yscale[1],
-                          yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - vp$yscale[1],
-                          yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1],
-                          yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1],
-                          yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1])
+            if(popv){
+                xi1 <- switch(quadrant,
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - xscale[1],
+                              xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + xscale[1],
+                              xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + xscale[1],
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - xscale[1],
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - xscale[1])
+                yi1 <- switch(quadrant,
+                              yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - yscales[[y[i]]][1],
+                              yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - yscales[[y[i]]][1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + yscales[[y[i]]][1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + yscales[[y[i]]][1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + yscales[[y[i]]][1])
+            }else{
+                xi1 <- switch(quadrant,
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1],
+                              xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + vp$xscale[1],
+                              xi - as.numeric(convertUnit(length[i], "native", axisFrom="x")) + vp$xscale[1],
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1],
+                              xi + as.numeric(convertUnit(length[i], "native", axisFrom="x")) - vp$xscale[1])
+                yi1 <- switch(quadrant,
+                              yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - vp$yscale[1],
+                              yi + as.numeric(convertUnit(length[i], "native", axisFrom="y")) - vp$yscale[1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1],
+                              yi - as.numeric(convertUnit(length[i], "native", axisFrom="y")) + vp$yscale[1])
+            }
+            
             grid.lines(x=c(xi, xi1), y=c(yi, yi1), 
                        gp=gpar(col=col[i], fill=col[i]), arrow=ar,
                        default.units="native")
             if(!is.null(label[i])) grid.text(label=label[i], x = xi1, y = yi1, hjust = hjust,
                                           default.units = "native", gp = gpar(col=col[i], cex=cex[i]))
+            if(popv){
+                popViewport()
+                popViewport()
+                popViewport()
+            }
             popViewport()
         }else{
             xi <- as.numeric(convertUnit(xi, "native", axisFrom="x"))

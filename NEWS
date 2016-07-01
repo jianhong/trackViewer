@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.9
+-----------------------
+    o Fix the bug that no xscale is drawn when there is no positive value for track 1.
+    
 CHANGES IN VERSION 1.9.8
 -----------------------
     o lolliplot could accept multiple features for one layer.

@@ -84,18 +84,36 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     total <- length(trackList)
 #    if(interactive()) pb <- txtProgressBar(min=0, max=total, style=3)
     ht <- 0
+    xy <- vector(mode="list", length=total)
+    yHeightBottom <- yHeightTop <- rep(0.01, total)
     for(i in 1:total){
-        plotTrack(names(trackList)[i], trackList[[i]], 
-                  viewerStyle, ht,
-                  yscales[[i]], yHeights[i], xscale,
-                  chromosome, strand, operator)
+        xy[[i]] <- plotTrack(names(trackList)[i], trackList[[i]], 
+                             viewerStyle, ht,
+                             yscales[[i]], yHeights[i], xscale,
+                             chromosome, strand, operator)
         ht <- ht + yHeights[i]
+        if(length(trackList[[i]]@style@marginBottom)>0){
+            yHeightBottom[i] <- trackList[[i]]@style@marginBottom
+        }
+        if(length(trackList[[i]]@style@marginTop)>0){
+            yHeightTop[i] <- trackList[[i]]@style@marginTop
+        }
 #        if(interactive()) setTxtProgressBar(pb, i)
     }
 #    if(interactive()) close(pb)
     popViewport()
-    
     if(viewerStyle@flip) xscale <- rev(xscale)
+    options(LastTrackViewer=list(vp=viewport(x=margin[2], y=margin[1], 
+                                             height=1 - margin[1]- margin[3], 
+                                             width=1 -margin[2] - margin[4],
+                                             just=c(0,0), xscale=xscale, yscale=c(0,1)),
+                                 xy=xy,
+                                 yHeights=yHeights,
+                                 yscales=yscales,
+                                 xscale=xscale,
+                                 yHeightBottom=yHeightBottom,
+                                 yHeightTop=yHeightTop,
+                                 viewerStyle=viewerStyle))
     return(invisible(viewport(x=margin[2], y=margin[1], 
                               height=1 - margin[1]- margin[3], 
                               width=1 -margin[2] - margin[4],

@@ -97,7 +97,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           height=1 - yHeightTop - yHeightBottom,
                           width=1, 
                           just=c(0,0)))
-    
+    xy <- list()
     if(track@type=="data"){
         ##plot yaxis
         drawYaxis(yscale, style@yaxis, curViewStyle)
@@ -110,23 +110,27 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               yscale=yscale))
         ##grid.clip()
         ##for dat
-        xy <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
+        xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
+        xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
+        ##for dat2
+        if(length(track@dat2)>0){
+            if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
+            xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2])
+        }
+        xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))
+        xy.id <- order(xy$x)
+        xy <- list(x=xy$x[xy.id], y=xy$y[xy.id])
         ##plot xscale?
         if(style@xscale@draw){
             if(length(style@xscale@label)==0){
                 scale <- hrScale(xlim)
-                xpos <- locateScale(xy$x, xy$y, yscale[2], scale)
-                ypos <- yscale[2] * 0.7
+                xpos <- locateScale(xy$x, abs(xy$y), max(abs(yscale)), scale)
+                ypos <- yscale[abs(yscale)==max(abs(yscale))] * 0.7
                 style@xscale@from <- new("pos", x=xpos[1], y=ypos, unit="native")
                 style@xscale@to <- new("pos", x=xpos[2], y=ypos, unit="native")
                 style@xscale@label <- paste(2*scale[[1]], scale[[2]])
             }
             drawXscale(style@xscale)
-        }
-        ##for dat2
-        if(length(track@dat2)>0){
-            if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
-            xy <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2])
         }
     }else{##track@type=="gene"
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
@@ -141,5 +145,6 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
     popViewport()
     popViewport()
     
-    ##return yheight
+    ##return
+    return(invisible(xy))
 }

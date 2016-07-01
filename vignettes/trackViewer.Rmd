@@ -146,7 +146,7 @@ vp <- viewTracks(trackList(repA, fox2, trs),
                  autoOptimizeStyle=TRUE)
 addGuideLine(c(122929767, 122929969), vp=vp)
 addArrowMark(list(x=122929650, 
-                  y=unit(.39, "npc")),
+                  y=2), # 2 means track 2 from bottom.
              label="label",
              col="blue",
              vp=vp)
@@ -281,7 +281,7 @@ setTrackViewerStyleParam(viewerStyleF, "margin", c(.1, .05, .01, .01))
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyleF)
 addGuideLine(c(122929767, 122929969), vp=vp)
 addArrowMark(list(x=122929650,
-                  y=unit(.39, "npc")),
+                  y=2),
              label="label",
              col="blue",
              vp=vp)
