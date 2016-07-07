@@ -73,12 +73,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                                                   lastTrackViewer$yHeightBottom[y[i]],
                                               width=1, 
                                               just=c(0,0),
-                                              clip="off"),
-                                 vp3=viewport(x=curViewStyle@margin[2], y=0, 
-                                              height=1, 
-                                              width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
-                                              clip="off",
-                                              just=c(0,0), 
+                                              clip="off", 
                                               xscale=xscale, 
                                               yscale=yscales[[y[i]]]))
                      yi <- xy[[y[i]]]
@@ -101,10 +96,9 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
             pushViewport(vp)
             popv <- FALSE
             if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native" && 
-               (class(y[i]) %in% c("numeric", "integer"))){
+               (class(y[i]) %in% c("numeric", "integer")) & findInterval(y[i], c(0, 1))!=1){
                 pushViewport(yvp$vp1)
                 pushViewport(yvp$vp2)
-                pushViewport(yvp$vp3)
                 popv <- TRUE
             }
             xi <- as.numeric(convertUnit(xi, "native", axisFrom="x"))
@@ -143,7 +137,6 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
             if(!is.null(label[i])) grid.text(label=label[i], x = xi1, y = yi1, hjust = hjust,
                                           default.units = "native", gp = gpar(col=col[i], cex=cex[i]))
             if(popv){
-                popViewport()
                 popViewport()
                 popViewport()
             }

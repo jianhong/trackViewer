@@ -53,7 +53,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     }
     features.name <- deparse(substitute(features))
     if(length(ranges)>0){
-        stopifnot(class(ranges)=="GRanges"&length(ranges)==length(SNP.gr))
+        stopifnot(class(ranges)=="GRanges")
+        ranges <- rep(ranges, length(SNP.gr))[1:length(SNP.gr)]
+        stopifnot(length(ranges)==length(SNP.gr))
     }else{
         if(class(features)=="GRanges"){
             ranges <- range(features)[rep(1, len)]
@@ -113,6 +115,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         if(length(feature$featureLayerID)!=length(feature)){
             feature$featureLayerID <- rep("1", length(feature))
         }
+        feature <- feature[end(feature)>=start(ranges[i]) & 
+                               start(feature)<=end(ranges[i])]
         feature$featureLayerID <- as.character(feature$featureLayerID)
         start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
         end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
@@ -445,3 +449,4 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             this.height * height * (1 - (bottomblank+2)*lineH)
     }
 }
+
