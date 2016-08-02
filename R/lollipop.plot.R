@@ -1,5 +1,6 @@
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
-                      type=c("circle", "pie", "pin", "pie.stack"),
+                      type=c("circle", "pie", "pin", 
+                             "pie.stack"),
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
                       xaxis=TRUE, legend=NULL, cex=1, dashline.col="gray80", ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
@@ -15,32 +16,34 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         stopifnot(class(SNP.gr[[i]])=="GRanges")
     }
     
-    if(any(!type %in% c("circle", "pie", "pin", "pie.stack"))){
+    TYPES <- c("circle", "pie", "pin", "pie.stack")
+    if(any(!type %in% TYPES)){
         stop("Error in match argument: ",
-             "'type' should be one of 'circle', 'pie', 'pin', 'pie.stack'")
+             paste0("'type' should be one of '",  
+                    paste(TYPES, collapse="', '"), "'."))
     }
     types <- rep(type, length=len)[1:len]
     rm(type)
-    
+    ############### handle legend ####################
+    ## set the legend as a list, 
+    ## if all the legend for different tracks is same
+    ## set draw legend for last track later
     if(length(legend)>0){
         if(!is.list(legend)){
             tmp <- legend
-            legend <- list()
-            length(legend) <- len
+            legend <- vector(mode = "list", length = len)
             legend[[len]] <- tmp
             rm(tmp)
         }else{
             if(length(legend)==1){
                 tmp <- legend[[1]]
-                legend <- list()
-                length(legend) <- len
+                legend <- vector(mode = "list", length = len)
                 legend[[len]] <- tmp
                 rm(tmp)
             }else{
                 if("labels" %in% names(legend)){
                     tmp <- legend
-                    legend <- list()
-                    length(legend) <- len
+                    legend <- vector(mode = "list", length = len)
                     legend[[len]] <- tmp
                     rm(tmp)
                 }else{
@@ -51,7 +54,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
         }
     }
+    
     features.name <- deparse(substitute(features))
+    
+    ################ handle ranges #####################
+    ## if !missing(ranges) set ranges as feature ranges
     if(length(ranges)>0){
         stopifnot(class(ranges)=="GRanges")
         ranges <- rep(ranges, length(SNP.gr))[1:length(SNP.gr)]
@@ -76,42 +83,37 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             SNP.gr[[i]] <- SNP.gr[[i]][queryHits(ol)]
         }
     }
+    
+    ################## plot ############################
+    ## total height == 1
     height <- 1/len
     height0 <- 0
     if(newpage) grid.newpage()
     for(i in 1:len){
-        type <- match.arg(types[i], c("circle", "pie", "pin", "pie.stack"))
-        if(type=="pin"){
+        type <- match.arg(types[i], TYPES)
+        if(type=="pin"){ ## read the pin shape file
             pinpath <- system.file("extdata", "map-pin-red.xml", package="trackViewer")
             pin <- readPicture(pinpath)
         }else{
             pin <- NULL
         }
-        
+        ## Here we don't know the real height of each tracks
         vp <- viewport(x=.5, y=height0 + height*0.5, width=1, height=height)
-        this.height <- 1
         pushViewport(vp)
-        lineW <- as.numeric(convertX(unit(1, "line"), "npc"))
-        lineH <- as.numeric(convertY(unit(1, "line"), "npc"))
-        ## ylab
-        if(is.logical(ylab)){
-            if(ylab && length(names(SNP.gr))>0){
-                grid.text(names(SNP.gr)[i], x = lineW, 
-                          y = .5, rot = 90)
-            }
-        }
-        if(is.character(ylab)){
-            if(length(ylab)==1) ylab <- rep(ylab, len)
-            grid.text(ylab[i], x = lineW,
-                      y = .5, rot = 90)
-        }
+        LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+        LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+        ## GAP the gaps between any elements
+        GAP <- .2 * LINEH
+        ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
         
+        ## prepare the feature
         if(inherits(features, c("GRangesList", "list"))){
             feature <- features[[i]]
             stopifnot(class(feature)=="GRanges")
         }else{
             feature <- features
         }
+        ## multiple transcripts in one gene could be separated by featureLayerID
         if(length(feature$featureLayerID)!=length(feature)){
             feature$featureLayerID <- rep("1", length(feature))
         }
@@ -121,17 +123,18 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
         end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
         feature.splited <- split(feature, feature$featureLayerID)
+        ## the baseline, the center of the first transcript
         baseline <- 
-            max(c(unlist(feature.splited[[1]]$height)/2, .0001)) + 0.2 * lineH
-        gap <- .2 * lineH
+            max(c(unlist(feature.splited[[1]]$height)/2, .0001)) + 0.2 * LINEH
+        ## bottomblank, the transcripts legend height
         bottomblank <- 4
-        if(length(names(feature))>0){
+        if(length(names(feature))>0){ ## features legend
             feature.s <- feature[!duplicated(names(feature))]
             ncol <- getColNum(names(feature.s))
             bottomblank <- max(ceiling(length(names(feature.s)) / ncol), 4)
-            pushViewport(viewport(x=.5, y=bottomblank*lineH/2, 
+            pushViewport(viewport(x=.5, y=bottomblank*LINEH/2, 
                                   width=1,
-                                  height=bottomblank*lineH,
+                                  height=bottomblank*LINEH,
                                   xscale=c(start(ranges[i]), end(ranges[i]))))
             color <- if(length(unlist(feature.s$color))==length(feature.s)) 
                 unlist(feature.s$color) else "black"
@@ -140,313 +143,145 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             pch <- if(length(unlist(feature.s$pch))==length(feature.s)) 
                 unlist(feature.s$pch) else 22
             grid.legend(label=names(feature.s), ncol=ncol,
-                      byrow=TRUE, vgap=unit(.2, "lines"),
-                      pch=pch,
-                      gp=gpar(col=color, fill=fill))
+                        byrow=TRUE, vgap=unit(.2, "lines"),
+                        pch=pch,
+                        gp=gpar(col=color, fill=fill))
             popViewport()
-        }
-        pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
-                              width= 1 - 7*lineW,
-                              height= 1 - (bottomblank+2)*lineH,
-                              xscale=c(start(ranges[i]), end(ranges[i])),
-                              clip="off"))
-        ## axis
-        if(length(xaxis)==1 && as.logical(xaxis)) {
-            grid.xaxis()
-        }
-        if(length(xaxis)>1 && is.numeric(xaxis)){
-            xaxisLabel <- names(xaxis)
-            if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
-            grid.xaxis(at=xaxis, label=xaxisLabel)
-        }
-        
-        
-        feature.height <- 0
-        ##plot features
-        for(n in 1:length(feature.splited)){
-            this.feature.height <- 
-                max(c(unlist(feature.splited[[n]]$height)/2, .0001)) + 0.2 * lineH
-            feature.height <- feature.height + this.feature.height
-            ##baseline
-            grid.lines(x=c(0, 1), y=c(feature.height, feature.height))
-            for(m in 1:length(feature.splited[[n]])){
-                this.dat <- feature.splited[[n]][m]
-                color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
-                fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
-                this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
-                this.feature.height.m <- 
-                    if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*this.feature.height
-                rot <- if(length(this.dat$rot)>0) this.dat$rot[[1]][1] else 45
-                grid.rect(x=start(this.dat), y=feature.height, 
-                          width=width(this.dat), 
-                          height=this.feature.height.m,
-                          just="left", gp=gpar(col=color, fill=fill), 
-                          default.units = "native")
-            }
-            feature.height <- feature.height + this.feature.height
         }
         
         SNPs <- SNP.gr[[i]]
         strand(SNPs) <- "*"
         SNPs <- sort(SNPs)
-        feature.height <- feature.height + 2*gap
-        if(type=="pie.stack" && length(SNPs$stack.factor)>0){
-            stopifnot(is.vector(SNPs$stack.factor, mode="character"))
-            if(length(SNPs$stack.factor.order)>0 || 
-               length(SNPs$stack.factor.first)>0){
-                warning("stack.factor.order and stack.factor.first are used by this function!",
-                        "The values in these column will be removed.")
+        ## get the max score and scoreType
+        scoreMax0 <- scoreMax <- 
+            if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
+        if(type=="pie.stack") scoreMax <- length(stack.factors)
+        if(!type %in% c("pie", "pie.stack")){
+            if(scoreMax>10) {
+                SNPs$score <- 10*SNPs$score/scoreMax 
+                scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
             }
-            ## condense the SNPs
-            stack.factors <- unique(as.character(SNPs$stack.factor))
-            stack.factors <- sort(stack.factors)
-            stack.factors.order <- 1:length(stack.factors)
-            names(stack.factors.order) <- stack.factors
-            SNPs <- SNPs[order(as.character(seqnames(SNPs)), start(SNPs), 
-                               as.character(SNPs$stack.factor))]
-            SNPs$stack.factor.order <- stack.factors.order[SNPs$stack.factor]
-            SNPs$stack.factor.first <- !duplicated(SNPs)
-            SNPs.condense <- SNPs
-            SNPs.condense$oid <- 1:length(SNPs)
-            SNPs.condense$factor <- paste(as.character(seqnames(SNPs)), start(SNPs), end(SNPs))
-            SNPs.condense <- split(SNPs.condense, SNPs.condense$factor)
-            SNPs.condense <- lapply(SNPs.condense, function(.ele){
-                .oid <- .ele$oid
-                .gr <- .ele[1]
-                mcols(.gr) <- NULL
-                .gr$oid <- NumericList(.oid)
-                .gr
-            })
-            SNPs.condense <- unlist(GRangesList(SNPs.condense), use.names = FALSE)
-            SNPs.condense <- sort(SNPs.condense)
-            lab.pos.condense <- jitterLables(start(SNPs.condense), 
-                                    xscale=c(start(ranges[i]), end(ranges[i])), 
-                                    lineW=lineW*cex)
-            condense.ids <- SNPs.condense$oid
-            lab.pos <- rep(lab.pos.condense, elementNROWS(condense.ids))
-            lab.pos <- lab.pos[order(unlist(condense.ids))]
+            scoreType <- 
+                if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
         }else{
-            lab.pos <- jitterLables(start(SNPs), 
-                                    xscale=c(start(ranges[i]), end(ranges[i])), 
-                                    lineW=lineW*cex)
+            scoreType <- FALSE
         }
         
-        if(length(SNPs)>0){
-            scoreMax0 <- scoreMax <- if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
-            if(type=="pie.stack") scoreMax <- length(stack.factors)
-            if(!type %in% c("pie", "pie.stack")){
-                if(scoreMax>10) {
-                    SNPs$score <- 10*SNPs$score/scoreMax 
-                    scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
-                }
-                scoreType <- if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
-            }else{
-                scoreType <- FALSE
-            }
-            
-            ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            if(yaxis && scoreMax>1 && !type %in% c("pie", "pie.stack")){
-                grid.yaxis(vp=viewport(x=.5-lineW,
-                                       y=feature.height+5.25*gap*cex+scoreMax*lineW*ratio.yx/2*cex,
-                                       width=1,
-                                       height=scoreMax*lineW*ratio.yx*cex,
-                                       yscale=c(0, scoreMax0+.5)))
-            }
-            for(m in 1:length(SNPs)){
-                this.dat <- SNPs[m]
-                color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
-                border <- if(is.list(this.dat$border)) this.dat$border[[1]] else this.dat$border
-                fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
-                lwd <- if(is.list(this.dat$lwd)) this.dat$lwd[[1]] else this.dat$lwd
-                id <- if(is.character(this.dat$label)) this.dat$label else NA
-                id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
-                this.dat.mcols <- mcols(this.dat)
-                this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col", "stack.factor"), drop=FALSE]
-                if(type!="pie.stack"){
-                    this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("stack.factor.order", "stack.factor.first"), drop=FALSE]
-                }
-                this.dat.mcols <- this.dat.mcols[, !grepl("^label.parameter", colnames(this.dat.mcols)), drop=FALSE]
-                grid.lollipop(x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
-                              y1=baseline,
-                              x2=(lab.pos[m]-start(ranges[i]))/width(ranges[i]), 
-                              y2=feature.height,
-                              y3=4*gap*cex, y4=2.5*gap*cex, 
-                              radius=cex*lineW/2,
-                              col=color,
-                              border=border,
-                              percent=this.dat.mcols,
-                              edges=100,
-                              type=type,
-                              ratio.yx=ratio.yx,
-                              pin=pin,
-                              scoreMax=(scoreMax-0.5) * lineW * cex,
-                              scoreType=scoreType,
-                              id=id, id.col=id.col,
-                              cex=cex, lwd=lwd, dashline.col=dashline.col)
-            }
-            labels.rot <- 90
-            switch(type,
-                   circle={
-                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + 
-                           (scoreMax-0.5) * lineW * ratio.yx*cex
-                   },
-                   pin={
-                       this.scores <- if(length(SNPs$score)>0) ceiling(SNPs$score) else .5
-                       this.scores[is.na(this.scores)] <- .5
-                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + 
-                           (this.scores-0.5) * lineW * ratio.yx*cex
-                   },
-                   pie={
-                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + 0.5 * lineW * ratio.yx * cex
-                   },
-                   pie.stack={
-                       labels.y <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + 
-                           (scoreMax-0.5) * lineW * ratio.yx*cex
-                   })
-            this.height <- labels.y
-            if(length(names(SNPs))>0){
-                if(type=="pie.stack"){
-                    ## unique lab.pos and SNPs
-                    idx <- !duplicated(names(SNPs))
-                    lab.pos <- lab.pos[idx]
-                    SNPs <- SNPs[idx]
-                }
-                labels.x <- lab.pos
-                labels.text <- names(SNPs)
-                labels.just <- "left"
-                labels.hjust <- NULL
-                labels.vjust <- NULL
-                labels.check.overlap <- FALSE
-                labels.default.units <- "native"
-                labels.gp <- gpar(cex=cex)
-                
-                ## change the parameter by use definations.
-                for(label.parameter in c("x", "y", "just", "hjust", "vjust",
-                                         "rot", "check.overlap", "default.units",
-                                         "gp")){
-                    label.para <- paste0("label.parameter.", label.parameter)
-                    if(label.para %in% colnames(mcols(SNPs))){
-                        assign(paste0("labels.", label.parameter), 
-                               mcols(SNPs)[, label.para])
-                    }
-                }
-                labels.gp <- c(labels.gp, cex=cex)
-                labels.gp[duplicated(names(labels.gp))] <- NULL
-                labels.gp <- do.call(gpar, labels.gp)
-                
-                grid.text(x=labels.x, y=labels.y, 
-                          label = labels.text,  
-                          just=labels.just, 
-                          hjust = labels.hjust,
-                          vjust = labels.vjust,
-                          rot=labels.rot,
-                          check.overlap = labels.check.overlap,
-                          default.units = labels.default.units,
-                          gp=labels.gp)
-            }
-            ## legend
-            labels.length.rate <- max(cospi((labels.rot-90)/180), 0)
-            
-            switch(type,
-                   circle={
-                       if(length(names(SNPs))>0){
-                           maxStrHeight <- 
-                               max(as.numeric(
-                                   convertY(stringWidth(names(SNPs)), "npc")
-                               ))+lineW/2
-                       }else{
-                           maxStrHeight <- 0
-                       }
-                       maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 6.5*gap*cex + 
-                           (scoreMax-0.5) * lineW * ratio.yx*cex + maxStrHeight*cex
-                   },
-                   pin={
-                       if(length(names(SNPs))>0){
-                           thisStrHeight <- as.numeric(
-                               convertY(stringWidth(names(SNPs)), "npc"))+lineW/2
-                       }else{
-                           thisStrHeight <- 0
-                       }
-                       thisStrHeight <- thisStrHeight * labels.length.rate
-                       if(length(SNPs$score)>0){
-                           ypos <- 
-                               max(feature.height + lineW*max(ratio.yx, 1.2) + 
-                                       6.5*gap*cex + 
-                                       (SNPs$score-0.5) * lineW * ratio.yx*cex + 
-                                       thisStrHeight*cex)
-                       }else{
-                           ypos <- max(feature.height + lineW*max(ratio.yx, 1.2) + 
-                                           6.5*gap*cex + thisStrHeight*cex)
-                       }
-                   },
-                   pie={
-                       if(length(names(SNPs))>0){
-                           maxStrHeight <- 
-                               max(as.numeric(
-                                   convertY(stringWidth(names(SNPs)), "npc")
-                               ))+lineW/2
-                       }else{
-                           maxStrHeight <- 0
-                       }
-                       maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + maxStrHeight*cex
-                   },
-                   pie.stack={
-                       if(length(names(SNPs))>0){
-                           maxStrHeight <- 
-                               max(as.numeric(
-                                   convertY(stringWidth(names(SNPs)), "npc")
-                               ))+lineW/2
-                       }else{
-                           maxStrHeight <- 0
-                       }
-                       maxStrHeight <- maxStrHeight * labels.length.rate
-                       ypos <- feature.height + lineW*max(ratio.yx, 1.2) + 
-                           6.5*gap*cex + maxStrHeight*cex +
-                           (scoreMax-0.5) * lineW * ratio.yx*cex
-                   }
-            )
-            
-            this.height <- ypos
-            
-            if(length(legend[[i]])>0){
-                
-                if(is.list(legend[[i]])){
-                    thisLabels <- legend[[i]][["labels"]]
-                    gp <- legend[[i]][names(legend[[i]])!="labels"]
-                    class(gp) <- "gpar"
-                }else{
-                    thisLabels <- names(legend[[i]])
-                    gp <- gpar(fill=legend[[i]]) 
-                }
-                if(length(thisLabels)>0){
-                    ncol <- getColNum(thisLabels)
-                    topblank <- ceiling(length(thisLabels) / ncol)
-                    pushViewport(viewport(x=.5, 
-                                          y=ypos+(topblank+.5)*lineH/2, 
-                                          width=1,
-                                          height=topblank*lineH,
-                                          just="bottom"))
-                    this.height <- ypos + (topblank+1)*lineH 
-                    grid.legend(label=thisLabels, ncol=ncol,
-                                byrow=TRUE, vgap=unit(.2, "lines"),
-                                pch=21,
-                                gp=gp)
-                    popViewport()
-                }
+        ## if the type is caterpillar, there are lollipop in both sides
+        ## plot the bottom lollipops first. And push a new viewport
+        
+        IsCaterpillar <- length(SNPs$SNPsideID) > 0
+        if(IsCaterpillar){
+            if(any(is.na(SNPs$SNPsideID)) || 
+               !all(SNPs$SNPsideID %in% c('top', 'bottom'))){
+                warning("Not all SNPsideID is top or bottom")
+                IsCaterpillar <- FALSE
             }
         }
         
+        if(IsCaterpillar){
+            SNPs.top <- SNPs[SNPs$SNPsideID=='top']
+            SNPs.bottom <- SNPs[SNPs$SNPsideID=='bottom']
+        }else{
+            SNPs.top <- SNPs
+            SNPs.bottom <- GRanges()
+        }
+        if(length(SNPs.bottom)<1) IsCaterpillar <- FALSE
+        ## viewport of plot region
+        if(IsCaterpillar){
+            pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
+                                  width= 1 - 7*LINEW,
+                                  height= 1 - bottomblank*LINEH,
+                                  xscale=c(start(ranges[i]), end(ranges[i])),
+                                  clip="off"))
+        }else{
+            bottomblank <- bottomblank + 2
+            pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
+                                  width= 1 - 7*LINEW,
+                                  height= 1 - bottomblank*LINEH,
+                                  xscale=c(start(ranges[i]), end(ranges[i])),
+                                  clip="off"))
+        }
+        
+        plot.grid.xaxis <- function(col="black"){
+            ## axis, should be in the bottom of transcripts
+            if(length(xaxis)==1 && as.logical(xaxis)) {
+                grid.xaxis(gp=gpar(col=col))
+            }
+            if(length(xaxis)>1 && is.numeric(xaxis)){
+                xaxisLabel <- names(xaxis)
+                if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
+                grid.xaxis(at=xaxis, label=xaxisLabel, gp=gpar(col=col))
+            }
+        }
+        ## plot xaxis
+        bottomHeight <- 0
+        if(IsCaterpillar){
+            ## total height == maxscore + extension + gap + labels
+            bottomHeight <- getHeight(SNPs=SNPs.bottom, 
+                                      ratio.yx=ratio.yx, 
+                                      LINEW=LINEW, 
+                                      GAP=GAP, 
+                                      cex=cex, 
+                                      type=type,
+                                      level="data&labels")
+            vp <- viewport(y=bottomHeight, just="bottom",
+                           xscale=c(start(ranges[i]), end(ranges[i])))
+            pushViewport(vp)
+            plot.grid.xaxis("gray")
+            popViewport()
+        }else{
+            plot.grid.xaxis()
+        }
+        
+        ##plot features
+        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight)
+        
+        if(length(SNPs.bottom)>0){
+            plotLollipops(SNPs.bottom, feature.height, bottomHeight, baseline, 
+                          type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
+                          LINEW, cex, ratio.yx, GAP, pin, dashline.col,
+                          side="bottom")
+        }
+        feature.height <- feature.height + 2*GAP
+        if(length(SNPs.top)>0){
+            plotLollipops(SNPs.top, feature.height, bottomHeight, baseline, 
+                          type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
+                          LINEW, cex, ratio.yx, GAP, pin, dashline.col,
+                          side="top")
+        }
+        
+        ## legend
+        this.height <- getHeight(SNPs.top, 
+                                 ratio.yx, LINEW, GAP, cex, type,
+                                 level="data&labels")
+        this.height <- this.height + bottomHeight + feature.height
+        this.height <- plotLegend(legend[[i]], this.height, LINEH)
+        
         popViewport()
+        
+        this.height <- bottomblank*LINEH*height + 
+            this.height * height * (1 - bottomblank*LINEH)
+        
+        ## ylab
+        vp <- viewport(x=.5, y=height0 + this.height*0.5, 
+                       width=1, height=this.height)
+        pushViewport(vp)
+        if(is.logical(ylab)){
+            if(ylab && length(names(SNP.gr))>0){
+                grid.text(names(SNP.gr)[i], x = LINEW, 
+                          y = .5, rot = 90)
+            }
+        }
+        if(is.character(ylab)){
+            if(length(ylab)==1) ylab <- rep(ylab, len)
+            grid.text(ylab[i], x = LINEW,
+                      y = .5, rot = 90)
+        }
         popViewport()
-        height0 <-  height0 + (bottomblank+2)*lineH*height + 
-            this.height * height * (1 - (bottomblank+2)*lineH)
+        
+        popViewport()
+        height0 <-  height0 + this.height
     }
 }
 

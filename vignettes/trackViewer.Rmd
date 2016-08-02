@@ -493,7 +493,7 @@ sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)),
              value1=x2, value2=100-x2)
 sample2.gr$color <- rep(list(c('#DB7575', '#FFD700')), length(SNP2))
 sample2.gr$border <- "gray30"
-mcols(sample2.gr) <- mcols(sample2.gr)[, colnames(mcols(sample.gr))]
+
 features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001), 
                                     width=c(500, 500, 405),
                                     names=paste0("block", 4:6)),
@@ -540,6 +540,29 @@ legend <- list(labels=stack.factors, col="gray80",
                fill=sapply(patient.color.set, `[`, 1))
 lolliplot(sample.gr.mul.patient, features, type="pie.stack", 
           legend=legend, dashline.col="gray")
+```
+
+### caterpillar layout
+
+Metadata SNPsideID is used to trigger caterpillar layout.
+SNPsideID must be 'top' or 'bottom'.
+
+```{r lolliplot.caterpillar, fig.width=6, fig.height=4}
+sample.gr$SNPsideID <- sample(c("top", "bottom"), 
+                               length(sample.gr),
+                               replace=TRUE)
+lolliplot(sample.gr, features, type="pie", 
+          legend=legends[[1]])
+```
+```{r lolliplot.caterpillar2, fig.width=6, fig.height=12}
+## two layers
+sample2.gr$SNPsideID <- "top"
+idx <- sample.int(length(sample2.gr), 15)
+sample2.gr$SNPsideID[idx] <- "bottom"
+sample2.gr$color[idx] <- '#FFD700'
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features.mul, y=features2), 
+          type=c("pie", "circle"), legend=legends)
 ```
 
 ## Variant Call Format (VCF) data

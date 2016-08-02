@@ -52,34 +52,49 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            scoreType,
                            id=NA, id.col="black",
                            cex=1, lwd=1,
-                           dashline.col="gray80"){
+                           dashline.col="gray80",
+                           side=c("top", "bottom")){
+    side <- match.arg(side)
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
+    side <- side!="top"
     if(!type %in% c("pie", "pie.stack")){
         this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
         if(type=="circle"){
-            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
+            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx)
+            if(side) y0 <- 1 - y0
+            grid.lines(x=c(x1, x1, x2, x2), y=y0, 
                        gp=gpar(col=border))
+            y0 <- c(y2+y3+y4+(this.score-.5)*2*radius*ratio.yx, 
+                    y2+y3+y4+scoreMax*ratio.yx)
+            if(side) y0 <- 1 - y0
             grid.lines(x=c(x2, x2), 
-                       y=c(y2+y3+y4+(this.score-.5)*2*radius*ratio.yx, 
-                           y2+y3+y4+scoreMax*ratio.yx), 
+                       y=y0, 
                        gp=gpar(col=dashline.col, lty=3))
         }else{
-            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx), 
+            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx)
+            if(side) y0 <- 1 - y0
+            grid.lines(x=c(x1, x1, x2, x2), y=y0, 
                        gp=gpar(col=border))
         }
         
     }else{
         if(type=="pie.stack"){
             if(percent$stack.factor.first){
-                grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
+                y0 <- c(y1, y2, y2+y3, y2+y3+y4)
+                if(side) y0 <- 1 - y0
+                grid.lines(x=c(x1, x1, x2, x2), y=y0, 
                            gp=gpar(col=border))
+                y0 <- c(y2+y3+y4, y2+y3+y4+scoreMax*ratio.yx)
+                if(side) y0 <- 1 - y0
                 grid.lines(x=c(x2, x2), 
-                           y=c(y2+y3+y4, y2+y3+y4+scoreMax*ratio.yx),
+                           y=y0,
                            gp=gpar(col=dashline.col, lty=3))
             }
         }else{
-            grid.lines(x=c(x1, x1, x2, x2), y=c(y1, y2, y2+y3, y2+y3+y4), 
+            y0 <- c(y1, y2, y2+y3, y2+y3+y4)
+            if(side) y0 <- 1 - y0
+            grid.lines(x=c(x1, x1, x2, x2), y=y0, 
                        gp=gpar(col=border))
         }
     }
@@ -93,46 +108,63 @@ grid.lollipop <- function (x1=.5, y1=.5,
            circle={
                if(scoreType){
                    for(i in 1:this.score){
-                       grid.circle(x=x2, y=y2+y3+y4/2+2*radius*ratio.yx*(i-.5),
+                       y0 <- y2+y3+y4/2+2*radius*ratio.yx*(i-.5)
+                       if(side) y0 <- 1 - y0
+                       grid.circle(x=x2, y=y0,
                                    r=radius*ratio.yx, 
                                    gp=gpar(col=border, fill=col, lwd=lwd))
                    }
                }else{
-                   grid.circle(x=x2, y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
+                   y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
+                   if(side) y0 <- 1 - y0
+                   grid.circle(x=x2, y=y0,
                                r=radius*ratio.yx, 
                                gp=gpar(col=border, fill=col, lwd=lwd))
                    if(!is.na(id)){
+                       y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
+                       if(side) y0 <- 1 - y0
                        grid.text(label=id, x=x2, 
-                                 y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
+                                 y=y0,
                                  just="centre", gp=gpar(col=id.col, cex=.75*cex))
                    }
                }
                },
-           pie=grid.pie(x=x2, y=y2+y3+y4+radius*ratio.yx, 
+           pie={
+               y0 <- y2+y3+y4+radius*ratio.yx
+               if(side) y0 <- 1 - y0
+               grid.pie(x=x2, y=y0, 
                         radius = radius, 
                         col = col, 
                         border = border, 
                         percent=percent,
                         edges=edges,
-                        lwd=lwd),
-           pie.stack=grid.pie(x=x2, 
-                              y=y2+y3+y4+(2*percent$stack.factor.order-1)*radius*ratio.yx, 
-                              radius = radius, 
-                              col = col, 
-                              border = border, 
-                              percent=percent[, !colnames(percent) %in% 
-                                                  c("stack.factor.order", 
-                                                    "stack.factor.first")],
-                              edges=edges,
-                              lwd=lwd),
+                        lwd=lwd)
+               },
+           pie.stack={
+               y0 <- y2+y3+y4+(2*percent$stack.factor.order-1)*radius*ratio.yx
+               if(side) y0 <- 1 - y0
+               grid.pie(x=x2, 
+                        y=y0, 
+                        radius = radius, 
+                        col = col, 
+                        border = border, 
+                        percent=percent[, !colnames(percent) %in% 
+                                            c("stack.factor.order", 
+                                              "stack.factor.first")],
+                        edges=edges,
+                        lwd=lwd)
+               },
            pin={
+               y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
+               if(side) y0 <- 1 - y0
                grid.picture(picture=pin, x=x2, 
-                            y=y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2,
+                            y=y0,
                             width=2*radius*ratio.yx,
                             height=3*radius*ratio.yx+y4)
                if(!is.na(id)){
+                   y0 <- y2+y3+(this.score-.25)*2*radius*ratio.yx+2*y4/3
                    grid.text(label=id, x=x2, 
-                             y=y2+y3+(this.score-.25)*2*radius*ratio.yx+2*y4/3,
+                             y=y0,
                              just="centre", gp=gpar(col=id.col, cex=.5*cex))
                }
                },

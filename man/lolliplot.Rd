@@ -8,8 +8,11 @@
 }
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, 
-          type = c("circle", "pie", "pin", "pie.stack"), newpage = TRUE,
-          ylab=TRUE, yaxis=TRUE, xaxis=TRUE, legend=NULL, cex=1, 
+          type = c("circle", "pie", "pin", 
+                   "pie.stack"), 
+          newpage = TRUE,
+          ylab=TRUE, yaxis=TRUE, xaxis=TRUE, 
+          legend=NULL, cex=1, 
           dashline.col="gray80", ...)
 }
 
@@ -63,7 +66,11 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
     color, fill, border, height, data source of pie if the type is pie. And also 
     the controls for labels by name the metadata start as label.parameter.<properties> 
     such as label.parameter.rot, label.parameter.gp. The parameter is used for 
-    \link[grid]{grid.text}.
+    \link[grid]{grid.text}. The metadata 'featureLayerID' for features are used 
+    for drawing features in different layers. The metadata 'SNPsideID' for SNP.gr
+    are used for determining the side of lollipops. And the 'SNPsideID' could only
+    be 'top' or 'bottom'.
+    
 }
 \value{
 NULL
