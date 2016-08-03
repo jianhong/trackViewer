@@ -89,8 +89,9 @@ grid.text(label="trackViewer track", x=.3, y=.9)
 
 It requires huge memory space to handle big wig files. To solve this problem, **trackViewer** rewrote the import function to import whole file first and parse it later when plot. **trackViewer** provides higher import speed (21 min vs. over 180 min) and acceptable memory cost (5.32G vs. over 10G) for a half giga wig file (GSM917672) comparing to **Gviz**. 
 
-# Steps of using \Biocpkg{trackViewer}
-## step1 import data
+# Browse tracks
+## Steps of using \Biocpkg{trackViewer}
+### step1 import data
 Function **importScore** is used to import BED, WIG, bedGraph or BigWig files. 
 Function **importBam** is employed to import bam file. Here is the example.
 
@@ -121,7 +122,7 @@ fox2$dat <- dat[strand(dat)=="+"]
 fox2$dat2 <- dat[strand(dat)=="-"]
 ```
 
-## step2 build gene model
+### step2 build gene model
 The gene model can be built for a given genomic range using **geneModelFromTxdb**
 function which uses **TranscriptDb** object as input.
 
@@ -134,7 +135,7 @@ trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
                          gr=gr)
 ```
 
-## step3 view the tracks
+### step3 view the tracks
 Use **viewTracks** function to plot data and annotation information along genomic coordinates.
 **addGuideLine** or **addArrowMark** can be used to highlight the peaks.
     
@@ -153,8 +154,8 @@ addArrowMark(list(x=122929650,
 ```
 
 
-# Adjust the styles
-## adjust x axis or x-scale
+## Adjust the styles
+### adjust x axis or x-scale
 In most cases, researchers are interested in the relative position of peaks in the gene. 
 Sometimes, margin needs to be adjusted to be able to show the entire  gene model. 
 Figure below shows how to add an x-scale and 
@@ -174,7 +175,7 @@ viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
 
-## adjust y axis
+### adjust y axis
 y-axis can be put to right side of the track by setting main slot to FALSE in y-axis slot of each track. 
 And ylim can be set by **setTrackStyleParam**. 
 ```{r viewTracksYaxis,fig.cap='plot data with y-axis in right side',fig.width=6,fig.height=1.5}
@@ -188,7 +189,7 @@ setTrackStyleParam(trackList[[2]], "ylim", c(-25, 0))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
-## adjust y label
+### adjust y label
 Y label style can be changed by setting the ylabgp slot in style of each track.
 ```{r viewTracksYlab,fig.cap='plot data with adjusted color and size of y label',fig.width=6,fig.height=1.5}
 setTrackStyleParam(trackList[[1]], "ylabgp", list(cex=.8, col="green"))
@@ -223,7 +224,7 @@ viewTracks(trackListN, gr=gr1, viewerStyle=viewerStyle)
 ```
 
 
-## adjust track color
+### adjust track color
 The track color can be changed by setting the color slot in style of each track.
 The first color is for dat slot of 
 **track** and seconde color is for dat2 slot.
@@ -235,7 +236,7 @@ for(i in 3:length(trackList))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
-## adjust track height
+### adjust track height
 The track height can be changed by setting the height slot in style of each 
 track. However, the total height for all 
 the tracks should be 1.
@@ -250,7 +251,7 @@ for(i in 3:length(trackListH)){
 viewTracks(trackListH, gr=gr, viewerStyle=viewerStyle)
 ```
 
-## change track names
+### change track names
 The track names such as gene model names can also be edited easily by changing the names of **trackList**.
 
 ```{r viewTracksNames,fig.cap='change the track names',fig.width=6,fig.height=1.5}
@@ -258,7 +259,7 @@ names(trackList) <- c("cpsf160", "fox2", rep("HSPA8", 5))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
-## show paired data in the same track
+### show paired data in the same track
 **trackViewer** can be used to show to-be-compared data in the same track side by side.
 
 ```{r viewTracksPaired,fig.cap='show two data in the same track',fig.width=6,fig.height=1.2}
@@ -270,7 +271,7 @@ setTrackStyleParam(cpsf160, "color", c("black", "red"))
 viewTracks(trackList(trs, cpsf160), gr=gr, viewerStyle=viewerStyle)
 ```
 
-## flip the x-axis
+### flip the x-axis
 The x-axis can be horizotally flipped for the genes in negative strand.
 
 ```{r viewTracksFlipped,fig.cap='show data in the flipped track',fig.width=6,fig.height=2}
@@ -287,7 +288,7 @@ addArrowMark(list(x=122929650,
              vp=vp)
 ```
 
-## optimize with theme
+### optimize with theme
 
 We support two themes now: bw and col.
 ```{r theme_bw,fig.cap='theme_bw',fig.width=6,fig.height=2}

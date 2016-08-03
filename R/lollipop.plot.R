@@ -188,20 +188,14 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         }
         if(length(SNPs.bottom)<1) IsCaterpillar <- FALSE
         ## viewport of plot region
-        if(IsCaterpillar){
-            pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
-                                  width= 1 - 7*LINEW,
-                                  height= 1 - bottomblank*LINEH,
-                                  xscale=c(start(ranges[i]), end(ranges[i])),
-                                  clip="off"))
-        }else{
-            bottomblank <- bottomblank + 2
-            pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
-                                  width= 1 - 7*LINEW,
-                                  height= 1 - bottomblank*LINEH,
-                                  xscale=c(start(ranges[i]), end(ranges[i])),
-                                  clip="off"))
+        if(!IsCaterpillar){
+            bottomblank <- bottomblank + 2 ## the height of xaxis
         }
+        pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
+                              width= 1 - 7*LINEW,
+                              height= 1 - bottomblank*LINEH,
+                              xscale=c(start(ranges[i]), end(ranges[i])),
+                              clip="off"))
         
         plot.grid.xaxis <- function(col="black"){
             ## axis, should be in the bottom of transcripts
@@ -260,11 +254,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         popViewport()
         
-        this.height <- bottomblank*LINEH*height + 
-            this.height * height * (1 - bottomblank*LINEH)
+        this.height <- bottomblank*LINEH + 
+            this.height * (1 - bottomblank*LINEH)
         
         ## ylab
-        vp <- viewport(x=.5, y=height0 + this.height*0.5, 
+        vp <- viewport(x=.5, y=this.height*0.5, 
                        width=1, height=this.height)
         pushViewport(vp)
         if(is.logical(ylab)){
@@ -281,7 +275,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         popViewport()
         
         popViewport()
-        height0 <-  height0 + this.height
+        height0 <-  height0 + this.height*height
     }
 }
 
