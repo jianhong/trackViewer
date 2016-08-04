@@ -373,12 +373,20 @@ lolliplot(sample.gr, features)
 ```{r lolliplot4, fig.width=6, fig.height=3}
 features$height <- c(0.02, 0.05, 0.08)
 lolliplot(sample.gr, features)
+## keep the height by giving the unit
+features$height <- list(unit(1/16, "inches"), 
+                     unit(3, "mm"), 
+                     unit(12, "points"))
+lolliplot(sample.gr, features)
 ```
 
 ## Multiple transcripts in the features
 The metadata 'featureLayerID' are used for drawing features in different layers.
 ```{r lolliplot.mul.features, fig.width=6, fig.height=3}
 features.mul <- rep(features, 2)
+features.mul$height[4:6] <- list(unit(1/8, "inches"),
+                                 unit(0.5, "lines"),
+                                 unit(.2, "char"))
 features.mul$fill <- c("#FF8833", "#F9712A", "#DFA32D", 
                        "#51C6E6", "#009DDA", "#4B9CDF")
 end(features.mul)[5] <- end(features.mul[5])+50
@@ -499,7 +507,7 @@ features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001),
                                     width=c(500, 500, 405),
                                     names=paste0("block", 4:6)),
                     fill=c("orange", "gray30", "lightblue"),
-                    height=c(0.1, 0.05, 0.08))
+                    height=unit(c(0.5, 0.3, 0.8), "cm"))
 legends <- list(list(labels=c("WT", "MUT"), fill=c("#87CEFA", '#98CE31')), 
                 list(labels=c("WT", "MUT"), fill=c('#DB7575', '#FFD700')))
 lolliplot(list(A=sample.gr, B=sample2.gr), 

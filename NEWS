@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.13
+-----------------------
+    o the height of features could be unit object.
+    
 CHANGES IN VERSION 1.9.12
 -----------------------
     o Update the vignette.

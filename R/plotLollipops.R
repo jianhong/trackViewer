@@ -1,19 +1,40 @@
+convertHeight2NPCnum <- function(.ele){
+    switch(class(.ele),
+           "unit"=convertHeight(.ele, unitTo="npc", valueOnly=TRUE),
+           "list"={
+               .ele <- sapply(.ele, function(.e){
+                   if(class(.e)=="unit"){
+                       .e <- convertHeight(.e, unitTo="npc", valueOnly=TRUE)
+                   }
+                   .e[1]
+               })
+               unlist(.ele)
+           },
+           "numeric"=.ele,
+           "integer"=.ele,
+           .ele)
+}
 plotFeatures <- function(feature.splited, LINEH, bottomHeight){
     feature.height <- 0
     for(n in 1:length(feature.splited)){
         this.feature.height <- 
-            max(c(unlist(feature.splited[[n]]$height)/2, .0001)) + 0.2 * LINEH
+            max(c(feature.splited[[n]]$height/2, 
+                  .0001)) + 0.2 * LINEH
         feature.height <- feature.height + this.feature.height
         ##baseline
         grid.lines(x=c(0, 1), y=c(bottomHeight+feature.height, 
                                   bottomHeight+feature.height))
         for(m in 1:length(feature.splited[[n]])){
             this.dat <- feature.splited[[n]][m]
-            color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
-            fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
+            color <- if(is.list(this.dat$color)) this.dat$color[[1]] else 
+                this.dat$color
+            fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else 
+                this.dat$fill
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
             this.feature.height.m <- 
-                if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*this.feature.height
+                if(length(this.dat$height)>0) 
+                    this.dat$height[[1]][1] else 
+                        2*this.feature.height
             grid.rect(x=start(this.dat), y=bottomHeight+feature.height, 
                       width=width(this.dat), 
                       height=this.feature.height.m,

@@ -1,4 +1,5 @@
-import(methods, IRanges, GenomicRanges, GenomicFeatures, grid)
+import(grDevices, methods, S4Vectors, IRanges, 
+       GenomicRanges, GenomicFeatures, grid)
 import(Rsamtools)
 import(GenomicAlignments)
 importFrom(Gviz, GeneRegionTrack)

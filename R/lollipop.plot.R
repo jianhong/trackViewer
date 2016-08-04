@@ -113,6 +113,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         }else{
             feature <- features
         }
+        ## convert height to npc number
+        feature$height <- convertHeight2NPCnum(feature$height)
         ## multiple transcripts in one gene could be separated by featureLayerID
         if(length(feature$featureLayerID)!=length(feature)){
             feature$featureLayerID <- rep("1", length(feature))
@@ -123,9 +125,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
         end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
         feature.splited <- split(feature, feature$featureLayerID)
-        ## the baseline, the center of the first transcript
-        baseline <- 
-            max(c(unlist(feature.splited[[1]]$height)/2, .0001)) + 0.2 * LINEH
+        
         ## bottomblank, the transcripts legend height
         bottomblank <- 4
         if(length(names(feature))>0){ ## features legend
@@ -228,11 +228,19 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             plot.grid.xaxis()
         }
         
+        ## the baseline, the center of the first transcript
+        baseline <- 
+            max(c(feature.splited[[1]]$height/2, 
+                  .0001)) + 0.2 * LINEH
+        baselineN <- 
+            max(c(feature.splited[[length(feature.splited)]]$height/2, 
+                .0001)) + 0.2 * LINEH
+        
         ##plot features
         feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight)
         
         if(length(SNPs.bottom)>0){
-            plotLollipops(SNPs.bottom, feature.height, bottomHeight, baseline, 
+            plotLollipops(SNPs.bottom, feature.height, bottomHeight, baselineN, 
                           type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                           side="bottom")
