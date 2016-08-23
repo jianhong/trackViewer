@@ -1,20 +1,8 @@
-getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type,
+getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                       level=c("data", "data&labels")){
     level=match.arg(level)
     stack.factors <- unique(as.character(SNPs$stack.factor))
     stack.factors <- sort(stack.factors)
-    if(length(SNPs$score)>0) {
-        scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
-    }else {
-        scoreMax <- 1
-    }
-    if(type=="pie.stack") scoreMax <- length(stack.factors)
-    if(!type %in% c("pie", "pie.stack")){
-        if(scoreMax>10) {
-            SNPs$score <- 10*SNPs$score/scoreMax 
-            scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
-        }
-    }
     if(level=="data"){
         switch(type,
                circle={

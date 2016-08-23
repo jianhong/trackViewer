@@ -428,6 +428,16 @@ names(xaxis)[4] <- "center"
 lolliplot(sample.gr, features, xaxis=xaxis)
 ```
 
+## Customize yaxis label positions
+```{r lolliplot.yaxis, fig.width=6, fig.height=4.5}
+yaxis <- c(0, 5) ## define the position
+lolliplot(sample.gr, features, yaxis=yaxis)
+yaxis <- c(0, 5, 10, 15)
+names(yaxis) <- yaxis # define the labels
+names(yaxis)[3] <- "yaxis" 
+lolliplot(sample.gr, features, yaxis=yaxis)
+```
+
 ## Add legend
 ```{r lolliplot.legend, fig.width=6, fig.height=5}
 legend <- 1:6 ## legend fill color

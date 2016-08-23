@@ -157,9 +157,17 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
         if(type=="pie.stack") scoreMax <- length(stack.factors)
         if(!type %in% c("pie", "pie.stack")){
+            if(length(yaxis)>1 && is.numeric(yaxis)){
+                if(length(names(yaxis))!=length(yaxis)){
+                    names(yaxis) <- yaxis
+                }
+                scoreMax0 <- max(yaxis, scoreMax0)
+            }
             if(scoreMax>10) {
-                SNPs$score <- 10*SNPs$score/scoreMax 
-                scoreMax <- ceiling(max(c(SNPs$score, 1), na.rm=TRUE))
+                SNPs$score <- 10*SNPs$score/scoreMax
+                scoreMax <- 10*scoreMax0/scoreMax
+            }else{
+                scoreMax <- scoreMax0
             }
             scoreType <- 
                 if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
@@ -218,6 +226,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                       GAP=GAP, 
                                       cex=cex, 
                                       type=type,
+                                      scoreMax=scoreMax,
                                       level="data&labels")
             vp <- viewport(y=bottomHeight, just="bottom",
                            xscale=c(start(ranges[i]), end(ranges[i])))
@@ -256,6 +265,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         ## legend
         this.height <- getHeight(SNPs.top, 
                                  ratio.yx, LINEW, GAP, cex, type,
+                                 scoreMax=scoreMax,
                                  level="data&labels")
         this.height <- this.height + bottomHeight + feature.height
         this.height <- plotLegend(legend[[i]], this.height, LINEH)

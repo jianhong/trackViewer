@@ -109,16 +109,27 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
     }
     
     if(length(SNPs)>0){
+        yaxisat <- NULL
+        yaxisLabel <- TRUE
+        if(length(yaxis)>1 && is.numeric(yaxis)){
+            yaxisat <- yaxis
+            if(length(names(yaxis))==length(yaxis)) yaxisLabel <- names(yaxis)
+            yaxis <- TRUE
+        }
         if(yaxis && scoreMax>1 && !type %in% c("pie", "pie.stack")){
             if(side=="top"){
-                grid.yaxis(vp=viewport(x=.5-LINEW,
+                grid.yaxis(at=yaxisat,
+                           label=yaxisLabel,
+                           vp=viewport(x=.5-LINEW,
                                        y=feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex,
                                        width=1,
                                        height=scoreMax*LINEW*ratio.yx*cex,
                                        yscale=c(0, scoreMax0+.5)))
             }else{
-                grid.yaxis(vp=viewport(x=.5-LINEW,
+                grid.yaxis(at=yaxisat,
+                           label=yaxisLabel,
+                           vp=viewport(x=.5-LINEW,
                                        y=1-(feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex),
                                        width=1,
@@ -176,6 +187,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         }
         this.height <- getHeight(SNPs, 
                                  ratio.yx, LINEW, GAP, cex, type,
+                                 scoreMax=scoreMax,
                                  level="data")
         labels.rot <- 90
         if(length(names(SNPs))>0){

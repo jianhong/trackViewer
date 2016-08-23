@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.9.14
+-----------------------
+    o add controls for lolliplot yaxis.
+    
 CHANGES IN VERSION 1.9.13
 -----------------------
     o the height of features could be unit object.
