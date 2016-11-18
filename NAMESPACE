@@ -3,7 +3,7 @@ import(grDevices, methods, S4Vectors, IRanges,
 import(Rsamtools)
 import(GenomicAlignments)
 importFrom(Gviz, GeneRegionTrack)
-importFrom(AnnotationDbi, mapIds)
+importFrom(AnnotationDbi, mapIds, columns)
 import(pbapply)
 importFrom(scales, rescale)
 #import(gWidgets)

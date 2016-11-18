@@ -63,7 +63,7 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 }
 \details{
     In SNP.gr and features, metadata of the GRanges object will be used to control the 
-    color, fill, border, height, data source of pie if the type is pie. And also 
+    color, fill, border, height, cex, dashline.col, data source of pie if the type is pie. And also 
     the controls for labels by name the metadata start as label.parameter.<properties> 
     such as label.parameter.rot, label.parameter.gp. The parameter is used for 
     \link[grid]{grid.text}. The metadata 'featureLayerID' for features are used 

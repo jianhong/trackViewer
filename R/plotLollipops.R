@@ -35,8 +35,8 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
                 if(length(this.dat$height)>0) 
                     this.dat$height[[1]][1] else 
                         2*this.feature.height
-            grid.rect(x=start(this.dat), y=bottomHeight+feature.height, 
-                      width=width(this.dat), 
+            grid.rect(x=start(this.dat)-.1, y=bottomHeight+feature.height, 
+                      width=width(this.dat)-.8, 
                       height=this.feature.height.m,
                       just="left", gp=gpar(col=color, fill=fill), 
                       default.units = "native")
@@ -99,6 +99,8 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         lab.pos.condense <- jitterLables(start(SNPs.condense), 
                                          xscale=c(start(ranges), end(ranges)), 
                                          lineW=LINEW*cex)
+        lab.pos.condense <- reAdjustLabels(lab.pos.condense, 
+                                           lineW=LINEW*cex)
         condense.ids <- SNPs.condense$oid
         lab.pos <- rep(lab.pos.condense, elementNROWS(condense.ids))
         lab.pos <- lab.pos[order(unlist(condense.ids))]
@@ -106,6 +108,8 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         lab.pos <- jitterLables(start(SNPs), 
                                 xscale=c(start(ranges), end(ranges)), 
                                 lineW=LINEW*cex)
+        lab.pos <- reAdjustLabels(lab.pos, 
+                                  lineW=LINEW*cex)
     }
     
     if(length(SNPs)>0){
@@ -146,11 +150,15 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             lwd <- if(is.list(this.dat$lwd)) this.dat$lwd[[1]] else this.dat$lwd
             id <- if(is.character(this.dat$label)) this.dat$label else NA
             id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
+            this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1]*cex else cex
+            this.dashline.col <- 
+              if(length(this.dat$dashline.col)>0) this.dat$dashline.col[[1]][1] else dashline.col
+            if(length(names(this.dat))<1) this.dashline.col <- NA
             this.dat.mcols <- mcols(this.dat)
             this.dat.mcols <- 
                 this.dat.mcols[, 
                                !colnames(this.dat.mcols) %in% 
-                                   c("color", "fill", "lwd", "id", 
+                                   c("color", "fill", "lwd", "id", "cex", "dashline.col", 
                                      "id.col", "stack.factor", "SNPsideID"), 
                                drop=FALSE]
             if(type!="pie.stack"){
@@ -165,12 +173,12 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                         colnames(this.dat.mcols)), 
                                drop=FALSE]
 
-            grid.lollipop(x1=(start(this.dat)-start(ranges))/width(ranges), 
+            grid.lollipop(x1=convertX(unit(start(this.dat), "native"), "npc", valueOnly=TRUE),  
                           y1=baseline,
-                          x2=(lab.pos[m]-start(ranges))/width(ranges), 
+                          x2=convertX(unit(lab.pos[m], "native"), "npc", valueOnly=TRUE), 
                           y2=feature.height,
                           y3=4*GAP*cex, y4=2.5*GAP*cex, 
-                          radius=cex*LINEW/2,
+                          radius=this.cex*LINEW/2,
                           col=color,
                           border=border,
                           percent=this.dat.mcols,
@@ -181,7 +189,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                           scoreMax=(scoreMax-0.5) * LINEW * cex,
                           scoreType=scoreType,
                           id=id, id.col=id.col,
-                          cex=cex, lwd=lwd, dashline.col=dashline.col,
+                          cex=this.cex, lwd=lwd, dashline.col=this.dashline.col,
                           side=side)
 
         }

@@ -181,7 +181,7 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
     if(weight==1.2) stopifnot(order(coor)==1:length(coor))
     if(weight<0.5) return(coor)
     stopifnot(length(xscale)==2)
-    pos <- (coor-xscale[1])/diff(xscale)
+    pos <- convertX(unit(coor, "native"), "npc", valueOnly=TRUE)
     pos.diff <- diff(c(0, pos, 1))
     idx <- which(pos.diff < weight*lineW)
     if(length(idx)<1){
@@ -232,4 +232,61 @@ jitterLables <- function(coor, xscale, lineW, weight=1.2){
     coor[as.numeric(names(adj.pos))] <- adj.pos*diff(xscale)+xscale[1]
     
     Recall(coor, xscale=xscale, lineW=lineW, weight=weight-0.2)
+}
+
+reAdjustLabels <- function(coor, lineW){
+  # resort
+  coor <- sort(coor)
+  bins <- ceiling(1/lineW)
+  pos <- convertX(unit(coor, "native"), "npc", valueOnly=TRUE)
+  pos.bin <- cut(pos, c(-Inf, (0:bins)*lineW, Inf), labels=0:(bins+1), right=FALSE)
+  
+  ## split the coors by into clusters
+  ## give the clusters with more idx more spaces if there are spaces between clusters
+  tbl <- table(pos.bin)
+  if(all(tbl<2)) return(coor)
+  tbl.len <- length(tbl)
+  if(tbl.len<3) return(coor)
+  while(any(tbl==0) && any(tbl>1)){
+    tbl.bk <- tbl
+    for(i in order(tbl.bk, decreasing=TRUE)){
+      if(tbl[i]>1 && tbl.bk[i]==tbl[i]){
+        if(i==1){
+          if(tbl[2]<tbl[1]){
+            half <- sum(tbl[1:2])/2
+            tbl[2] <- ceiling(half)
+            tbl[1] <- floor(half)
+          }
+        }else{
+          if(i==tbl.len){
+            if(tbl[tbl.len]>tbl[tbl.len-1]){
+              half <- sum(tbl[(tbl.len-1):tbl.len])/2
+              tbl[tbl.len-1] <- ceiling(half)
+              tbl[tbl.len] <- floor(half)
+            }
+          }else{
+            if(tbl[i-1]<tbl[i+1]){
+              ## i-1 and i should be balanced
+              half <- sum(tbl[(i-1):i])/2
+              tbl[i-1] <- floor(half)
+              tbl[i] <- ceiling(half)
+            }else{
+              half <- sum(tbl[i:(i+1)])/2
+              tbl[i] <- floor(half)
+              tbl[i+1] <- ceiling(half)
+            }
+          }
+        }
+      }
+    }
+  }
+  coef <- unlist(lapply(tbl, function(.ele){
+    if(.ele==0) return(0)
+    .ele <- seq(from=0, to=1, length.out=.ele+1)
+    (.ele[-length(.ele)] + .ele[-1])/2
+  }))
+  coef <- coef[coef!=0]
+  coor <- (rep(as.numeric(names(tbl)), tbl) - 1 + coef) * lineW
+  coor <- convertX(unit(coor, "npc"), "native", valueOnly=TRUE)
+  coor
 }

@@ -345,6 +345,8 @@ lolliplot(sample.gr, features)
 SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
 sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
 lolliplot(sample.gr, features)
+## define the range
+lolliplot(sample.gr, features, ranges = GRanges("chr1", IRanges(104, 109)))
 ```
 
 ## Change lolliplot colors
@@ -637,6 +639,10 @@ lolliplot(methy, features, ranges=gr, type="pin", cex=.5)
 lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
 methy$score2 <- max(methy$score) - methy$score
 lolliplot(methy, features, ranges=gr, type="pie", cex=.5)
+## we can change it one by one
+methy$cex <- runif(length(methy))
+lolliplot(methy, features, ranges=gr, type="pin")
+lolliplot(methy, features, ranges=gr, type="circle")
 ```
 
 # Dandelion Plot

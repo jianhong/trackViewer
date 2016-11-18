@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.11.1
+-----------------------
+    o adjust the x postion of lolliplot.
+
 CHANGES IN VERSION 1.9.14
 -----------------------
     o add controls for lolliplot yaxis.
