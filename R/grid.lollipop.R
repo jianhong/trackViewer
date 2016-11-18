@@ -247,7 +247,9 @@ reAdjustLabels <- function(coor, lineW){
   if(all(tbl<2)) return(coor)
   tbl.len <- length(tbl)
   if(tbl.len<3) return(coor)
-  while(any(tbl==0) && any(tbl>1)){
+  loops <- 1000
+  loop <- 1
+  while(any(tbl==0) && any(tbl>1) && loop < loops){
     tbl.bk <- tbl
     for(i in order(tbl.bk, decreasing=TRUE)){
       if(tbl[i]>1 && tbl.bk[i]==tbl[i]){
@@ -279,6 +281,7 @@ reAdjustLabels <- function(coor, lineW){
         }
       }
     }
+    loop <- loop + 1
   }
   coef <- unlist(lapply(tbl, function(.ele){
     if(.ele==0) return(0)
