@@ -2,10 +2,17 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("circle", "pie", "pin", 
                              "pie.stack"),
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
-                      xaxis=TRUE, legend=NULL, cex=1, dashline.col="gray80", ...){
+                      xaxis=TRUE, legend=NULL, cex=1, 
+                      dashline.col="gray80", 
+                      jitter=c("node", "label"), ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
     stopifnot(inherits(features, c("GRanges", "GRangesList", "list")))
-    
+    jitter <- match.arg(jitter)
+    if(type!="circle"&&jitter=="label"){
+      jitter <- "node"
+      warning("if jitter set to label, type must be cirle.")
+      message("jitter is set to node.")
+    }
     SNP.gr.name <- deparse(substitute(SNP.gr))
     if(class(SNP.gr)=="GRanges"){
         SNP.gr <- GRangesList(SNP.gr)
@@ -252,14 +259,14 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             plotLollipops(SNPs.bottom, feature.height, bottomHeight, baselineN, 
                           type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
-                          side="bottom")
+                          side="bottom", jitter=jitter)
         }
         feature.height <- feature.height + 2*GAP
         if(length(SNPs.top)>0){
             plotLollipops(SNPs.top, feature.height, bottomHeight, baseline, 
                           type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
-                          side="top")
+                          side="top", jitter=jitter)
         }
         
         ## legend

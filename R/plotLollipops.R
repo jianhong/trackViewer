@@ -49,8 +49,9 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
 plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline, 
                           type, ranges, yaxis, scoreMax, scoreMax0, scoreType,
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
-                          side=c("top", "bottom")){
+                          side=c("top", "bottom"), jitter=c("node", "label")){
     side <- match.arg(side)
+    jitter <- match.arg(jitter)
     if(side=="top"){
         pushViewport(viewport(y=bottomHeight,
                               height=1,
@@ -158,7 +159,8 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             this.dat.mcols <- 
                 this.dat.mcols[, 
                                !colnames(this.dat.mcols) %in% 
-                                   c("color", "fill", "lwd", "id", "cex", "dashline.col", 
+                                   c("color", "fill", "lwd", "id", 
+                                     "cex", "dashline.col", 
                                      "id.col", "stack.factor", "SNPsideID"), 
                                drop=FALSE]
             if(type!="pie.stack"){
@@ -173,9 +175,13 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                         colnames(this.dat.mcols)), 
                                drop=FALSE]
 
-            grid.lollipop(x1=convertX(unit(start(this.dat), "native"), "npc", valueOnly=TRUE),  
+            grid.lollipop(x1=convertX(unit(start(this.dat), "native"), "npc", 
+                                      valueOnly=TRUE),  
                           y1=baseline,
-                          x2=convertX(unit(lab.pos[m], "native"), "npc", valueOnly=TRUE), 
+                          x2=convertX(unit(ifelse(jitter=="node", 
+                                                  lab.pos[m], 
+                                                  start(this.dat)), 
+                                           "native"), "npc", valueOnly=TRUE), 
                           y2=feature.height,
                           y3=4*GAP*cex, y4=2.5*GAP*cex, 
                           radius=this.cex*LINEW/2,
@@ -227,7 +233,31 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             labels.gp <- c(labels.gp, cex=cex)
             labels.gp[duplicated(names(labels.gp))] <- NULL
             labels.gp <- do.call(gpar, labels.gp)
-            
+            if(jitter=="label"){
+              ## add guide lines
+              rased.height <- 4*GAP*cex
+              guide.height <- 2.5*GAP*cex
+              for(i in 1:length(SNPs)){
+                this.dashline.col <- 
+                  if(length(SNPs[i]$dashline.col)>0) 
+                    SNPs[i]$dashline.col[[1]][1] else 
+                      dashline.col
+                if(length(names(SNPs[i]))<1) this.dashline.col <- NA
+                grid.lines(x=c(start(SNPs[i]), labels.x[i]), 
+                           y=c(this.height+feature.height-cex*LINEW, 
+                               this.height+feature.height+rased.height),
+                           default.units = labels.default.units,
+                           gp=gpar(col=this.dashline.col, lty=3))
+                grid.lines(x=c(labels.x[i], labels.x[i]),
+                           y=c(this.height+rased.height+feature.height,
+                               this.height+rased.height+
+                                 guide.height+feature.height),
+                           default.units = labels.default.units,
+                           gp=gpar(col=this.dashline.col, lty=3))
+              }
+              ## add this height
+              this.height <- this.height + rased.height + guide.height
+            }
             grid.text(x=labels.x, y=this.height + feature.height, 
                       label = labels.text,  
                       just = labels.just, 

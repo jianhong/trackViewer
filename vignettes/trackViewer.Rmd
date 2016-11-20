@@ -440,6 +440,12 @@ names(yaxis)[3] <- "yaxis"
 lolliplot(sample.gr, features, yaxis=yaxis)
 ```
 
+## Jitter the label only
+```{r lolliplot.jitter, fig.width=6, fig.height=4.5}
+sample.gr$dashline.col <- sample.gr$color
+lolliplot(sample.gr, features, jitter="label")
+```
+
 ## Add legend
 ```{r lolliplot.legend, fig.width=6, fig.height=5}
 legend <- 1:6 ## legend fill color

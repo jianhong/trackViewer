@@ -13,7 +13,9 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
           newpage = TRUE,
           ylab=TRUE, yaxis=TRUE, xaxis=TRUE, 
           legend=NULL, cex=1, 
-          dashline.col="gray80", ...)
+          dashline.col="gray80", 
+          jitter=c("node", "label"),
+          ...)
 }
 
 \arguments{
@@ -56,6 +58,9 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL,
 }
   \item{dashline.col}{
   color for the dashed line.
+}
+  \item{jitter}{
+  jitter the position of nodes or labels.
 }
   \item{...}{
   not used.

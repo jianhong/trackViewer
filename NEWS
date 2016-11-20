@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.11.2
+-----------------------
+    o add jitter label only for lolliplot.
+    
 CHANGES IN VERSION 1.11.1
 -----------------------
     o adjust the x postion of lolliplot.
