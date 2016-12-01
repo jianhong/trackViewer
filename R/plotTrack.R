@@ -126,6 +126,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                 scale <- hrScale(xlim)
                 xpos <- locateScale(xy$x, abs(xy$y), max(abs(yscale)), scale)
                 ypos <- yscale[abs(yscale)==max(abs(yscale))] * 0.7
+                if(length(ypos)>1) ypos <- max(ypos)
                 style@xscale@from <- new("pos", x=xpos[1], y=ypos, unit="native")
                 style@xscale@to <- new("pos", x=xpos[2], y=ypos, unit="native")
                 style@xscale@label <- paste(2*scale[[1]], scale[[2]])

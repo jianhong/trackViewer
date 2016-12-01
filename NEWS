@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.11.3
+-----------------------
+    o fix a bug when tracks has multiple max values.
+    
 CHANGES IN VERSION 1.11.2
 -----------------------
     o add jitter label only for lolliplot.
