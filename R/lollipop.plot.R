@@ -154,6 +154,12 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                         pch=pch,
                         gp=gpar(col=color, fill=fill))
             popViewport()
+        }else{
+          if(length(xaxis)>1 || as.logical(xaxis[1])){
+            bottomblank <- 2
+          }else{
+            bottomblank <- 0
+          }
         }
         
         SNPs <- SNP.gr[[i]]

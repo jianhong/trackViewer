@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.11.4
+-----------------------
+    o remove the blank bottom space for lolliplot.
+    
 CHANGES IN VERSION 1.11.3
 -----------------------
     o fix a bug when tracks has multiple max values.
