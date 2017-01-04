@@ -119,6 +119,12 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                         pch=pch,
                         gp=gpar(col=color, fill=fill))
             popViewport()
+        }else{
+          if(length(xaxis)>1 || as.logical(xaxis[1])){
+            bottomblank <- 2
+          }else{
+            bottomblank <- 0
+          }
         }
         pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
                               width= 1 - 7*lineW,
