@@ -3,12 +3,14 @@ import(grDevices, methods, S4Vectors, IRanges,
 import(Rsamtools)
 import(GenomicAlignments)
 importFrom(Gviz, GeneRegionTrack)
+importFrom(GenomeInfoDb, seqlevels, seqlengths, "genome<-")
 importFrom(AnnotationDbi, mapIds, columns)
 import(pbapply)
 importFrom(scales, rescale)
 #import(gWidgets)
 #import(gWidgetstcltk)
-importFrom(rtracklayer, import)
+importFrom(rtracklayer, import, getTable, ucscTableQuery, GRangesForUCSCGenome,
+           browserSession)
 importFrom(grImport, readPicture, grid.picture)
 importClassesFrom(grImport, "Picture")
 importFrom(tools, file_ext)
@@ -32,10 +34,12 @@ export(addArrowMark,
        geneModelFromTxdb,
        getCurTrackViewport,
        GRoperator,
+       ideogramPlot,
        importBam,
        importData,
        importScore,
 #       interactiveViewer,
+       loadIdeogram,
        lolliplot,
        optimizeStyle,
        parse2GRanges,
