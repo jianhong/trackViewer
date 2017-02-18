@@ -76,12 +76,14 @@ plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1], gp=gpar(fill=NA), ...){
         x <- x[-length(x)]
       }
       far <- range(nchar(as.character(x)))
-      fa <- 10^(far[2]:far[1]-1)
+      if(far[2]<3) return(1)
+      fa <- 10^(far[2]:far[1]-2)
+      fa <- fa[fa>1]
       for(i in fa){
         if(all(x %% i == 0)) return(i)
       }
-      if(far[1]>1){
-        return(10^(far[1]-1))
+      if(far[1]>2){
+        return(10^(far[1]-2))
       }else{
         return(1)
       }

@@ -206,31 +206,41 @@ gridPlot <- function(gr, gp, type, xscale){
                       n=div)[[1]]
            ol <- findOverlaps(wt, gr, ignore.strand=TRUE)
            qol <- unique(queryHits(ol))
-           rg <- range(as.numeric(as.matrix(y0)))
-           cols <- gp$col
-           if(length(cols)==0){
-             cols <- colorRampPalette(c("green", "black", "red"))(100)
+           if(length(gp$breaks)){
+             cols <- gp$col
+             v <- gp$breaks
            }else{
-             if(length(cols)==1){
-               cols <- if(cols=="black") 
-                 colorRampPalette(c("white", cols))(100) else
-                   colorRampPalette(c("black", cols))(100)
+             rg <- range(as.numeric(as.matrix(y0)))
+             cols <- gp$col
+             if(length(cols)==0){
+               cols <- colorRampPalette(c("green", "black", "red"))(100)
              }else{
-               cols <- colorRampPalette(cols)(100)
+               if(length(cols)==1){
+                 cols <- if(cols=="white") 
+                   colorRampPalette(c("black", cols))(100) else
+                     colorRampPalette(c("white", cols))(100)
+               }else{
+                 cols <- colorRampPalette(cols)(100)
+               }
              }
+             v <- seq(rg[1]-1, rg[2]+1, length.out = 101)
            }
-           v <- seq(rg[1]-1, rg[2]+1, length.out = 101)
-           for(i in 1:ncol(y0)){
-             for(j in qol){
-               img[i, j] <- cols[findInterval(
-                 mean(as.numeric(
-                   as.matrix(y0[subjectHits(ol)[queryHits(ol)==j], 
-                                i, drop=TRUE]), 
-                          na.rm=TRUE)),
-                 v)]
-             }
-           }
-           grid.raster(img, width=1, height=1, gp=gp)
+           
+           group <- merge(as.data.frame(ol), data.frame(queryHits=1:div), 
+                          all=TRUE)
+           y00 <- as.data.frame(y0)
+           y01 <- matrix(nrow=nrow(group), ncol=ncol(y00))
+           y01[!is.na(group$subjectHits), ] <- 
+             y00[group$subjectHits[!is.na(group$subjectHits)], ]
+           y01.rowsum <- rowsum(y01, group = group$queryHits)
+           y01.groupcnt <- table(group$queryHits)
+           stopifnot(identical(names(y01.groupcnt), rownames(y01.rowsum)))
+           y01.rowsum <- y01.rowsum/as.numeric(y01.groupcnt)
+           y00 <- apply(y01.rowsum, 2, function(.ele) 
+             cols[findInterval(.ele, v)])
+           stopifnot(all(dim(y00)==rev(dim(img))))
+           img[, qol] <- y00[qol, ]
+           grid.raster(img, width=1, height=1)
            })
 }
 

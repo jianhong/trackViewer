@@ -30,7 +30,7 @@
 #'                          c("chr8", "chr17"), c("chr9", "chr16"),
 #'                          c("chr10", "chr15"), c("chr11", "chr14"),
 #'                          c("chr12", "chr13"), c("chrX", "chrY")),
-#'              parameterList = list(types="heatmap"))
+#'              parameterList = list(types="heatmap", colorKeyTitle="sample1"))
 #' }
 #' 
 #' 
@@ -74,6 +74,83 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
     if(any(!seqlevels(ideo) %in% names(parameterList.default$ylabs))){
       stop("parameterList$ylabs must be a list with names of seqnames of ideo")
     }
+  }
+  if(all(parameterList.default$types=="heatmap")){
+    gps <- parameterList.default$gps
+    if(class(gps)=="gpar"){
+      cols <- list(gps$col)
+      if(length(cols)==0){
+        cols <- rep(list(c("green", "black", "red")), length(dataList))
+      }
+      if(length(cols)!=length(dataList)){
+        cols <- rep(cols, length(dataList))
+      }
+    }else{
+      if(length(gps)!=length(dataList)){
+        stopifnot(all(sapply(gps, is.list)))
+        gps <- rep(gps, length(dataList))[1:length(dataList)]
+      }
+      cols <- lapply(gps, function(.ele) .ele$col)
+    }
+    cols <- lapply(cols, function(col){
+      if(length(col)==0){
+        col <- colorRampPalette(c("green", "black", "red"))(100)
+      }else{
+        if(length(col)==1){
+          col <- if(col=="white") 
+            colorRampPalette(c("black", col))(100) else
+              colorRampPalette(c("white", col))(100)
+        }else{
+          col <- colorRampPalette(col)(100)
+        }
+      }
+      col
+    })
+    rg <- mapply(function(.ele, .cn) 
+      range(as.numeric(as.matrix(mcols(.ele)[, .cn])), na.rm = TRUE),
+      dataList, parameterList.default$dataColumn, SIMPLIFY = FALSE)
+    v <- lapply(rg, function(.ele){
+      seq(.ele[1]-1, .ele[2]+1, length.out = 101)
+    })
+    parameterList.default$gps <- mapply(function(col, breaks) 
+      list(col=col, breaks=breaks), cols, v, SIMPLIFY = FALSE)
+    labels <- parameterList.default$colorKeyTitle
+    if(length(labels)==0){
+      labels <- paste0("colorKey", 1:length(dataList))
+    }
+    labels.width <- convertX(stringWidth(labels), "inches", valueOnly = TRUE)
+    colorKey.width <- 1
+    oneChar.width <- convertX(unit(1, "lines"), "inches", valueOnly = TRUE)
+    pushViewport(viewport(y=unit(1.75, "lines"), height=unit(3.5, "lines"),
+                          width=unit(sum(labels.width) + 
+                                       length(labels) +
+                                       length(labels)*2*oneChar.width, 
+                                     "inches")))
+    labels.x.width <- colorKey.width + 2*oneChar.width + labels.width
+    this.labels.width <- 0
+    for(i in 1:length(labels)){
+      pushViewport(viewport(x=unit(labels.x.width[i]/2 + this.labels.width, 
+                                   'inches'),
+                            width=unit(labels.x.width[i], "inches")))
+      this.labels.width <- this.labels.width + labels.x.width[i]
+      vp <- viewport(x=unit(.5, "inches"), width=unit(1, "inches"),
+                     y=unit(3, "lines"), height=unit(.5, "lines"),
+                     xscale=rg[[i]])
+      pushViewport(vp)
+      grid.raster(as.raster(matrix(cols[[i]], nrow=1)), width = 1, height = 1)
+      grid.xaxis()
+      upViewport()
+      grid.text(label=labels[i], 
+                vp = viewport(x=unit(colorKey.width+oneChar.width+
+                                labels.width[i]/2, "inches"),
+                              width=unit(labels.width[i], "inches"),
+                              y=unit(3, "lines"), height=unit(1, "lines")))
+      upViewport()
+    }
+    upViewport()
+    
+    pushViewport(plotViewport(margins = c(4.1, 0, 0, 0)))
+    on.exit(upViewport())
   }
   parameterList.cp <- parameterList <- parameterList.default
   if(any(is.na(seql))){
