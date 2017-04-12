@@ -37,6 +37,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         start <- GenomicRanges::start(grs)[1]
         end <- GenomicRanges::end(grs)[1]
         strand <- as.character(GenomicRanges::strand(grs))[1]
+        if(ignore.strand) strand <- "*"
         if(length(gr)>1){ ## more than one region
             if(length(unique(as.character(seqnames(gr))))>1){
                 stop("gr has multiple seqnames.")
@@ -138,7 +139,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                            newpage = FALSE, operator = operator)
                 upViewport()
             }
-            return(current.viewport())
+            return(invisible(current.viewport()))
         }
         wavyLine <- ifelse(length(gr$wavyLine)>0, as.logical(gr$wavyLine[1]),
                            FALSE)
