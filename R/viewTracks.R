@@ -15,11 +15,13 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
     }
+    filterTracksFlag <- TRUE
     if(missing(gr)){
         if(missing(chromosome) || missing(start) || missing(end))
             stop("Please input the coordinate.")
         if(missing(strand) || !strand %in% c("+", "-"))
             strand <- "*"
+        wavyLine <- FALSE
     }else{
         if(!is(gr, "GRanges")){
             stop("gr must be an object of GRanges.")
@@ -27,26 +29,119 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         if(length(gr)==0){
             stop("the length of gr must greater than 0.")
         }
-        if(length(gr)>1){ ## more than one region
-            gr <- gr[1]
-            # if(length(unique(as.character(seqnames(gr))))>1){
-            #     stop("gr has multiple seqnames.")
-            # }
-            # if(newpage) grid.newpage()
-            # for(i in seq_along(gr)){
-            #     viewTracks(trackList = trackList, 
-            #                gr = gr[i],
-            #                ignore.strand = ignore.strand,
-            #                viewerStyle = viewerStyle,
-            #                autoOptimizeStyle = autoOptimizeStyle,
-            #                newpage = FALSE, operater = operator)
-            # }
-            # return(NULL)
+        if(length(gr$filterTracks)>0){
+            filterTracksFlag <- as.logical(gr$filterTracks[1])
         }
-        chromosome <- as.character(GenomicRanges::seqnames(gr))[1]
-        start <- GenomicRanges::start(gr)[1]
-        end <- GenomicRanges::end(gr)[1]
-        strand <- as.character(GenomicRanges::strand(gr))[1]
+        grs <- range(gr)
+        chromosome <- as.character(GenomicRanges::seqnames(grs))[1]
+        start <- GenomicRanges::start(grs)[1]
+        end <- GenomicRanges::end(grs)[1]
+        strand <- as.character(GenomicRanges::strand(grs))[1]
+        if(length(gr)>1){ ## more than one region
+            if(length(unique(as.character(seqnames(gr))))>1){
+                stop("gr has multiple seqnames.")
+            }
+            if(length(gr$percentage)==0){
+                gr$percentage <- 1/length(gr)
+            }else{
+                gr$percentage <- gr$percentage/sum(gr$percentage, na.rm = TRUE)
+                gr$percentage[is.na(gr$percentage)] <- 0
+            }
+            gr$wavyLine <- TRUE
+            gr$wavyLine[length(gr)] <- FALSE
+            gr$filterTracks <- FALSE
+            if(newpage) grid.newpage()
+            
+            if(autoOptimizeStyle){
+                opt <- optimizeStyle(trackList, viewerStyle)
+                trackList <- opt$tracks
+                viewerStyle <- opt$style
+            }
+            trackList <- filterTracks(trackList, chromosome, start, end, strand)
+            for(i in seq_along(gr)){
+                current.viewerStyle <- viewerStyle
+                current.trackList <- trackList
+                hgap <- convertWidth(unit(0.25, "lines"), 
+                                     unitTo = "npc", 
+                                     valueOnly = TRUE)
+                if(i==1){
+                    setTrackViewerStyleParam(current.viewerStyle, 
+                                             "margin", 
+                                             c(current.viewerStyle@margin[1:3], 
+                                               hgap))
+                    for(j in seq_along(current.trackList)){
+                        tLjStyle <- current.trackList[[j]]@style
+                        if(tLjStyle@yaxis@draw && !tLjStyle@yaxis@main){
+                            setTrackYaxisParam(current.trackList[[j]],
+                                               "draw",
+                                               FALSE)
+                        }
+                        if(current.trackList[[j]]@type!="gene" &&
+                           grepl("right", tLjStyle@ylabpos)){
+                            names(current.trackList)[[j]] <- ""
+                        }
+                    }
+                }else{
+                    if(i==length(gr)){
+                        setTrackViewerStyleParam(
+                            current.viewerStyle, 
+                            "margin", 
+                            c(current.viewerStyle@margin[1],
+                              hgap,
+                              current.viewerStyle@margin[3:4])
+                        )
+                        for(j in seq_along(current.trackList)){
+                            tLjStyle <- current.trackList[[j]]@style
+                            if(tLjStyle@yaxis@draw && tLjStyle@yaxis@main){
+                                setTrackYaxisParam(current.trackList[[j]],
+                                                   "draw",
+                                                   FALSE)
+                            }
+                            if(current.trackList[[j]]@type!="gene" &&
+                               grepl("left", tLjStyle@ylabpos)){
+                                names(current.trackList)[[j]] <- ""
+                            }
+                        }
+                    }else{
+                        setTrackViewerStyleParam(
+                            current.viewerStyle, 
+                            "margin", 
+                            c(current.viewerStyle@margin[1],
+                              hgap,
+                              current.viewerStyle@margin[3],
+                              hgap)
+                        )
+                        for(j in seq_along(current.trackList)){
+                            setTrackYaxisParam(current.trackList[[j]],
+                                               "draw",
+                                               FALSE)
+                            if(current.trackList[[j]]@type!="gene"){
+                                names(current.trackList)[[j]] <- ""
+                            }
+                        }
+                    }
+                }
+                pushViewport(vp=viewport(
+                    x = unit(ifelse(i==1, 
+                                    0, 
+                                    sum(gr$percentage[seq_len(i-1)]))+
+                                 gr$percentage[i]/2-hgap/2, 
+                             "npc"),
+                    width = unit(gr$percentage[i]-hgap, "npc"),
+                    name = paste0("vp.track.v.", i)
+                ))
+                viewTracks(trackList = current.trackList,
+                           gr = gr[i],
+                           ignore.strand = ignore.strand,
+                           viewerStyle = current.viewerStyle,
+                           autoOptimizeStyle = FALSE,
+                           newpage = FALSE, operator = operator)
+                upViewport()
+            }
+            return(current.viewport())
+        }
+        wavyLine <- ifelse(length(gr$wavyLine)>0, as.logical(gr$wavyLine[1]),
+                           FALSE)
     }
     if(ignore.strand) strand <- "*"
     if(end < start) stop("end should be greater than start.")
@@ -56,7 +151,9 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     }
     if(!is.logical(newpage)) stop("newpage should be a logical vector.")
     
-    trackList <- filterTracks(trackList, chromosome, start, end, strand)
+    if(filterTracksFlag) {
+        trackList <- filterTracks(trackList, chromosome, start, end, strand)
+    }
     
     if(!is.null(operator)){
         ##change dat as operator(dat, dat2)
@@ -109,7 +206,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         xy[[i]] <- plotTrack(names(trackList)[i], trackList[[i]], 
                              viewerStyle, ht,
                              yscales[[i]], yHeights[i], xscale,
-                             chromosome, strand, operator)
+                             chromosome, strand, operator, wavyLine)
         ht <- ht + yHeights[i]
         if(length(trackList[[i]]@style@marginBottom)>0){
             yHeightBottom[i] <- trackList[[i]]@style@marginBottom

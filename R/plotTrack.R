@@ -64,7 +64,7 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
 }
 plotTrack <- function(name, track, curViewStyle, curYpos,
                       yscale, height, xlim, chr, strand,
-                      operator){
+                      operator, wavyLine){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
     
@@ -82,7 +82,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
     pushViewport(viewport(x=0, y=curYpos, 
                           height=height,
                           width=1, 
-                          just=c(0,0)))
+                          just=c(0,0))) ## vp1
     ##put ylab
     if(track@type=="gene" && style@ylabpos %in% c("upstream", "downstream")){
         putGeneYlab(curViewStyle, style, name, height, xscale,
@@ -96,7 +96,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
     pushViewport(viewport(x=0, y=yHeightBottom, 
                           height=1 - yHeightTop - yHeightBottom,
                           width=1, 
-                          just=c(0,0)))
+                          just=c(0,0))) ## vp2
     xy <- list()
     if(track@type=="data"){
         ##plot yaxis
@@ -142,9 +142,24 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               xscale=xscale))
         plotGeneModel(track, xlim)
     }
-    popViewport()
-    popViewport()
-    popViewport()
+    popViewport()## for data
+    
+    ## plot wavy line
+    if(wavyLine){
+        vgap <- convertWidth(unit(0.25, "lines"), 
+                             unitTo = "npc",
+                             valueOnly = TRUE)
+        if(track@type=="data"){
+            y0 <- abs(0-min(yscale))/diff(yscale)
+        }else{
+            y0 <- .5
+        }
+        grid.text(label = "~", x = 1, y=y0, rot = 60)
+        grid.text(label = "~", x = 1+vgap, y=y0, rot = 60)
+    }
+    
+    popViewport() ## vp2
+    popViewport() ## vp1
     
     ##return
     return(invisible(xy))

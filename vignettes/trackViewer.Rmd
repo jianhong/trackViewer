@@ -305,6 +305,19 @@ viewerStyle <- optSty$style
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
+### plot with breaks
+
+We could plot the tracks with breaks by set multiple genomic ranges.
+```{r axis.break,fig.cap='axis.break',fig.width=6,fig.height=2}
+gr.breaks <- GRanges("chr11", 
+                     IRanges(c(122929275, 122929575, 122929775), 
+                             c(122929555, 122929725, 122930122)), 
+                     strand="-", percentage=c(.4, .2, .4))
+vp <- viewTracks(trackList, gr=gr.breaks, viewerStyle=viewerStyle)
+```
+
+
+
 # Operators
 If there are two tracks and we want to draw the two track by adding or substract 
 one from another, we can try operators.

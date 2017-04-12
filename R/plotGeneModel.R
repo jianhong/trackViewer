@@ -5,7 +5,11 @@ plotGeneModel <- function(track, xscale){
     transcript <- track@dat
     col <- track@style@color
     strand <- as.character(strand(transcript))[1]
-    unitx <- abs(xscale[2] - xscale[1]) / 10
+    unitx <- convertWidth(unit(3, "lines"), 
+                          unitTo = "npc",
+                          valueOnly = TRUE)
+    if(unitx > 0.5) unitx <- 0.5
+    unitx <- unitx * abs(xscale[2] - xscale[1]) #abs(xscale[2] - xscale[1]) / 10
     ## plot introns
     introns <- gaps(ranges(transcript))
     introns <- introns[start(introns)>min(end(transcript))
@@ -26,7 +30,7 @@ plotGeneModel <- function(track, xscale){
         if(b>xscale[2]) b <- xscale[2]
         w <- b - a
         times <- floor(5*w/unitx)
-        for(i in 1:times){
+        for(i in seq_len(times)){
             if(b > a+i*unitx/5+unitx*3/20){
                 if(strand=="+") plotArrow(a+i*unitx/5+unitx/10, 
                                           a+i*unitx/5+unitx*3/20,

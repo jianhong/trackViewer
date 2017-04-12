@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for drawing elegant tracks or lollipop plot
-Version: 1.11.7
+Version: 1.11.8
 Date: 2017-04-12
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
