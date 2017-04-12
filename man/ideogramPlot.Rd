@@ -21,6 +21,7 @@ ideogramPlot(ideo, dataList, layout=NULL,
                                 types="barplot", heights=NULL, 
                                 dataColumn="score", 
                                 gps=gpar(col="black", fill="gray")), 
+                         colorSheme=gieStain(),
                          gp=gpar(fill=NA, lwd=2), ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -43,6 +44,9 @@ to the left. If TRUE, the ideograms are drawn horizontally at the bottom.
 parameterList a list of parameters for each dataset in the dataList. 
 The elements of the parameters could be xlabs, ylabs, etc. type could be
 barplot, line, point, heatmap.
+}
+  \item{colorSheme}{
+  A character vector of giemsa stain colors.
 }
   \item{gp}{
  parameters used for \link[grid]{grid.roundrect}.

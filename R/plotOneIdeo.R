@@ -6,6 +6,7 @@
 #' The elements of the parameters could be xlabs, ylabs, etc. type could be
 #' barplot, line, point, heatmap.
 #' @param chrom A length 1 character vector of chromosome name.
+#' @param colorSheme A character vector of giemsa stain colors.
 #' @param gp parameters used for \link[grid]{grid.roundrect}.
 #' @param ... parameters not used.
 #' @import grid
@@ -34,7 +35,8 @@ plotOneIdeo <-
                               types="barplot", heights=NULL, 
                               dataColumn="score", 
                               gps=gpar(col="black", fill="gray")), 
-           chrom=seqlevels(ideo)[1], gp=gpar(fill=NA, lwd=2), ...){
+           chrom=seqlevels(ideo)[1], colorSheme=gieStain(), 
+           gp=gpar(fill=NA, lwd=2), ...){
   stopifnot(class(dataList)=="GRangesList")
   stopifnot(class(parameterList)=="list")
   dataList <- lapply(dataList, function(.ele){
@@ -68,7 +70,7 @@ plotOneIdeo <-
                      height=ideoHeight, 
                      name=paste0("ideoLayer", chrom))
   pushViewport(ideoVP)
-  plotIdeo(ideo, chrom, gp=gp)
+  plotIdeo(ideo, chrom, colorSheme=colorSheme, gp=gp)
   upViewport()
   dataVP <- viewport(y=.5 + ideoHeight/2, height=1-ideoHeight, 
                      name=paste0("dataLayer", chrom))

@@ -9,6 +9,7 @@
 #' @param parameterList a list of parameters for each dataset in the dataList. 
 #' The elements of the parameters could be xlabs, ylabs, etc. type could be
 #' barplot, line, point, heatmap.
+#' @param colorSheme A character vector of giemsa stain colors.
 #' @param gp parameters used for \link[grid]{grid.roundrect}.
 #' @param ... parameters not used.
 #' @import grid
@@ -48,6 +49,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
                                 types="barplot", heights=NULL, 
                                 dataColumn="score", 
                                 gps=gpar(col="black", fill="gray")), 
+                         colorSheme=gieStain(),
                          gp=gpar(fill=NA, lwd=2), ...){
   ## get the seqlengths
   seql <- seqlengths(ideo)
@@ -161,7 +163,8 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
       return()
     }
     if(length(seql)==1){
-      plotOneIdeo(ideo, dataList, parameterList, chrom=names(seql), gp=gp, ...)
+      plotOneIdeo(ideo, dataList, parameterList, chrom=names(seql), 
+                  colorSheme=colorSheme, gp=gp, ...)
       return()
     }
     ## 1 column
@@ -212,7 +215,8 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
         parameterList$ylabsPos <- unit(1, "npc") - parameterList$ylabsPos
       }
       plotOneIdeo(ideo, dataList, parameterList, 
-                  chrom=this.layout$seq[j], gp=gp, ...)
+                  chrom=this.layout$seq[j], colorSheme=colorSheme, 
+                  gp=gp, ...)
       upViewport()
     }
     upViewport()

@@ -1,29 +1,11 @@
-#' plot ideogram
-#' @description plot ideogram for one chromosome 
-#' @param ideo output of \link{loadIdeogram}.
-#' @param chrom A length 1 character vector of chromosome name.
-#' @param gp parameters used for \link[grid]{grid.roundrect}.
-#' @param ... parameters not used.
-#' @import grid
+#' color sheme for the schema for Chromosome Band (Ideogram)
+#' @description Describe the colors of giemsa stain results
+#' @return A character vector of colors
+#' @export
 #' @examples 
-#' \dontrun{
-#' ideo <- loadIdeogram("hg38")
-#' library(grid)
-#' grid.newpage()
-#' plotIdeo(ideo)
-#' }
+#' gieStain()
 #' 
-#' 
-plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1], gp=gpar(fill=NA), ...){
-  stopifnot(class(ideo)=="GRanges")
-  stopifnot(length(chrom)==1)
-  ideo <- ideo[seqnames(ideo) %in% chrom]
-  strand(ideo) <- "*"
-  ideo <- sort(ideo)
-  ol <- findOverlaps(ideo, drop.self=TRUE, drop.redundant=TRUE, minoverlap = 2)
-  if(length(ol)>0){
-    stop("There is overlaps in ideo.")
-  }
+gieStain <- function(){
   ### gieStain #############################
   # #FFFFFF - gneg    - Giemsa negative bands
   # #999999 - gpos25  - Giemsa positive bands
@@ -48,6 +30,40 @@ plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1], gp=gpar(fill=NA), ...){
   })
   names(gposCols) <- paste0("gpos", 1:100)
   colorSheme <- c(gposCols, colorSheme)
+  colorSheme
+}
+
+#' plot ideogram
+#' @description plot ideogram for one chromosome 
+#' @param ideo output of \link{loadIdeogram}.
+#' @param chrom A length 1 character vector of chromosome name.
+#' @param colorSheme A character vector of giemsa stain colors.
+#' @param gp parameters used for \link[grid]{grid.roundrect}.
+#' @param ... parameters not used.
+#' @import grid
+#' @examples 
+#' \dontrun{
+#' ideo <- loadIdeogram("hg38")
+#' library(grid)
+#' grid.newpage()
+#' plotIdeo(ideo)
+#' }
+#' 
+#' 
+plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1], 
+                     colorSheme=gieStain(), gp=gpar(fill=NA), ...){
+  stopifnot(class(ideo)=="GRanges")
+  stopifnot(length(chrom)==1)
+  ideo <- ideo[seqnames(ideo) %in% chrom]
+  strand(ideo) <- "*"
+  ideo <- sort(ideo)
+  ol <- findOverlaps(ideo, drop.self=TRUE, drop.redundant=TRUE, minoverlap = 2)
+  if(length(ol)>0){
+    stop("There is overlaps in ideo.")
+  }
+  stopifnot(!missing(colorSheme))
+  stopifnot(length(names(colorSheme))>0)
+  stopifnot(all(ideo$gieStain %in% names(colorSheme)))
   ### split the ideogram into p arm and q arm
   stopifnot(length(ideo$name)==length(ideo))
   ideoName <- tolower(as.character(ideo$name))

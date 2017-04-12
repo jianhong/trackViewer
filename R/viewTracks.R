@@ -21,8 +21,27 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
         if(missing(strand) || !strand %in% c("+", "-"))
             strand <- "*"
     }else{
-        if(class(gr)!="GRanges" || length(gr)!=1){
-            stop("gr must be an object of GRanges with one element.")
+        if(!is(gr, "GRanges")){
+            stop("gr must be an object of GRanges.")
+        }
+        if(length(gr)==0){
+            stop("the length of gr must greater than 0.")
+        }
+        if(length(gr)>1){ ## more than one region
+            gr <- gr[1]
+            # if(length(unique(as.character(seqnames(gr))))>1){
+            #     stop("gr has multiple seqnames.")
+            # }
+            # if(newpage) grid.newpage()
+            # for(i in seq_along(gr)){
+            #     viewTracks(trackList = trackList, 
+            #                gr = gr[i],
+            #                ignore.strand = ignore.strand,
+            #                viewerStyle = viewerStyle,
+            #                autoOptimizeStyle = autoOptimizeStyle,
+            #                newpage = FALSE, operater = operator)
+            # }
+            # return(NULL)
         }
         chromosome <- as.character(GenomicRanges::seqnames(gr))[1]
         start <- GenomicRanges::start(gr)[1]
