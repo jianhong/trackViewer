@@ -27,7 +27,8 @@
     \item{\code{yaxis}}{object of \code{\link{yaxisStyle}}, describe the details of y-axis}
     \item{\code{ylim}}{\code{"numeric"} y-axis range}
     \item{\code{ylabpos}}{\code{"character"}, ylable postion, ylabpos should 
-    be 'left', 'right', 'topleft', 'bottomleft', 'topright' or 'bottomright'.}
+    be 'left', 'right', 'topleft', 'bottomleft', 'topright' or 'bottomright'.
+    For gene type track, it also could be 'upstream' or 'downstream'}
     \item{\code{ylablas}}{\code{"numeric"} y lable direction. It should 
     be a integer 0-3. See \code{\link[graphics]{par}:las}}
     \item{\code{ylabgp}}{A \code{"list"} object, It will convert to an object of 

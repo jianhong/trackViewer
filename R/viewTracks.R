@@ -77,7 +77,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                                                "draw",
                                                FALSE)
                         }
-                        if(current.trackList[[j]]@type!="gene" &&
+                        if(!tLjStyle@ylabpos %in% 
+                           c("upstream", "downstream") &&
                            grepl("right", tLjStyle@ylabpos)){
                             names(current.trackList)[[j]] <- ""
                         }
@@ -98,7 +99,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                                                    "draw",
                                                    FALSE)
                             }
-                            if(current.trackList[[j]]@type!="gene" &&
+                            if(!tLjStyle@ylabpos %in% 
+                               c("upstream", "downstream") &&
                                grepl("left", tLjStyle@ylabpos)){
                                 names(current.trackList)[[j]] <- ""
                             }
@@ -116,7 +118,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                             setTrackYaxisParam(current.trackList[[j]],
                                                "draw",
                                                FALSE)
-                            if(current.trackList[[j]]@type!="gene"){
+                            if(!current.trackList[[j]]@style@ylabpos %in% 
+                               c("upstream", "downstream")){
                                 names(current.trackList)[[j]] <- ""
                             }
                         }
