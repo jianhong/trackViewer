@@ -131,15 +131,18 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                     width = unit(gr$percentage[i]-hgap, "npc"),
                     name = paste0("vp.track.v.", i)
                 ))
-                viewTracks(trackList = current.trackList,
-                           gr = gr[i],
-                           ignore.strand = ignore.strand,
-                           viewerStyle = current.viewerStyle,
-                           autoOptimizeStyle = FALSE,
-                           newpage = FALSE, operator = operator)
+                vp <- viewTracks(trackList = current.trackList,
+                                 gr = gr[i],
+                                 ignore.strand = ignore.strand,
+                                 viewerStyle = current.viewerStyle,
+                                 autoOptimizeStyle = FALSE,
+                                 newpage = FALSE, operator = operator)
+                vp$name <- paste0("panel.", i)
+                pushViewport(vp)
+                upViewport()
                 upViewport()
             }
-            return(invisible(current.viewport()))
+            return(invisible(current.vpTree()))
         }
         wavyLine <- ifelse(length(gr$wavyLine)>0, as.logical(gr$wavyLine[1]),
                            FALSE)

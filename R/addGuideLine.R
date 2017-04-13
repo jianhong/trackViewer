@@ -9,13 +9,40 @@ addGuideLine <- function(guideLine, col="gray", lty="dashed", lwd=1, vp=NULL){
             obj <- rep(obj, len)[1:len]
         obj
     }
+    vpmultiple <- FALSE
+    if(length(vp)>0){
+        stopifnot(is(vp, "viewport"))
+        if(is(vp, "vpTree")){
+            ## check the range
+            vpmultiple <- TRUE
+        }
+    }
+    selectVP <- function(x, tree){
+        xscales <- sapply(tree$children, function(.ele){
+            seekViewport(names(.ele$children))
+            current.viewport()$xscale
+        }, simplify = FALSE)
+        xscales <- do.call(cbind, xscales)
+        i <- which(x>=xscales[1, ] & x<=xscales[2, ])
+        if(length(i)<1) {
+            message(x, " out of the range.")
+            return(NULL)
+        }
+        seekViewport(paste0("panel.", i))
+        current.viewport()
+    }
     col <- trimLen(col, len)
     lty <- trimLen(lty, len)
     lwd <- trimLen(lwd, len)
-    for(i in 1:length(guideLine)){
+    for(i in seq_along(guideLine)){
+        if(vpmultiple){
+            currentVP <- selectVP(guideLine[i], vp)
+        }else{
+            currentVP <- vp
+        }
         grid.lines(x=guideLine[i], y=c(0, 1), 
                    gp=gpar(col=col[i], lty=lty[i], lwd=lwd[i]), 
-                   default.units="native", vp=vp)
+                   default.units="native", vp=currentVP)
     }
     return(invisible())
 }

@@ -13,6 +13,12 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
         stop("The length of x and y is not identical.")
     if(!quadrant %in% 1:4)
         stop("quadrant must be a integer in 1, 2, 3, 4")
+    if(length(vp)>0){
+        stopifnot(is(vp, "viewport"))
+        if(is(vp, "vpTree")){
+           stop("NOT ready for breaked axis.")
+        }
+    }
     len <- length(x)
     lastTrackViewer <- getOption("LastTrackViewer")
     if(all(class(y) %in% c("numeric", "integer"))){
