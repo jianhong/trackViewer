@@ -36,8 +36,8 @@ browseTracks <- function(trackList,
     chromosome <- as.character(GenomicRanges::seqnames(gr))[1]
     start <- GenomicRanges::start(gr)[1]
     end <- GenomicRanges::end(gr)[1]
+    if(ignore.strand) GenomicRanges::strand(gr) <- "*"
     strand <- as.character(GenomicRanges::strand(gr))[1]
-    if(ignore.strand) strand <- "*"
     if(end < start) stop("end should be greater than start.")
     
     trackList <- trackViewer:::filterTracks(trackList, chromosome, 
@@ -77,10 +77,15 @@ browseTracks <- function(trackList,
     trackdat <- function(.ele){
         dat <- .ele$dat
         dat2 <- .ele$dat2
+        style <- object2list(.ele$style)
+        style$color <- col2Hex(style$color)
         if(.ele$type=="data"){
             dat <- getData(.ele$dat)
             dat2 <- getData(.ele$dat2)
             ylim <- range(c(dat, -1*dat2))
+            if(length(style$color)==1){
+                style$color <- rep(style$color, 2)
+            }
         }else{
             dat <- as.list(as.data.frame(.ele$dat))
             dat$seqnames <- chromosome
@@ -88,8 +93,6 @@ browseTracks <- function(trackList,
             dat2 <- ZERO
             ylim <- c(0, 1)
         }
-        style <- object2list(.ele$style)
-        style$color <- col2Hex(style$color)
         list(dat=dat,
              dat2=dat2,
              style=style,

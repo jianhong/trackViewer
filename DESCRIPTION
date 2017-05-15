@@ -1,8 +1,8 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for drawing elegant tracks or lollipop plot
-Version: 1.13.2
-Date: 2017-05-09
+Version: 1.13.3
+Date: 2017-05-15
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
 Description: Visualize mapped reads along with annotation as track layers for NGS dataset 

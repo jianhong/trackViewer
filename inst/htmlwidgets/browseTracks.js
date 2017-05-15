@@ -13,6 +13,7 @@ HTMLWidgets.widget({
                  .attr("value", "exportSVG");
     return {
       renderValue: function(x) {
+        //console.log(x);
         function writeDownloadLink(){
             function fireEvent(obj,evt){
               var fireOnThis = obj;
@@ -26,14 +27,22 @@ HTMLWidgets.widget({
                 fireOnThis.fireEvent( 'on' + evt, evObj );
               }
             }
-            clearRuler();
+            if(typeof(ruler)!="undefined"){
+                ruler.remove();
+                ruler = undefined;
+            }
+            if(typeof(marginBox)!="undefined"){
+                marginBox.remove();
+                marginBox = undefined;
+            }
             svgAsDataUri(svg.node(), 'trackViewer.svg', function(uri){
                 var a = document.createElement('a');
                 a.href = uri;
                 a.download = 'trackViewer.svg';
                 fireEvent(a, 'click');
             });
-            recoverRuler();
+            draw();
+            ruler = new Ruler();
         }
         d3.select("#export")
           .on("click", writeDownloadLink);
@@ -53,8 +62,9 @@ HTMLWidgets.widget({
         var heightF = function() {
             return(+svg.attr("height") - margin.top - margin.bottom);
         };
-        var g = svg.append("g");
-        var resizeBtn = svg.append("g");
+        var g;
+        var resizeBtn;
+        var marginBox;
         var xscale = d3.scaleLinear().domain([x.start, x.end]).rangeRound([0, widthF()]);
         var trackNames = function(){
             return(x.name);
@@ -656,10 +666,98 @@ HTMLWidgets.widget({
                                     .on("drag", draggedText)
                                     .on("end", dragended));
         };
-        
+        var Margin = function(){
+            if(typeof(margin)==="undefined"){
+                return(null);
+            }
+            var self = this;
+            self.margintop = svg.append("line")
+                                 .attr("stroke", "white")
+                                 .attr("stroke-width", "3px")
+                                 .attr("x1", margin.left)
+                                 .attr("y1", margin.top)
+                                 .attr("x2", +svg.attr("width")-margin.right)
+                                 .attr("y2", margin.top)
+                                 .attr("ref", 3)
+                                 .style("opacity", 0)
+                                 .style("cursor", "ns-resize")
+                                 .call(d3.drag().on("drag", draggedMargin));
+            self.marginbottom = svg.append("line")
+                                 .attr("stroke", "white")
+                                 .attr("stroke-width", "3px")
+                                 .attr("x1", margin.left)
+                                 .attr("y1", +svg.attr("height")-margin.bottom)
+                                 .attr("x2", +svg.attr("width")-margin.right)
+                                 .attr("y2", +svg.attr("height")-margin.bottom)
+                                 .attr("ref", 1)
+                                 .style("opacity", 0)
+                                 .style("cursor", "ns-resize")
+                                 .call(d3.drag().on("drag", draggedMargin));
+            self.marginleft = svg.append("line")
+                                 .attr("stroke", "white")
+                                 .attr("stroke-width", "3px")
+                                 .attr("x1", margin.left)
+                                 .attr("y1", margin.top)
+                                 .attr("x2", margin.left)
+                                 .attr("y2", +svg.attr("height")-margin.bottom)
+                                 .attr("ref", 2)
+                                 .style("opacity", 0)
+                                 .style("cursor", "ew-resize")
+                                 .call(d3.drag().on("drag", draggedMargin));
+            self.marginright = svg.append("line")
+                                 .attr("stroke", "white")
+                                 .attr("stroke-width", "3px")
+                                 .attr("x1", +svg.attr("width")-margin.right)
+                                 .attr("y1", margin.top)
+                                 .attr("x2",+svg.attr("width")- margin.right)
+                                 .attr("y2", +svg.attr("height")-margin.bottom)
+                                 .attr("ref", 4)
+                                 .style("opacity", 0)
+                                 .style("cursor", "ew-resize")
+                                 .call(d3.drag().on("drag", draggedMargin));
+            self.remove = function(){
+                self.margintop.remove();
+                self.marginleft.remove();
+                self.marginbottom.remove();
+                self.marginright.remove();
+            }
+            
+            function draggedMargin(d){
+                var coordinates = d3.mouse(svg.node());
+                var dy = coordinates[1];
+                var dx = coordinates[0];
+                switch(Number(d3.select(this).attr("ref"))){
+                    case 1:
+                        dy = +svg.attr("height") - dy;
+                        if(dy<0) dy=0;
+                        margin.bottom = dy;
+                        self.marginbottom.attr("y1", dy).attr("y2", dy);
+                        break;
+                    case 2:
+                        if(dx<0) dx=0;
+                        margin.left = dx;
+                        self.marginleft.attr("x1", dx).attr("x2", dx);
+                        break;
+                    case 3:
+                        if(dy<0) dy=0;
+                        margin.top = dy;
+                        self.margintop.attr("y1", dy).attr("y2", dy);
+                        break;
+                    case 4:
+                        dx = +svg.attr("width") - dx;
+                        if(dx<0) dx=0;
+                        margin.right = dx;
+                        self.marginright.attr("x1", dx).attr("x2", dx);
+                        break;
+                }
+                draw();
+            }
+            return(self);
+        };
         var draw = function(vspace=10){
-            g.remove();
-            resizeBtn.remove();
+            if(typeof(g)!="undefined") g.remove();
+            if(typeof(resizeBtn)!="undefined") resizeBtn.remove();
+            if(typeof(marginBox)!="undefined") marginBox.remove();
             xscale = d3.scaleLinear().domain([x.start, x.end]).rangeRound([0, widthF()]);
             g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             g.append("rect")
@@ -675,6 +773,7 @@ HTMLWidgets.widget({
             });
             var currH = 0;
             var wscale = d3.scaleLinear().domain([0, x.end-x.start+1]).rangeRound([0, widthF()]);
+            
             for(var k=0; k<trackNames().length; k++){
                 var thisHeight = x.height[trackNames()[k]]*heightF() - 2*vspace;
                 var track = g.append("g")
@@ -682,7 +781,7 @@ HTMLWidgets.widget({
                               .attr("id", "track"+k)
                               .attr("width", widthF())
                               .attr("height", thisHeight)
-                              .attr("transform", "translate(0," + currH + vspace +")");
+                              .attr("transform", "translate(0," + (currH + vspace) +")");
                 //make track drag-able
                 track.call(d3.drag().on("start", dragstarted)
                                     .on("drag", draggedTrack)
@@ -707,8 +806,7 @@ HTMLWidgets.widget({
             }
             xaxis(g, xscale, heightF());
             
-            resizeBtn = svg.append("g")
-                               .append("rect").attr("fill", "white")
+            resizeBtn = svg.append("rect").attr("fill", "white")
                                .attr("x", svg.attr("width")-10)
                                .attr("y", svg.attr("height")-10)
                                .attr("width", 10)
@@ -716,94 +814,88 @@ HTMLWidgets.widget({
                                .style("cursor", "nwse-resize")
                                .call(d3.drag().on("drag", function(d){
                                 svg.attr("width", d3.event.x).attr("height", d3.event.y);
-                                rulemove(d3.mouse(this));
+                                if(typeof(ruler)!="undefined") ruler.rulemove(d3.mouse(this));
                                 draw();
                                }));
+            marginBox = new Margin();
         };
         
-        var xrule = svg.insert("line", ":first-child")
+        var Ruler = function(){
+            var self = this;
+            self.xrule = svg.insert("line", ":first-child")
                                  .attr("stroke", "#ccc")
                                  .attr("stroke-width", "1px")
                                  .style("stroke-dasharray", ("3, 3"));
-        var xrule_label = svg.insert("text", ":first-child")
-                                .attr("fill", "#333")
-                                .attr("y", 10)
-                                .attr("x", 8)
-                                .attr("text-anchor", "end")
-                                .style("font-size", "0.75em")
-                                .text("");
-        var yrule = svg.insert("line", ":first-child")
-                         .attr("stroke", "#ccc")
-                         .attr("stroke-width", "1px")
-                         .style("stroke-dasharray", ("3, 3"));
-        var yrule_label = svg.insert("text", ":first-child")
-                                .attr("fill", "#333")
-                                .attr("y", 10)
-                                .attr("x", 8)
-                                .attr("text-anchor", "start")
-                                .style("font-size", "0.75em")
-                                .text("");
-        
-        var trackNum = function(xpos, ypos){
-            var H = (ypos - margin.top)/heightF();
-            for(var i=0; i<trackNames().length; i++){
-                H = H - x.height[trackNames()[i]];
-                if(H<0){
-                    if(x.type[trackNames()[i]]==="data"){
-                        var a=x.tracklist[trackNames()[i]].dat,
-                            b=x.tracklist[trackNames()[i]].dat2;
-                        var c="";
-                        if(a.length) c = d3.format(".2f")(a[xpos]);
-                        if(b.length) c = c + "; "+d3.format(".2f")(b[xpos]);
-                        return(c);
-                    }else{
-                        return(ypos);
+            self.xrule_label = svg.insert("text", ":first-child")
+                                    .attr("fill", "#333")
+                                    .attr("y", 10)
+                                    .attr("x", 8)
+                                    .attr("text-anchor", "end")
+                                    .style("font-size", "0.75em")
+                                    .text("");
+            self.yrule = svg.insert("line", ":first-child")
+                             .attr("stroke", "#ccc")
+                             .attr("stroke-width", "1px")
+                             .style("stroke-dasharray", ("3, 3"));
+            self.yrule_label = svg.insert("text", ":first-child")
+                                    .attr("fill", "#333")
+                                    .attr("y", 10)
+                                    .attr("x", 8)
+                                    .attr("text-anchor", "start")
+                                    .style("font-size", "0.75em")
+                                    .text("");
+            self.trackNum = function(xpos, ypos){
+                var H = (ypos - margin.top)/heightF();
+                for(var i=0; i<trackNames().length; i++){
+                    H = H - x.height[trackNames()[i]];
+                    if(H<0){
+                        if(x.type[trackNames()[i]]==="data"){
+                            var a=x.tracklist[trackNames()[i]].dat,
+                                b=x.tracklist[trackNames()[i]].dat2;
+                            var c="";
+                            if(a.length) c = d3.format(".2f")(a[xpos]);
+                            if(b.length) c = c + "; "+d3.format(".2f")(b[xpos]);
+                            return(c);
+                        }else{
+                            return(ypos);
+                        }
                     }
                 }
+                return(i);
             }
-            return(i);
-        }
-        var ruler = {
-                xrule : xrule,
-                yrule : yrule,
-                xrule_label : xrule_label,
-                yrule_label : yrule_label
+            self.rulemove = function(coords){
+                var xpos = Math.round(xscale.invert(coords[0]-margin.left));
+                var ypos = Math.round(d3.event.pageY);
+                self.xrule.attr("x1", coords[0])
+                     .attr("x2", coords[0])
+                     .attr("y1", 0)
+                     .attr("y2", svg.attr("height"));
+                self.yrule.attr("x1", 0)
+                     .attr("x2", svg.attr("width"))
+                     .attr("y1", coords[1])
+                     .attr("y2", coords[1]);
+                self.xrule_label.attr("y", 10)
+                           .attr("x", coords[0]-5)
+                           .text(xpos);
+                self.yrule_label.attr("y", coords[1]-5)
+                           .attr("x", 3)
+                           .text(self.trackNum(xpos-x.start, ypos));
             };
-        var rulemove = function(coords){
-            var xpos = Math.round(xscale.invert(coords[0]-margin.left));
-            var ypos = Math.round(d3.event.pageY);
-            xrule.attr("x1", coords[0])
-                 .attr("x2", coords[0])
-                 .attr("y1", 0)
-                 .attr("y2", svg.attr("height"));
-            yrule.attr("x1", 0)
-                 .attr("x2", svg.attr("width"))
-                 .attr("y1", coords[1])
-                 .attr("y2", coords[1]);
-            xrule_label.attr("y", 10)
-                       .attr("x", coords[0]-5)
-                       .text(xpos);
-            yrule_label.attr("y", coords[1]-5)
-                       .attr("x", 3)
-                       .text(trackNum(xpos-x.start, ypos));
-        };
-        var clearRuler = function(){
-            xrule.remove();
-            yrule.remove();
-            xrule_label.remove();
-            yrule_label.remove();
-        };
-        var recoverRuler = function(){
-            xrule = ruler.xrule;
-            yrule = ruler.yrule;
-            xrule_label = ruler.xrule_label;
-            yrule_label = ruler.yrule_label;
-        };
-        svg.on("mousemove", function(){
-            rulemove(d3.mouse(this));
-        });
+            self.remove = function(){
+                self.xrule.remove();
+                self.yrule.remove();
+                self.xrule_label.remove();
+                self.yrule_label.remove();
+                svg.on("mousemove", null);
+            }
+            svg.on("mousemove", function(){
+                self.rulemove(d3.mouse(this));
+            });
+            return(self);
+        }
         
         draw();
+        var ruler = new Ruler();
       },
 
       resize: function(width, height) {
