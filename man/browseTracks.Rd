@@ -1,0 +1,48 @@
+\name{browseTracks}
+\alias{browseTracks}
+\title{browse network}
+\usage{
+browseTracks(trackList, 
+             gr=GRanges(),
+             ignore.strand=TRUE,
+             width=NULL, height=NULL, 
+             ...)
+}
+\arguments{
+\item{trackList}{an object of \code{\link{trackList}}}
+
+\item{gr}{an object of \code{\link[GenomicRanges]{GRanges}}}
+
+\item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
+
+\item{width}{width of the figure}
+
+\item{height}{height of the figure}
+
+\item{...}{parameters not used}
+}
+\value{
+An object of class htmlwidget that will intelligently print itself 
+        into HTML in a variety of contexts including the R console, 
+        within R Markdown documents, and within Shiny output bindings.
+}
+\description{
+browse tracks by a web browser.
+}
+\examples{
+    extdata <- system.file("extdata", package="trackViewer",
+                       mustWork=TRUE)
+    files <- dir(extdata, "-.wig")
+    tracks <- lapply(paste(extdata, files, sep="/"), 
+                        importScore, format="WIG")
+    tracks <- lapply(tracks, function(.ele) {strand(.ele@dat) <- "-"; .ele})
+    names(tracks) <- c("trackA", "trackB")
+    fox2 <- importScore(paste(extdata, "fox2.bed", sep="/"), format="BED")
+    dat <- coverageGR(fox2@dat)
+    fox2@dat <- dat[strand(dat)=="+"]
+    fox2@dat2 <- dat[strand(dat)=="-"]
+    gr <- GRanges("chr11", IRanges(122929275, 122930122))
+    browseTracks(trackList(tracks, fox2), gr=gr)
+}
+\keyword{plot}
+

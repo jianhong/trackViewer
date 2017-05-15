@@ -7,7 +7,8 @@
     GRanges operations (add, aubtract, multiply, divide)
 }
 \usage{
-GRoperator(A, B, col="score", operator = c("+", "-", "*", "/", "^", "\%\%"))
+GRoperator(A, B, col="score", operator = c("+", "-", "*", "/", "^", "\%\%"),
+          ignore.strand = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,8 +22,12 @@ GRoperator(A, B, col="score", operator = c("+", "-", "*", "/", "^", "\%\%"))
     colname of A and B to be calculated
 }
   \item{operator}{
-    operator, "+" means A + B, and so on.
+    operator, "+" means A + B, and so on. User-defined function also could be 
+    used.
 }
+  \item{ignore.strand}{
+  When set to TRUE, the strand information is ignored in the overlap calculations.
+  }
 }
 \value{
     an object of GRanges
@@ -41,6 +46,7 @@ GRoperator(A, B, col="score", operator = c("+", "-", "*", "/", "^", "\%\%"))
     GRoperator(gr2, gr3, col="score", operator="-")
     GRoperator(gr2, gr3, col="score", operator="*")
     GRoperator(gr2, gr3, col="score", operator="/")
+    GRoperator(gr2, gr3, col="score", operator=mean)
 }
 
 \keyword{ misc }

@@ -1,5 +1,5 @@
 import(grDevices, methods, S4Vectors, IRanges, 
-       GenomicRanges, GenomicFeatures, grid)
+       GenomicRanges, GenomicFeatures, grid, htmlwidgets)
 import(Rsamtools)
 import(GenomicAlignments)
 importFrom(Gviz, GeneRegionTrack)
@@ -29,6 +29,7 @@ exportMethods(setTrackViewerStyleParam,
               "$", "$<-", show)
 export(addArrowMark,
        addGuideLine,
+       browseTracks,
        coverageGR,
        dandelion.plot,
        geneModelFromTxdb,
@@ -38,7 +39,6 @@ export(addArrowMark,
        importBam,
        importData,
        importScore,
-#       interactiveViewer,
        loadIdeogram,
        lolliplot,
        optimizeStyle,

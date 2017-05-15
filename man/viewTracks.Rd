@@ -46,6 +46,6 @@ See Also as \code{\link{addGuideLine}}, \code{\link{addArrowMark}}
     fox2@dat <- dat[strand(dat)=="+"]
     fox2@dat2 <- dat[strand(dat)=="-"]
     gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
-    viewTracks(trackList(tracks, fox2), gr=gr, autoOptimizeStyle=TRUE)
+    viewTracks(trackList(track=tracks, fox2=fox2), gr=gr, autoOptimizeStyle=TRUE)
 }
 \keyword{ plot }

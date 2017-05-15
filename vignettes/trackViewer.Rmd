@@ -316,6 +316,14 @@ gr.breaks <- GRanges("chr11",
 vp <- viewTracks(trackList, gr=gr.breaks, viewerStyle=viewerStyle)
 ```
 
+## browse tracks by htmlwidgets
+
+To change the parameter may be complicated for users. 
+Users may want to have a try function `browseTracks`.
+
+```{r browseTrack,fig.cap="browseTrack",fig.width=6,fig.height=6}
+browseTracks(trackList, gr=gr)
+```
 
 
 # Operators

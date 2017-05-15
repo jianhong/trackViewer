@@ -1,32 +1,61 @@
-GRbin <- function(A, B, col){
-    A1 <- B1 <- C <- disjoin(c(A, B), ignore.strand=FALSE)
-    ol1 <- findOverlaps(C, A, maxgap=0L, minoverlap=1L,
-                        type="any", ignore.strand=FALSE)
-    ol2 <- findOverlaps(C, B, maxgap=0L, minoverlap=1L,
-                        type="any", ignore.strand=FALSE)
-    A1$value <- B1$value <- 0
-    A1$value[queryHits(ol1)] <- mcols(A)[subjectHits(ol1), col]
-    B1$value[queryHits(ol2)] <- mcols(B)[subjectHits(ol2), col]
+GRbin <- function(A, B, col, ignore.strand){
+    mcols(A) <- DataFrame(source="A", id=seq_along(A), value=mcols(A)[, col])
+    mcols(B) <- DataFrame(source="B", id=seq_along(B), value=mcols(B)[, col])
+    D <- c(A, B)
+    C <- disjoin(D, with.revmap=TRUE, 
+                 ignore.strand=ignore.strand)
+    revmap <- data.frame(oid=unlist(C$revmap), 
+                         nid=rep(seq_along(C), lengths(C$revmap)))
+    revmap$source <- D$source[revmap$oid]
+    C$revmap <- NULL
+    setMeta <- function(group="A"){
+        X <- C
+        mcols(X) <- DataFrame(source="", id=0, value=0)
+        id <- revmap[revmap$source==group, ]
+        mcols(X)[id$nid, ] <- mcols(D)[id$oid, ]
+        X$id[X$id==0] <- NA
+        X
+    }
+    A1 <- setMeta("A")
+    B1 <- setMeta("B")
     GRangesList(A=A1, B=B1)
 }
-GRoperator <- function(A, B, col="score", operator=c("+", "-", "*", "/", "^", "%%")){
-    if(class(A)!="GRanges" || class(B)!="GRanges"){
+GRoperator <- function(A, B, col="score", 
+                       operator=c("+", "-", "*", "/", "^", "%%"),
+                       ignore.strand=TRUE){
+    if(!is(A, "GRanges") || !is(B, "GRanges")){
         stop("A and B must be objects of GRanges")
     }
-    operator <- match.arg(operator)
+    if(any(countOverlaps(A)>1) || any(countOverlaps(B)>1)){
+        stop("A or B has overlaps.")
+    }
+    argA <- deparse(substitute(A))
+    argB <- deparse(substitute(B))
+    if(!is.function(operator)){
+        operator <- match.arg(operator)
+        operator <- .Primitive(operator)
+    }
+    
     if(!(col %in% colnames(mcols(A)))){
         stop("col is not in metadata of A")
     }
     if(!(col %in% colnames(mcols(B)))){
         stop("col is not in metadata of B")
     }
-    C <- GRbin(A, B, col)
+    C <- GRbin(A, B, col, ignore.strand=ignore.strand)
     A <- C$A
     B <- C$B
     out <- A
-    operator <- .Primitive(operator)
-    out$value <- operator(A$value, B$value)
-    colnames(mcols(out)) <- col
+    mcols(out) <- NULL
+    out$value <- tryCatch(operator(A$value, B$value),
+                          error=function(e) mapply(operator, A$value, B$value))
+    out$A <- A$source=="A"
+    out$A_id <- A$id
+    out$B <- B$source=="B"
+    out$B_id <- B$id
+    colnames(mcols(out)) <- c(col, 
+                              argA, paste0(argA, "_id"),
+                              argB, paste0(argB, "_id"))
     out
 }
 
