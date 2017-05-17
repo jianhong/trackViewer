@@ -11,6 +11,11 @@ HTMLWidgets.widget({
                  .attr("name", "export")
                  .attr("id", "export")
                  .attr("value", "exportSVG");
+    var menu2 = d3.select(el).append("input")
+                 .attr("type", "button")
+                 .attr("name", "exportPNG")
+                 .attr("id", "exportPNG")
+                 .attr("value", "exportPNG");
     return {
       renderValue: function(x) {
         //console.log(x);
@@ -46,12 +51,33 @@ HTMLWidgets.widget({
         }
         d3.select("#export")
           .on("click", writeDownloadLink);
+        d3.select("#exportPNG")
+          .on("click", function(){
+            if(typeof(ruler)!="undefined"){
+                ruler.remove();
+                ruler = undefined;
+            }
+            if(typeof(marginBox)!="undefined"){
+                marginBox.remove();
+                marginBox = undefined;
+            }
+            var background = svg.insert("rect", ":first-child")
+                              .attr("width", svg.attr("width"))
+                              .attr("height", svg.attr("height"))
+                              .attr("fill", "white")
+                              .attr("strock", "none");
+            saveSvgAsPng(svg.node(), "trackViewer.png", {scale: 4});
+            background.remove();
+            draw();
+            ruler = new Ruler();
+          });
           
         svg.attr("width", width)
            .attr("height", height);
         var margin = {top: 20, right: 20, bottom: 30, left: 80};
-        x.opacity = [];
-        x.fontsize = [];
+        x.opacity = {};
+        x.fontsize = {};
+        x.markers = {};
         for(var k=0; k<x.name.length; k++){
             x.opacity[x.name[k]] = 1;
             x.fontsize[x.name[k]] = x.type[x.name[k]] === "gene" ? 12 : 10;
@@ -65,6 +91,7 @@ HTMLWidgets.widget({
         var g;
         var resizeBtn;
         var marginBox;
+        var markerGroup;
         var xscale = d3.scaleLinear().domain([x.start, x.end]).rangeRound([0, widthF()]);
         var trackNames = function(){
             return(x.name);
@@ -106,22 +133,30 @@ HTMLWidgets.widget({
         };
         
         var changeTrackName = function(k, txt){
+            if(x.name.indexOf(txt) != -1){
+                console.log("used name" + txt);
+                return;
+            }
             var xkeys = d3.keys(x);
-            var known = ["name", "chromosome", "start", "end", "strand"];
+            var known = ["name", "chromosome", "start", "end", "strand", "markers"];
             xkeys = xkeys.filter(function(el){
                 return known.indexOf(el)<0;
             });
             for(var i=0; i<xkeys.length; i++){
                 x[xkeys[i]][txt] = x[xkeys[i]][x.name[k]];
-                x[xkeys[i]][x.name[k]] = 'undefined';
+                delete(x[xkeys[i]][x.name[k]]);
             }
             x.name[k] = txt;
-            
+            //console.log(x);
         };
         var changeText = function(txt){
             if(typeof(editable_ele)!="undefined" && typeof(currentId)!="undefined"){
                 editable_ele.text(txt);
-                changeTrackName(currentId, txt);
+                if(/Mlabel/.exec(editable_ele.attr("class"))){
+                    x.markers[editable_ele.attr("ref")].txt = txt;
+                }else{
+                    changeTrackName(currentId, txt);
+                }
             }
         };
         
@@ -155,6 +190,13 @@ HTMLWidgets.widget({
                     case 27:
                         clearFun();
                         break;
+                    case 46:
+                        if(/Mlabel/.exec(editable_ele.attr("class"))){
+                            delete(x.markers[editable_ele.attr("ref")]);
+                            editable_ele.remove();
+                            clearFun();
+                        }
+                        break;
                     case 8:
                         changeText(editable_ele.text().substring(0, editable_ele.text().length - 1));
                         break;
@@ -172,23 +214,19 @@ HTMLWidgets.widget({
         
         var removeTarget = function(){
             editable_ele.attr("stroke-width", 2);
-            var opacity = editable_ele.style("opacity")===1 ? 0 : 1;
+            var opacity = editable_ele.style("opacity")==1 ? 0 : 1;
             //console.log(opacity);
-            if (confirm("toggle the selection?") === true) {
+            if (confirm("toggle the selection?") == true) {
                 editable_ele.style("opacity", opacity);
                 if(x.type[trackNames()[currentId]]==="gene"){
                     d3.selectAll("#arrow"+currentId).style("opacity", opacity);
                 }
                 x.opacity[trackNames()[currentId]] = opacity;
             }
-            editable_ele.attr("stroke-width", opacity===0 ? 10 : 1);
+            editable_ele.attr("stroke-width", opacity==0 ? 10 : 1);
         };
         
         var ColorPicker = function (datId=0) {
-            if(typeof(cp)!="undefined"){
-                cp.remove();
-                cp = undefined;
-            }
             if(typeof(coor)==="undefined" || 
                typeof(color)==="undefined"  ||
                typeof(editable_ele)==="undefined" ||
@@ -207,13 +245,19 @@ HTMLWidgets.widget({
             self.pickedColor = defaultColor;
             self.picked = function (col) {
                 //d3.selectAll(".track"+currentId).attr("fill", col);
-                if(x.type[trackNames()[currentId]]==="data"){
-                    x.tracklist[trackNames()[currentId]].style.color[datId] = col;
+                if(datId==3){
+                    //markers
+                    x.markers[editable_ele.attr("ref")].color = col;
                 }else{
-                    x.tracklist[trackNames()[currentId]].style.color = col;
+                    if(x.type[trackNames()[currentId]]==="data"){
+                        x.tracklist[trackNames()[currentId]].style.color[datId] = col;
+                    }else{
+                        x.tracklist[trackNames()[currentId]].style.color = col;
+                    }
                 }
                 color = col;
-                draw();
+                draw(); // refresh the tracks.
+                newCP();// keep it on top
             };
             var clicked = function () {
                 self.picked(self.pickedColor);
@@ -221,25 +265,52 @@ HTMLWidgets.widget({
         
             var pie = d3.pie().sort(null);
             var arc = d3.arc().innerRadius(25).outerRadius(50);
-            coor[0] = coor[0]+50-margin.left;
-            coor[1] = coor[1]+50-margin.top;
-            if(coor[0] > widthF() - 50){
-                coor[0] = widthF() - 50;
+            var currentCoor = coor;
+            currentCoor[0] = currentCoor[0]+50-margin.left;
+            currentCoor[1] = currentCoor[1]+50-margin.top;
+            if(currentCoor[0] > widthF() - 50){
+                currentCoor[0] = widthF() - 50;
             }
-            if(coor[1] > heightF() - 50){
-                coor[1] = heightF() - 50;
+            if(currentCoor[1] > heightF() - 50){
+                currentCoor[1] = heightF() - 50;
             }
-            cp = g
+            var newCP = function(){
+                if(typeof(cp)!="undefined"){
+                    cp.remove();
+                    cp = undefined;
+                }
+                cp = svg
                 .append("g")
                 .attr("width", 100)
                 .attr("height", 100)
-                .attr("transform", "translate(" + coor[0] +  " " + coor[1] + ")");
+                .attr("transform", "translate(" + currentCoor[0] +  " " + currentCoor[1] + ")")
+                .call(d3.drag().on("drag", function(d){//moveable;
+                    currentCoor = [currentCoor[0]+d3.event.dx, currentCoor[1]+d3.event.dy];
+                    d3.select(this)
+                      .style("cursor", "move")
+                      .attr("transform", "translate(" + currentCoor[0] +  " " + currentCoor[1] + ")");
+                }).on("end", function(d){
+                    d3.select(this).style("cursor", "default");
+                }));
             var defaultPlate = cp.append("circle")
                     .attr("fill", defaultColor)
                     .attr("stroke", "#fff")
                     .attr("stroke-width", 2)
                     .attr("r", 10)
                     .attr("cx", 45)
+                    .attr("cy", 45)
+                    .on("mouseover", function () {
+                        var fill = d3.select(this).attr("fill");
+                        self.pickedColor = fill;
+                        plate.attr("fill", fill);
+                    })
+                    .on("click", clicked);
+            var blackPlate = cp.append("circle")
+                    .attr("fill", "black")
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 2)
+                    .attr("r", 10)
+                    .attr("cx", -45)
                     .attr("cy", 45)
                     .on("mouseover", function () {
                         var fill = d3.select(this).attr("fill");
@@ -297,6 +368,8 @@ HTMLWidgets.widget({
                     plate.attr("fill", fill);
                 })
                 .on("click", clicked);
+            };
+            newCP();
         };
         
         
@@ -385,9 +458,15 @@ HTMLWidgets.widget({
                 gHandlerPoints.attr("transform", "rotate(-90) translate("+(SVGRect.x + SVGRect.width)+","+(SVGRect.y+SVGRect.height/2)+")");
             }
             function resize_draged(d){
-                var fontsize = x.fontsize[x.name[currentId]] - d3.event.dy;
+                var fontsize = 12;
+                if(/Mlabel/.exec(editable_ele.attr("class"))){
+                    fontsize = x.markers[editable_ele.attr("ref")].fontsize - d3.event.dy;
+                    x.markers[editable_ele.attr("ref")].fontsize = fontsize;
+                }else{
+                    fontsize = x.fontsize[x.name[currentId]] - d3.event.dy;
+                    x.fontsize[x.name[currentId]] = fontsize;
+                }
                 editable_ele.style("font-size", fontsize + "px");
-                x.fontsize[x.name[currentId]] = fontsize;
                 SVGRect = editable_ele.node().getBBox();
                 gHandlerPoints.attr("transform", 
                     /rotate/.exec(editable_ele.attr("transform")) ? 
@@ -441,6 +520,15 @@ HTMLWidgets.widget({
             if(/exon/.exec(cls)){
                 //console.log("exon");
                 ColorPicker(0);
+            }
+            if(/Marker/.exec(cls)){
+                //console.log("marker");
+                ColorPicker(3);
+            }
+            if(/Mlabel/.exec(cls)){
+                //console.log("marker labels");
+                editText();
+                ColorPicker(3);
             }
             if(/dataBaseline/.exec(cls)){
                 //console.log("dataBaseline");
@@ -506,7 +594,7 @@ HTMLWidgets.widget({
                  .attr("y1", yscale(0))
                  .attr("y2", yscale(0))
                  .attr("stroke", color[0])
-                 .attr("stroke-width", x.opacity[x.name[k]]===1 ? "1px" : "10px")
+                 .attr("stroke-width", x.opacity[x.name[k]]==1 ? "1px" : "10px")
                  .attr("opacity", x.opacity[x.name[k]])
                  .attr("class", "dataBaseline track"+k)
                  .attr("kvalue", k)
@@ -606,7 +694,7 @@ HTMLWidgets.widget({
                          .attr("y1", yscale(0.5))
                          .attr("y2", yscale(0.5))
                          .attr("stroke", color)
-                         .attr("stroke-width", x.opacity[label]===1 ? "1px" : "10px")
+                         .attr("stroke-width", x.opacity[label]==1 ? "1px" : "10px")
                          .attr("opacity", x.opacity[label])
                          .attr("class", "geneBaseline track"+k)
                          .attr("kvalue", k)
@@ -754,15 +842,290 @@ HTMLWidgets.widget({
             }
             return(self);
         };
+        
+        var Marker = function(){
+            if(typeof(x.markers)==="undefined"){
+                x.markers = [];
+            }
+            var self = this;
+            self.remove = function(){
+                if(typeof(self.g)!="undefined") self.g.remove();
+                svg.on("dblclick", null);
+            };
+            var makeLabelDraggable = d3.drag()
+                       .on("drag", function(d){
+                            var curr = d3.select(this);
+                            var coords = d3.mouse(svg.node());
+                            var posx = Math.round(xscale.invert(coords[0]-margin.left));
+                            var posy = Math.round(coords[1]);
+                            var m = x.markers[curr.attr("ref")];
+                            if(posx!=m.ref[0] && posy!=m.ref[1]){
+                                m.ref = [posx, posy];
+                                x.markers["text"+posx + "_" + posy] = m;
+                                delete(x.markers[curr.attr("ref")]);
+                                curr.attr("id", "text"+m.ref[0] + "_" + m.ref[1])
+                                   .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
+                                   .attr("x", xscale(m.ref[0]) + margin.left)
+                                   .attr("y", m.ref[1])
+                                   .style("cursor", "move");
+                            }
+                            if(typeof(bg)!="undefined"){
+                                bg.remove();
+                            }
+                            if(typeof(resize_bg)!="undefined"){
+                                resize_bg.remove();
+                            }
+                       })
+                       .on("end", function(d){
+                            d3.select(this).style("cursor", "default");
+                       });
+            svg.on("dblclick", function(){
+                var coords = d3.mouse(svg.node());
+                var posx = Math.round(xscale.invert(coords[0]-margin.left));
+                var posy = Math.round(coords[1]); // can not keep position
+                var m = {
+                    "ref" : [posx, posy],
+                    "markertype" : 2,
+                    "color" : "black",
+                    "opacity" : 1,
+                    "fontsize" : 12,
+                    "txt" : "label"
+                };
+                x.markers["text"+posx + "_" + posy] = m;
+                self.g.append("text")
+                       .attr("id", "text"+m.ref[0] + "_" + m.ref[1])
+                       .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
+                       .attr("fill", m.color)
+                       .attr("y", m.ref[1])
+                       .attr("x", xscale(m.ref[0]) + margin.left)
+                       .attr("text-anchor", "start")
+                       .style("font-size", m.fontsize+"px")
+                       .text(m.txt)
+                       .attr("class", "Mlabel")
+                       .on("click", make_editable)
+                       .call(makeLabelDraggable);
+            });
+            self.g = svg.append("g");
+            self.draggedLine = function(d){
+                var coords = d3.mouse(svg.node())[0];
+                d3.select(this).attr("x1", coords).attr("x2", coords);
+            }
+            self.dragendLine = function(d){
+                var coords = d3.mouse(svg.node());
+                var posx = Math.round(xscale.invert(coords[0]-margin.left));
+                var old = d3.select(this).attr("ref");
+                if(old != "line"+posx){
+                    x.markers["line"+posx] = x.markers[old];
+                    delete(x.markers[old]);
+                    x.markers["line"+posx].ref = posx;
+                    d3.select(this).attr("ref", "line"+posx);
+                    self.redraw();
+                }
+            }
+            self.dragstarted = function(d){
+                            console.log("s");
+                            coor = d3.mouse(this);
+                            var posx = Math.round(xscale.invert(coor[0] - margin.left));
+                            var m = {
+                                "ref" : posx,
+                                "markertype" : 1,
+                                "color" : "gray",
+                                "opacity" : 0.3,
+                                "linetype" : "solid",
+                                "linewidth" : 1
+                            };
+                            self.g.append("rect")
+                                           .attr("id", "rect"+posx)
+                                           .attr("stroke", "none")
+                                           .attr("fill", m.color)
+                                           .attr("x", xscale(m.ref) + margin.left)
+                                           .attr("width", m.linewidth)
+                                           .attr("y", margin.top)
+                                           .attr("height", +svg.attr("height") - margin.bottom - margin.top)
+                                           .attr("ref", "rect"+m.ref)
+                                           .style("opacity", m.opacity)
+                                           .attr("class", "Marker");
+                };
+              self.dragged = function(d){
+                                    var coords = d3.mouse(this);
+                                    var posx = Math.round(xscale.invert(coor[0] - margin.left));
+                                    d3.select("#rect"+posx).attr("width", coords[0] - coor[0]);
+                                    };
+              self.dragended = function(d){
+                                var coords = d3.mouse(this);
+                                var posx = Math.round(xscale.invert(coor[0] - margin.left));
+                                if(coords[0] - coor[0] > 3){
+                                    x.markers["rect"+posx] = {
+                                        "ref" : posx,
+                                        "markertype" : 1,
+                                        "color" : "gray",
+                                        "opacity" : 0.3,
+                                        "linetype" : "solid",
+                                        "linewidth" : xscale.invert(coords[0] - margin.left) - posx
+                                    };
+                                }else{
+                                    x.markers["line"+posx] = {
+                                        "ref" : posx,
+                                        "markertype" : 0,
+                                        "color" : "gray",
+                                        "opacity" : 1,
+                                        "linetype" : "dashed",
+                                        "linewidth" : 1
+                                    };
+                                }
+                                self.redraw();
+                            };
+            self.resizeRectL = function(d){
+                var coords = d3.mouse(this);
+                var posx = Math.round(xscale.invert(coords[0] - margin.left));
+                var obj = d3.select(this);
+                var ref = obj.attr("ref");
+                if(posx != x.markers[ref].ref){
+                    x.markers[ref].linewidth = x.markers[ref].ref - posx + x.markers[ref].linewidth;
+                    obj.attr("ref", "rect" + posx)
+                       .attr("id", "rectL" + posx)
+                       .attr("x1", xscale(posx) + margin.left)
+                       .attr("x2", xscale(posx) + margin.left);
+                    d3.select("#rect"+x.markers[ref].ref)
+                      .attr("ref", "rect" + posx)
+                      .attr("id", "rect" + posx)
+                      .attr("x", xscale(posx) + margin.left)
+                      .attr("width", xscale(posx + x.markers[ref].linewidth) - xscale(posx));
+                    d3.select("#rectR"+x.markers[ref].ref)
+                      .attr("ref", "rect" + posx)
+                      .attr("id", "rectR" + posx)
+                      .attr("x1", xscale(x.markers[ref].linewidth + posx)+margin.left)
+                      .attr("x2", xscale(x.markers[ref].linewidth + posx)+margin.left)
+                    x.markers[ref].ref = posx;
+                    x.markers["rect"+posx] = x.markers[ref];
+                    delete(x.markers[ref]);
+                }
+            };
+            self.resizeRectR = function(d){
+                var coords = d3.mouse(this);
+                var posx = Math.round(xscale.invert(coords[0] - margin.left));
+                var obj = d3.select(this);
+                var ref = obj.attr("ref");
+                if(posx != x.markers[ref].ref + x.markers[ref].linewidth){
+                    obj.attr("x1", xscale(posx) + margin.left)
+                       .attr("x2", xscale(posx) + margin.left);
+                    d3.select("#rect"+x.markers[ref].ref)
+                      .attr("width", xscale(posx) - xscale(x.markers[ref].ref));
+                    x.markers[ref].linewidth = posx - x.markers[ref].ref;
+                    console.log(x.markers);
+                }
+            };
+            self.redraw = function(){
+                self.g.remove();
+                self.g = svg.insert("g");
+                var rect = self.g.insert("rect").attr("width", svg.attr("width"))
+                                     .attr("height", margin.top)
+                                     .attr("fill", "white")
+                                     .attr("stroke", "none")
+                                     .attr("opacity", 0)
+                                     .call(d3.drag()
+                                             .on("start", self.dragstarted)
+                                             .on("drag", self.dragged)
+                                             .on("end", self.dragended));
+                for(var k in x.markers){
+                    var m = x.markers[k];
+                    if(typeof(m)==="undefined") continue;
+                    var l;
+                    switch(m.markertype){
+                        case 0:
+                            l= self.g.append("line")
+                                       .attr("y1", margin.top)
+                                       .attr("y2", +svg.attr("height") - margin.bottom)
+                                       .attr("x1", xscale(m.ref) + margin.left)
+                                       .attr("x2", xscale(m.ref) + margin.left)
+                                       .attr("stroke", m.color)
+                                       .attr("stroke-width", "1px")
+                                       .attr("fill", "none")
+                                       .style("cursor", "move")
+                                       .attr("ref", "line"+m.ref)
+                                       .attr("class", "Marker");
+                            if(m.linetype==="dashed"){
+                                l.style("stroke-dasharray", ("3, 3"));
+                            }else{
+                                //solid
+                            }
+                            l.call(d3.drag().on("drag", self.draggedLine)
+                                            .on("end", self.dragendLine));
+                            break;
+                        case 1:
+                            l= self.g.append("rect")
+                                   .attr("id", "rect"+m.ref)
+                                   .attr("stroke", "none")
+                                   .attr("fill", m.color)
+                                   .attr("x", xscale(m.ref) + margin.left)
+                                   .attr("width", xscale(m.ref+m.linewidth) - xscale(m.ref))
+                                   .attr("y", margin.top)
+                                   .attr("height", +svg.attr("height") - margin.bottom - margin.top)
+                                   .attr("ref", "rect"+m.ref)
+                                   .style("opacity", m.opacity)
+                                   .attr("class", "Marker");
+                            self.g.append("line")
+                                   .attr("id", "rectL"+m.ref)
+                                   .attr("y1", margin.top)
+                                   .attr("y2", +svg.attr("height") - margin.bottom)
+                                   .attr("x1", xscale(m.ref) + margin.left)
+                                   .attr("x2", xscale(m.ref) + margin.left)
+                                   .attr("stroke", "white")
+                                   .attr("stroke-width", "2px")
+                                   .style("opacity", 0)
+                                   .style("cursor", "ew-resize")
+                                   .attr("ref", "rect"+m.ref)
+                                   .call(d3.drag().on("drag", self.resizeRectL));
+                            self.g.append("line")
+                                   .attr("id", "rectR"+m.ref)
+                                   .attr("y1", margin.top)
+                                   .attr("y2", +svg.attr("height") - margin.bottom)
+                                   .attr("x1", xscale(m.ref+m.linewidth) + margin.left)
+                                   .attr("x2", xscale(m.ref+m.linewidth) + margin.left)
+                                   .attr("stroke", "white")
+                                   .attr("stroke-width", "2px")
+                                   .style("opacity", 0)
+                                   .style("cursor", "ew-resize")
+                                   .attr("ref", "rect"+m.ref)
+                                   .call(d3.drag().on("drag", self.resizeRectR));
+                            break;
+                        case 2:
+                            l= self.g.append("text")
+                                   .attr("id", "text"+m.ref[0] + "_" + m.ref[1])
+                                   .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
+                                   .attr("fill", m.color)
+                                   .attr("y", m.ref[1])
+                                   .attr("x", xscale(m.ref[0]) + margin.left)
+                                   .attr("text-anchor", "start")
+                                   .style("font-size", m.fontsize+"px")
+                                   .text(m.txt)
+                                   .attr("class", "Mlabel")
+                                   .call(makeLabelDraggable);
+                            break;
+                    }
+                    l.on("click", make_editable)
+                     .on("dblclick", function(){
+                        var obj = d3.select(this);
+                        obj.remove();
+                        delete x.markers[obj.attr("ref")];
+                        self.redraw();
+                     });
+                }
+            }
+            self.redraw();
+            return(self);
+        }
+        
         var draw = function(vspace=10){
             if(typeof(g)!="undefined") g.remove();
             if(typeof(resizeBtn)!="undefined") resizeBtn.remove();
             if(typeof(marginBox)!="undefined") marginBox.remove();
+            if(typeof(markerGroup)!="undefined") markerGroup.remove();
             xscale = d3.scaleLinear().domain([x.start, x.end]).rangeRound([0, widthF()]);
             g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             g.append("rect")
              .attr("x", -margin.left)
-             .attr("y", -margin.right)
+             .attr("y", margin.top)
              .attr("width", svg.attr("width"))
              .attr("height", svg.attr("height"))
              .attr("fill", "white")
@@ -818,6 +1181,7 @@ HTMLWidgets.widget({
                                 draw();
                                }));
             marginBox = new Margin();
+            markerGroup = new Marker();
         };
         
         var Ruler = function(){

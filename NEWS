@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.13.4
+
+    o add label tools in browseTracks function
+
 CHANGES IN VERSION 1.13.3
 
     o fix bugs in browseTracks function
