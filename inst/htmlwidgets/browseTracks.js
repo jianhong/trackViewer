@@ -266,8 +266,8 @@ HTMLWidgets.widget({
             var pie = d3.pie().sort(null);
             var arc = d3.arc().innerRadius(25).outerRadius(50);
             var currentCoor = coor;
-            currentCoor[0] = currentCoor[0]+50-margin.left;
-            currentCoor[1] = currentCoor[1]+50-margin.top;
+            currentCoor[0] = currentCoor[0]+50;
+            currentCoor[1] = currentCoor[1]+50;
             if(currentCoor[0] > widthF() - 50){
                 currentCoor[0] = widthF() - 50;
             }
@@ -528,6 +528,10 @@ HTMLWidgets.widget({
             if(/Mlabel/.exec(cls)){
                 //console.log("marker labels");
                 editText();
+                ColorPicker(3);
+            }
+            if(/arrowline/.exec(cls)){
+                //console.log("arrow");
                 ColorPicker(3);
             }
             if(/dataBaseline/.exec(cls)){
@@ -848,6 +852,7 @@ HTMLWidgets.widget({
                 x.markers = [];
             }
             var self = this;
+            self.svgDefault = true;
             self.remove = function(){
                 if(typeof(self.g)!="undefined") self.g.remove();
                 svg.on("dblclick", null);
@@ -880,30 +885,44 @@ HTMLWidgets.widget({
                             d3.select(this).style("cursor", "default");
                        });
             svg.on("dblclick", function(){
-                var coords = d3.mouse(svg.node());
-                var posx = Math.round(xscale.invert(coords[0]-margin.left));
-                var posy = Math.round(coords[1]); // can not keep position
-                var m = {
-                    "ref" : [posx, posy],
-                    "markertype" : 2,
-                    "color" : "black",
-                    "opacity" : 1,
-                    "fontsize" : 12,
-                    "txt" : "label"
-                };
-                x.markers["text"+posx + "_" + posy] = m;
-                self.g.append("text")
-                       .attr("id", "text"+m.ref[0] + "_" + m.ref[1])
-                       .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
-                       .attr("fill", m.color)
-                       .attr("y", m.ref[1])
-                       .attr("x", xscale(m.ref[0]) + margin.left)
-                       .attr("text-anchor", "start")
-                       .style("font-size", m.fontsize+"px")
-                       .text(m.txt)
-                       .attr("class", "Mlabel")
-                       .on("click", make_editable)
-                       .call(makeLabelDraggable);
+                if(self.svgDefault){
+                    var coords = d3.mouse(svg.node());
+                    var posx = Math.round(xscale.invert(coords[0]-margin.left));
+                    var posy = Math.round(coords[1]); // can not keep position
+                    var m = {
+                        "ref" : [posx, posy],
+                        "markertype" : 2,
+                        "color" : "black",
+                        "opacity" : 1,
+                        "fontsize" : 12,
+                        "txt" : "label"
+                    };
+                    x.markers["text"+posx + "_" + posy] = m;
+                    self.g.append("text")
+                           .attr("id", "text"+m.ref[0] + "_" + m.ref[1])
+                           .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
+                           .attr("fill", m.color)
+                           .attr("y", m.ref[1])
+                           .attr("x", xscale(m.ref[0]) + margin.left)
+                           .attr("text-anchor", "start")
+                           .style("font-size", m.fontsize+"px")
+                           .text(m.txt)
+                           .attr("class", "Mlabel")
+                           .on("click", make_editable)
+                           .call(makeLabelDraggable);
+                    var m1 = {
+                        "ref" : [posx, posy, Math.round(xscale.invert(coords[0]-margin.left-20)), posy+20],
+                        "markertype" : 3,
+                        "color" : "#000",
+                        "opacity" : 1,
+                        "linetype" : "solid",
+                        "linewidth" : 1
+                    };
+                    x.markers["arrow"+m1.ref[0]+"_"+m1.ref[2]+"_"+m1.ref[1]+"_"+m1.ref[3]]=m1;
+                    var arrow = new Arrow(self.g, m1);
+                }else{
+                    self.svgDefault=true;
+                }
             });
             self.g = svg.append("g");
             self.draggedLine = function(d){
@@ -923,7 +942,6 @@ HTMLWidgets.widget({
                 }
             }
             self.dragstarted = function(d){
-                            console.log("s");
                             coor = d3.mouse(this);
                             var posx = Math.round(xscale.invert(coor[0] - margin.left));
                             var m = {
@@ -1015,6 +1033,123 @@ HTMLWidgets.widget({
                     console.log(x.markers);
                 }
             };
+            var Arrow = function(arrowcontainer, m){
+                var arrowline = this;
+                arrowline.remove = function(){
+                    arrowline.g.remove();
+                };
+                var x1=m.ref[0], x2=m.ref[2], y1=m.ref[1], y2=m.ref[3];
+                arrowline.g = arrowcontainer.append("g")
+                                       .attr("class", "Marker")
+                                       .attr("ref", "arrow"+x1+"_"+x2+"_"+y1+"_"+y2);
+                var marker = arrowline.g.append("marker")
+                         .attr("id", "arrowhead"+x1+"_"+x2+"_"+y1+"_"+y2)
+                         .attr("viewBox", "0, 0, 10, 10")
+                         .attr("refX", 0)
+                         .attr("refY", 5)
+                         .attr("markerUnits", "strokeWidth")
+                         .attr("markerWidth", 8)
+                         .attr("markerHeight", 8)
+                         .attr("fill", m.color)
+                         .attr("stroke", m.color)
+                         .attr("opacity", m.opacity)
+                         .attr("orient", "auto")
+                         .append("path")
+                         .attr("d", "M 0 0 L 10 5 L 0 10 Z");
+                arrowline.line = arrowline.g.append("line")
+                                    .attr("x1", xscale(x1)+margin.left)
+                                    .attr("x2", xscale(x2)+margin.left)
+                                    .attr("y1", y1)
+                                    .attr("y2", y2)
+                                    .attr("stroke", m.color)
+                                    .attr("stroke-width", m.linewidth)
+                                    .attr("opacity", m.opacity)
+                                    .attr("class", "arrowline")
+                                    .attr("ref", "arrow"+x1+"_"+x2+"_"+y1+"_"+y2)
+                                    .attr("marker-end", "url(#arrowhead"+x1+"_"+x2+"_"+y1+"_"+y2+")");
+                arrowline.linecover = arrowline.g.append("line")
+                                    .attr("x1", xscale(x1)+margin.left)
+                                    .attr("x2", xscale(x2)+margin.left)
+                                    .attr("y1", y1)
+                                    .attr("y2", y2)
+                                    .attr("stroke", m.color)
+                                    .attr("stroke-width", m.linewidth * 4)
+                                    .attr("opacity", 0)
+                                    .attr("class", "arrowline")
+                                    .attr("ref", "arrow"+x1+"_"+x2+"_"+y1+"_"+y2)
+                                    .on("click", make_editable)
+                                    .on("dblclick", function(){
+                                        var obj = d3.select(this);
+                                        delete x.markers[d3.select(this.parentNode).attr("ref")];
+                                        d3.select(this.parentNode).remove();
+                                        self.svgDefault = false;
+                                     });
+                arrowline.start = arrowline.g.append("circle")
+                                            .attr("r", 4)
+                                            .attr("cx", xscale(x1)+margin.left)
+                                            .attr("cy", y1)
+                                            .attr("class", "arrowlineStart")
+                                            .attr("opacity", 0)
+                                            .call(d3.drag()
+                                            .on("drag", function(d){
+                                                var obj = d3.select(this);
+                                                obj.style("cursor", "move");
+                                                var coords = d3.mouse(svg.node());
+                                                var posx = Math.round(xscale.invert(coords[0] - margin.left));
+                                                var posy = Math.round(coords[1]);
+                                                var parent = d3.select(this.parentNode);
+                                                var ref = parent.attr("ref");
+                                                var m = x.markers[ref];
+                                                if(posx!=m.ref[0] || posy!=m.ref[1]){
+                                                    m.ref = [posx, posy, m.ref[2], m.ref[3]];
+                                                    x.markers["arrow"+posx+"_"+m.ref[2]+"_"+posy+"_"+m.ref[3]] = m;
+                                                    delete(x.markers[ref]);
+                                                    parent.attr("ref", "arrow"+posx+"_"+m.ref[2]+"_"+posy+"_"+m.ref[3]);
+                                                    parent.selectAll(".arrowline")
+                                                          .attr("x1", xscale(posx)+margin.left)
+                                                          .attr("y1", posy)
+                                                          .attr("ref", "arrow"+posx+"_"+m.ref[2]+"_"+posy+"_"+m.ref[3]);
+                                                    obj.attr("cx", xscale(posx)+margin.left)
+                                                       .attr("cy", posy);
+                                                }
+                                            })
+                                            .on("end", function(d){
+                                                 d3.select(this).style("cursor", "default");
+                                            }));
+                arrowline.end = arrowline.g.append("circle")
+                                            .attr("r", 4)
+                                            .attr("cx", xscale(x2)+margin.left)
+                                            .attr("cy", y2)
+                                            .attr("class", "arrowlineEnd")
+                                            .attr("opacity", 0)
+                                            .call(d3.drag()
+                                            .on("drag", function(d){
+                                                var obj = d3.select(this);
+                                                obj.style("cursor", "move");
+                                                var coords = d3.mouse(svg.node());
+                                                var posx = Math.round(xscale.invert(coords[0] - margin.left));
+                                                var posy = Math.round(coords[1]);
+                                                var parent = d3.select(this.parentNode);
+                                                var ref = parent.attr("ref");
+                                                var m = x.markers[ref];
+                                                if(posx!=m.ref[2] || posy!=m.ref[3]){
+                                                    m.ref = [m.ref[0], m.ref[1], posx, posy];
+                                                    x.markers["arrow"+m.ref[0]+"_"+posx+"_"+m.ref[1]+"_"+posy] = m;
+                                                    delete(x.markers[ref]);
+                                                    parent.attr("ref", "arrow"+m.ref[0]+"_"+posx+"_"+m.ref[1]+"_"+posy);
+                                                    parent.selectAll(".arrowline")
+                                                          .attr("x2", xscale(posx)+margin.left)
+                                                          .attr("y2", posy)
+                                                          .attr("ref", "arrow"+posx+"_"+m.ref[2]+"_"+posy+"_"+m.ref[3]);
+                                                    obj.attr("cx", xscale(posx)+margin.left)
+                                                       .attr("cy", posy);
+                                                }
+                                            })
+                                            .on("end", function(d){
+                                                 d3.select(this).style("cursor", "default");
+                                            }));
+                return(arrowline);
+            };
             self.redraw = function(){
                 self.g.remove();
                 self.g = svg.insert("g");
@@ -1102,14 +1237,20 @@ HTMLWidgets.widget({
                                    .attr("class", "Mlabel")
                                    .call(makeLabelDraggable);
                             break;
+                        case 3:
+                            l= new Arrow(self.g, m);
+                            break;
                     }
-                    l.on("click", make_editable)
-                     .on("dblclick", function(){
-                        var obj = d3.select(this);
-                        obj.remove();
-                        delete x.markers[obj.attr("ref")];
-                        self.redraw();
-                     });
+                    if(m.markertype!=3){
+                        l.on("click", make_editable)
+                         .on("dblclick", function(){
+                            var obj = d3.select(this);
+                            obj.remove();
+                            delete x.markers[obj.attr("ref")];
+                            self.redraw();
+                            self.svgDefault = false;
+                         });
+                     }
                 }
             }
             self.redraw();
