@@ -74,13 +74,15 @@ HTMLWidgets.widget({
           
         svg.attr("width", width)
            .attr("height", height);
-        var margin = {top: 20, right: 20, bottom: 30, left: 80};
+        var margin = {top: 20, right: 20, bottom: 30, left: 100};
         x.opacity = {};
         x.fontsize = {};
         x.markers = {};
+        var defaultFontSize = 16;
+        var defaultTickFontSize = 16;
         for(var k=0; k<x.name.length; k++){
             x.opacity[x.name[k]] = 1;
-            x.fontsize[x.name[k]] = x.type[x.name[k]] === "gene" ? 12 : 10;
+            x.fontsize[x.name[k]] = defaultFontSize;
         }
         var widthF = function() {
             return(+svg.attr("width") - margin.left - margin.right);
@@ -440,7 +442,6 @@ HTMLWidgets.widget({
                typeof(parent)==="undefined"){
                 return(null);
             }
-            
             var handlerRadius = 2.5;
             resize_bg = parent.append("g");
             var gHandlerPoints = resize_bg.append("circle")
@@ -463,8 +464,13 @@ HTMLWidgets.widget({
                     fontsize = x.markers[editable_ele.attr("ref")].fontsize - d3.event.dy;
                     x.markers[editable_ele.attr("ref")].fontsize = fontsize;
                 }else{
-                    fontsize = x.fontsize[x.name[currentId]] - d3.event.dy;
-                    x.fontsize[x.name[currentId]] = fontsize;
+                    if(parent.attr("class")==="tick"){
+                        defaultTickFontSize = defaultTickFontSize - d3.event.dy;
+                        fontsize = defaultTickFontSize;
+                    }else{
+                        fontsize = x.fontsize[x.name[currentId]] - d3.event.dy;
+                        x.fontsize[x.name[currentId]] = fontsize;
+                    }
                 }
                 editable_ele.style("font-size", fontsize + "px");
                 SVGRect = editable_ele.node().getBBox();
@@ -501,6 +507,11 @@ HTMLWidgets.widget({
             color = editable_ele.attr("fill");
             SVGRect = this.getBBox();
             var cls = editable_ele.attr("class");
+            if(parent.attr("class")==="tick"){
+                //console.log("tick");
+                addBg();
+                make_resizable();
+            }
             if(/geneSymbol/.exec(cls)){
                 //console.log("symbol");
                 editText();
@@ -737,11 +748,13 @@ HTMLWidgets.widget({
         var xaxis = function(layer, xscale, height){
             layer.append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(xscale));
+                    .call(d3.axisBottom(xscale).tickSize(5).ticks(5))
+                    .attr("font-size", defaultTickFontSize);
         };
         var yaxis = function(layer, yscale, ylim, height, label, k){
             var ax = layer.append("g")
-                .call(d3.axisLeft(yscale).tickSize(5).tickValues(ylim));
+                .call(d3.axisLeft(yscale).tickSize(5).tickValues(ylim))
+                .attr("font-size", defaultTickFontSize);
             var ylabel = ax
                 .append("text")
                 .attr("fill", "#000")
@@ -1030,7 +1043,6 @@ HTMLWidgets.widget({
                     d3.select("#rect"+x.markers[ref].ref)
                       .attr("width", xscale(posx) - xscale(x.markers[ref].ref));
                     x.markers[ref].linewidth = posx - x.markers[ref].ref;
-                    console.log(x.markers);
                 }
             };
             var Arrow = function(arrowcontainer, m){
@@ -1290,6 +1302,41 @@ HTMLWidgets.widget({
                 track.call(d3.drag().on("start", dragstarted)
                                     .on("drag", draggedTrack)
                                     .on("end", dragended));
+                //adjustable track height
+                var trackBottom = track.append("line")
+                                       .attr("kvalue", k)
+                                       .attr("id", "trackbottom"+k)
+                                       .attr("x1", 0)
+                                       .attr("y1", thisHeight)
+                                       .attr("x2", widthF())
+                                       .attr("y2", thisHeight)
+                                       .attr("stroke", "white")
+                                       .attr("stroke-width", "3px")
+                                       .attr("opacity", 0)
+                                       .style("cursor", "ns-resize")
+                                       .call(d3.drag()
+                                       .on("start", function(d){
+                                           coor = d3.mouse(svg.node());
+                                       })
+                                       .on("drag", function(d){
+                                           var obj = d3.select(this);
+                                           var dy = d3.mouse(svg.node())[1] - coor[1];
+                                           coor = d3.mouse(svg.node());
+                                           var k = +obj.attr("kvalue");
+                                           var thisH = +obj.attr("y1") + dy;
+                                           obj.attr("y1", thisH).attr("y2", thisH);
+                                           var totalH = heightF() + dy;
+                                           var ratio = heightF()/totalH;
+                                           svg.attr("height", +svg.attr("height") + dy);
+                                           for(var i=0; i<trackNames().length; i++){
+                                               if(i==k){
+                                                   x.height[trackNames()[i]] = (thisH + 2*vspace)/totalH;
+                                               }else{
+                                                   x.height[trackNames()[i]] = x.height[trackNames()[i]]*ratio;
+                                               }
+                                           }
+                                           draw();
+                                       }));
                 var currTrack = x.tracklist[trackNames()[k]];
                 var yscale = d3.scaleLinear().domain(currTrack.ylim).rangeRound([thisHeight, 0]);
                 //line x y;
@@ -1309,7 +1356,7 @@ HTMLWidgets.widget({
                 currH +=x.height[trackNames()[k]]*heightF();
             }
             xaxis(g, xscale, heightF());
-            
+            d3.selectAll(".tick>text").on("click", make_editable);
             resizeBtn = svg.append("rect").attr("fill", "white")
                                .attr("x", svg.attr("width")-10)
                                .attr("y", svg.attr("height")-10)
