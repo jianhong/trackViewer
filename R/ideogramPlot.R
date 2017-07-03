@@ -135,9 +135,10 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
                                    'inches'),
                             width=unit(labels.x.width[i], "inches")))
       this.labels.width <- this.labels.width + labels.x.width[i]
+      this.xscale <- c(rg[[i]][1]-1, rg[[i]][2]+1)
       vp <- viewport(x=unit(.5, "inches"), width=unit(1, "inches"),
                      y=unit(3, "lines"), height=unit(.5, "lines"),
-                     xscale=rg[[i]])
+                     xscale=this.xscale)
       pushViewport(vp)
       grid.raster(as.raster(matrix(cols[[i]], nrow=1)), width = 1, height = 1)
       grid.xaxis()
