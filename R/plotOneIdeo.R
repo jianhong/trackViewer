@@ -27,7 +27,8 @@
 plotOneIdeo <- 
   function(ideo, dataList, 
            parameterList=list(vp=plotViewport(margins=c(.1, 4.1, 1.1, .1)),
-                              ideoHeight=unit(.5, "npc"), vgap=unit(1, "lines"),
+                              ideoHeight=unit(1/(1+length(dataList)), "npc"), 
+                              vgap=unit(1, "lines"),
                               ylabs=seqlevels(ideo)[1], ylabsRot=90, 
                               ylabsPos=unit(2.5, "lines"),
                               xaxis=FALSE, yaxis=FALSE,
@@ -125,20 +126,24 @@ plotOneIdeo <-
     gps <- rep(list(gpar()), length(dataList))
   }
   vgap <- convertY(parameterList$vgap, "npc", valueOnly = TRUE)
-  for(i in 1:length(dataList)){
+  for(i in seq_along(dataList)){
     data.gr <- dataList[[i]]
     mcols(data.gr) <- mcols(data.gr)[, dataColumn[[i]]]
-    yrg <- range(as.numeric(as.matrix(mcols(data.gr))))
-    this.vgap <- vgap
-    if(vpH[i]-vgap<=0) this.vgap <- 0
-    dataVPi <- viewport(y=sum(vpH[-(i:length(vpH))])+vpH[i]*.5+this.vgap, 
-                        height = vpH[i]-this.vgap,
-                        xscale=parameterList$vp$xscale, 
-                        yscale=c(min(0, yrg[1]), max(yrg[2], 0)),
-                        name=paste0("dataLayer", chrom, "sub", i))
-    pushViewport(dataVPi)
-    gridPlot(data.gr, gp=gps[[i]], types[i], parameterList$vp$xscale)
-    upViewport()
+    if(length(mcols(data.gr))>0){
+        yrg <- range(as.numeric(as.matrix(mcols(data.gr))))
+        if(!any(is.infinite(yrg))){
+            this.vgap <- vgap
+            if(vpH[i]-vgap<=0) this.vgap <- 0
+            dataVPi <- viewport(y=sum(vpH[-(i:length(vpH))])+vpH[i]*.5+this.vgap, 
+                                height = vpH[i]-this.vgap,
+                                xscale=parameterList$vp$xscale, 
+                                yscale=c(min(0, yrg[1]), max(yrg[2], 0)),
+                                name=paste0("dataLayer", chrom, "sub", i))
+            pushViewport(dataVPi)
+            gridPlot(data.gr, gp=gps[[i]], types[i], parameterList$vp$xscale)
+            upViewport()
+        }
+    }
   }
   upViewport()
   if(class(parameterList$vp)=="viewport"){
@@ -147,8 +152,12 @@ plotOneIdeo <-
   if(length(parameterList$ylabs)){
     ylabs <- parameterList$ylabs
     if(ylabs[1]!=""){
+      autofitFontSize <- 0.5 * 
+          convertY(unit(vpH[1], "npc"), "inch", valueOnly=TRUE)/
+            convertY(unit(1, "lines"), "inch", valueOnly = TRUE)
       grid.text(label=ylabs[1], x=parameterList$ylabsPos, 
                 rot = parameterList$ylabsRot, 
+                gp = gpar(cex=autofitFontSize),
                 vp=viewport(y=ideoHeight/2,
                             height=ideoHeight))
       if(length(ylabs)>1){
@@ -158,7 +167,8 @@ plotOneIdeo <-
           if(vpH[i-1]-vgap<=0) this.vgap <- 0
           grid.text(label=ylabs[i], x=parameterList$ylabsPos, 
                     y=unit(.5, "npc"), rot = parameterList$ylabsRot, 
-                    vp=viewport(y=sum(vpH[-((i-1):length(vpH))])+vpH[i-1]*.5+this.vgap, 
+                    gp=gpar(cex=autofitFontSize),
+                    vp=viewport(y=sum(vpH[-((i-1):length(vpH))])+vpH[i-1]*.5, 
                                 height = vpH[i-1]-this.vgap))
         }
         popViewport()

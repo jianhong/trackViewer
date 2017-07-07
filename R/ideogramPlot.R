@@ -39,7 +39,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
                          horiz=TRUE,
                          parameterList=
                            list(vp=plotViewport(margins=c(.1, 4.1, .3, .1)),
-                                ideoHeight=unit(.5, "npc"), 
+                                ideoHeight=unit(1/(1+length(dataList)), "npc"), 
                                 vgap=unit(.3, "lines"),
                                 ylabs="auto", 
                                 ylabsRot=ifelse(horiz, 0, 90), 
@@ -56,7 +56,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
   seql <- seql[names(seql) %in% unique(seqnames(ideo))]
   stopifnot(is.list(parameterList))
   parameterList.default=list(vp=plotViewport(margins=c(.1, 4.1, .3, .1)),
-                             ideoHeight=unit(.5, "npc"), 
+                             ideoHeight=unit(1/(1+length(dataList)), "npc"), 
                              vgap=unit(.3, "lines"),
                              ylabs="auto", 
                              ylabsRot=ifelse(horiz, 0, 90), 
@@ -94,7 +94,21 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
       }
       cols <- lapply(gps, function(.ele) .ele$col)
     }
-    cols <- lapply(cols, function(col){
+    
+    ## get range of data points
+    rg <- mapply(function(.ele, .cn) 
+        range(as.numeric(as.matrix(mcols(.ele)[, .cn])), na.rm = TRUE),
+        dataList, parameterList.default$dataColumn, SIMPLIFY = FALSE)
+    ## break value of each color range
+    v <- lapply(rg, function(.ele){
+        if(diff(.ele)==0){
+            c(.ele[1]-.ele[1]/10, .ele[2], .ele[2]+.ele[2]/10)
+        }else{
+            seq(.ele[1]-diff(.ele)/10, .ele[2]+diff(.ele)/10, length.out = 101)
+        }
+    })
+    
+    cols <- mapply(function(col, .ele){
       if(length(col)==0){
         col <- colorRampPalette(c("green", "black", "red"))(100)
       }else{
@@ -106,14 +120,13 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
           col <- colorRampPalette(col)(100)
         }
       }
-      col
-    })
-    rg <- mapply(function(.ele, .cn) 
-      range(as.numeric(as.matrix(mcols(.ele)[, .cn])), na.rm = TRUE),
-      dataList, parameterList.default$dataColumn, SIMPLIFY = FALSE)
-    v <- lapply(rg, function(.ele){
-      seq(.ele[1]-1, .ele[2]+1, length.out = 101)
-    })
+      if(diff(.ele)==0){
+          col[c(1, 100)]
+      }else{
+          col
+      }
+    }, cols, rg, SIMPLIFY = FALSE)
+    
     parameterList.default$gps <- mapply(function(col, breaks) 
       list(col=col, breaks=breaks), cols, v, SIMPLIFY = FALSE)
     labels <- parameterList.default$colorKeyTitle
@@ -135,12 +148,13 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
                                    'inches'),
                             width=unit(labels.x.width[i], "inches")))
       this.labels.width <- this.labels.width + labels.x.width[i]
-      this.xscale <- c(rg[[i]][1]-1, rg[[i]][2]+1)
+      this.xscale <- range(v[[i]])
       vp <- viewport(x=unit(.5, "inches"), width=unit(1, "inches"),
                      y=unit(3, "lines"), height=unit(.5, "lines"),
                      xscale=this.xscale)
       pushViewport(vp)
-      grid.raster(as.raster(matrix(cols[[i]], nrow=1)), width = 1, height = 1)
+      grid.raster(as.raster(matrix(cols[[i]], nrow=1)), 
+                  width = 1, height = 1, interpolate=FALSE)
       grid.xaxis()
       upViewport()
       grid.text(label=labels[i], 
@@ -199,7 +213,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
     }else{
       vpWgap <- (1/1.05-sum(vpW))/(length(vpW)-1)
     }
-    for(j in 1:length(vpW)){
+    for(j in seq_along(vpW)){
       vp <- viewport(x=sum(vpW[-(j:length(vpW))])+.5*vpW[j]+vpWgap*(j-1), 
                      width=vpW[j], name=paste0("layout", i, "_", j))
       pushViewport(vp)

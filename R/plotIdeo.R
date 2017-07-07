@@ -165,7 +165,7 @@ plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1],
     roundrect <- roundrectGrob(r=unit(.5, "snpc"))
     roundrect <- rrpoints(roundrect)
     image <- imgpoints(image, roundrect)
-    grid.raster(image=image, height=1, width=1)
+    grid.raster(image=image, height=1, width=1, interpolate=FALSE)
     grid.roundrect(r=unit(.5, "snpc"), gp=gp)
     popViewport()
   }
@@ -178,7 +178,7 @@ plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1],
     roundrect <- roundrectGrob(r=unit(.5, "snpc"))
     roundrect <- rrpoints(roundrect)
     image <- imgpoints(image, roundrect)
-    grid.raster(image=image, height=1, width=1)
+    grid.raster(image=image, height=1, width=1, interpolate=FALSE)
     grid.roundrect(r=unit(.5, "snpc"), gp=gp)
     popViewport()
   }
