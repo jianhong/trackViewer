@@ -2,7 +2,6 @@
 
 [![platforms](http://bioconductor.org/shields/availability/devel/trackViewer.svg)](http://bioconductor.org/packages/devel/bioc/html/trackViewer.html)
 [![build](http://bioconductor.org/shields/build/devel/bioc/trackViewer.svg)](http://bioconductor.org/packages/devel/bioc/html/trackViewer.html)
-[![test coverage](https://codecov.io/github/Bioconductor-mirror/trackViewer/branch/master)](http://bioconductor.org/packages/devel/bioc/html/trackViewer.html)
 
 A bioconductor package with minimalist design for drawing elegant tracks or lollipop plot
 
