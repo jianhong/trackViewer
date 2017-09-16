@@ -83,7 +83,7 @@ condenceGRs <- function(gr=GRanges(), FUN=sum){
 disjoinGRs <- function(gr=GRanges(), FUN=sum){
     if(length(gr)<1) return(gr)
     .gr <- disjoin(gr)
-    ol <- findOverlaps(.gr, gr, maxgap=0L, minoverlap=1L)
+    ol <- findOverlaps(.gr, gr, maxgap=-1L, minoverlap=1L)
     s <- tapply(score(gr[subjectHits(ol)]), queryHits(ol), FUN=FUN)
     .gr$score <- 0
     .gr$score[as.numeric(names(s))] <- s

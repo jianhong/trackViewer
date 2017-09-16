@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.13.9
+
+    o fix the bug when using findOverlaps, when 'type' is "any", 
+    at least one of 'maxgap' and 'minoverlap' must be set to its
+    default value
+
+
 CHANGES IN VERSION 1.13.8
 
     o automatic set the font size in ideogramPlot
