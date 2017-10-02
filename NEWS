@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.13.10
+
+    o fix the bug documentation of ideogramPlot is different from the codes.
+
 CHANGES IN VERSION 1.13.9
 
     o fix the bug when using findOverlaps, when 'type' is "any", 
