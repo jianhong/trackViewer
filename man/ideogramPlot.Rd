@@ -11,7 +11,7 @@ ideogramPlot(ideo, dataList, layout=NULL,
                          horiz=TRUE,
                          parameterList=
                            list(vp=plotViewport(margins=c(.1, 4.1, .3, .1)),
-                                ideoHeight=unit(1/(1+length(dataList)), 
+                                ideoHeight=unit(1/(1+length(dataList)), "npc"), 
                                 vgap=unit(.3, "lines"),
                                 ylabs="auto", 
                                 ylabsRot=ifelse(horiz, 0, 90), 
