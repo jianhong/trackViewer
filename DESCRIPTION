@@ -1,18 +1,18 @@
 Package: trackViewer
 Type: Package
 Title: A bioconductor package with minimalist design for drawing elegant tracks or lollipop plot
-Version: 1.15.0
-Date: 2017-09-20
+Version: 1.15.1
 Author: Jianhong Ou, Yong-Xu Wang, Lihua Julie Zhu
-Maintainer: Jianhong Ou <ou.jianhong@gmail.com>
+Maintainer: Jianhong Ou <jianhong.ou@duke.edu>
 Description: Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 License: GPL (>= 2)
 Depends: R (>= 3.1.0), grDevices, methods, GenomicRanges, grid
-Imports: GenomeInfoDb, GenomicAlignments, GenomicFeatures, Gviz, pbapply, Rsamtools,
-        rtracklayer, S4Vectors, scales, tools, IRanges, AnnotationDbi, grImport,
+Imports: GenomeInfoDb, GenomicAlignments, GenomicFeatures, Gviz, Rsamtools, S4Vectors,
+        rtracklayer, BiocGenerics, scales, tools, IRanges, AnnotationDbi, grImport,
         htmlwidgets
 Suggests: biomaRt, TxDb.Hsapiens.UCSC.hg19.knownGene, RUnit, org.Hs.eg.db,
-        BiocGenerics, BiocStyle, knitr, VariantAnnotation
+        BiocStyle, knitr, VariantAnnotation
 biocViews: Visualization
 VignetteBuilder: knitr
+RoxygenNote: 6.0.1

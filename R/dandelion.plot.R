@@ -1,3 +1,44 @@
+#' dandelion.plots
+#' @description Plot variants and somatic mutations
+#' @param SNP.gr A object of \link[GenomicRanges]{GRanges} or 
+#' \link[GenomicRanges]{GRangesList}. All the width of GRanges must be 1.
+#' @param features A object of \link[GenomicRanges]{GRanges} or
+#' \link[GenomicRanges]{GRangesList}.
+#' @param ranges A object of \link[GenomicRanges]{GRanges} or 
+#' \link[GenomicRanges]{GRangesList}.
+#' @param type Character. Could be fan, circle, pie or pin.
+#' @param newpage plot in the new page or not.
+#' @param ylab plot ylab or not. If it is a character vector, 
+#' the vector will be used as ylab.
+#' @param xaxis plot xaxis or not. If it is a numeric vector with length 
+#' greater than 1, the vector will be used as the 
+#' points at which tick-marks are to be drawn. And the names of the vector will be
+#' used to as labels to be placed at the tick points if it has names. 
+#' @param legend If it is a list with named color vectors, a legend will be added.
+#' @param cex cex will control the size of circle.
+#' @param maxgaps maxgaps between the stem of dandelions. 
+#' It is calculated by the width of plot region devided by maxgaps.
+#' @param ... not used.
+#' @details In SNP.gr and features, metadata of the GRanges object will be used to 
+#' control thecolor, fill, border, height, data source of pie if the type is pie.
+#' @return NULL
+#' @import GenomicRanges
+#' @import grid
+#' @importClassesFrom grImport Picture
+#' @importFrom grImport readPicture grid.picture
+#' @export
+#' @examples
+#' SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
+#' SNP.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)), 
+#'                   score=sample.int(100, length(SNP))/100)
+#' features <- GRanges("chr1", IRanges(c(1, 501, 1001), 
+#'                                     width=c(120, 500, 405),
+#'                                     names=paste0("block", 1:3)),
+#'                     color="black",
+#'                     fill=c("#FF8833", "#51C6E6", "#DFA32D"),
+#'                     height=c(0.1, 0.05, 0.08))
+#' dandelion.plot(SNP.gr, features, type="fan")
+
 dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("fan", "circle", "pie", "pin"),
                       newpage=TRUE, ylab=TRUE, 
@@ -166,7 +207,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             mcols(SNPs.groups) <- NULL
             SNPs.groups$w <- 0
             SNPs.groups$idx <- 1:length(SNPs)
-            SNPs.gap$idx <- 0
+            SNPs.gap$idx <- rep(0, length(SNPs.gap))
             SNPs.groups <- sort(c(SNPs.gap, SNPs.groups))
             SNPs.groups$gps <- cumsum(SNPs.groups$w >=range.width)
             SNPs.groups <- SNPs.groups[SNPs.groups$idx>0]

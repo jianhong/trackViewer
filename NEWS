@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.15.1
+
+    o fix the bug in dandelion.plot
+    o use Roxygen2 to generate help documents
+    o add new functions: getLocation, viewGene
+    
 CHANGES IN VERSION 1.13.11
 
     o fix the bug maxgap could not be less than 0 in findOverlaps

@@ -1,3 +1,19 @@
+#' Add guide lines to the tracks
+#' @description A function to add lines for emphasizing the positions 
+#' @param guideLine The genomic coordinates to draw the lines
+#' @param col A vector for the line color
+#' @param lty A vector for the line type
+#' @param lwd A vector for the line width
+#' @param vp A Grid viewport object. It must be output of \code{\link{viewTracks}}
+#' @import grid
+#' @export
+#' @return NULL
+#' @seealso See Also as \code{\link{getCurTrackViewport}}, \code{\link{addArrowMark}}, 
+#' \code{\link{viewTracks}}
+#' @examples
+#' vp <- getCurTrackViewport(trackViewerStyle(), 10000, 10200)
+#' addGuideLine(c(10010, 10025, 10150), vp=vp)
+
 addGuideLine <- function(guideLine, col="gray", lty="dashed", lwd=1, vp=NULL){
     if(missing(guideLine) | 
            !(class(guideLine) %in% c("numeric", "integer")) |
@@ -45,18 +61,4 @@ addGuideLine <- function(guideLine, col="gray", lty="dashed", lwd=1, vp=NULL){
                    default.units="native", vp=currentVP)
     }
     return(invisible())
-}
-
-getCurTrackViewport <- function(curViewerStyle, start, end){
-    if(class(curViewerStyle)!="trackViewerStyle")
-        stop("curViewerStyle must be an object of trackViewerStyle")
-    margin <- curViewerStyle@margin
-    xscale <- c(start, end)
-    if(curViewerStyle@flip) xscale <- rev(xscale)
-    return(viewport(x=margin[2], y=margin[1], 
-                    height=1 - margin[1]- margin[3], 
-                    width=1 -margin[2] - margin[4],
-                    just=c(0,0), 
-                    xscale=xscale, 
-                    yscale=c(0,1)))
 }

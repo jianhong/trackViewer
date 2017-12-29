@@ -1,3 +1,44 @@
+#' Reading data from a BED or WIG file
+#' @description Read a \code{\link{track}} object from a BED, bedGraph, WIG or BigWig file
+#' @param file The path to the file to read.
+#' @param file2 The path to the second file to read.
+#' @param format The format of import file. Could be BED, bedGraph, WIG or BigWig
+#' @param ranges An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+#' the range to be imported
+#' @param ignore.strand ignore the strand or not when do filter. default TRUE
+#' @return a \code{\link{track}} object 
+#' @import GenomicRanges
+#' @import IRanges
+#' @export
+#' @seealso See Also as \code{\link{importBam}}, \code{\link{track}}, 
+#' \code{\link{viewTracks}}
+#' @examples 
+#' #import a BED file
+#' bedfile <- system.file("tests", "test.bed", package="rtracklayer",
+#'                        mustWork=TRUE)
+#' dat <- importScore(file=bedfile, format="BED",
+#'                    ranges=GRanges("chr7", IRanges(127471197, 127474697)))
+#' 
+#' ##import a WIG file
+#' wigfile <- system.file("tests", "step.wig", package = "rtracklayer",
+#'                        mustWork=TRUE)
+#' dat <- importScore(file=wigfile, format="WIG")
+#' 
+#' ##import a BigWig file
+#' if(.Platform$OS.type!="windows"){##this is because we are using rtracklayer::import
+#'   bwfile <- system.file("tests", "test.bw", package = "rtracklayer",
+#'                         mustWork=TRUE)
+#'   dat <- importScore(file=bwfile, format="BigWig")
+#' }
+#' 
+#' ##import 2 file
+#' wigfile1 <- system.file("extdata", "cpsf160.repA_+.wig", package="trackViewer",
+#'                         mustWork=TRUE)
+#' wigfile2 <- system.file("extdata", "cpsf160.repA_-.wig", package="trackViewer",
+#'                         mustWork=TRUE)
+#' dat <- importScore(wigfile1, wigfile2, format="WIG", 
+#'                    ranges=GRanges("chr11", IRanges(122817703, 122889073)))
+
 importScore <- function(file, file2, 
                         format=c("BED", "bedGraph", "WIG", "BigWig"),
                         ranges=GRanges(), ignore.strand=TRUE){

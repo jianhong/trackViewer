@@ -84,7 +84,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp1
     ##put ylab
-    if(track@type=="gene" && style@ylabpos %in% c("upstream", "downstream")){
+    if(track@type=="transcript" && style@ylabpos %in% c("upstream", "downstream")){
         putGeneYlab(curViewStyle, style, name, height, xscale,
                     range(track@dat))
     }else{
@@ -133,7 +133,8 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
             }
             drawXscale(style@xscale)
         }
-    }else{##track@type=="gene"
+    }else{##track@type=="transcript"
+      if(track@type=="transcript"){
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                               height=1, 
                               width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
@@ -141,6 +142,9 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               just=c(0,0), 
                               xscale=xscale))
         plotGeneModel(track, xlim)
+      }else{##track@type=="gene"
+        
+      }
     }
     popViewport()## for data
     

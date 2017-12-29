@@ -1,3 +1,65 @@
+#' Lolliplots
+#' @description Plot variants and somatic mutations
+#' @param SNP.gr A object of \link[GenomicRanges]{GRanges}, 
+#' \link[GenomicRanges]{GRangesList}
+#' or a list of \link[GenomicRanges]{GRanges}.
+#' All the width of GRanges must be 1.
+#' @param features A object of \link[GenomicRanges]{GRanges}, 
+#' \link[GenomicRanges]{GRangesList}
+#' or a list of \link[GenomicRanges]{GRanges}. 
+#' The metadata 'featureLayerID' are used for drawing features in different layers.
+#'  See details in vignette.
+#' @param ranges A object of \link[GenomicRanges]{GRanges} or 
+#' \link[GenomicRanges]{GRangesList}.
+#' @param type character. Could be circle, pie, pin or pie.stack.
+#' @param newpage Plot in the new page or not.
+#' @param ylab Plot ylab or not. If it is a character vector, 
+#' the vector will be used as ylab.
+#' @param yaxis Plot yaxis or not.
+#' @param xaxis Plot xaxis or not. If it is a numeric vector with length greater than 1, 
+#' the vector will be used as the points at which tick-marks are to be drawn. 
+#' And the names of the vector will be used to as labels to be placed at the tick 
+#' points if it has names. 
+#' @param legend If it is a list with named color vectors, a legend will be added.
+#' @param cex cex will control the size of circle.
+#' @param dashline.col color for the dashed line.
+#' @param jitter jitter the position of nodes or labels.
+#' @param ... not used.
+#' @return NULL
+#' @details 
+#' In SNP.gr and features, metadata of the GRanges object will be used to control the 
+#' color, fill, border, height, cex, dashline.col, data source of pie if the type is pie. 
+#' And also the controls for labels by name the metadata start as 
+#' label.parameter.<properties> 
+#' such as label.parameter.rot, label.parameter.gp. The parameter is used for 
+#' \link[grid]{grid.text}. The metadata 'featureLayerID' for features are used 
+#' for drawing features in different layers. The metadata 'SNPsideID' for SNP.gr
+#' are used for determining the side of lollipops. And the 'SNPsideID' could only
+#' be 'top' or 'bottom'.
+#' @return NULL
+#' @import GenomicRanges
+#' @import IRanges
+#' @import grid
+#' @importClassesFrom grImport Picture
+#' @importFrom grImport readPicture grid.picture
+#' @export
+#' @examples
+#' SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
+#' x <- sample.int(100, length(SNP))
+#' SNP.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)), 
+#'                   value1=x, value2=100-x)
+#' SNP.gr$color <- rep(list(c("red", 'blue')), length(SNP))
+#' SNP.gr$border <- sample.int(7, length(SNP), replace=TRUE)
+#' features <- GRanges("chr1", IRanges(c(1, 501, 1001), 
+#'                                     width=c(120, 500, 405),
+#'                                     names=paste0("block", 1:3)),
+#'                     color="black",
+#'                     fill=c("#FF8833", "#51C6E6", "#DFA32D"),
+#'                     height=c(0.1, 0.05, 0.08),
+#'                     label.parameter.rot=45)
+#' lolliplot(SNP.gr, features, type="pie") 
+#'
+
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("circle", "pie", "pin", 
                              "pie.stack"),

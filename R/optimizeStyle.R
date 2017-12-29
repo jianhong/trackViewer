@@ -32,6 +32,24 @@ optFontSize1 <- function(height){
     cex <- height/3/fontHeight
 }
 
+#' Optimize the style of plot
+#' @description Automatic optimize the stlye of trackViewer
+#' @param trackList An object of \code{\link{trackList}}
+#' @param viewerStyle An object of \code{\link{trackViewerStyle}}
+#' @param theme A character string. Could be "bw" or "col".
+#' @return a list of a \code{\link{trackList}} and a \code{\link{trackViewerStyle}}
+#' @seealso See Also as \code{\link{viewTracks}}
+#' @export
+#' @examples 
+#' extdata <- system.file("extdata", package="trackViewer",
+#'                        mustWork=TRUE)
+#' files <- dir(extdata, ".wig")
+#' tracks <- lapply(paste(extdata, files, sep="/"), 
+#'                  importScore, format="WIG")
+#' re <- optimizeStyle(trackList(tracks))
+#' trackList <- re$tracks
+#' viewerStyle <- re$style
+
 optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL){
     if(missing(trackList))
         stop("trackList must be an object of 'trackList'")

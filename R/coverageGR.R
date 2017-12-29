@@ -1,4 +1,21 @@
-###coverage
+#' calculate coverage
+#' @description calculate coverage for \code{\link[GenomicRanges]{GRanges}},
+#'  \code{\link[GenomicAlignments]{GAlignments}} or 
+#'  \code{\link[GenomicAlignments]{GAlignmentPairs}}
+#' @param gr an object of RGanges, GAlignments or GAlignmentPairs
+#' @return an object of GRanges
+#' @seealso See Also as \code{\link[IRanges]{coverage}}, 
+#' \code{\link[GenomicRanges]{coverage-methods}}
+#' @export
+#' @import GenomicAlignments
+#' @import GenomicRanges
+#' @import IRanges
+#' @examples 
+#' bed <- system.file("extdata", "fox2.bed", package="trackViewer",
+#'                    mustWork=TRUE)
+#' fox2 <- importScore(bed)
+#' fox2@dat <- coverageGR(fox2@dat)
+#' 
 coverageGR <- function(gr){##todo, check GAlignmentPairs
     if(!class(gr) %in% c("GRanges", "GAlignments", "GAlignmentPairs"))
         stop("input is not an object of RGanges, GAlignments or GAlignmentPairs.")

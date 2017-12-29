@@ -1,3 +1,21 @@
+#' convert WIG format track to BED format track
+#' @description convert WIG format track to BED format track for a given range
+#' @param trackScore an object of track with WIG format
+#' @param chrom sequence name of the chromosome
+#' @param from start coordinate
+#' @param to end coordinate
+#' @return an object of \code{\link{track}}
+#' @import GenomicRanges
+#' @export
+#' @examples 
+#' extdata <- system.file("extdata", package="trackViewer", mustWork=TRUE)
+#' repA <- importScore(file.path(extdata, "cpsf160.repA_-.wig"),
+#'                     file.path(extdata, "cpsf160.repA_+.wig"),
+#'                     format="WIG")
+#' strand(repA$dat) <- "-"
+#' strand(repA$dat2) <- "+"
+#' parseWIG(repA, chrom="chr11", from=122929275, to=122930122)
+
 parseWIG <- function(trackScore, chrom, from, to){
     if(class(trackScore)!="track")
         stop("trackScore must be an object of track")

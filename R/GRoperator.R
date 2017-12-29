@@ -20,6 +20,32 @@ GRbin <- function(A, B, col, ignore.strand){
     B1 <- setMeta("B")
     GRangesList(A=A1, B=B1)
 }
+
+#' GRanges operator
+#' @description GRanges operations (add, aubtract, multiply, divide)
+#' @param A an object of GRanges
+#' @param B an object of GRanges
+#' @param col colname of A and B to be calculated
+#' @param operator operator, "+" means A + B, and so on. 
+#' User-defined function also could be used.
+#' @param ignore.strand When set to TRUE, the strand information is 
+#' ignored in the overlap calculations.
+#' @return an object of GRanges
+#' @import GenomicRanges
+#' @export
+#' @examples 
+#' gr2 <- GRanges(seqnames=c("chr1", "chr1"),
+#' ranges=IRanges(c(7,13), width=3),
+#' strand=c("-", "-"), score=3:4)
+#' gr3 <- GRanges(seqnames=c("chr1", "chr1"),
+#'                ranges=IRanges(c(1, 4), c(3, 9)),
+#'                strand=c("-", "-"), score=c(6L, 2L))
+#' GRoperator(gr2, gr3, col="score", operator="+")
+#' GRoperator(gr2, gr3, col="score", operator="-")
+#' GRoperator(gr2, gr3, col="score", operator="*")
+#' GRoperator(gr2, gr3, col="score", operator="/")
+#' GRoperator(gr2, gr3, col="score", operator=mean)
+
 GRoperator <- function(A, B, col="score", 
                        operator=c("+", "-", "*", "/", "^", "%%"),
                        ignore.strand=TRUE){

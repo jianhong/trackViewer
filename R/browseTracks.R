@@ -1,9 +1,32 @@
-#' interactive trackViewer
+#' browse network
 #'
-#' @description plot tracks via d3.js
-#'
+#' @description browse tracks by a web browser.
+#' @param trackList an object of \code{\link{trackList}}
+#' @param gr an object of \code{\link[GenomicRanges]{GRanges}}
+#' @param ignore.strand ignore the strand or not when do filter. default TRUE
+#' @param width width of the figure
+#' @param height height of the figure
+#' @param ... parameters not used
 #' @import htmlwidgets
-#' 
+#' @import GenomicRanges
+#' @export
+#' @return An object of class htmlwidget that will intelligently print itself 
+#' into HTML in a variety of contexts including the R console, 
+#' within R Markdown documents, and within Shiny output bindings.
+#' @examples 
+#' extdata <- system.file("extdata", package="trackViewer", mustWork=TRUE)
+#' files <- dir(extdata, "-.wig")
+#' tracks <- lapply(paste(extdata, files, sep="/"), 
+#'                  importScore, format="WIG")
+#' tracks <- lapply(tracks, function(.ele) {strand(.ele@dat) <- "-"; .ele})
+#' names(tracks) <- c("trackA", "trackB")
+#' fox2 <- importScore(paste(extdata, "fox2.bed", sep="/"), format="BED")
+#' dat <- coverageGR(fox2@dat)
+#' fox2@dat <- dat[strand(dat)=="+"]
+#' fox2@dat2 <- dat[strand(dat)=="-"]
+#' gr <- GRanges("chr11", IRanges(122929275, 122930122))
+#' browseTracks(trackList(tracks, fox2), gr=gr)
+
 browseTracks <- function(trackList, 
                          gr=GRanges(),
                          ignore.strand=TRUE,
@@ -40,7 +63,7 @@ browseTracks <- function(trackList,
     strand <- as.character(GenomicRanges::strand(gr))[1]
     if(end < start) stop("end should be greater than start.")
     
-    trackList <- trackViewer:::filterTracks(trackList, chromosome, 
+    trackList <- filterTracks(trackList, chromosome, 
                               start, end, strand)
     
     viewerStyle=trackViewerStyle()
@@ -71,7 +94,7 @@ browseTracks <- function(trackList,
         }
     }
     col2Hex <- function(x){
-        rgb <- col2rgb(x,)
+        rgb <- col2rgb(x)
         rgb(rgb[1, ], rgb[2, ], rgb[3, ], maxColorValue = 255)
     }
     trackdat <- function(.ele){

@@ -5,9 +5,11 @@
 #' @param ranges A \link[IRanges]{Ranges} object with the intervals.
 #' @param ... Additional arguments to pass to the 
 #' \link[GenomicRanges]{GRanges} constructor.
-#' @import rtracklayer
+#' @importFrom rtracklayer import getTable ucscTableQuery GRangesForUCSCGenome browserSession
+#' @importFrom GenomeInfoDb "genome<-"
 #' @export
 #' @return A \link[GenomicRanges]{GRanges} object.
+#' @seealso See Also as \code{\link{ideogramPlot}}
 #' @examples 
 #' \dontrun{
 #' head(loadIdeogram("hg38"))

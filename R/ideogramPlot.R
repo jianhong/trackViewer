@@ -13,6 +13,8 @@
 #' @param gp parameters used for \link[grid]{grid.roundrect}.
 #' @param ... parameters not used.
 #' @import grid
+#' @importFrom GenomeInfoDb seqlevels seqlengths
+#' @import S4Vectors
 #' @export
 #' @examples 
 #' \dontrun{

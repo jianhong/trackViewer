@@ -1,3 +1,38 @@
+#' plot the tracks
+#' @description A function to plot the data for given range
+#' @param trackList an object of \code{\link{trackList}}
+#' @param chromosome chromosome
+#' @param start start position
+#' @param end end position
+#' @param strand strand
+#' @param gr an object of \code{\link[GenomicRanges]{GRanges}}
+#' @param ignore.strand ignore the strand or not when do filter. default TRUE
+#' @param viewerStyle an object of \code{\link{trackViewerStyle}}
+#' @param autoOptimizeStyle should use \code{\link{optimizeStyle}} to optimize style
+#' @param newpage should be draw on a new page?
+#' @param operator operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
+#' and so on.
+#' @return An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}
+#' @import GenomicRanges
+#' @import grid
+#' @import grDevices
+#' @importFrom scales rescale
+#' @export
+#' @seealso See Also as \code{\link{addGuideLine}}, \code{\link{addArrowMark}}
+#' @examples 
+#' extdata <- system.file("extdata", package="trackViewer",
+#'                        mustWork=TRUE)
+#' files <- dir(extdata, "-.wig")
+#' tracks <- lapply(paste(extdata, files, sep="/"), 
+#'                  importScore, format="WIG")
+#' tracks <- lapply(tracks, function(.ele) {strand(.ele@dat) <- "-"; .ele})
+#' fox2 <- importScore(paste(extdata, "fox2.bed", sep="/"), format="BED")
+#' dat <- coverageGR(fox2@dat)
+#' fox2@dat <- dat[strand(dat)=="+"]
+#' fox2@dat2 <- dat[strand(dat)=="-"]
+#' gr <- GRanges("chr11", IRanges(122929275, 122930122), strand="-")
+#' viewTracks(trackList(track=tracks, fox2=fox2), gr=gr, autoOptimizeStyle=TRUE)
+
 viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                        ignore.strand=TRUE,
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
