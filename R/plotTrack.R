@@ -85,8 +85,10 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           just=c(0,0))) ## vp1
     ##put ylab
     if(track@type=="transcript" && style@ylabpos %in% c("upstream", "downstream")){
-        putGeneYlab(curViewStyle, style, name, height, xscale,
-                    range(track@dat))
+        if(length(findOverlaps(ranges(range(track@dat)), IRanges(xscale[1], xscale[2])))>0){
+          putGeneYlab(curViewStyle, style, name, height, xscale,
+                      range(track@dat))
+        } 
     }else{
         if(style@ylabpos=="upstream") style@ylabpos <- "left"
         if(style@ylabpos=="downstream") style@ylabpos <- "right"

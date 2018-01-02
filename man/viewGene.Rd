@@ -27,8 +27,8 @@ viewGene(symbol, filenames, format, txdb, org, upstream = 1000,
 \item{plot}{plot the tracks or not.}
 }
 \value{
-an invisible list of a \code{\link{trackList}} and
- a \code{\link{trackViewerStyle}}
+an invisible list of a \code{\link{trackList}},
+ a \code{\link{trackViewerStyle}} and a \code{\link[GenomicRanges]{GRanges}}
 }
 \description{
 given a gene name, plot the tracks.

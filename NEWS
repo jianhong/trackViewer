@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.15.2
+
+    o fix the bug in addGuideLine and viewTracks when plot tracks with breaks.
+
 CHANGES IN VERSION 1.15.1
 
     o fix the bug in dandelion.plot
