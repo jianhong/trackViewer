@@ -145,7 +145,13 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               xscale=xscale))
         plotGeneModel(track, xlim)
       }else{##track@type=="gene"
-        
+        pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                              height=1, 
+                              width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                              clip="on",
+                              just=c(0,0), 
+                              xscale=xscale))
+        plotGeneModel(track, xlim) ### currently do the same thing as transcript.
       }
     }
     popViewport()## for data
