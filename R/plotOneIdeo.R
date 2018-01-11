@@ -152,10 +152,10 @@ plotOneIdeo <-
   if(length(parameterList$ylabs)){
     ylabs <- parameterList$ylabs
     if(ylabs[1]!=""){
-      autofitFontSize <- 0.5 * 
+      autofitFontSize <- 0.3 * 
           convertY(unit(vpH[1], "npc"), "inch", valueOnly=TRUE)/
             convertY(unit(1, "lines"), "inch", valueOnly = TRUE)
-      grid.text(label=ylabs[1], x=parameterList$ylabsPos, 
+      grid.text(label=ylabs[1], x=convertWidth(parameterList$ylabsPos, unitTo = "npc"), 
                 rot = parameterList$ylabsRot, 
                 gp = gpar(cex=autofitFontSize),
                 vp=viewport(y=ideoHeight/2,
@@ -165,7 +165,7 @@ plotOneIdeo <-
         for(i in 2:length(ylabs)){
           this.vgap <- vgap
           if(vpH[i-1]-vgap<=0) this.vgap <- 0
-          grid.text(label=ylabs[i], x=parameterList$ylabsPos, 
+          grid.text(label=ylabs[i], x=convertWidth(parameterList$ylabsPos, unitTo = "npc"), 
                     y=unit(.5, "npc"), rot = parameterList$ylabsRot, 
                     gp=gpar(cex=autofitFontSize),
                     vp=viewport(y=sum(vpH[-((i-1):length(vpH))])+vpH[i-1]*.5, 
