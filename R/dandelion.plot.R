@@ -1,11 +1,11 @@
 #' dandelion.plots
 #' @description Plot variants and somatic mutations
-#' @param SNP.gr A object of \link[GenomicRanges]{GRanges} or 
-#' \link[GenomicRanges]{GRangesList}. All the width of GRanges must be 1.
-#' @param features A object of \link[GenomicRanges]{GRanges} or
-#' \link[GenomicRanges]{GRangesList}.
-#' @param ranges A object of \link[GenomicRanges]{GRanges} or 
-#' \link[GenomicRanges]{GRangesList}.
+#' @param SNP.gr A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}. All the width of GRanges must be 1.
+#' @param features A object of \link[GenomicRanges:GRanges-class]{GRanges} or
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}.
+#' @param ranges A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}.
 #' @param type Character. Could be fan, circle, pie or pin.
 #' @param newpage plot in the new page or not.
 #' @param ylab plot ylab or not. If it is a character vector, 

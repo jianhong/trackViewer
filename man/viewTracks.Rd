@@ -19,7 +19,7 @@ viewTracks(trackList, chromosome, start, end, strand, gr = GRanges(),
 
 \item{strand}{strand}
 
-\item{gr}{an object of \code{\link[GenomicRanges]{GRanges}}}
+\item{gr}{an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}}
 
 \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
 

@@ -11,7 +11,7 @@ parse2GRanges(text)
 "chr13:99,443,451-99,848,821"}
 }
 \value{
-an object of \link[GenomicRanges]{GRanges}
+an object of \link[GenomicRanges:GRanges-class]{GRanges}
 }
 \description{
 parse text like "chr13:99,443,451-99,848,821:-" into GRanges

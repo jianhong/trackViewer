@@ -13,18 +13,18 @@ coverageGR(gr)
 an object of GRanges
 }
 \description{
-calculate coverage for \code{\link[GenomicRanges]{GRanges}},
- \code{\link[GenomicAlignments]{GAlignments}} or 
- \code{\link[GenomicAlignments]{GAlignmentPairs}}
+calculate coverage for \code{\link[GenomicRanges:GRanges-class]{GRanges}},
+ \code{\link[GenomicAlignments:GAlignments-class]{GAlignments}} or 
+ \code{\link[GenomicAlignments:GAlignmentPairs-class]{GAlignmentPairs}}
 }
 \examples{
 bed <- system.file("extdata", "fox2.bed", package="trackViewer",
                    mustWork=TRUE)
 fox2 <- importScore(bed)
-fox2@dat <- coverageGR(fox2@dat)
+fox2$dat <- coverageGR(fox2$dat)
 
 }
 \seealso{
-See Also as \code{\link[IRanges]{coverage}}, 
+See Also as \code{\link[IRanges:coverage-methods]{coverage}}, 
 \code{\link[GenomicRanges]{coverage-methods}}
 }

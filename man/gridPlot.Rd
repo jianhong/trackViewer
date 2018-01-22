@@ -7,7 +7,7 @@
 gridPlot(gr, gp, type, xscale)
 }
 \arguments{
-\item{gr}{an object of \link[GenomicRanges]{GRanges} with metadata. All 
+\item{gr}{an object of \link[GenomicRanges:GRanges-class]{GRanges} with metadata. All 
 metadata must be numeric.}
 
 \item{gp}{an object of \link[grid]{gpar}}

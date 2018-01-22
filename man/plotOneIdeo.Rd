@@ -15,7 +15,7 @@ plotOneIdeo(ideo, dataList, parameterList = list(vp = plotViewport(margins =
 \arguments{
 \item{ideo}{output of \link{loadIdeogram}.}
 
-\item{dataList}{a \link[GenomicRanges]{GRangesList} of data to plot.}
+\item{dataList}{a \link[GenomicRanges:GRangesList-class]{GRangesList} of data to plot.}
 
 \item{parameterList}{a list of parameters for each dataset in the dataList. 
 The elements of the parameters could be xlabs, ylabs, etc. type could be

@@ -11,11 +11,11 @@ importData(files, format = NA, ranges = GRanges())
 
 \item{format}{The format of import file. Could be BAM, BED, bedGraph, WIG or BigWig}
 
-\item{ranges}{An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+\item{ranges}{An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 the range to be imported}
 }
 \value{
-a list of \code{\link[IRanges]{RleList}}.
+a list of \code{\link[IRanges:AtomicList]{RleList}}.
 }
 \description{
 Read a \code{\link{track}} object from a BED, bedGraph, 

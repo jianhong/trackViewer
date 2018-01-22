@@ -2,7 +2,7 @@
 #' @description Read a \code{\link{track}} object from a BAM file
 #' @param file The path to the BAM file to read.
 #' @param file2 The path to the second BAM file to read.
-#' @param ranges An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+#' @param ranges An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 #' the range to be imported
 #' @param pairs logical object to indicate the BAM is paired or not. See
 #' \code{\link[GenomicAlignments]{readGAlignments}}

@@ -1,7 +1,7 @@
 #' Prepare gene model from an object of TxDb
 #' @description Generate an object of \code{\link{track}} for 
 #' \code{\link{viewTracks}} by given parameters.
-#' @param txdb An object of \code{\link[GenomicFeatures]{TxDb}}
+#' @param txdb An object of \code{\link[GenomicFeatures:TxDb-class]{TxDb}}
 #' @param orgDb An object of "OrgDb"
 #' @param gr An object of GRanges.
 #' @param chrom chromosome name, must be a seqname of txdb

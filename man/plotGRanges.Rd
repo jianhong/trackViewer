@@ -8,9 +8,9 @@ plotGRanges(..., range = GRanges(), viewerStyle = trackViewerStyle(),
   autoOptimizeStyle = FALSE, newpage = TRUE)
 }
 \arguments{
-\item{\dots}{one or more objects of \code{\link[GenomicRanges]{GRanges}}}
+\item{\dots}{one or more objects of \code{\link[GenomicRanges:GRanges-class]{GRanges}}}
 
-\item{range}{an object of \code{\link[GenomicRanges]{GRanges}}}
+\item{range}{an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}}
 
 \item{viewerStyle}{an object of \code{\link{trackViewerStyle}}}
 

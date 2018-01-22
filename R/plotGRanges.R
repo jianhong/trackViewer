@@ -1,7 +1,7 @@
 #' plot GRanges data
 #' @description A function to plot GRanges data for given range
-#' @param \dots one or more objects of \code{\link[GenomicRanges]{GRanges}}
-#' @param range an object of \code{\link[GenomicRanges]{GRanges}}
+#' @param \dots one or more objects of \code{\link[GenomicRanges:GRanges-class]{GRanges}}
+#' @param range an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 #' @param viewerStyle an object of \code{\link{trackViewerStyle}}
 #' @param autoOptimizeStyle should use \code{\link{optimizeStyle}} to optimize style
 #' @param newpage should be draw on a new page?

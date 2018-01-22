@@ -8,7 +8,7 @@ geneModelFromTxdb(txdb, orgDb, gr, chrom, start, end, strand = c("*", "+",
   "-"), txdump = NULL)
 }
 \arguments{
-\item{txdb}{An object of \code{\link[GenomicFeatures]{TxDb}}}
+\item{txdb}{An object of \code{\link[GenomicFeatures:TxDb-class]{TxDb}}}
 
 \item{orgDb}{An object of "OrgDb"}
 

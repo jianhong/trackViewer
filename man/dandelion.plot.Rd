@@ -9,14 +9,14 @@ dandelion.plot(SNP.gr, features = NULL, ranges = NULL, type = c("fan",
   legend = NULL, cex = 1, maxgaps = 1/50, ...)
 }
 \arguments{
-\item{SNP.gr}{A object of \link[GenomicRanges]{GRanges} or 
-\link[GenomicRanges]{GRangesList}. All the width of GRanges must be 1.}
+\item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+\link[GenomicRanges:GRangesList-class]{GRangesList}. All the width of GRanges must be 1.}
 
-\item{features}{A object of \link[GenomicRanges]{GRanges} or
-\link[GenomicRanges]{GRangesList}.}
+\item{features}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or
+\link[GenomicRanges:GRangesList-class]{GRangesList}.}
 
-\item{ranges}{A object of \link[GenomicRanges]{GRanges} or 
-\link[GenomicRanges]{GRangesList}.}
+\item{ranges}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+\link[GenomicRanges:GRangesList-class]{GRangesList}.}
 
 \item{type}{Character. Could be fan, circle, pie or pin.}
 

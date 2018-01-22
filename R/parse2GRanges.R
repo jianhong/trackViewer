@@ -2,7 +2,7 @@
 #' @description parse text like "chr13:99,443,451-99,848,821:-" into GRanges
 #' @param text character vector like "chr13:99,443,451-99,848,821:-" or 
 #' "chr13:99,443,451-99,848,821"
-#' @return an object of \link[GenomicRanges]{GRanges}
+#' @return an object of \link[GenomicRanges:GRanges-class]{GRanges}
 #' @import GenomicRanges
 #' @export
 #' @examples 

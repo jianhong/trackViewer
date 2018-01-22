@@ -5,7 +5,7 @@
 #' @param start start position
 #' @param end end position
 #' @param strand strand
-#' @param gr an object of \code{\link[GenomicRanges]{GRanges}}
+#' @param gr an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 #' @param ignore.strand ignore the strand or not when do filter. default TRUE
 #' @param viewerStyle an object of \code{\link{trackViewerStyle}}
 #' @param autoOptimizeStyle should use \code{\link{optimizeStyle}} to optimize style

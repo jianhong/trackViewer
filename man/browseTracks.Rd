@@ -10,7 +10,7 @@ browseTracks(trackList, gr = GRanges(), ignore.strand = TRUE,
 \arguments{
 \item{trackList}{an object of \code{\link{trackList}}}
 
-\item{gr}{an object of \code{\link[GenomicRanges]{GRanges}}}
+\item{gr}{an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}}
 
 \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
 

@@ -10,19 +10,19 @@ lolliplot(SNP.gr, features = NULL, ranges = NULL, type = c("circle",
   jitter = c("node", "label"), ...)
 }
 \arguments{
-\item{SNP.gr}{A object of \link[GenomicRanges]{GRanges}, 
-\link[GenomicRanges]{GRangesList}
-or a list of \link[GenomicRanges]{GRanges}.
+\item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
+\link[GenomicRanges:GRangesList-class]{GRangesList}
+or a list of \link[GenomicRanges:GRanges-class]{GRanges}.
 All the width of GRanges must be 1.}
 
-\item{features}{A object of \link[GenomicRanges]{GRanges}, 
-\link[GenomicRanges]{GRangesList}
-or a list of \link[GenomicRanges]{GRanges}. 
+\item{features}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
+\link[GenomicRanges:GRangesList-class]{GRangesList}
+or a list of \link[GenomicRanges:GRanges-class]{GRanges}. 
 The metadata 'featureLayerID' are used for drawing features in different layers.
  See details in vignette.}
 
-\item{ranges}{A object of \link[GenomicRanges]{GRanges} or 
-\link[GenomicRanges]{GRangesList}.}
+\item{ranges}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+\link[GenomicRanges:GRangesList-class]{GRangesList}.}
 
 \item{type}{character. Could be circle, pie, pin or pie.stack.}
 

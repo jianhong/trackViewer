@@ -11,13 +11,13 @@ loadIdeogram(genome, chrom = NULL, ranges = NULL, ...)
 
 \item{chrom}{A character vector of chromosome names, or NULL.}
 
-\item{ranges}{A \link[IRanges]{Ranges} object with the intervals.}
+\item{ranges}{A \link[IRanges:IRanges-class]{Ranges} object with the intervals.}
 
 \item{...}{Additional arguments to pass to the 
-\link[GenomicRanges]{GRanges} constructor.}
+\link[GenomicRanges:GRanges-class]{GRanges} constructor.}
 }
 \value{
-A \link[GenomicRanges]{GRanges} object.
+A \link[GenomicRanges:GRanges-class]{GRanges} object.
 }
 \description{
 Download ideogram table from UCSC

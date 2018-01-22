@@ -3,7 +3,7 @@
 #' @param file The path to the file to read.
 #' @param file2 The path to the second file to read.
 #' @param format The format of import file. Could be BED, bedGraph, WIG or BigWig
-#' @param ranges An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+#' @param ranges An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 #' the range to be imported
 #' @param ignore.strand ignore the strand or not when do filter. default TRUE
 #' @return a \code{\link{track}} object 

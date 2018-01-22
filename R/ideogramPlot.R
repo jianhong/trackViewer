@@ -1,7 +1,7 @@
 #' plot ideogram with data
 #' @description plot ideogram with data for multiple chromosomes 
 #' @param ideo output of \link{loadIdeogram}.
-#' @param dataList a \link[GenomicRanges]{GRangesList} of data to plot.
+#' @param dataList a \link[GenomicRanges:GRangesList-class]{GRangesList} of data to plot.
 #' @param layout The layout of chromosomes. Could be a list with chromosome names
 #' as its elements.
 #' @param horiz a logical value. If FALSE, the ideograms are drawn vertically 

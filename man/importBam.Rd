@@ -11,7 +11,7 @@ importBam(file, file2, ranges = GRanges(), pairs = FALSE)
 
 \item{file2}{The path to the second BAM file to read.}
 
-\item{ranges}{An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+\item{ranges}{An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 the range to be imported}
 
 \item{pairs}{logical object to indicate the BAM is paired or not. See

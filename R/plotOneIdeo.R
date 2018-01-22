@@ -1,7 +1,7 @@
 #' plot ideogram with data for one chromosome
 #' @description plot ideogram with data for one chromosome 
 #' @param ideo output of \link{loadIdeogram}.
-#' @param dataList a \link[GenomicRanges]{GRangesList} of data to plot.
+#' @param dataList a \link[GenomicRanges:GRangesList-class]{GRangesList} of data to plot.
 #' @param parameterList a list of parameters for each dataset in the dataList. 
 #' The elements of the parameters could be xlabs, ylabs, etc. type could be
 #' barplot, line, point, heatmap.
@@ -179,7 +179,7 @@ plotOneIdeo <-
 
 #' plot GRanges metadata 
 #' @description plot GRanges metadata for different types
-#' @param gr an object of \link[GenomicRanges]{GRanges} with metadata. All 
+#' @param gr an object of \link[GenomicRanges:GRanges-class]{GRanges} with metadata. All 
 #' metadata must be numeric.
 #' @param gp an object of \link[grid]{gpar}
 #' @param type type of the figure, could be barplot, line, point and heatmap

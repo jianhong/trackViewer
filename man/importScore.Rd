@@ -14,7 +14,7 @@ importScore(file, file2, format = c("BED", "bedGraph", "WIG", "BigWig"),
 
 \item{format}{The format of import file. Could be BED, bedGraph, WIG or BigWig}
 
-\item{ranges}{An object of \code{\link[GenomicRanges]{GRanges}} to indicate
+\item{ranges}{An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 the range to be imported}
 
 \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}

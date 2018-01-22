@@ -1,16 +1,16 @@
 #' Lolliplots
 #' @description Plot variants and somatic mutations
-#' @param SNP.gr A object of \link[GenomicRanges]{GRanges}, 
-#' \link[GenomicRanges]{GRangesList}
-#' or a list of \link[GenomicRanges]{GRanges}.
+#' @param SNP.gr A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}
+#' or a list of \link[GenomicRanges:GRanges-class]{GRanges}.
 #' All the width of GRanges must be 1.
-#' @param features A object of \link[GenomicRanges]{GRanges}, 
-#' \link[GenomicRanges]{GRangesList}
-#' or a list of \link[GenomicRanges]{GRanges}. 
+#' @param features A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}
+#' or a list of \link[GenomicRanges:GRanges-class]{GRanges}. 
 #' The metadata 'featureLayerID' are used for drawing features in different layers.
 #'  See details in vignette.
-#' @param ranges A object of \link[GenomicRanges]{GRanges} or 
-#' \link[GenomicRanges]{GRangesList}.
+#' @param ranges A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}.
 #' @param type character. Could be circle, pie, pin or pie.stack.
 #' @param newpage Plot in the new page or not.
 #' @param ylab Plot ylab or not. If it is a character vector, 

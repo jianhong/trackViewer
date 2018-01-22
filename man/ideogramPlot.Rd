@@ -15,7 +15,7 @@ ideogramPlot(ideo, dataList, layout = NULL, horiz = TRUE,
 \arguments{
 \item{ideo}{output of \link{loadIdeogram}.}
 
-\item{dataList}{a \link[GenomicRanges]{GRangesList} of data to plot.}
+\item{dataList}{a \link[GenomicRanges:GRangesList-class]{GRangesList} of data to plot.}
 
 \item{layout}{The layout of chromosomes. Could be a list with chromosome names
 as its elements.}

@@ -97,10 +97,10 @@ be a integer 0-3. See \code{\link[graphics]{par}:las}}
 class \code{\link[grid]{gpar}}. This is basically a list of graphical 
 parameter settings of y-label.}
 
-\item{\code{dat}}{Object of class \code{\link[GenomicRanges]{GRanges}}
+\item{\code{dat}}{Object of class \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 the scores of a given track. It should contain score metadata.}
 
-\item{\code{dat2}}{Object of class \code{\link[GenomicRanges]{GRanges}}
+\item{\code{dat2}}{Object of class \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 the scores of a given track. It should contain score metadata. When dat2
 and dat is paired, dat will be drawn as positive value where dat2 will be 
 drawn as negative value (-1 * score)}

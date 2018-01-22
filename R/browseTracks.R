@@ -2,7 +2,7 @@
 #'
 #' @description browse tracks by a web browser.
 #' @param trackList an object of \code{\link{trackList}}
-#' @param gr an object of \code{\link[GenomicRanges]{GRanges}}
+#' @param gr an object of \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 #' @param ignore.strand ignore the strand or not when do filter. default TRUE
 #' @param width width of the figure
 #' @param height height of the figure

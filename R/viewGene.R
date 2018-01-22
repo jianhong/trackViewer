@@ -10,7 +10,7 @@
 #' @param org org package name
 #' @param plot plot the tracks or not.
 #' @return an invisible list of a \code{\link{trackList}},
-#'  a \code{\link{trackViewerStyle}} and a \code{\link[GenomicRanges]{GRanges}}
+#'  a \code{\link{trackViewerStyle}} and a \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 #' @import GenomicRanges
 #' @import GenomicFeatures
 #' @import Rsamtools
