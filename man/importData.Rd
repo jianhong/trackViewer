@@ -15,7 +15,7 @@ importData(files, format = NA, ranges = GRanges())
 the range to be imported}
 }
 \value{
-a list of \code{\link[IRanges:AtomicList]{RleList}}.
+a list of \code{\link[IRanges:AtomicList-class]{RleList}}.
 }
 \description{
 Read a \code{\link{track}} object from a BED, bedGraph, 

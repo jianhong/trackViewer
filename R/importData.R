@@ -5,7 +5,7 @@
 #' @param format The format of import file. Could be BAM, BED, bedGraph, WIG or BigWig
 #' @param ranges An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
 #' the range to be imported
-#' @return a list of \code{\link[IRanges:AtomicList]{RleList}}. 
+#' @return a list of \code{\link[IRanges:AtomicList-class]{RleList}}. 
 #' @import Rsamtools
 #' @importFrom tools file_ext
 #' @export
