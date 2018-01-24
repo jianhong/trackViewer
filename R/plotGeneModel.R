@@ -71,7 +71,7 @@ plotGeneModel <- function(track, xscale){
     }
     
     ## plot exons
-    exons <- transcript[transcript$feature %in% c("CDS", "ncRNA")]
+    exons <- transcript[transcript$feature %in% c("CDS", "ncRNA", "exon")]
     if(length(exons)>0){
         for(i in 1:length(exons)){
             if(start(exons)[i]<=xscale[2] && end(exons)[i]>=xscale[1]){

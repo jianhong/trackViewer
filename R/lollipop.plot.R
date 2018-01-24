@@ -24,6 +24,8 @@
 #' @param cex cex will control the size of circle.
 #' @param dashline.col color for the dashed line.
 #' @param jitter jitter the position of nodes or labels.
+#' @param rescale logical(1) or a dataframe with rescale from and to. Recalse the x-axis or not.
+#' if dataframe is used, colnames must be from.start, from.end, to.start, to.end.
 #' @param ... not used.
 #' @return NULL
 #' @details 
@@ -40,6 +42,7 @@
 #' @import GenomicRanges
 #' @import IRanges
 #' @import grid
+#' @importFrom scales rescale
 #' @importClassesFrom grImport Picture
 #' @importFrom grImport readPicture grid.picture
 #' @export
@@ -66,10 +69,13 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
                       xaxis=TRUE, legend=NULL, cex=1, 
                       dashline.col="gray80", 
-                      jitter=c("node", "label"), ...){
+                      jitter=c("node", "label"), 
+                      rescale=FALSE, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
     stopifnot(inherits(features, c("GRanges", "GRangesList", "list")))
     jitter <- match.arg(jitter)
+    rescale.old <- rescale
+    xaxis.old <- xaxis
     if(type!="circle"&&jitter=="label"){
       jitter <- "node"
       warning("if jitter set to label, type must be cirle.")
@@ -175,6 +181,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         GAP <- .2 * LINEH
         ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
         
+        
+        SNPs <- SNP.gr[[i]]
+        strand(SNPs) <- "*"
+        SNPs <- sort(SNPs)
+        
         ## prepare the feature
         if(inherits(features, c("GRangesList", "list"))){
             feature <- features[[i]]
@@ -182,6 +193,86 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         }else{
             feature <- features
         }
+        
+        ## rescale
+        rescale <- rescale.old
+        xaxis <- xaxis.old
+        if(is.logical(rescale)[1]){
+          if(rescale[1]){
+            range.tile <- tile(ranges[i], n = 5)[[1]]
+            if(all(width(range.tile)>2)){
+              range.tile.cnt <- countOverlaps(range.tile, SNPs)
+              feature.start <- feature.end <- feature
+              end(feature.start) <- start(feature.start)
+              start(feature.end) <- end(feature.end)
+              range.tile.cnt2 <- countOverlaps(range.tile, unique(c(feature.start, feature.end)))
+              range.tile.cnt <- range.tile.cnt + range.tile.cnt2
+              range.width <- width(ranges[i])
+              range.tile.width <- log2(range.tile.cnt + 1)
+              range.tile.width <- range.tile.width/sum(range.tile.width)
+              range.tile.width <- range.width * range.tile.width
+              range.tile.width <- cumsum(range.tile.width)
+              range.tile.width <- start(ranges[i]) + c(0, round(range.tile.width)-1)
+              rescale <- data.frame(from.start=start(range.tile), from.end=end(range.tile),
+                                    to.start=range.tile.width[-length(range.tile.width)],
+                                    to.end=range.tile.width[-1])
+              rescale$to.start[-1] <- rescale$to.start[-1] + 1
+            }
+          }
+        }
+        if(is.data.frame(rescale)){
+          if(all(c("from.start", "from.end", "to.start", "to.end") %in% colnames(rescale))){
+            rescale.gr <- function(x){
+              if(is(x, "GRanges")){
+                x.start <- start(x)
+                x.end <- end(x)
+                y <- c(x.start, x.end)
+                x.cut <- cut(y, breaks=c(rescale$from.start[1], rescale$from.end+1),
+                             labels=seq.int(nrow(rescale)), right=FALSE)
+                y <- mapply(function(a, b){
+                  if(!is.na(b)) {
+                    rescale(a, to=c(rescale$to.start[b], rescale$to.end[b]),
+                          from=c(rescale$from.start[b], rescale$from.end[b]))
+                  }else{
+                    a
+                  }
+                }, y, as.numeric(as.character(x.cut)))
+                y <- round(y)
+                start(x) <- 1
+                end(x) <- y[seq_along(x)+length(x)]
+                start(x) <- y[seq_along(x)]
+                x
+              }else{
+                x.cut <- cut(x, breaks=c(rescale$from.start[1], rescale$from.end+1),
+                             labels=seq.int(nrow(rescale)), right=FALSE)
+                y <- mapply(function(a, b){
+                  if(!is.na(b)) {
+                    rescale(a, to=c(rescale$to.start[b], rescale$to.end[b]),
+                            from=c(rescale$from.start[b], rescale$from.end[b]))
+                  }else{
+                    a
+                  }
+                }, x, as.numeric(as.character(x.cut)))
+                y <- round(y)
+                y
+              }
+            }
+            feature <- rescale.gr(feature)
+            SNPs <- rescale.gr(SNPs)
+            if(is.logical(xaxis)[1]){
+              xaxis <- c(rescale$to.start[1], rescale$to.end)
+              names(xaxis) <- c(rescale$from.start[1], rescale$from.end)
+            }else{
+              xaxis.names <- names(xaxis)
+              if(length(xaxis.names)!=length(xaxis)){
+                xaxis.names <- as.character(xaxis)
+              }
+              xaxis <- rescale.gr(xaxis)
+              names(xaxis) <- xaxis.names
+            }
+          }
+        }
+        
         ## convert height to npc number
         feature$height <- convertHeight2NPCnum(feature$height)
         ## multiple transcripts in one gene could be separated by featureLayerID
@@ -224,9 +315,6 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           }
         }
         
-        SNPs <- SNP.gr[[i]]
-        strand(SNPs) <- "*"
-        SNPs <- sort(SNPs)
         ## get the max score and scoreType
         scoreMax0 <- scoreMax <- 
             if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1

@@ -7,7 +7,7 @@
 lolliplot(SNP.gr, features = NULL, ranges = NULL, type = c("circle",
   "pie", "pin", "pie.stack"), newpage = TRUE, ylab = TRUE, yaxis = TRUE,
   xaxis = TRUE, legend = NULL, cex = 1, dashline.col = "gray80",
-  jitter = c("node", "label"), ...)
+  jitter = c("node", "label"), rescale = FALSE, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
@@ -45,6 +45,9 @@ points if it has names.}
 \item{dashline.col}{color for the dashed line.}
 
 \item{jitter}{jitter the position of nodes or labels.}
+
+\item{rescale}{logical(1) or a dataframe with rescale from and to. Recalse the x-axis or not.
+if dataframe is used, colnames must be from.start, from.end, to.start, to.end.}
 
 \item{...}{not used.}
 }

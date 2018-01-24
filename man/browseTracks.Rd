@@ -2,7 +2,7 @@
 % Please edit documentation in R/browseTracks.R
 \name{browseTracks}
 \alias{browseTracks}
-\title{browse network}
+\title{browse tracks}
 \usage{
 browseTracks(trackList, gr = GRanges(), ignore.strand = TRUE,
   width = NULL, height = NULL, ...)

@@ -1,4 +1,4 @@
-#' browse network
+#' browse tracks
 #'
 #' @description browse tracks by a web browser.
 #' @param trackList an object of \code{\link{trackList}}
