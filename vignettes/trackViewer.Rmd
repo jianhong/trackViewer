@@ -672,6 +672,23 @@ lolliplot(methy, features, ranges=gr, type="pin")
 lolliplot(methy, features, ranges=gr, type="circle")
 ```
 
+## Change the xscale
+In above samples, some of the nodes are moved too far from the original coordinates.
+To rescale the xaxis could be used.
+```{r fig.width=6,fig.height=2.5}
+methy$cex <- 1
+lolliplot(methy, features, ranges=gr, rescale = TRUE)
+rescale <- data.frame(
+  from.start = c(50968014, 50968515, 50968838), 
+  from.end   = c(50968514, 50968837, 50970514),
+  to.start   = c(50968014, 50968838, 50969501), 
+  to.end     = c(50968837, 50969500, 50970514)
+)
+xaxis <- c(50968014, 50968514, 50968710, 50968838, 50970514)
+lolliplot(methy, features, ranges=gr, type="pin",
+          rescale = rescale, xaxis = xaxis)
+```
+
 # Dandelion Plot
 Sometimes, there are too many SNPs invoved in one gene. If you want to plot such as more than handred SNPs, Dandelion plot may be the good chioce. Please note, the height of the dandelion means the desity of the SNPs.
 ```{r fig.width=4.5,fig.height=3}
