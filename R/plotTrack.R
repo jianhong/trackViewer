@@ -143,7 +143,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               clip="on",
                               just=c(0,0), 
                               xscale=xscale))
-        plotGeneModel(track, xlim)
+        plotGeneModel(track, xlim, chr)
       }else{##track@type=="gene"
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                               height=1, 
@@ -151,7 +151,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               clip="on",
                               just=c(0,0), 
                               xscale=xscale))
-        plotGeneModel(track, xlim) ### currently do the same thing as transcript.
+        plotGeneModel(track, xlim, chr) ### currently do the same thing as transcript.
       }
     }
     popViewport()## for data

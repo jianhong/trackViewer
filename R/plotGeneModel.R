@@ -1,7 +1,15 @@
 ##levels of feature "CDS"   "ncRNA" "utr3"  "utr5"
-plotGeneModel <- function(track, xscale){
+plotGeneModel <- function(track, xscale, chr){
+  if(length(track@dat2)>0){
+    feature.height <- 
+      if(is.list(track@dat2$feature.height)) track@dat2$feature.height[[1]] else track@dat2$feature.height[1]
+    if(length(feature.height)==0) feature.height <- .5
+    unit <- feature.height/4
+    y <- feature.height/2
+  }else{
     unit <- 0.25
     y <- 0.5
+  }
     transcript <- track@dat
     col <- track@style@color
     strand <- as.character(strand(transcript))[1]
@@ -83,6 +91,55 @@ plotGeneModel <- function(track, xscale){
             }
         }
     }
-
+    
+    if(length(track@dat2)>0){
+      track@dat2 <- orderedGR(track@dat2)
+      xscale.gr <- GRanges(seqnames = chr, ranges=IRanges(min(xscale), max(xscale)))
+      track@dat2 <- subsetByOverlaps(track@dat2, xscale.gr, ignore.strand=TRUE)
+      if(length(track@dat2)<1) return(invisible())
+      width(track@dat2) <- 1
+      TYPES <- c("circle", "pie", "pin", "pie.stack")
+      type <- if(is.list(track@dat2$type)) track@dat2$type[[1]] else track@dat2$type[1]
+      if(length(type)==0) type <- "circle"
+      if(!type %in% TYPES) type <- "circle"
+      if(type=="pin"){ ## read the pin shape file
+        pinpath <- system.file("extdata", "map-pin-red.xml", package="trackViewer")
+        pin <- readPicture(pinpath)
+      }else{
+        pin <- NULL
+      }
+      cex <- if(is.list(track@dat2$cex)) track@dat2$cex[[1]] else track@dat2$cex[1]
+      if(length(cex)==0) cex <- 1
+      dashline.col <- if(is.list(track@dat2$dashline.col)) track@dat2$dashline.col[[1]] else track@dat2$dashline.col[1]
+      if(length(dashline.col)==0) dashline.col <- "gray80"
+      jitter <- if(is.list(track@dat2$jitter)) track@dat2$jitter[[1]] else track@dat2$jitter[1]
+      if(length(jitter)==0) jitter <- "node"
+      if(!jitter %in% c("node", "label")) jitter <- "node"
+      scoreMax0 <- scoreMax <- 
+        if(length(track@dat2$score)>0) ceiling(max(c(track@dat2$score, 1), na.rm=TRUE)) else 1
+      if(type=="pie.stack") scoreMax <- length(unique(track@dat2$stack.factor))
+      if(!type %in% c("pie", "pie.stack")){
+        if(scoreMax>10) {
+          track@dat2$score <- 10*track@dat2$score/scoreMax
+          scoreMax <- 10*scoreMax0/scoreMax
+        }else{
+          scoreMax <- scoreMax0
+        }
+        scoreType <- 
+          if(length(track@dat2$score)>0) all(floor(track@dat2$score)==track@dat2$score) else FALSE
+      }else{
+        scoreType <- FALSE
+      }
+      LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+      LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+      ## GAP the gaps between any elements
+      GAP <- .2 * LINEH
+      ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+      plotLollipops(track@dat2, feature.height=y+unit, bottomHeight=0, baseline=y, 
+                    type=type, ranges=xscale.gr, yaxis=FALSE, 
+                    scoreMax=scoreMax, scoreMax0=scoreMax0, scoreType=scoreType, 
+                    LINEW, cex, ratio.yx, GAP, pin, dashline.col,
+                    side="top", jitter=jitter)
+    }
     return(invisible())
 }

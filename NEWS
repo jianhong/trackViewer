@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.15.8
+
+    o Plot lollipop plot with tracks.
+    
 CHANGES IN VERSION 1.15.7
 
     o Add new parameter rescale to lolliplot.
