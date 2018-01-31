@@ -214,7 +214,7 @@ setClass("trackStyle",
 #' the scores of a given track. It should contain score metadata. When dat2
 #' and dat is paired, dat will be drawn as positive value where dat2 will be 
 #' drawn as negative value (-1 * score)
-#' @slot type The type of track. It could be 'data' or 'gene'.
+#' @slot type The type of track. It could be 'data', 'gene', 'transcript' or 'lollipopData'.
 #' @slot format The format of the input. It could be "BED", "bedGraph",
 #' "WIG", "BigWig" or "BAM"
 #' @slot style Object of class \code{\link{trackStyle}}
@@ -237,8 +237,8 @@ setClass("track", representation(dat="GRanges",
                                  style="trackStyle",
                                  name="character"),
          validity=function(object){
-             if(!object@type %in% c("data", "gene", "transcript"))
-                 return("type must be 'data', 'transcript', or 'gene'")
+             if(!object@type %in% c("data", "gene", "transcript", "lollipopData"))
+                 return("type must be 'data', 'transcript', 'gene', 'lollipopData'")
              if(object@type=="data"){
                  if(!object@format %in% c("BED", "bedGraph", "WIG", "BigWig", "BAM"))
                      return("format must be one of \"BED\", 
@@ -257,8 +257,23 @@ setClass("track", representation(dat="GRanges",
                          return("Please try ?imortScore for WIG files")
                  }
              }else{
+               if(object@type=="lollipopData"){
+                 if(is.null(object@dat$score))
+                   return("dat should contain score metadata.")
+                 if(!all(width(object@dat)==1)){
+                   return("Width for lollipopData must be 1")
+                 }
+                 if(length(object@dat2)>0){
+                   if(is.null(object@dat$score))
+                     return("dat2 should contain score metadata.")
+                   if(!all(width(object@dat2)==1)){
+                     return("Width for lollipopData must be 1")
+                   }
+                 }
+               }else{
                  if(is.null(mcols(object@dat)$feature))
-                     return("The metadata of dat must contain colnumn 'feature'") 
+                   return("The metadata of dat must contain colnumn 'feature'") 
+               }
              }
              return(TRUE)
          })

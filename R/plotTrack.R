@@ -84,7 +84,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp1
     ##put ylab
-    if(track@type=="transcript" && style@ylabpos %in% c("upstream", "downstream")){
+    if(track@type %in% c("transcript", "gene") && style@ylabpos %in% c("upstream", "downstream")){
         if(length(findOverlaps(ranges(range(track@dat)), IRanges(xscale[1], xscale[2])))>0){
           putGeneYlab(curViewStyle, style, name, height, xscale,
                       range(track@dat))
@@ -100,43 +100,61 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp2
     xy <- list()
-    if(track@type=="data"){
-        ##plot yaxis
-        drawYaxis(yscale, style@yaxis, curViewStyle)
-        pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
-                              height=1, 
-                              width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
-                              clip="on",
-                              just=c(0,0), 
-                              xscale=xscale, 
-                              yscale=yscale))
-        ##grid.clip()
-        ##for dat
-        xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
-        xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
-        ##for dat2
-        if(length(track@dat2)>0){
+    if(track@type %in% c("data", "lollipopData")){
+        if(track@type=="data") {
+          ##plot yaxis
+          drawYaxis(yscale, style@yaxis, curViewStyle)
+          pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                height=1, 
+                                width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                clip="on",
+                                just=c(0,0), 
+                                xscale=xscale, 
+                                yscale=yscale))
+          ##grid.clip()
+          ##for dat
+          xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
+          xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
+          ##for dat2
+          if(length(track@dat2)>0){
             if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
             xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2])
-        }
-        xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))
-        xy.id <- order(xy$x)
-        xy <- list(x=xy$x[xy.id], y=xy$y[xy.id])
-        ##plot xscale?
-        if(style@xscale@draw){
+          }
+          xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))
+          xy.id <- order(xy$x)
+          xy <- list(x=xy$x[xy.id], y=xy$y[xy.id])
+          ##plot xscale?
+          if(style@xscale@draw){
             if(length(style@xscale@label)==0){
-                scale <- hrScale(xlim)
-                xpos <- locateScale(xy$x, abs(xy$y), max(abs(yscale)), scale)
-                ypos <- yscale[abs(yscale)==max(abs(yscale))] * 0.7
-                if(length(ypos)>1) ypos <- max(ypos)
-                style@xscale@from <- new("pos", x=xpos[1], y=ypos, unit="native")
-                style@xscale@to <- new("pos", x=xpos[2], y=ypos, unit="native")
-                style@xscale@label <- paste(2*scale[[1]], scale[[2]])
+              scale <- hrScale(xlim)
+              xpos <- locateScale(xy$x, abs(xy$y), max(abs(yscale)), scale)
+              ypos <- yscale[abs(yscale)==max(abs(yscale))] * 0.7
+              if(length(ypos)>1) ypos <- max(ypos)
+              style@xscale@from <- new("pos", x=xpos[1], y=ypos, unit="native")
+              style@xscale@to <- new("pos", x=xpos[2], y=ypos, unit="native")
+              style@xscale@label <- paste(2*scale[[1]], scale[[2]])
             }
             drawXscale(style@xscale)
+          }
+        }else{
+          pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                height=1, 
+                                width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                clip="on",
+                                just=c(0,0), 
+                                xscale=xscale))
+          ybase <- ifelse(length(track@dat2)>0, .5, 0)
+          if(length(track@dat)>0) plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, 
+                                                   ybase, side="top", main=style@yaxis@main,
+                                                   style@color[1])
+          if(length(track@dat2)>0) {
+            plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, 
+                             ybase, side="bottom", main=style@yaxis@main,
+                             baselineCol=style@color[2])
+          }
         }
-    }else{##track@type=="transcript"
-      if(track@type=="transcript"){
+    }else{##track@type=="transcript" or "gene"
+      if(track@type %in% c("transcript", "gene")){
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                               height=1, 
                               width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
@@ -144,7 +162,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               just=c(0,0), 
                               xscale=xscale))
         plotGeneModel(track, xlim, chr)
-      }else{##track@type=="gene"
+      }else{##others
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                               height=1, 
                               width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 

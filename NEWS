@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.15.9
+
+    o Add lollipopData to tracks-class.
+    
 CHANGES IN VERSION 1.15.8
 
     o Plot lollipop plot with tracks.

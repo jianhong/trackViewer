@@ -15,7 +15,7 @@
 #' @return An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}
 #' @import GenomicRanges
 #' @import grid
-#' @import grDevices
+#' @importFrom grDevices as.raster col2rgb colorRampPalette palette
 #' @importFrom scales rescale
 #' @export
 #' @seealso See Also as \code{\link{addGuideLine}}, \code{\link{addArrowMark}}

@@ -738,6 +738,23 @@ viewerStyle <- optSty$style
 gr <- GRanges("chr11", IRanges(122929275, 122930122))
 setTrackStyleParam(trackList[[3]], "ylabgp", list(cex=.8))
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+## lollipopData track
+SNPs2 <- GRanges("chr11", IRanges(sample(122929275:122930122, size = 30), width = 1), strand="-")
+SNPs2 <- c(SNPs2, promoters(gene$dat, upstream = 0, downstream = 1))
+SNPs2$score <- sample.int(3, length(SNPs2), replace = TRUE)
+SNPs2$color <- sample.int(6, length(SNPs2), replace=TRUE)
+SNPs2$border <- "gray30"
+SNPs2$feature.height = .1
+SNPs2$cex <- .5
+lollipopData <- new("track", dat=SNPs, dat2=SNPs2, type="lollipopData")
+gene <- geneTrack(get("HSPA8", org.Hs.egSYMBOL2EG), TxDb.Hsapiens.UCSC.hg19.knownGene)[[1]]
+optSty <- optimizeStyle(trackList(repA, lollipopData, gene), theme="col")
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+gr <- GRanges("chr11", IRanges(122929275, 122930122))
+setTrackStyleParam(trackList[[2]], "ylabgp", list(cex=.8))
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+addGuideLine(122929538, vp=vp)
 ```
 
 # Ideogram Plot

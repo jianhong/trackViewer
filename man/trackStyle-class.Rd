@@ -105,7 +105,7 @@ the scores of a given track. It should contain score metadata. When dat2
 and dat is paired, dat will be drawn as positive value where dat2 will be 
 drawn as negative value (-1 * score)}
 
-\item{\code{type}}{The type of track. It could be 'data' or 'gene'.}
+\item{\code{type}}{The type of track. It could be 'data', 'gene', 'transcript' or 'lollipopData'.}
 
 \item{\code{format}}{The format of the input. It could be "BED", "bedGraph",
 "WIG", "BigWig" or "BAM"}

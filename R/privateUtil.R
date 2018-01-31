@@ -138,7 +138,7 @@ getYlim <- function(tl, op){
     yscales <- lapply(tl, function(.ele){
         ylim <- .ele@style@ylim
         if(length(ylim)!=2){
-            if(.ele@type=="data"){
+            if(.ele@type %in% c("data", "lollipopData")){
                 if(length(.ele@dat)>0){
                     ylim <- unique(round(range(.ele@dat$score)))
                 }else{

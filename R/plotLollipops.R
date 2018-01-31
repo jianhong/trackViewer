@@ -49,7 +49,8 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
 plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline, 
                           type, ranges, yaxis, scoreMax, scoreMax0, scoreType,
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
-                          side=c("top", "bottom"), jitter=c("node", "label")){
+                          side=c("top", "bottom"), jitter=c("node", "label"),
+                          main=TRUE){
     side <- match.arg(side)
     jitter <- match.arg(jitter)
     if(side=="top"){
@@ -125,7 +126,8 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             if(side=="top"){
                 grid.yaxis(at=yaxisat,
                            label=yaxisLabel,
-                           vp=viewport(x=.5-LINEW,
+                           main = main,
+                           vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
                                        y=feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex,
                                        width=1,
@@ -134,7 +136,8 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             }else{
                 grid.yaxis(at=yaxisat,
                            label=yaxisLabel,
-                           vp=viewport(x=.5-LINEW,
+                           main = main,
+                           vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
                                        y=1-(feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex),
                                        width=1,
