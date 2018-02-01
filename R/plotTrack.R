@@ -174,6 +174,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                       level="data")
           }
           maxHeight <- max(c(getMaxHeight(track@dat), getMaxHeight(track@dat2)), na.rm = TRUE)
+          if(length(track@dat2)>0) maxHeight + .5
           plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, 
                            ybase, side="top", main=style@yaxis@main,
                            baselineCol=style@color[1], maxHeight=maxHeight)
