@@ -273,6 +273,13 @@ setClass("track", representation(dat="GRanges",
                }else{
                  if(is.null(mcols(object@dat)$feature))
                    return("The metadata of dat must contain colnumn 'feature'") 
+                 if(length(object@dat2)>0){
+                   if(is.null(object@dat$score))
+                     return("dat2 should contain score metadata.")
+                   if(!all(width(object@dat2)==1)){
+                     return("Width for lollipop data must be 1")
+                   }
+                 }
                }
              }
              return(TRUE)

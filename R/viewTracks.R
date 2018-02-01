@@ -45,7 +45,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
   if(missing(trackList)){
     stop("trackList is required.")
   }
-  if(class(trackList)!="trackList" && 
+  if(!is(trackList, "trackList") && 
      !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
     stop("trackList must be an object of \"trackList\"
          (See ?trackList) or a list of track")
@@ -208,7 +208,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
   if(ignore.strand) strand <- "*"
   if(end < start) stop("end should be greater than start.")
   
-  if(class(viewerStyle)!="trackViewerStyle"){
+  if(!is(viewerStyle, "trackViewerStyle")){
     stop("viewerStyle must be an object of 'trackViewerStyle'.")
   }
   if(!is.logical(newpage)) stop("newpage should be a logical vector.")

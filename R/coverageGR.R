@@ -17,10 +17,10 @@
 #' fox2$dat <- coverageGR(fox2$dat)
 #' 
 coverageGR <- function(gr){##todo, check GAlignmentPairs
-    if(!class(gr) %in% c("GRanges", "GAlignments", "GAlignmentPairs"))
+    if(!inherits(gr, c("GRanges", "GAlignments", "GAlignmentPairs")))
         stop("input is not an object of RGanges, GAlignments or GAlignmentPairs.")
     flag <- TRUE
-    if(class(gr)=="GRanges"){
+    if(is(gr, "GRanges")){
         if(is.null(score(gr))) gr$score <- rep(1, length(gr))
         if(length(unique(score(gr)))!=1) flag <- FALSE
     }

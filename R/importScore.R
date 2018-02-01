@@ -47,7 +47,7 @@ importScore <- function(file, file2,
     ##    on.exit(closeAllConnections())
     format <- match.arg(format)
     #    res <- GRanges(score=numeric(0))
-    if(class(ranges)!="GRanges") stop("ranges must be an object of GRanges.")
+    if(!is(ranges, "GRanges")) stop("ranges must be an object of GRanges.")
     gr <- orderedGR(ranges)
     seqn <- unique(as.character(seqnames(gr)))
     filterByRange <- function(r){

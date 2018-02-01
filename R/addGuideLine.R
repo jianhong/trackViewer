@@ -16,7 +16,7 @@
 
 addGuideLine <- function(guideLine, col="gray", lty="dashed", lwd=1, vp=NULL){
   if(missing(guideLine) | 
-     !(class(guideLine) %in% c("numeric", "integer")) |
+     !(inherits(guideLine, c("numeric", "integer"))) |
      length(guideLine) < 1)
     stop("guideLine is required as a numeric vector of coordinates of genome")
   len <- length(guideLine)

@@ -1,4 +1,4 @@
-plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=TRUE, baselineCol="black"){
+plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=TRUE, baselineCol="black", maxHeight){
   if(length(dat)>0){
     dat <- orderedGR(dat)
     xscale.gr <- GRanges(seqnames = chr, ranges=IRanges(min(xscale), max(xscale)))
@@ -37,7 +37,6 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=
     }else{
       scoreType <- FALSE
     }
-    scoreMax0 <- scoreMax0/cex
     LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
     LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
     ## GAP the gaps between any elements
@@ -46,6 +45,8 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=
     feature.height <- 
       if(is.list(dat$feature.height)) dat$feature.height[[1]] else dat$feature.height[1]
     if(length(feature.height)==0) feature.height <- GAP
+    if(maxHeight>1) cex <- cex/maxHeight
+    scoreMax0 <- scoreMax0/cex
     guideline <- ifelse(side=="top", ybase, ybase+feature.height)
     grid.lines(y=c(guideline, guideline), gp = gpar(col=baselineCol))
     plotLollipops(dat, feature.height=feature.height, bottomHeight=ybase, baseline=0, 

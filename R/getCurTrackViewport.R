@@ -12,7 +12,7 @@
 #' addGuideLine(c(10010, 10025, 10150), vp=vp)
 
 getCurTrackViewport <- function(curViewerStyle, start, end){
-  if(class(curViewerStyle)!="trackViewerStyle")
+  if(!is(curViewerStyle, "trackViewerStyle"))
     stop("curViewerStyle must be an object of trackViewerStyle")
   margin <- curViewerStyle@margin
   xscale <- c(start, end)

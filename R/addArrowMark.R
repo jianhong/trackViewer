@@ -37,10 +37,10 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                          type="closed", vp=NULL){
     x <- pos$x
     y <- pos$y
-    if(!(class(x) %in% c("numeric", "integer", "unit")) |
+    if(!inherits(x, c("numeric", "integer", "unit")) |
            length(x) < 1)
         stop("x is required as a numeric vector of x-coordinates of genome")
-    if(!(class(y) %in% c("numeric", "integer", "unit")) |
+    if(!inherits(y, c("numeric", "integer", "unit")) |
            length(y) < 1)
         stop("y is required as a numeric vector of y-coordinates")
     if(length(x)!=length(y))
@@ -55,7 +55,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
     }
     len <- length(x)
     lastTrackViewer <- getOption("LastTrackViewer")
-    if(all(class(y) %in% c("numeric", "integer"))){
+    if(all(inherits(y, c("numeric", "integer")))){
         if(all(floor(y)==y &ceiling(y)==y)){
             xy <- lastTrackViewer$xy
             yHeights <- c(0, lastTrackViewer$yHeights)
@@ -76,7 +76,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
     type <- trimLen(type, len)
     cex <- trimLen(cex, len)
     for(i in 1:len){
-        if(class(x[i]) %in% c("numeric", "integer")){
+        if(inherits(x[i], c("numeric", "integer"))){
             if(findInterval(x[i], c(0, 1))==1){
                 xi <- unit(x[i], "npc")
             }else{
@@ -87,11 +87,11 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                     #}
                 #}
             }
-            if(class(xi)!="unit") stop("'pos$x' argument must be a unit object.")
+            if(!is(xi, "unit")) stop("'pos$x' argument must be a unit object.")
         }else{
             xi <- x[i]
         }
-        if(class(y[i]) %in% c("numeric", "integer")){
+        if(inherits(y[i], c("numeric", "integer"))){
             if(findInterval(y[i], c(0, 1))==1){
                 yi <- unit(y[i], "npc")
             }else{
@@ -126,7 +126,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                      yi <- unit(yi, "native")
                  }
             }
-            if(class(yi)!="unit") stop("'pos$y' argument must be a unit object.")
+            if(!is(yi, "unit")) stop("'pos$y' argument must be a unit object.")
         }else{
             yi <- y[i]
         }
@@ -136,7 +136,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
             pushViewport(vp)
             popv <- FALSE
             if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native" && 
-               (class(y[i]) %in% c("numeric", "integer")) & findInterval(y[i], c(0, 1))!=1){
+               (inherits(y[i], c("numeric", "integer"))) & findInterval(y[i], c(0, 1))!=1){
                 pushViewport(yvp$vp1)
                 pushViewport(yvp$vp2)
                 popv <- TRUE

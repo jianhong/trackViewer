@@ -53,7 +53,7 @@ optFontSize1 <- function(height){
 optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL){
     if(missing(trackList))
         stop("trackList must be an object of 'trackList'")
-    if(class(trackList)!="trackList" && 
+    if(!is(trackList, "trackList") && 
        !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
@@ -94,6 +94,9 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
                       cex=optFontSize("y", viewerStyle))
                 trackList[[i]]@style@marginTop <- .1
             }
+          if(trackList[[i]]@type=="lollipopData"){
+            trackList[[i]]@style@yaxis@draw <- FALSE
+          }
         }
     }
     ##about ylab, direction, fontsize
@@ -101,7 +104,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     if(!is.null(theme)){
         if(theme=="bw"){
             for(i in 1:length(trackList)){
-                if(trackList[[i]]@type=="data"){
+                if(trackList[[i]]@type %in% c("data", "lollipopData")){
                     trackList[[i]]@style@ylabpos="bottomleft"
                     trackList[[i]]@style@marginBottom=.2
                     trackList[[i]]@style@ylabgp=
@@ -120,7 +123,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
         }
         if(theme=="col"){
             for(i in 1:length(trackList)){
-                if(trackList[[i]]@type=="data"){
+                if(trackList[[i]]@type %in% c("data", "lollipopData")){
                     trackList[[i]]@style@ylabpos="bottomleft"
                     trackList[[i]]@style@marginBottom=.2
                     trackList[[i]]@style@ylabgp=

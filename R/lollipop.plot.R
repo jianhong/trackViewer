@@ -82,13 +82,13 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
       message("jitter is set to node.")
     }
     SNP.gr.name <- deparse(substitute(SNP.gr))
-    if(class(SNP.gr)=="GRanges"){
+    if(is(SNP.gr, "GRanges")){
         SNP.gr <- GRangesList(SNP.gr)
         names(SNP.gr) <- SNP.gr.name
     }
     len <- length(SNP.gr)
-    for(i in 1:len){
-        stopifnot(class(SNP.gr[[i]])=="GRanges")
+    for(i in seq.int(len)){
+        stopifnot(is(SNP.gr[[i]], "GRanges"))
     }
     
     TYPES <- c("circle", "pie", "pin", "pie.stack")
@@ -149,7 +149,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             ranges <- unlist(GRangesList(lapply(features, range)))
         }
     }
-    if(class(ranges)=="GRanges"){
+    if(is(ranges, "GRanges")){
         ##cut all SNP.gr by the range
         for(i in len){
             range <- ranges[i]
@@ -189,7 +189,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         ## prepare the feature
         if(inherits(features, c("GRangesList", "list"))){
             feature <- features[[i]]
-            stopifnot(class(feature)=="GRanges")
+            stopifnot(is(feature, "GRanges"))
         }else{
             feature <- features
         }

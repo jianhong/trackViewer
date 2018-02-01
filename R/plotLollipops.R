@@ -3,7 +3,7 @@ convertHeight2NPCnum <- function(.ele){
            "unit"=convertHeight(.ele, unitTo="npc", valueOnly=TRUE),
            "list"={
                .ele <- sapply(.ele, function(.e){
-                   if(class(.e)=="unit"){
+                   if(is(.e, "unit")){
                        .e <- convertHeight(.e, unitTo="npc", valueOnly=TRUE)
                    }
                    .e[1]

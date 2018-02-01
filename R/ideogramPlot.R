@@ -81,7 +81,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
   }
   if(all(parameterList.default$types=="heatmap")){
     gps <- parameterList.default$gps
-    if(class(gps)=="gpar"){
+    if(is(gps, "gpar")){
       cols <- list(gps$col)
       if(length(cols)==0){
         cols <- rep(list(c("green", "black", "red")), length(dataList))
@@ -92,7 +92,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
     }else{
       if(length(gps)!=length(dataList)){
         stopifnot(all(sapply(gps, is.list)))
-        gps <- rep(gps, length(dataList))[1:length(dataList)]
+        gps <- rep(gps, length(dataList))[seq_along(dataList)]
       }
       cols <- lapply(gps, function(.ele) .ele$col)
     }

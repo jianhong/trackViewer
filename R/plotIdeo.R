@@ -52,7 +52,7 @@ gieStain <- function(){
 #' 
 plotIdeo <- function(ideo, chrom=seqlevels(ideo)[1], 
                      colorSheme=gieStain(), gp=gpar(fill=NA), ...){
-  stopifnot(class(ideo)=="GRanges")
+  stopifnot(is(ideo, "GRanges"))
   stopifnot(length(chrom)==1)
   ideo <- ideo[seqnames(ideo) %in% chrom]
   strand(ideo) <- "*"

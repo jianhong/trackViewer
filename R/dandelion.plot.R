@@ -54,7 +54,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         pin <- NULL
     }
     SNP.gr.name <- deparse(substitute(SNP.gr))
-    if(class(SNP.gr)=="GRanges"){
+    if(is(SNP.gr, "GRanges")){
         SNP.gr <- GRangesList(SNP.gr)
         names(SNP.gr) <- SNP.gr.name
     }
@@ -90,9 +90,9 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
     }
     features.name <- deparse(substitute(features))
     if(length(ranges)>0){
-        stopifnot(class(ranges)=="GRanges"&length(ranges)==length(SNP.gr))
+        stopifnot(is(ranges, "GRanges")&length(ranges)==length(SNP.gr))
     }else{
-        if(class(features)=="GRanges"){
+        if(is(features, "GRanges")){
             ranges <- range(features)[rep(1, len)]
         }else{
             if(length(features)!=len){
@@ -102,7 +102,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             ranges <- unlist(GRangesList(lapply(features, range)))
         }
     }
-    if(class(ranges)=="GRanges"){
+    if(is(ranges, "GRanges")){
         ##cut all SNP.gr by the range
         for(i in len){
             range <- ranges[i]
@@ -131,7 +131,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                       y = .5, rot = 90)
         }
         
-        if(class(features)=="GRangesList"){
+        if(is(features, "GRangesList")){
             feature <- features[[i]]
         }else{
             feature <- features

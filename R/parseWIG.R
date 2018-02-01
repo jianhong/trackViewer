@@ -17,7 +17,7 @@
 #' parseWIG(repA, chrom="chr11", from=122929275, to=122930122)
 
 parseWIG <- function(trackScore, chrom, from, to){
-    if(class(trackScore)!="track")
+    if(!is(trackScore, "track"))
         stop("trackScore must be an object of track")
     if(trackScore@format!="WIG")
         stop("format must be WIG")

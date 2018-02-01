@@ -144,13 +144,43 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                 just=c(0,0), 
                                 xscale=xscale))
           ybase <- ifelse(length(track@dat2)>0, .5, 0)
-          if(length(track@dat)>0) plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, 
-                                                   ybase, side="top", main=style@yaxis@main,
-                                                   style@color[1])
+          
+          LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+          LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+          ## GAP the gaps between any elements
+          GAP <- .2 * LINEH
+          ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+          getMaxHeight <- function(lollipopData){
+            if(length(lollipopData)==0) return(0)
+            TYPES <- c("circle", "pie", "pin", "pie.stack")
+            type <- if(is.list(lollipopData$type)) lollipopData$type[[1]] else lollipopData$type[1]
+            if(length(type)==0) type <- "circle"
+            if(!type %in% TYPES) type <- "circle"
+            cex <- if(is.list(lollipopData$cex)) lollipopData$cex[[1]] else lollipopData$cex[1]
+            if(length(cex)==0) cex <- 1
+            scoreMax0 <- scoreMax <- 
+              if(length(lollipopData$score)>0) ceiling(max(c(lollipopData$score, 1), na.rm=TRUE)) else 1
+            if(type=="pie.stack") scoreMax <- length(unique(lollipopData$stack.factor))
+            if(!type %in% c("pie", "pie.stack")){
+              if(scoreMax>10) {
+                scoreMax <- 10*scoreMax0/scoreMax
+              }else{
+                scoreMax <- scoreMax0
+              }
+            }
+            getHeight(lollipopData, 
+                      ratio.yx, LINEW, GAP, cex, type,
+                      scoreMax=scoreMax,
+                      level="data")
+          }
+          maxHeight <- max(c(getMaxHeight(track@dat), getMaxHeight(track@dat2)), na.rm = TRUE)
+          plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, 
+                           ybase, side="top", main=style@yaxis@main,
+                           baselineCol=style@color[1], maxHeight=maxHeight)
           if(length(track@dat2)>0) {
             plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, 
                              ybase, side="bottom", main=style@yaxis@main,
-                             baselineCol=style@color[2])
+                             baselineCol=style@color[2], maxHeight=maxHeight)
           }
         }
     }else{##track@type=="transcript" or "gene"

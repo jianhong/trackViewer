@@ -38,12 +38,12 @@ plotOneIdeo <-
                               gps=gpar(col="black", fill="gray")), 
            chrom=seqlevels(ideo)[1], colorSheme=gieStain(), 
            gp=gpar(fill=NA, lwd=2), ...){
-  stopifnot(class(dataList)=="GRangesList")
-  stopifnot(class(parameterList)=="list")
+  stopifnot(is(dataList, "GRangesList"))
+  stopifnot(is(parameterList, "list"))
   dataList <- lapply(dataList, function(.ele){
     .ele[seqnames(.ele) %in% chrom]
   })
-  if(class(parameterList$xlab)=="list"){
+  if(is(parameterList$xlab, "list")){
     do.call(grid.text, args = parameterList$xlab)
   }else{
     if(parameterList$xlab!=""){
@@ -51,7 +51,7 @@ plotOneIdeo <-
     }
   }
   ideo <- ideo[seqnames(ideo) %in% chrom]
-  if(class(parameterList$vp)=="viewport"){
+  if(is(parameterList$vp, "viewport")){
     if(identical(parameterList$vp$xscale, c(0, 1))){
       parameterList$vp$xscale <- c(1, max(end(ideo)))
     }
@@ -116,7 +116,7 @@ plotOneIdeo <-
     if(length(parameterList$gps)!=length(dataList)){
       gps <- rep(list(parameterList$gps), length(dataList))[1:length(dataList)]
     }else{
-      if(class(parameterList$gps)=="gpar"){
+      if(is(parameterList$gps, "gpar")){
         gps <- rep(list(parameterList$gps), length(dataList))
       }else{
         gps <- parameterList$gps
@@ -146,7 +146,7 @@ plotOneIdeo <-
     }
   }
   upViewport()
-  if(class(parameterList$vp)=="viewport"){
+  if(is(parameterList$vp, "viewport")){
     upViewport()
   }
   if(length(parameterList$ylabs)){

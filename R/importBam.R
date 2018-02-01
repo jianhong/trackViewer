@@ -17,7 +17,7 @@
 #' dat <- importBam(file=bamfile, ranges=GRanges("seq1", IRanges(1, 50), strand="+"))
 
 importBam <- function(file, file2, ranges=GRanges(), pairs=FALSE){
-    if(class(ranges)!="GRanges")
+    if(!is(ranges, "GRanges"))
         stop("ranges must be an object of GRanges.")
     param <- ScanBamParam(which=ranges)
     if(pairs){
