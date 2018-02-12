@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.14.1
+
+    o update the title.
+    
 CHANGES IN VERSION 1.13.11
 
     o fix the bug maxgap could not be less than 0 in findOverlaps

@@ -3,7 +3,7 @@
 \alias{trackViewer}
 \docType{package}
 \title{
-Minimal designed plotting tool for genomic data
+A R/Bioconductor package for drawing elegant interactive tracks or lollipop plot to facilitate integrated analysis of multi-omics data
 }
 \description{
 A package that plot data and annotation information along genomic 
