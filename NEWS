@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.15.13
+
+    o add feature.gr parameter to plotGInteractions.
+    
 CHANGES IN VERSION 1.15.12
 
     o add new function plotGInteractions.

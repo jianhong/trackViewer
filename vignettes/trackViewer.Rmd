@@ -777,6 +777,28 @@ ideogramPlot(ideo, dataList,
                         c("chr4", "chr21")))
 ```
 
+# Plot genomic interactions data
+
+Plot GInteractions. Different from most of the available tools, plotGInteractions try to 
+plot the data with 2D structure. The nodes indicate the region with interactions and
+the edges indicates the interactions. The size of the nodes are relative to the width of the region.
+The features could be enhancer, promoter or gene. The enhancer and promoter are shown as
+points with symbol 11 and 13.
+
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(InteractionSet)
+gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
+range <- GRanges("chr2", IRanges(234500000, 235000000))
+feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
+feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
+feature.gr$type <- sample(c("promoter", "enhancer", "gene"), 
+                          length(feature.gr), replace=TRUE, 
+                          prob=c(0.1, 0.2, 0.7))
+plotGInteractions(gi, range, feature.gr)
+```
+
 
 # Session Info
 ```{r sessionInfo, results='asis'}
