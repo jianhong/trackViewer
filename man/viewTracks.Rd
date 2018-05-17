@@ -6,7 +6,8 @@
 \usage{
 viewTracks(trackList, chromosome, start, end, strand, gr = GRanges(),
   ignore.strand = TRUE, viewerStyle = trackViewerStyle(),
-  autoOptimizeStyle = FALSE, newpage = TRUE, operator = NULL)
+  autoOptimizeStyle = FALSE, newpage = TRUE, operator = NULL,
+  smooth = FALSE)
 }
 \arguments{
 \item{trackList}{an object of \code{\link{trackList}}}
@@ -31,6 +32,9 @@ viewTracks(trackList, chromosome, start, end, strand, gr = GRanges(),
 
 \item{operator}{operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
 and so on.}
+
+\item{smooth}{logical(1) or numeric(1). Smooth the curve or not. If it is numeric, eg n,
+mean of nearby n points will be used for plot.}
 }
 \value{
 An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}

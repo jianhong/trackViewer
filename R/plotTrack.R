@@ -1,4 +1,34 @@
-plotDataTrack <- function(.dat, chr, strand, scale, color){
+xysmooth <- function(x2, y2, smooth=5){
+  if(is.logical(smooth)) smooth=5
+  if(smooth>=length(x2)){
+    return(list(x=x2, y=y2))
+  }
+  ord <- order(x2)
+  x2 <- x2[ord]
+  y2 <- y2[ord]
+  x <- min(x2):max(x2)
+  k <- ksmooth(x2, y2, n.points = length(x), x.points = x, bandwidth = 1)
+  y <- k$y
+  y.num <- which(!is.na(y))
+  y[is.na(y)] <- unlist(mapply(function(from, to, length.out){
+    s <- seq(from, to, length.out = length.out)
+    s[-c(1, length(s))]
+    }, y[y.num[-length(y.num)]], y[y.num[-1]], diff(y.num)+1, SIMPLIFY = FALSE))
+  k <- ksmooth(x, y, n.points = length(x), x.points = x, bandwidth = smooth)
+  id <- which(x %in% x2)
+  x <- k$x[id]
+  y <- k$y[id]
+  id <- which(y2==0)
+  id1 <- which(diff(id)==1)
+  id1 <- sort(unique(c(id1, id1+1)))
+  id <- id[id1]
+  id1 <- which(diff(x[id])>(diff(range(x))+1)/100) ## resolution set to 100
+  id1 <- sort(unique(c(id1, id1+1)))
+  id <- id[id1]
+  y[id] <- 0
+  list(x=x, y=y)
+}
+plotDataTrack <- function(.dat, chr, strand, scale, color, smooth=FALSE){
     names(.dat) <- NULL
     mcols(.dat) <- mcols(.dat)[, "score"]
     colnames(mcols(.dat)) <- "score"
@@ -52,6 +82,12 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
             y <- as.numeric(rep(.dat[,"score"], each=2))
             x2 <- c(min(x), x, max(x))
             y2 <- c(0, y, 0)
+            ## do smooth
+            if(smooth){
+              xy.smoothed <-xysmooth(x2, y2, smooth)
+              x2 <- xy.smoothed$x
+              y2 <- xy.smoothed$y
+            }
             grid.polygon(x2, y2, default.units="native", 
                          gp=gpar(col=NA, fill=color))
             grid.lines(x=scale, y=0, default.units="native",
@@ -64,7 +100,7 @@ plotDataTrack <- function(.dat, chr, strand, scale, color){
 }
 plotTrack <- function(name, track, curViewStyle, curYpos,
                       yscale, height, xlim, chr, strand,
-                      operator, wavyLine){
+                      operator, wavyLine, smooth=FALSE){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
     
@@ -113,12 +149,12 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                 yscale=yscale))
           ##grid.clip()
           ##for dat
-          xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1])
+          xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1], smooth=smooth)
           xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
           ##for dat2
           if(length(track@dat2)>0){
             if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
-            xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2])
+            xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2], smooth=smooth)
           }
           xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))
           xy.id <- order(xy$x)

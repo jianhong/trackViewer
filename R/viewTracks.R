@@ -12,11 +12,14 @@
 #' @param newpage should be draw on a new page?
 #' @param operator operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
 #' and so on.
+#' @param smooth logical(1) or numeric(1). Smooth the curve or not. If it is numeric, eg n,
+#' mean of nearby n points will be used for plot.
 #' @return An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}
 #' @import GenomicRanges
 #' @import grid
 #' @importFrom grDevices as.raster col2rgb colorRampPalette palette
 #' @importFrom scales rescale
+#' @importFrom stats ksmooth
 #' @export
 #' @seealso See Also as \code{\link{addGuideLine}}, \code{\link{addArrowMark}}
 #' @examples 
@@ -36,12 +39,13 @@
 viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                        ignore.strand=TRUE,
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
-                       newpage=TRUE, operator=NULL){
+                       newpage=TRUE, operator=NULL, smooth=FALSE){
   if(!is.null(operator)){
     if(!operator %in% c("+", "-", "*", "/", "^", "%%")){
       stop('operator must be one of "+", "-", "*", "/", "^", "%%"')
     }
   }
+  stopifnot(is.numeric(smooth)||is.logical(smooth))
   if(missing(trackList)){
     stop("trackList is required.")
   }
@@ -268,7 +272,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     xy[[i]] <- plotTrack(names(trackList)[i], trackList[[i]], 
                          viewerStyle, ht,
                          yscales[[i]], yHeights[i], xscale,
-                         chromosome, strand, operator, wavyLine)
+                         chromosome, strand, operator, wavyLine,
+                         smooth=smooth)
     ht <- ht + yHeights[i]
     if(length(trackList[[i]]@style@marginBottom)>0){
       yHeightBottom[i] <- trackList[[i]]@style@marginBottom
