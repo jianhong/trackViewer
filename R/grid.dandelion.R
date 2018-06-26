@@ -1,4 +1,4 @@
-Y1pos <- function(SNPs.groups, xscale, lineW, base, cex){
+Y1pos <- function(SNPs.groups, xscale, lineW, base, cex, ypos, plotYaxis, heightMethod){
     ratio.Yy <- 1/diff(xscale)
     sg <- split(SNPs.groups, SNPs.groups$gps)
     sg <- sg[order(sapply(sg, length), decreasing=FALSE)]
@@ -7,24 +7,40 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex){
         t2p <- angle * t - (angle-pi)/2
         list(x = -rX * cos(t2p), y = rY * sin(t2p))
     }
-    Y1 <- 1:length(sg) * lineW * ratio.yx
+    
     radius <- sapply(sg, function(.ele) floor(width(range(.ele))/2) * ratio.Yy *ratio.yx)
     radius <- radius[order(as.numeric(names(radius)))]
-    names(Y1) <- names(sg)
-    Y1 <- Y1[order(as.numeric(names(Y1)))]
-    for(i in 2:length(Y1)){
-        if(Y1[i]>Y1[i-1]){
-            if(Y1[i-1]*1.25+radius[i-1]+lineW>=Y1[i]){
-                Y1[i] <- Y1[i-1]*1.25 + radius[i-1]+lineW
+    
+    if(plotYaxis){
+      sg.scores <- sapply(sg, function(.ele) heightMethod(.ele$score))
+    }else{
+      sg.scores <- sapply(sg, function(.ele) heightMethod(.ele$score)) * lineW * ratio.yx
+      sg.scores <- sg.scores[order(as.numeric(names(sg.scores)))]
+      if(length(sg.scores)>1){
+        for(i in 2:length(sg.scores)){
+          if(sg.scores[i]>sg.scores[i-1]){
+            if(sg.scores[i-1]*1.25+radius[i-1]+lineW>=sg.scores[i]){
+              sg.scores[i] <- sg.scores[i-1]*1.25 + radius[i-1]+lineW
             }
-        }else{
-            if(Y1[i]*1.25+radius[i]+lineW>=Y1[i-1]){
-                Y1[i] <- Y1[i-1]-radius[i]-Y1[i]/4-lineW
-                if(Y1[i]<lineW) Y1[i] <- lineW
+          }else{
+            if(sg.scores[i]*1.25+radius[i]+lineW>=sg.scores[i-1]){
+              sg.scores[i] <- sg.scores[i-1]-radius[i]-sg.scores[i]/4-lineW
+              if(sg.scores[i]<lineW) sg.scores[i] <- lineW
             }
+          }
         }
+      }
     }
-    Y1 <- Y1[names(sg)]
+    sg.scores <- sg.scores[names(sg)]
+    radius <- radius[names(sg)]
+    scoreRatio <- scoreMax0 <- max(sg.scores*5/4, na.rm = TRUE)
+    yyscaleMax <- 1
+    ## reset sg.scores to fit the paper
+    if(scoreRatio + ypos > 1){
+      scoreRatio <- (1-ypos-base)/scoreRatio
+      sg.scores <- sg.scores * scoreRatio
+      yyscaleMax <- scoreMax0
+    }
     sg <- mapply(function(.ele, .h){
         .ele$Y1 <- .h + base
         if(length(.ele)>1){
@@ -49,9 +65,10 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex){
             .ele$alpha <- 0
         }
         .ele
-    }, sg, Y1)
+    }, sg, sg.scores)
     sg <- unlist(GRangesList(sg))
     sg <- sg[order(sg$idx)]
+    sg$yyscaleMax <- yyscaleMax
     sg
 }
 
@@ -71,7 +88,6 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
     type <- match.arg(type)
     grid.lines(x=c(x0, x1, x2), y=c(y0, y1, y2), 
                gp=gpar(col=border))
-    
     if(length(pin)>0){
         if(length(border)>0) pin@paths[[2]]@rgb <- rgb2hex(col2rgb(border[1]))
         if(length(col)>0) pin@paths[[1]]@rgb <- rgb2hex(col2rgb(col[1]))

@@ -6,7 +6,8 @@
 \usage{
 dandelion.plot(SNP.gr, features = NULL, ranges = NULL, type = c("fan",
   "circle", "pie", "pin"), newpage = TRUE, ylab = TRUE, xaxis = TRUE,
-  legend = NULL, cex = 1, maxgaps = 1/50, ...)
+  yaxis = FALSE, legend = NULL, cex = 1, maxgaps = 1/50,
+  heightMethod = NULL, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
@@ -25,7 +26,7 @@ dandelion.plot(SNP.gr, features = NULL, ranges = NULL, type = c("fan",
 \item{ylab}{plot ylab or not. If it is a character vector, 
 the vector will be used as ylab.}
 
-\item{xaxis}{plot xaxis or not. If it is a numeric vector with length 
+\item{xaxis, yaxis}{plot xaxis/yaxis or not. If it is a numeric vector with length 
 greater than 1, the vector will be used as the 
 points at which tick-marks are to be drawn. And the names of the vector will be
 used to as labels to be placed at the tick points if it has names.}
@@ -35,7 +36,10 @@ used to as labels to be placed at the tick points if it has names.}
 \item{cex}{cex will control the size of circle.}
 
 \item{maxgaps}{maxgaps between the stem of dandelions. 
-It is calculated by the width of plot region devided by maxgaps.}
+It is calculated by the width of plot region devided by maxgaps. 
+If a GRanges object is set, the dandelions stem will be clusted in each genomic range.}
+
+\item{heightMethod}{A function used to determine the height of stem of dandelion. eg. Mean. Default is length.}
 
 \item{...}{not used.}
 }

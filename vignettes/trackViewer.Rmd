@@ -713,7 +713,7 @@ dandelion.plot(methy, features, ranges=gr, type="pie", legend=legends)
 ```
 
 ## change the number of dandelions
-```{r fig.width=4.5,fig.height=2.5}
+```{r fig.width=4.5,fig.height=3.5}
 ## want less
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ```
@@ -721,6 +721,28 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ## want more
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
+We can also by setting the maxgaps as a GRanges object to set how to cluster the SNPs.
+
+```{r fig.width=4,fig.height=4}
+maxgaps <- tile(gr, n = 10)[[1]]
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=maxgaps)
+```
+
+## add yaxis
+Set yaxis to TRUE to add yaxis. And set heightMethod=mean to set the height to be calculated by the mean of score.
+```{r fig.width=4.5,fig.height=3}
+dandelion.plot(methy, features, ranges=gr, type="pie", 
+               maxgaps=1/100, yaxis = TRUE, heightMethod = mean,
+               ylab='mean of methy scores')
+```
+```{r fig.width=4.5,fig.height=3}
+yaxis = c(0, 0.5, 1)
+dandelion.plot(methy, features, ranges=gr, type="pie", 
+               maxgaps=1/100, yaxis = yaxis, heightMethod = mean,
+               ylab='mean of methy scores')
+```
+
+
 
 # Plot lollipop plot with tracks
 ```{r fig.width=6,fig.height=2}

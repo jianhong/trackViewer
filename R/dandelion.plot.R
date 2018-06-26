@@ -10,14 +10,16 @@
 #' @param newpage plot in the new page or not.
 #' @param ylab plot ylab or not. If it is a character vector, 
 #' the vector will be used as ylab.
-#' @param xaxis plot xaxis or not. If it is a numeric vector with length 
+#' @param xaxis,yaxis plot xaxis/yaxis or not. If it is a numeric vector with length 
 #' greater than 1, the vector will be used as the 
 #' points at which tick-marks are to be drawn. And the names of the vector will be
 #' used to as labels to be placed at the tick points if it has names. 
 #' @param legend If it is a list with named color vectors, a legend will be added.
 #' @param cex cex will control the size of circle.
 #' @param maxgaps maxgaps between the stem of dandelions. 
-#' It is calculated by the width of plot region devided by maxgaps.
+#' It is calculated by the width of plot region devided by maxgaps. 
+#' If a GRanges object is set, the dandelions stem will be clusted in each genomic range.
+#' @param heightMethod A function used to determine the height of stem of dandelion. eg. Mean. Default is length.
 #' @param ... not used.
 #' @details In SNP.gr and features, metadata of the GRanges object will be used to 
 #' control thecolor, fill, border, height, data source of pie if the type is pie.
@@ -42,11 +44,22 @@
 dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("fan", "circle", "pie", "pin"),
                       newpage=TRUE, ylab=TRUE, 
-                      xaxis=TRUE, legend=NULL, 
-                      cex=1, maxgaps=1/50, ...){
+                      xaxis=TRUE, yaxis=FALSE, legend=NULL, 
+                      cex=1, maxgaps=1/50, heightMethod=NULL, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
+    if(length(heightMethod)>0){
+      stopifnot(is.function(heightMethod))
+    }else{
+      heightMethod <- length
+    }
+    if(is(maxgaps, "GRanges")){
+      ol <- findOverlaps(maxgaps, drop.self=TRUE, drop.redundant=TRUE)
+      if(length(ol)>0){
+        stop("If maxgaps is an object of GRanges, maxgaps could not have overlaps.")
+      }
+    }
     if(type=="pin"){
         pinpath <- system.file("extdata", "map-pin-red.xml", package="trackViewer")
         pin <- readPicture(pinpath)
@@ -113,7 +126,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
     }
     height <- 1/len
     if(newpage) grid.newpage()
-    for(i in 1:len){
+    for(i in seq.int(len)){
         vp <- viewport(x=.5, y=height*(i-0.5), width=1, height=height)
         pushViewport(vp)
         lineW <- as.numeric(convertX(unit(1, "line"), "npc"))
@@ -136,6 +149,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         }else{
             feature <- features
         }
+        ol <- findOverlaps(feature, ranges[i])
+        feature <- feature[queryHits(ol)]
         start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
         end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
         baseline <- max(c(unlist(feature$height)/2, .0001)) + 0.2 * lineH
@@ -199,22 +214,101 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             strand(SNPs) <- "*"
             SNPs <- sort(SNPs)
             width <- 2 * baseline + 2*gap
-            SNPs.gap <- gaps(SNPs)
-            SNPs.gap <- SNPs.gap[as.character(seqnames(SNPs.gap)) %in% as.character(seqnames(ranges[i])) & as.character(strand(SNPs.gap))=="*" & start(SNPs.gap)>=start(ranges[i]) & end(SNPs.gap)<=end(ranges[i])]
-            SNPs.gap$w <- width(SNPs.gap)
-            range.width <- floor(width(ranges[i])*maxgaps)
             SNPs.groups <- SNPs
             mcols(SNPs.groups) <- NULL
             SNPs.groups$w <- 0
-            SNPs.groups$idx <- 1:length(SNPs)
-            SNPs.gap$idx <- rep(0, length(SNPs.gap))
-            SNPs.groups <- sort(c(SNPs.gap, SNPs.groups))
-            SNPs.groups$gps <- cumsum(SNPs.groups$w >=range.width)
-            SNPs.groups <- SNPs.groups[SNPs.groups$idx>0]
-            SNPs.groups <- SNPs.groups[order(SNPs.groups$idx)]
-            SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), lineW, width, cex)
+            SNPs.groups$idx <- seq_along(SNPs)
+            if(length(SNPs)==length(SNPs$score)){
+              SNPs.groups$score <- SNPs$score
+            }else{
+              SNPs.groups$score <- 0
+            }
+            if(is(maxgaps, "GRanges")){
+              SNPs.ol <- countOverlaps(maxgaps, SNPs)
+              maxgaps <- maxgaps[SNPs.ol>0]
+              if(length(maxgaps)<1){
+                stop("Can not cluster the SNPs by given maxgaps")
+              }
+              SNPs.ol <- findOverlaps(maxgaps, SNPs)
+              SNPs.groups$gps <- length(maxgaps) + seq_along(SNPs)
+              SNPs.groups$gps[subjectHits(SNPs.ol)] <- queryHits(SNPs.ol)
+            }else{
+              if(!is.numeric(maxgaps)){
+                stop("maxgaps must be a number or GRanges.")
+              }
+              SNPs.gap <- gaps(SNPs)
+              SNPs.gap <- SNPs.gap[as.character(seqnames(SNPs.gap)) %in% as.character(seqnames(ranges[i])) & as.character(strand(SNPs.gap))=="*" & start(SNPs.gap)>=start(ranges[i]) & end(SNPs.gap)<=end(ranges[i])]
+              SNPs.gap$w <- width(SNPs.gap)
+              range.width <- floor(width(ranges[i])*maxgaps)
+              SNPs.gap$idx <- rep(0, length(SNPs.gap))
+              SNPs.gap$score <- 0
+              SNPs.groups <- sort(c(SNPs.gap, SNPs.groups))
+              SNPs.groups$gps <- cumsum(SNPs.groups$w >=range.width)
+              SNPs.groups <- SNPs.groups[SNPs.groups$idx>0]
+              SNPs.groups <- SNPs.groups[order(SNPs.groups$idx)]
+            }
+            if(length(names(SNPs))>0){
+              maxStrHeight <- 
+                max(as.numeric(
+                  convertY(stringWidth(names(SNPs)), "npc")
+                ))+lineW/2
+            }else{
+              maxStrHeight <- 0
+            }
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            scoreMax <- max(SNPs.groups$Y2)
+            ypos <- lineW*max(ratio.yx, 1.2) + maxStrHeight*cex + 2*lineH
+            if(length(legend[[i]])>0){
+              ypos <- ypos + 3*lineH
+            }
+            SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), lineW, width, cex, 
+                                 ypos, 
+                                 length(yaxis) > 1 || (length(yaxis)==1 && as.logical(yaxis)), heightMethod)
+            
+            # yaxis
+            yyscale <- c(0, SNPs.groups$yyscaleMax[1])
+            if(length(yaxis)==1 && as.logical(yaxis)) {
+              pushViewport(viewport(y= width + (1-width-ypos)/2, 
+                                    height= 1 - width-ypos,
+                                    yscale = yyscale))
+              grid.yaxis()
+              popViewport()
+            }
+            if(length(yaxis)>1 && is.numeric(yaxis)){
+              yaxisLabel <- names(yaxis)
+              if(length(yaxisLabel)!=length(yaxis)) yaxisLabel <- TRUE
+              pushViewport(viewport(y= width + (1-width-ypos)/2, 
+                                    height= 1 - width - ypos,
+                                    yscale = yyscale))
+              grid.yaxis(at=yaxis, label=yaxisLabel)
+              popViewport()
+            }
+            ## legend
+            scoreMax <- max(SNPs.groups$Y2, na.rm = TRUE)
+            if(length(legend[[i]])>0){
+              ypos <- width + lineW*max(ratio.yx, 1.2) + 
+                scoreMax + maxStrHeight*cex
+              if(is.list(legend[[i]])){
+                thisLabels <- legend[[i]][["labels"]]
+                gp <- legend[[i]][names(legend[[i]])!="labels"]
+                class(gp) <- "gpar"
+              }else{
+                thisLabels <- names(legend[[i]])
+                gp <- gpar(fill=legend[[i]]) 
+              }
+              if(length(thisLabels)>0){
+                ncol <- getColNum(thisLabels)
+                topblank <- ceiling(length(thisLabels) / ncol)
+                pushViewport(viewport(x=.5, y=ypos+topblank*lineH/2, 
+                                      width=1,
+                                      height=topblank*lineH,
+                                      just="bottom"))
+                grid.legend(label=thisLabels, ncol=ncol,
+                            byrow=TRUE, vgap=unit(.2, "lines"),
+                            pch=21,
+                            gp=gp)
+                popViewport()
+              }
+            }
             for(m in 1:length(SNPs)){
                 this.dat <- SNPs[m]
                 this.dat.grp <- SNPs.groups[m]
@@ -225,7 +319,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                 id <- if(is.character(this.dat$label)) this.dat$label else NA
                 id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
                 this.dat.mcols <- mcols(this.dat)
-                this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col"), drop=FALSE]
+                this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col", "cex"), drop=FALSE]
                 grid.dandelion(x0=(start(this.dat)-start(ranges[i]))/width(ranges[i]), 
                               y0=baseline,
                               x1=(start(this.dat)-start(ranges[i]))/width(ranges[i]),
@@ -245,40 +339,6 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                               id=id, id.col=id.col, 
                               name=names(this.dat), 
                               cex=cex, lwd=lwd)
-            }
-            ## legend
-            if(length(legend[[i]])>0){
-                if(length(names(SNPs))>0){
-                    maxStrHeight <- 
-                        max(as.numeric(
-                            convertY(stringWidth(names(SNPs)), "npc")
-                        ))+lineW/2
-                }else{
-                    maxStrHeight <- 0
-                }
-                ypos <- width + lineW*max(ratio.yx, 1.2) + 
-                    scoreMax + maxStrHeight*cex
-                if(is.list(legend[[i]])){
-                    thisLabels <- legend[[i]][["labels"]]
-                    gp <- legend[[i]][names(legend[[i]])!="labels"]
-                    class(gp) <- "gpar"
-                }else{
-                    thisLabels <- names(legend[[i]])
-                    gp <- gpar(fill=legend[[i]]) 
-                }
-                if(length(thisLabels)>0){
-                    ncol <- getColNum(thisLabels)
-                    topblank <- ceiling(length(thisLabels) / ncol)
-                    pushViewport(viewport(x=.5, y=ypos+topblank*lineH/2, 
-                                          width=1,
-                                          height=topblank*lineH,
-                                          just="bottom"))
-                    grid.legend(label=thisLabels, ncol=ncol,
-                                byrow=TRUE, vgap=unit(.2, "lines"),
-                                pch=21,
-                                gp=gp)
-                    popViewport()
-                }
             }
         }
         
