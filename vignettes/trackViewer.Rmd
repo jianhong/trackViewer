@@ -717,7 +717,7 @@ dandelion.plot(methy, features, ranges=gr, type="pie", legend=legends)
 ## want less
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ```
-```{r fig.width=4.5,fig.height=4.5}
+```{r fig.width=4.5,fig.height=4}
 ## want more
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
@@ -767,7 +767,8 @@ SNPs2$score <- sample.int(3, length(SNPs2), replace = TRUE)
 SNPs2$color <- sample.int(6, length(SNPs2), replace=TRUE)
 SNPs2$border <- "gray30"
 SNPs2$feature.height = .1
-SNPs$cex <- 1
+SNPs2$cex <- .5
+SNPs$cex <- .5
 lollipopData <- new("track", dat=SNPs, dat2=SNPs2, type="lollipopData")
 gene <- geneTrack(get("HSPA8", org.Hs.egSYMBOL2EG), TxDb.Hsapiens.UCSC.hg19.knownGene)[[1]]
 optSty <- optimizeStyle(trackList(repA, lollipopData, gene, heightDist = c(3, 3, 1)), theme="col")

@@ -267,8 +267,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             # yaxis
             yyscale <- c(0, SNPs.groups$yyscaleMax[1])
             if(length(yaxis)==1 && as.logical(yaxis)) {
-              pushViewport(viewport(y= width + (1-width-ypos)/2, 
-                                    height= 1 - width-ypos,
+              pushViewport(viewport(y= width + (1-width-ypos-cex*lineW*ratio.yx)/2, 
+                                    height= 1 - width-ypos-cex*lineW*ratio.yx,
                                     yscale = yyscale))
               grid.yaxis()
               popViewport()
@@ -276,8 +276,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             if(length(yaxis)>1 && is.numeric(yaxis)){
               yaxisLabel <- names(yaxis)
               if(length(yaxisLabel)!=length(yaxis)) yaxisLabel <- TRUE
-              pushViewport(viewport(y= width + (1-width-ypos)/2, 
-                                    height= 1 - width - ypos,
+              pushViewport(viewport(y= width + (1-width-ypos-cex*lineW*ratio.yx)/2, 
+                                    height= 1 - width - ypos-cex*lineW*ratio.yx,
                                     yscale = yyscale))
               grid.yaxis(at=yaxis, label=yaxisLabel)
               popViewport()

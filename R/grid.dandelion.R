@@ -36,8 +36,8 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex, ypos, plotYaxis, height
     scoreRatio <- scoreMax0 <- max(sg.scores*5/4, na.rm = TRUE)
     yyscaleMax <- 1
     ## reset sg.scores to fit the paper
-    if(scoreRatio + ypos > 1){
-      scoreRatio <- (1-ypos-base)/scoreRatio
+    if(scoreRatio + ypos + cex*lineW*ratio.yx + base > 1){
+      scoreRatio <- (1-ypos-base-cex*lineW*ratio.yx)/scoreRatio
       sg.scores <- sg.scores * scoreRatio
       yyscaleMax <- scoreMax0
     }
