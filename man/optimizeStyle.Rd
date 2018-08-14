@@ -4,7 +4,8 @@
 \alias{optimizeStyle}
 \title{Optimize the style of plot}
 \usage{
-optimizeStyle(trackList, viewerStyle = trackViewerStyle(), theme = NULL)
+optimizeStyle(trackList, viewerStyle = trackViewerStyle(),
+  theme = NULL)
 }
 \arguments{
 \item{trackList}{An object of \code{\link{trackList}}}

@@ -11,7 +11,7 @@
 #'  See details in vignette.
 #' @param ranges A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
 #' \link[GenomicRanges:GRangesList-class]{GRangesList}.
-#' @param type character. Could be circle, pie, pin or pie.stack.
+#' @param type character. Could be circle, pie, pin, pie.stack or flag.
 #' @param newpage Plot in the new page or not.
 #' @param ylab Plot ylab or not. If it is a character vector, 
 #' the vector will be used as ylab.
@@ -64,8 +64,7 @@
 #'
 
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
-                      type=c("circle", "pie", "pin", 
-                             "pie.stack"),
+                      type="circle",
                       newpage=TRUE, ylab=TRUE, yaxis=TRUE,
                       xaxis=TRUE, legend=NULL, cex=1, 
                       dashline.col="gray80", 
@@ -91,7 +90,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         stopifnot(is(SNP.gr[[i]], "GRanges"))
     }
     
-    TYPES <- c("circle", "pie", "pin", "pie.stack")
+    TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
     if(any(!type %in% TYPES)){
         stop("Error in match argument: ",
              paste0("'type' should be one of '",  

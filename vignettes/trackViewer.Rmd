@@ -518,6 +518,24 @@ sample.gr$border <- sample.int(6, length(SNP), replace=TRUE)
 lolliplot(sample.gr, features, type="pin")
 ```
 
+### Flag
+
+```{r lolliplotFlag, fig.width=6, fig.height=4}
+sample.gr.flag <- sample.gr
+sample.gr.flag$label <- names(sample.gr) ## move the names to metadata:label
+names(sample.gr.flag) <- NULL
+lolliplot(sample.gr.flag, features, 
+          ranges=GRanges("chr1", IRanges(0, 1600)), ## use ranges to leave more space in right margin.
+          type="flag")
+## change the flag rotation angle
+sample.gr.flag$label.rot <- 15
+sample.gr.flag$label.rot[c(2, 5)] <- c(60, -15)
+sample.gr.flag$label[7] <- "I have a long name"
+lolliplot(sample.gr.flag, features, 
+          ranges=GRanges("chr1", IRanges(0, 1600)), 
+          type="flag")
+```
+
 ### Pie plot
 ```{r lolliplot6, fig.width=6, fig.height=3}
 sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns except column "color", "fill", "lwd", "id" and "id.col".
@@ -531,6 +549,7 @@ sample.gr$color <- rep(list(c("#87CEFA", '#98CE31')), length(SNP))
 sample.gr$border <- "gray30"
 lolliplot(sample.gr, features, type="pie")
 ```
+
 
 ## Plot multiple samples
 ### multiple layers

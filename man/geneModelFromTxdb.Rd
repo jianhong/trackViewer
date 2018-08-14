@@ -4,8 +4,8 @@
 \alias{geneModelFromTxdb}
 \title{Prepare gene model from an object of TxDb}
 \usage{
-geneModelFromTxdb(txdb, orgDb, gr, chrom, start, end, strand = c("*", "+",
-  "-"), txdump = NULL)
+geneModelFromTxdb(txdb, orgDb, gr, chrom, start, end, strand = c("*",
+  "+", "-"), txdump = NULL)
 }
 \arguments{
 \item{txdb}{An object of \code{\link[GenomicFeatures:TxDb-class]{TxDb}}}

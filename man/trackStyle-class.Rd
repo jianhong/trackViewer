@@ -55,16 +55,6 @@ setTrackYaxisParam(ts, attr, value)
 An object of class \code{"trackStyle"} represents track style.
 
 An object of class \code{"track"} represents scores of a given track.
-
-Method $
-
-Method $<-
-
-Method setTrackStyleParam
-
-Method setTrackXscaleParam
-
-Method setTrackYaxisParam
 }
 \section{Slots}{
 

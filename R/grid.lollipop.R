@@ -45,7 +45,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            border=NULL,
                            percent=NULL,
                            edges=100,
-                           type=c("circle", "pie", "pin", "pie.stack"),
+                           type=c("circle", "pie", "pin", "pie.stack", "flag"),
                            ratio.yx=1,
                            pin=NULL,
                            scoreMax,
@@ -53,7 +53,8 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            id=NA, id.col="black",
                            cex=1, lwd=1,
                            dashline.col="gray80",
-                           side=c("top", "bottom")){
+                           side=c("top", "bottom"),
+                           rot=15){
     side <- match.arg(side)
     stopifnot(is.numeric(c(x1, x2, y1, y2, y3, y4, radius, edges)))
     type <- match.arg(type)
@@ -168,6 +169,25 @@ grid.lollipop <- function (x1=.5, y1=.5,
                              just="centre", gp=gpar(col=id.col, cex=.5*cex))
                }
                },
+           flag={
+             if(is.na(id)){
+               id <- " "
+             }
+             LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))*cex
+             y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
+             if(side) y0 <- 1 - y0
+             LINEW <- as.numeric(convertX(stringWidth(paste0("o", id, "u")), "npc"))*cex
+             LINEW <- LINEW * sign(cos(pi*rot/180))
+             LINEH0 <- LINEW*ratio.yx*tan(pi*rot/180)
+             grid.polygon(x=c(x2, x2+LINEW, x2+LINEW, x2),
+                          y=c(y0, y0+LINEH0, y0+LINEH0+LINEH*1.25, y0+LINEH*1.25),
+                          gp=gpar(fill=col, col=border))
+             grid.text(label=id, x=x2+LINEW*.5, 
+                       y=y0 + LINEH*.625+LINEH0*.5,
+                       hjust=.5, vjust=.5,
+                       gp=gpar(col=id.col, cex=cex),
+                       rot=rot)
+           },
            grid.pie(x=x2, y=y2+y3+y4+radius*ratio.yx, 
                     radius = radius, 
                     col = col, 

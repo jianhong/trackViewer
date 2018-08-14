@@ -4,9 +4,9 @@
 \alias{lolliplot}
 \title{Lolliplots}
 \usage{
-lolliplot(SNP.gr, features = NULL, ranges = NULL, type = c("circle",
-  "pie", "pin", "pie.stack"), newpage = TRUE, ylab = TRUE, yaxis = TRUE,
-  xaxis = TRUE, legend = NULL, cex = 1, dashline.col = "gray80",
+lolliplot(SNP.gr, features = NULL, ranges = NULL, type = "circle",
+  newpage = TRUE, ylab = TRUE, yaxis = TRUE, xaxis = TRUE,
+  legend = NULL, cex = 1, dashline.col = "gray80",
   jitter = c("node", "label"), rescale = FALSE, ...)
 }
 \arguments{
@@ -24,7 +24,7 @@ The metadata 'featureLayerID' are used for drawing features in different layers.
 \item{ranges}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
 \link[GenomicRanges:GRangesList-class]{GRangesList}.}
 
-\item{type}{character. Could be circle, pie, pin or pie.stack.}
+\item{type}{character. Could be circle, pie, pin, pie.stack or flag.}
 
 \item{newpage}{Plot in the new page or not.}
 

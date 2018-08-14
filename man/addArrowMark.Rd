@@ -5,8 +5,8 @@
 \title{Add arrow mark to the figure at a given position}
 \usage{
 addArrowMark(pos = grid.locator(), label = NULL, angle = 15,
-  length = unit(0.25, "inches"), col = "red", cex = 1, quadrant = 4,
-  type = "closed", vp = NULL)
+  length = unit(0.25, "inches"), col = "red", cex = 1,
+  quadrant = 4, type = "closed", vp = NULL)
 }
 \arguments{
 \item{pos}{A unit object representing the location of arrow mark to be placed 

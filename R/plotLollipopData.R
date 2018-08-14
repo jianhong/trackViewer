@@ -5,7 +5,7 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=
     dat <- subsetByOverlaps(dat, xscale.gr, ignore.strand=TRUE)
     if(length(dat)<1) return(invisible())
     width(dat) <- 1
-    TYPES <- c("circle", "pie", "pin", "pie.stack")
+    TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
     type <- if(is.list(dat$type)) dat$type[[1]] else dat$type[1]
     if(length(type)==0) type <- "circle"
     if(!type %in% TYPES) type <- "circle"

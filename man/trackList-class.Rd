@@ -4,7 +4,6 @@
 \name{trackList-class}
 \alias{trackList-class}
 \alias{trackList}
-\alias{trackList}
 \title{List of tracks}
 \usage{
 trackList(..., heightDist = NA)

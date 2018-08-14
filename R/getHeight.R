@@ -29,6 +29,11 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    labels.y <- LINEW*max(ratio.yx, 1.2) + 
                        6.5*GAP*cex + 
                        (scoreMax-0.5) * LINEW * ratio.yx*cex
+               },
+               flag={
+                 labels.y <- LINEW*max(ratio.yx, 1.2) + 
+                   6.5*GAP*cex + 
+                   scoreMax * LINEW * ratio.yx*cex
                })
         labels.y
     }else{
@@ -98,6 +103,19 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    ypos <- LINEW*max(ratio.yx, 1.2) + 
                        6.5*GAP*cex + maxStrHeight*cex +
                        (scoreMax-0.5) * LINEW * ratio.yx*cex
+               },
+               flag={
+                 if(length(names(SNPs))>0){
+                   maxStrHeight <- 
+                     max(as.numeric(
+                       convertY(stringWidth(names(SNPs)), "npc")
+                     ))+LINEW/2
+                 }else{
+                   maxStrHeight <- 0
+                 }
+                 maxStrHeight <- maxStrHeight * labels.length.rate
+                 ypos <- LINEW*max(ratio.yx, 1.2) + 6.5*GAP*cex + 
+                   scoreMax * LINEW * ratio.yx*cex + maxStrHeight*cex
                }
         )
         ypos

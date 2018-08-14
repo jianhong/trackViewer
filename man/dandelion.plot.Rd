@@ -4,10 +4,10 @@
 \alias{dandelion.plot}
 \title{dandelion.plots}
 \usage{
-dandelion.plot(SNP.gr, features = NULL, ranges = NULL, type = c("fan",
-  "circle", "pie", "pin"), newpage = TRUE, ylab = TRUE, xaxis = TRUE,
-  yaxis = FALSE, legend = NULL, cex = 1, maxgaps = 1/50,
-  heightMethod = NULL, ...)
+dandelion.plot(SNP.gr, features = NULL, ranges = NULL,
+  type = c("fan", "circle", "pie", "pin"), newpage = TRUE,
+  ylab = TRUE, xaxis = TRUE, yaxis = FALSE, legend = NULL,
+  cex = 1, maxgaps = 1/50, heightMethod = NULL, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
