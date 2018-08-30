@@ -13,8 +13,8 @@ Visualize mapped reads along with annotation as track layers for NGS dataset
 To install this package, start R and enter:
 
 ```r
-library(BiocInstaller)
-biocLite("trackViewer")
+library(BiocManager)
+BiocManager::install("trackViewer")
 ```
 
 ## Documentation
