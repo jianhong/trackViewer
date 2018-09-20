@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.16.1
+
+    o fix an issue for lolliplot in pdf.
+    
 CHANGES IN VERSION 1.15.13
 
     o add feature.gr parameter to plotGInteractions.

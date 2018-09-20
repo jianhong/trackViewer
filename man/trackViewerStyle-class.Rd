@@ -4,7 +4,6 @@
 \name{trackViewerStyle-class}
 \alias{trackViewerStyle-class}
 \alias{trackViewerStyle}
-\alias{trackViewerStyle}
 \alias{setTrackViewerStyleParam}
 \alias{setTrackViewerStyleParam,trackViewerStyle,character-method}
 \alias{setTrackViewerStyleParam,trackViewerStyle,character,ANY-method}

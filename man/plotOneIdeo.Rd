@@ -4,13 +4,14 @@
 \alias{plotOneIdeo}
 \title{plot ideogram with data for one chromosome}
 \usage{
-plotOneIdeo(ideo, dataList, parameterList = list(vp = plotViewport(margins =
-  c(0.1, 4.1, 1.1, 0.1)), ideoHeight = unit(1/(1 + length(dataList)), "npc"),
-  vgap = unit(1, "lines"), ylabs = seqlevels(ideo)[1], ylabsRot = 90, ylabsPos =
-  unit(2.5, "lines"), xaxis = FALSE, yaxis = FALSE, xlab = "", types =
-  "barplot", heights = NULL, dataColumn = "score", gps = gpar(col = "black",
-  fill = "gray")), chrom = seqlevels(ideo)[1], colorSheme = gieStain(),
-  gp = gpar(fill = NA, lwd = 2), ...)
+plotOneIdeo(ideo, dataList, parameterList = list(vp =
+  plotViewport(margins = c(0.1, 4.1, 1.1, 0.1)), ideoHeight = unit(1/(1 +
+  length(dataList)), "npc"), vgap = unit(1, "lines"), ylabs =
+  seqlevels(ideo)[1], ylabsRot = 90, ylabsPos = unit(2.5, "lines"), xaxis =
+  FALSE, yaxis = FALSE, xlab = "", types = "barplot", heights = NULL,
+  dataColumn = "score", gps = gpar(col = "black", fill = "gray")),
+  chrom = seqlevels(ideo)[1], colorSheme = gieStain(), gp = gpar(fill
+  = NA, lwd = 2), ...)
 }
 \arguments{
 \item{ideo}{output of \link{loadIdeogram}.}

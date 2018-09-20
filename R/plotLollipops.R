@@ -28,8 +28,10 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
             this.dat <- feature.splited[[n]][m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else 
                 this.dat$color
+            if(length(color)==0) color <- "black"
             fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else 
                 this.dat$fill
+            if(length(fill)==0) fill <- "white"
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
             this.feature.height.m <- 
                 if(length(this.dat$height)>0) 

@@ -5,9 +5,10 @@
 \title{Lolliplots}
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, type = c("circle",
-  "pie", "pin", "pie.stack"), newpage = TRUE, ylab = TRUE, yaxis = TRUE,
-  xaxis = TRUE, legend = NULL, cex = 1, dashline.col = "gray80",
-  jitter = c("node", "label"), rescale = FALSE, ...)
+  "pie", "pin", "pie.stack"), newpage = TRUE, ylab = TRUE,
+  yaxis = TRUE, xaxis = TRUE, legend = NULL, cex = 1,
+  dashline.col = "gray80", jitter = c("node", "label"),
+  rescale = FALSE, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
