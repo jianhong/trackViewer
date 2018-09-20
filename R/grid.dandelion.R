@@ -104,6 +104,9 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                          ratio.yx=ratio.yx, 
                          lwd=lwd)},
            circle={
+               if(length(border)==0) border <- "black"
+               if(length(col)==0) col <- "white"
+               if(length(lwd)==0) lwd <- 1
                grid.circle(x=x2, y=y2,
                            r=radius*ratio.yx, 
                            gp=gpar(col=border, fill=col, lwd=lwd))

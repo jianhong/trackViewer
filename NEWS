@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.17.5
+
+    o fix a issue of circle in lollipop plot.
+    
 CHANGES IN VERSION 1.17.4
 
     o add flag type in lollipop plot.

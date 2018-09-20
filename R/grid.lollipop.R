@@ -107,6 +107,9 @@ grid.lollipop <- function (x1=.5, y1=.5,
     }
     switch(type,
            circle={
+               if(length(border)==0) border <- "black"
+               if(length(col)==0) col <- "white"
+               if(length(lwd)==0) lwd <- 1
                if(scoreType){
                    for(i in 1:this.score){
                        y0 <- y2+y3+y4/2+2*radius*ratio.yx*(i-.5)

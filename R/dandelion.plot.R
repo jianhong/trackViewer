@@ -202,7 +202,9 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         for(m in 1:length(feature)){
             this.dat <- feature[m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
+            if(length(color)==0) color <- "black"
             fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
+            if(length(fill)==0) fill <- "white"
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
             width <- if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*baseline
             rot <- if(length(this.dat$rot)>0) this.dat$rot[[1]][1] else 45
