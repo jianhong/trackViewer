@@ -166,7 +166,7 @@ getYlim <- function(tl, op){
                 .ele <- c(yscaleR[1], 0)
             }
         }
-        if(.ele[1]>0) .ele[1] <- 0
+        if(.ele[1]>.ele[2]) .ele[1] <- 0
         .ele
     })
     names(yscales) <- names(tl)
@@ -326,7 +326,7 @@ drawYaxis <- function(ylim, yaxisStyle, curViewStyle){
                        y=0, height=1, clip="off", just=c(0,0), yscale=ylim)
     }
     pushViewport(vp)
-    at <- unique(c(0,ylim))
+    at <- unique(ylim)
     at <- at[order(at)]
     label <- yaxisStyle@label
     if(label){

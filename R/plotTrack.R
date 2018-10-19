@@ -28,10 +28,11 @@ xysmooth <- function(x2, y2, smooth=5){
   y[id] <- 0
   list(x=x, y=y)
 }
-plotDataTrack <- function(.dat, chr, strand, scale, color, smooth=FALSE){
+plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE){
     names(.dat) <- NULL
     mcols(.dat) <- mcols(.dat)[, "score"]
     colnames(mcols(.dat)) <- "score"
+    if(missing(yscale)) yscale <- c(0, 1)
     if(length(.dat)>0){##subset if length .dat > 1000
         trackViewerCache <- list(step=1000)
         if(length(.dat)>trackViewerCache$step){
@@ -90,8 +91,16 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, smooth=FALSE){
             }
             grid.polygon(x2, y2, default.units="native", 
                          gp=gpar(col=NA, fill=color))
-            grid.lines(x=scale, y=0, default.units="native",
+            yscale <- range(yscale)
+            if(yscale[1]<=0 && yscale[2]>=0){
+              grid.lines(x=scale, y=0, default.units="native",
                        gp=gpar(col=color))
+            }else{
+              dy <- abs(yscale - 0)
+              dy <- yscale[order(dy)][1]
+              grid.lines(x=scale, y=dy, default.units="native",
+                         gp=gpar(col="red"))
+            }
             xt <- c(xt, x)
             yt <- c(yt, y)
         }
@@ -149,12 +158,12 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                 yscale=yscale))
           ##grid.clip()
           ##for dat
-          xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1], smooth=smooth)
+          xy1 <- plotDataTrack(track@dat, chr, strand, xlim, style@color[1], yscale=yscale, smooth=smooth)
           xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
           ##for dat2
           if(length(track@dat2)>0){
             if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
-            xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2], smooth=smooth)
+            xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2], yscale=yscale, smooth=smooth)
           }
           xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))
           xy.id <- order(xy$x)
@@ -247,7 +256,19 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                              unitTo = "npc",
                              valueOnly = TRUE)
         if(track@type=="data"){
+          if(any(yscale==0)){
             y0 <- abs(0-min(yscale))/diff(yscale)
+          }else{
+            if(all(yscale>0)){
+              y0 <- 0
+            }else{
+              if(all(yscale<0)){
+                y0 <- 1
+              }else{
+                y0 <- abs(0-min(yscale))/diff(yscale)
+              }
+            }
+          }
         }else{
             y0 <- .5
         }

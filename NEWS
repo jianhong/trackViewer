@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.17.7
+
+    o allow ylim of tracks be not fixed from 0.
+    
 CHANGES IN VERSION 1.17.6
 
     o fix a issue of circle in lollipop plot.
