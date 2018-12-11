@@ -72,75 +72,41 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         names(SNP.gr) <- SNP.gr.name
     }
     len <- length(SNP.gr)
-    if(length(legend)>0){
-        if(!is.list(legend)){
-            tmp <- legend
-            legend <- list()
-            length(legend) <- len
-            legend[[len]] <- tmp
-            rm(tmp)
-        }else{
-            if(length(legend)==1){
-                tmp <- legend[[1]]
-                legend <- list()
-                length(legend) <- len
-                legend[[len]] <- tmp
-                rm(tmp)
-            }else{
-                if("labels" %in% names(legend)){
-                    tmp <- legend
-                    legend <- list()
-                    length(legend) <- len
-                    legend[[len]] <- tmp
-                    rm(tmp)
-                }else{
-                    if(length(legend)<len){
-                        length(legend) <- len
-                    }
-                }
-            }
-        }
-    }
+    
+    ############### handle legend ####################
+    ## set the legend as a list, 
+    ## if all the legend for different tracks is same
+    ## set draw legend for last track later
+    legend <- handleLegend(legend, len)
+    
     features.name <- deparse(substitute(features))
-    if(length(ranges)>0){
-        stopifnot(is(ranges, "GRanges")&length(ranges)==length(SNP.gr))
-    }else{
-        if(is(features, "GRanges")){
-            ranges <- range(features)[rep(1, len)]
-        }else{
-            if(length(features)!=len){
-                stop("if both SNP.gr and features is GRangesList,",
-                     " the lengthes of them should be identical.")
-            }
-            ranges <- unlist(GRangesList(lapply(features, range)))
-        }
-    }
-    if(is(ranges, "GRanges")){
-        ##cut all SNP.gr by the range
-        for(i in len){
-            range <- ranges[i]
-            stopifnot(all(width(SNP.gr[[i]])==1))
-            ol <- findOverlaps(SNP.gr[[i]], range)
-            SNP.gr[[i]] <- SNP.gr[[i]][queryHits(ol)]
-        }
-    }
+    
+    ################ handle ranges #####################
+    ## if !missing(ranges) set ranges as feature ranges
+    ranges <- handleRanges(ranges, SNP.gr, features, len)
+    
+    ##cut all SNP.gr by the range
+    SNP.gr <- cutSNP(SNP.gr, ranges, len)
+    
+    ################## plot ############################
+    ## total height == 1
     height <- 1/len
     if(newpage) grid.newpage()
     for(i in seq.int(len)){
         vp <- viewport(x=.5, y=height*(i-0.5), width=1, height=height)
         pushViewport(vp)
-        lineW <- as.numeric(convertX(unit(1, "line"), "npc"))
-        lineH <- as.numeric(convertY(unit(1, "line"), "npc"))
+        LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+        LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
         ## ylab
         if(is.logical(ylab)){
             if(ylab && length(names(SNP.gr))>0){
-                grid.text(names(SNP.gr)[i], x = lineW, 
+                grid.text(names(SNP.gr)[i], x = LINEW, 
                           y = .5, rot = 90)
             }
         }
         if(is.character(ylab)){
             if(length(ylab)==1) ylab <- rep(ylab, len)
-            grid.text(ylab[i], x = lineW,
+            grid.text(ylab[i], x = LINEW,
                       y = .5, rot = 90)
         }
         
@@ -149,73 +115,44 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         }else{
             feature <- features
         }
-        ol <- findOverlaps(feature, ranges[i])
-        feature <- feature[queryHits(ol)]
-        start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
-        end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
-        baseline <- max(c(unlist(feature$height)/2, .0001)) + 0.2 * lineH
-        gap <- .2 * lineH
-        bottomblank <- 4
-        if(length(names(feature))>0){
-            feature.s <- feature[!duplicated(names(feature))]
-            ncol <- getColNum(names(feature.s))
-            bottomblank <- max(ceiling(length(names(feature.s)) / ncol), 4)
-            pushViewport(viewport(x=.5, y=bottomblank*lineH/2, 
-                                  width=1,
-                                  height=bottomblank*lineH,
-                                  xscale=c(start(ranges[i]), end(ranges[i]))))
-            color <- if(length(unlist(feature.s$color))==length(feature.s)) 
-                unlist(feature.s$color) else "black"
-            fill <- if(length(unlist(feature.s$fill))==length(feature.s)) 
-                unlist(feature.s$fill) else "black"
-            pch <- if(length(unlist(feature.s$pch))==length(feature.s)) 
-                unlist(feature.s$pch) else 22
-            grid.legend(label=names(feature.s), ncol=ncol,
-                        byrow=TRUE, vgap=unit(.2, "lines"),
-                        pch=pch,
-                        gp=gpar(col=color, fill=fill))
-            popViewport()
-        }else{
-          if(length(xaxis)>1 || as.logical(xaxis[1])){
-            bottomblank <- 2
-          }else{
-            bottomblank <- 0
-          }
-        }
-        pushViewport(viewport(x=lineW + .5, y= (bottomblank+2)*lineH/2 + .5, 
-                              width= 1 - 7*lineW,
-                              height= 1 - (bottomblank+2)*lineH,
-                              xscale=c(start(ranges[i]), end(ranges[i]))))
+        
+        ## convert height to npc number
+        feature$height <- convertHeight2NPCnum(feature$height)
+        ## multiple transcripts in one gene could be separated by featureLayerID
+        feature <- setFeatureLayerID(feature, ranges, i)
+        feature.splited <- split(feature, feature$featureLayerID)
+        
+        baseline <- max(c(unlist(feature$height)/2, .0001)) + 0.2 * LINEH
+        gap <- .2 * LINEH
+        
+        ## bottomblank, the transcripts legend height
+        bottomblank <- plotFeatureLegend(feature, LINEH, ranges, i, xaxis)
+        
+        pushViewport(viewport(x=LINEW + .5, y= (bottomblank+2)*LINEH/2 + .5, 
+                              width= 1 - 7*LINEW,
+                              height= 1 - (bottomblank+2)*LINEH,
+                              xscale=c(start(ranges[i]), end(ranges[i])),
+                              clip = "off"))
         ## axis
-        if(length(xaxis)==1 && as.logical(xaxis)) {
-            grid.xaxis()
-        }
-        if(length(xaxis)>1 && is.numeric(xaxis)){
-            xaxisLabel <- names(xaxis)
-            if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
-            grid.xaxis(at=xaxis, label=xaxisLabel)
-        }
+        plot.grid.xaxis(xaxis)
         
-        ##baseline
-        grid.lines(x=c(0, 1), y=c(baseline, baseline)) #baseline
+        ## the baseline, the center of the first transcript
+        baseline <- 
+          max(c(feature.splited[[1]]$height/2, 
+                .0001)) + 0.2 * LINEH
+        baselineN <- 
+          max(c(feature.splited[[length(feature.splited)]]$height/2, 
+                .0001)) + 0.2 * LINEH
         
-        for(m in 1:length(feature)){
-            this.dat <- feature[m]
-            color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
-            if(length(color)==0) color <- "black"
-            fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
-            if(length(fill)==0) fill <- "white"
-            this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
-            width <- if(length(this.dat$height)>0) this.dat$height[[1]][1] else 2*baseline
-            rot <- if(length(this.dat$rot)>0) this.dat$rot[[1]][1] else 45
-            grid.rect(x=start(this.dat), y=baseline, width=width(this.dat), height=width,
-                      just="left", gp=gpar(col=color, fill=fill), default.units = "native")
-        }
+        ##plot features
+        bottomHeight <- 0
+        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight)
+        
         SNPs <- SNP.gr[[i]]
         if(length(SNPs)>0){
             strand(SNPs) <- "*"
             SNPs <- sort(SNPs)
-            width <- 2 * baseline + 2*gap
+            width <- feature.height + 2*gap
             SNPs.groups <- SNPs
             mcols(SNPs.groups) <- NULL
             SNPs.groups$w <- 0
@@ -253,24 +190,24 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
               maxStrHeight <- 
                 max(as.numeric(
                   convertY(stringWidth(names(SNPs)), "npc")
-                ))+lineW/2
+                ))+LINEW/2
             }else{
               maxStrHeight <- 0
             }
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            ypos <- lineW*max(ratio.yx, 1.2) + maxStrHeight*cex + 2*lineH
+            ypos <- LINEW*max(ratio.yx, 1.2) + maxStrHeight*cex + 2*LINEH 
             if(length(legend[[i]])>0){
-              ypos <- ypos + 3*lineH
+              ypos <- ypos + 3*LINEH
             }
-            SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), lineW, width, cex, 
+            SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), LINEW, width, cex, 
                                  ypos, 
                                  length(yaxis) > 1 || (length(yaxis)==1 && as.logical(yaxis)), heightMethod)
             
             # yaxis
             yyscale <- c(0, SNPs.groups$yyscaleMax[1])
             if(length(yaxis)==1 && as.logical(yaxis)) {
-              pushViewport(viewport(y= width + (1-width-ypos-cex*lineW*ratio.yx)/2, 
-                                    height= 1 - width-ypos-cex*lineW*ratio.yx,
+              pushViewport(viewport(y= width + (1-width-ypos-cex*LINEW*ratio.yx)/2, 
+                                    height= 1 - width-ypos-cex*LINEW*ratio.yx,
                                     yscale = yyscale))
               grid.yaxis()
               popViewport()
@@ -278,8 +215,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             if(length(yaxis)>1 && is.numeric(yaxis)){
               yaxisLabel <- names(yaxis)
               if(length(yaxisLabel)!=length(yaxis)) yaxisLabel <- TRUE
-              pushViewport(viewport(y= width + (1-width-ypos-cex*lineW*ratio.yx)/2, 
-                                    height= 1 - width - ypos-cex*lineW*ratio.yx,
+              pushViewport(viewport(y= width + (1-width-ypos-cex*LINEW*ratio.yx)/2, 
+                                    height= 1 - width-ypos-cex*LINEW*ratio.yx,
                                     yscale = yyscale))
               grid.yaxis(at=yaxis, label=yaxisLabel)
               popViewport()
@@ -287,7 +224,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             ## legend
             scoreMax <- max(SNPs.groups$Y2, na.rm = TRUE)
             if(length(legend[[i]])>0){
-              ypos <- width + lineW*max(ratio.yx, 1.2) + 
+              ypos <- width + LINEW*max(ratio.yx, 1.2) + 
                 scoreMax + maxStrHeight*cex
               if(is.list(legend[[i]])){
                 thisLabels <- legend[[i]][["labels"]]
@@ -300,9 +237,9 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
               if(length(thisLabels)>0){
                 ncol <- getColNum(thisLabels)
                 topblank <- ceiling(length(thisLabels) / ncol)
-                pushViewport(viewport(x=.5, y=ypos+topblank*lineH/2, 
+                pushViewport(viewport(x=.5, y=ypos+topblank*LINEH/2, 
                                       width=1,
-                                      height=topblank*lineH,
+                                      height=topblank*LINEH,
                                       just="bottom"))
                 grid.legend(label=thisLabels, ncol=ncol,
                             byrow=TRUE, vgap=unit(.2, "lines"),
@@ -328,7 +265,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                               y1=this.dat.grp$Y1,
                               x2=(this.dat.grp$X2-start(ranges[i]))/width(ranges[i]), 
                               y2=this.dat.grp$Y2, 
-                              radius=cex*lineW/2,
+                              radius=cex*LINEW/2,
                               col=color,
                               border=border,
                               percent=this.dat.mcols,

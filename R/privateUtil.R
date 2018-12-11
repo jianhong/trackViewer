@@ -391,3 +391,127 @@ getColNum <- function(labels, spaces="WWWWW"){
     ncol <- ceiling(length(labels) / nrow)
     ncol
 }
+
+############### handle legend ####################
+## set the legend as a list, 
+## if all the legend for different tracks is same
+## set draw legend for last track later
+handleLegend <- function(legend, len){
+  if(length(legend)>0){
+    if(!is.list(legend)){
+      tmp <- legend
+      legend <- vector(mode = "list", length = len)
+      legend[[len]] <- tmp
+      rm(tmp)
+    }else{
+      if(length(legend)==1){
+        tmp <- legend[[1]]
+        legend <- vector(mode = "list", length = len)
+        legend[[len]] <- tmp
+        rm(tmp)
+      }else{
+        if("labels" %in% names(legend)){
+          tmp <- legend
+          legend <- vector(mode = "list", length = len)
+          legend[[len]] <- tmp
+          rm(tmp)
+        }else{
+          if(length(legend)<len){
+            length(legend) <- len
+          }
+        }
+      }
+    }
+  }
+  return(legend)
+}
+################ handle ranges #####################
+## if !missing(ranges) set ranges as feature ranges
+handleRanges <- function(ranges, SNP.gr, features, len){
+  if(length(ranges)>0){
+    stopifnot(class(ranges)=="GRanges")
+    ranges <- rep(ranges, length(SNP.gr))[1:length(SNP.gr)]
+    stopifnot(length(ranges)==length(SNP.gr))
+  }else{
+    if(class(features)=="GRanges"){
+      ranges <- range(features)[rep(1, len)]
+    }else{
+      if(length(features)!=len){
+        stop("if both SNP.gr and features is GRangesList,",
+             " the lengthes of them should be identical.")
+      }
+      ranges <- unlist(GRangesList(lapply(features, range)))
+    }
+  }
+  return(ranges)
+}
+
+##cut all SNP.gr by the range
+cutSNP <- function(SNP.gr, ranges, len){
+  if(is(ranges, "GRanges")){
+    for(i in len){
+      range <- ranges[i]
+      stopifnot(all(width(SNP.gr[[i]])==1))
+      ol <- findOverlaps(SNP.gr[[i]], range)
+      SNP.gr[[i]] <- SNP.gr[[i]][queryHits(ol)]
+    }
+  }
+  return(SNP.gr)
+}
+
+## multiple transcripts in one gene could be separated by featureLayerID
+setFeatureLayerID <- function(feature, ranges, i){
+  feature <- feature[end(feature)>=start(ranges[i]) & 
+                       start(feature)<=end(ranges[i])]
+  if(length(feature$featureLayerID)!=length(feature)){
+    feature$featureLayerID <- rep("1", length(feature))
+    feature$featureLayerID <- as.character(feature$featureLayerID)
+    start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
+    end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
+  }
+  return(feature)
+}
+
+## bottomblank, the transcripts legend height
+plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis){
+  bottomblank <- 4
+  if(length(names(feature))>0){ ## features legend
+    feature.s <- feature[!duplicated(names(feature))]
+    ncol <- getColNum(names(feature.s))
+    bottomblank <- max(ceiling(length(names(feature.s)) / ncol), 4)
+    pushViewport(viewport(x=.5, y=bottomblank*LINEH/2, 
+                          width=1,
+                          height=bottomblank*LINEH,
+                          xscale=c(start(ranges[i]), end(ranges[i]))))
+    color <- if(length(unlist(feature.s$color))==length(feature.s)) 
+      unlist(feature.s$color) else "black"
+    fill <- if(length(unlist(feature.s$fill))==length(feature.s)) 
+      unlist(feature.s$fill) else "black"
+    pch <- if(length(unlist(feature.s$pch))==length(feature.s)) 
+      unlist(feature.s$pch) else 22
+    grid.legend(label=names(feature.s), ncol=ncol,
+                byrow=TRUE, vgap=unit(.2, "lines"),
+                pch=pch,
+                gp=gpar(col=color, fill=fill))
+    popViewport()
+  }else{
+    if(length(xaxis)>1 || as.logical(xaxis[1])){
+      bottomblank <- 2
+    }else{
+      bottomblank <- 0
+    }
+  }
+  return(bottomblank)
+}
+
+plot.grid.xaxis <- function(xaxis, col="black"){
+  ## axis, should be in the bottom of transcripts
+  if(length(xaxis)==1 && as.logical(xaxis)) {
+    grid.xaxis(gp=gpar(col=col))
+  }
+  if(length(xaxis)>1 && is.numeric(xaxis)){
+    xaxisLabel <- names(xaxis)
+    if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
+    grid.xaxis(at=xaxis, label=xaxisLabel, gp=gpar(col=col))
+  }
+}
