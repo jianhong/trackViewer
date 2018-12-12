@@ -98,7 +98,7 @@ plotGeneModel <- function(track, xscale, chr){
       track@dat2 <- subsetByOverlaps(track@dat2, xscale.gr, ignore.strand=TRUE)
       if(length(track@dat2)<1) return(invisible())
       width(track@dat2) <- 1
-      TYPES <- c("circle", "pie", "pin", "pie.stack")
+      TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
       type <- if(is.list(track@dat2$type)) track@dat2$type[[1]] else track@dat2$type[1]
       if(length(type)==0) type <- "circle"
       if(!type %in% TYPES) type <- "circle"

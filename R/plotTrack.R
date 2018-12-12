@@ -197,7 +197,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
           ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
           getMaxHeight <- function(lollipopData){
             if(length(lollipopData)==0) return(0)
-            TYPES <- c("circle", "pie", "pin", "pie.stack")
+            TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
             type <- if(is.list(lollipopData$type)) lollipopData$type[[1]] else lollipopData$type[1]
             if(length(type)==0) type <- "circle"
             if(!type %in% TYPES) type <- "circle"
