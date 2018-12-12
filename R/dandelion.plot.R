@@ -224,7 +224,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             ## legend
             scoreMax <- max(SNPs.groups$Y2, na.rm = TRUE)
             if(length(legend[[i]])>0){
-              ypos <- width + LINEW*max(ratio.yx, 1.2) + 
+              ypos <- LINEW*max(ratio.yx, 1.2) + 
                 scoreMax + maxStrHeight*cex
               if(is.list(legend[[i]])){
                 thisLabels <- legend[[i]][["labels"]]
