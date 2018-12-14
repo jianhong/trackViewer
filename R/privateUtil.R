@@ -208,7 +208,7 @@ drawXaxis <- function(xscale, style){
                edits = gEdit(gPath="labels", rot=rot),
                draw=style@xaxis)
 }
-putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang){
+putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang, withlollipop=FALSE){
     gap <- (xscale[2] - xscale[1])/100
     just <- style@ylabpos=="upstream"
     strand <- as.character(strand(rang))
@@ -240,7 +240,7 @@ putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang){
                           clip="off",
                           just=c(0,0), 
                           xscale=xscale))
-    grid.text(x=x, y=.5, label=name, rot=0, just=just, gp=gp, 
+    grid.text(x=x, y=ifelse(withlollipop, .25, .5), label=name, rot=0, just=just, gp=gp, 
               default.units="native")
     popViewport()
 }

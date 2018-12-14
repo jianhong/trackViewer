@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.19.3
+
+    o adjust y label position for viewTracks
+    
 CHANGES IN VERSION 1.19.2
 
     o adjust legent position for dandelion.plot
