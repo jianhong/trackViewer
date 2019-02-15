@@ -109,6 +109,7 @@ HTMLWidgets.widget({
         var coor;
         var SVGRect;
         var resize_bg;
+        
         var xHeight=function(){
             var xH=[];
             xH[0] = 0;
@@ -506,6 +507,7 @@ HTMLWidgets.widget({
             coor = [d3.event.pageX, d3.event.pageY];
             color = editable_ele.attr("fill");
             SVGRect = this.getBBox();
+            
             var cls = editable_ele.attr("class");
             if(parent.attr("class")==="tick"){
                 //console.log("tick");
@@ -873,20 +875,23 @@ HTMLWidgets.widget({
             var makeLabelDraggable = d3.drag()
                        .on("drag", function(d){
                             var curr = d3.select(this);
-                            var coords = d3.mouse(svg.node());
-                            var posx = Math.round(xscale.invert(coords[0]-margin.left));
-                            var posy = Math.round(coords[1]);
-                            var m = x.markers[curr.attr("ref")];
-                            if(posx!=m.ref[0] && posy!=m.ref[1]){
-                                m.ref = [posx, posy];
-                                x.markers["text"+posx + "_" + posy] = m;
-                                delete(x.markers[curr.attr("ref")]);
-                                curr.attr("id", "text"+m.ref[0] + "_" + m.ref[1])
-                                   .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
-                                   .attr("x", xscale(m.ref[0]) + margin.left)
-                                   .attr("y", m.ref[1])
-                                   .style("cursor", "move");
+                            if(typeof(curr.attr("ref"))!="undefined"){
+                              var coords = d3.mouse(svg.node());
+                              var posx = Math.round(xscale.invert(coords[0]-margin.left));
+                              var posy = Math.round(coords[1]);
+                              var m = x.markers[curr.attr("ref")];
+                              if(posx!=m.ref[0] && posy!=m.ref[1]){
+                                  m.ref = [posx, posy];
+                                  x.markers["text"+posx + "_" + posy] = m;
+                                  delete(x.markers[curr.attr("ref")]);
+                                  curr.attr("id", "text"+m.ref[0] + "_" + m.ref[1])
+                                     .attr("ref", "text"+m.ref[0] + "_" + m.ref[1])
+                                     .attr("x", xscale(m.ref[0]) + margin.left)
+                                     .attr("y", m.ref[1])
+                                     .style("cursor", "move");
+                              }
                             }
+                            
                             if(typeof(bg)!="undefined"){
                                 bg.remove();
                             }
@@ -897,7 +902,11 @@ HTMLWidgets.widget({
                        .on("end", function(d){
                             d3.select(this).style("cursor", "default");
                        });
-            svg.on("dblclick", function(){
+                       
+            svg.on("contextmenu", function(d, i){
+              // prevent right click
+              d3.event.preventDefault();
+              // react on right-clicking
                 if(self.svgDefault){
                     var coords = d3.mouse(svg.node());
                     var posx = Math.round(xscale.invert(coords[0]-margin.left));
@@ -1017,11 +1026,12 @@ HTMLWidgets.widget({
                        .attr("id", "rectL" + posx)
                        .attr("x1", xscale(posx) + margin.left)
                        .attr("x2", xscale(posx) + margin.left);
+                    var newWid = xscale(posx + x.markers[ref].linewidth) - xscale(posx);
                     d3.select("#rect"+x.markers[ref].ref)
                       .attr("ref", "rect" + posx)
                       .attr("id", "rect" + posx)
                       .attr("x", xscale(posx) + margin.left)
-                      .attr("width", xscale(posx + x.markers[ref].linewidth) - xscale(posx));
+                      .attr("width", newWid>0?newWid:0);
                     d3.select("#rectR"+x.markers[ref].ref)
                       .attr("ref", "rect" + posx)
                       .attr("id", "rectR" + posx)
@@ -1030,6 +1040,9 @@ HTMLWidgets.widget({
                     x.markers[ref].ref = posx;
                     x.markers["rect"+posx] = x.markers[ref];
                     delete(x.markers[ref]);
+                    if(newWid<=0){
+                      obj.remove();
+                    }
                 }
             };
             self.resizeRectR = function(d){
@@ -1040,9 +1053,13 @@ HTMLWidgets.widget({
                 if(posx != x.markers[ref].ref + x.markers[ref].linewidth){
                     obj.attr("x1", xscale(posx) + margin.left)
                        .attr("x2", xscale(posx) + margin.left);
+                    var newWid = xscale(posx) - xscale(x.markers[ref].ref);
                     d3.select("#rect"+x.markers[ref].ref)
-                      .attr("width", xscale(posx) - xscale(x.markers[ref].ref));
+                      .attr("width", newWid>0?newWid:0);
                     x.markers[ref].linewidth = posx - x.markers[ref].ref;
+                    if(newWid<=0){
+                      obj.remove();
+                    }
                 }
             };
             var Arrow = function(arrowcontainer, m){
@@ -1200,12 +1217,14 @@ HTMLWidgets.widget({
                                             .on("end", self.dragendLine));
                             break;
                         case 1:
-                            l= self.g.append("rect")
+                            var newWid=xscale(m.ref+m.linewidth) - xscale(m.ref);
+                            if(newWid>1){
+                              l= self.g.append("rect")
                                    .attr("id", "rect"+m.ref)
                                    .attr("stroke", "none")
                                    .attr("fill", m.color)
                                    .attr("x", xscale(m.ref) + margin.left)
-                                   .attr("width", xscale(m.ref+m.linewidth) - xscale(m.ref))
+                                   .attr("width", newWid)
                                    .attr("y", margin.top)
                                    .attr("height", +svg.attr("height") - margin.bottom - margin.top)
                                    .attr("ref", "rect"+m.ref)
@@ -1235,6 +1254,7 @@ HTMLWidgets.widget({
                                    .style("cursor", "ew-resize")
                                    .attr("ref", "rect"+m.ref)
                                    .call(d3.drag().on("drag", self.resizeRectR));
+                            }
                             break;
                         case 2:
                             l= self.g.append("text")

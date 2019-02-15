@@ -9,6 +9,7 @@
 #' @param ... parameters not used
 #' @import htmlwidgets
 #' @import GenomicRanges
+#' @importFrom utils installed.packages
 #' @export
 #' @return An object of class htmlwidget that will intelligently print itself 
 #' into HTML in a variety of contexts including the R console, 
@@ -32,8 +33,92 @@ browseTracks <- function(trackList,
                          ignore.strand=TRUE,
                          width=NULL, height=NULL, 
                          ...){
+    if(missing(gr)){
+      if(interactive()){
+        ## ask to input the region
+        chr <- readline(prompt = "Enter the chromosome, for example chr1: ")
+        start <- as.integer(readline(prompt = "Enter the start coordinate: "))
+        end <- as.integer(readline(prompt = "Enter the end coordinate: "))
+        gr <- GRanges(chr, IRanges(start, end))
+      }else{
+        stop("gr is required.")
+      }
+    }else{
+      if(!is(gr, "GRanges")){
+        stop("gr must be an object of GRanges.")
+      }
+      if(length(gr)!=1){
+        stop("the length of gr must be 1.")
+      }
+    }
     if(missing(trackList)){
+      if(interactive()){
+        ## ask to import files
+        trackList <- list()
+        n <- 1
+        while(n>0){
+          filename <- readline(prompt = "Enter 0 to stop. Enter 1 to get gene track. Enter 2 to import BED/bedGraph/WIG/BigWig file: ")
+          switch(filename, 
+                 "0"={
+                   n <- 0
+                 },
+                 "1"={
+                   ip <- as.data.frame(installed.packages()[, c(1, 3:4)])
+                   ip <- unique(as.character(ip$Package))
+                   txdbs <- ip[grepl("^TxDb", ip)]
+                   orgs <- ip[grepl("^org", ip)]
+                   txdbFlag <- TRUE
+                   message("available txdb\n", paste0(paste0(seq_along(txdbs), ": ", txdbs, "\n")))
+                   while(txdbFlag){
+                     txdb <- readline(prompt = "select txdb: ")
+                     txdb <- as.numeric(txdb)
+                     if(!is.na(txdb)){
+                       txdb <- txdbs[txdb]
+                       txdbFlag <- FALSE
+                     }
+                   }
+                   orgFlag <- TRUE
+                   message("available org\n", paste0(paste0(seq_along(orgs), ": ", orgs, "\n")))
+                   while(orgFlag){
+                     org <- readline(prompt = "select org: ")
+                     org <- as.numeric(org)
+                     if(!is.na(org)){
+                       org <- orgs[org]
+                       orgFlag <- FALSE
+                     }
+                   }
+                   require(txdb, character.only = TRUE)
+                   require(org, character.only = TRUE)
+                   trs <- geneModelFromTxdb(get(txdb), get(org), gr=gr)
+                   trackList <- c(trackList, trs)
+                 },
+                 "2"={
+                   filename <- file.choose()
+                   if(file.exists(filename)){
+                     format <- sub("^.*\\.(.*)$", "\\1", basename(filename))
+                     if(tolower(format) %in% tolower(c("BED", "bedGraph", "WIG", "BigWig"))){
+                       format <- switch(tolower(format), 
+                                        bed="BED",
+                                        bedgraph="bedGraph",
+                                        wig="WIG", 
+                                        bigwig="BigWig")
+                       sampleName <- make.names(sub(paste0(".", format), "", basename(filename)))
+                       if(sampleName %in% names(trackList)){
+                         sampleName <- paste0(sampleName, "_copy")
+                       }
+                       trackList[[sampleName]] <- importScore(filename, format = format, ranges = gr)
+                     }else{
+                       message("Can not detect the format of the file. Please rename the file with end of .BED, .bedGraph, .WIG or .BigWig")
+                     }
+                   }else{
+                     message("Can not open the file. Please double check the file path.")
+                   }
+                 })
+        }
+        trackList <- trackList(trackList)
+      }else{
         stop("trackList is required.")
+      }
     }
     if(class(trackList)!="trackList" && 
        !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
@@ -45,16 +130,6 @@ browseTracks <- function(trackList,
     }
     if(any(duplicated(names(trackList)))){
         stop("trackList must have unqiue names")
-    }
-    if(missing(gr)){
-        stop("gr is required.")
-    }else{
-        if(!is(gr, "GRanges")){
-            stop("gr must be an object of GRanges.")
-        }
-        if(length(gr)!=1){
-            stop("the length of gr must be 1.")
-        }
     }
     chromosome <- as.character(GenomicRanges::seqnames(gr))[1]
     start <- GenomicRanges::start(gr)[1]
