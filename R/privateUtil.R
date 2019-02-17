@@ -117,7 +117,11 @@ filterTracks <- function(tl, chrom, from, to, st){
                 }
             }
         }else{
+          if(tl[[i]]@type=="lollipopData"){
+            dat <- tl[[i]]@dat
+          }else{
             dat <- range(tl[[i]]@dat)
+          }
             dat <- dat[end(dat)>=from &
                            start(dat)<=to &
                            seqnames(dat)==chrom]
@@ -126,6 +130,10 @@ filterTracks <- function(tl, chrom, from, to, st){
                 dat2 <- dat2[end(dat2)>=from &
                                  start(dat2)<=to &
                                  seqnames(dat2)==chrom]
+            }
+            if(tl[[i]]@type=="lollipopData"){
+              tl[[i]]@dat <- dat
+              tl[[i]]@dat2 <- dat2
             }
             if(length(dat)==0 && length(dat2)==0)
                 tl[[i]]@style@height <- 0

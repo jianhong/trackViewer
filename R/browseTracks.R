@@ -172,6 +172,24 @@ browseTracks <- function(trackList,
         rgb <- col2rgb(x)
         rgb(rgb[1, ], rgb[2, ], rgb[3, ], maxColorValue = 255)
     }
+    LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+    getLolliplotData <- function(.dat){
+      if(length(.dat)==0) return(ZERO);
+      .dat <- sort(.dat)
+      dat2 <- as.list(as.data.frame(.dat))
+      dat2$seqnames <- chromosome
+      dat2$border <- col2Hex(dat2$border)
+      dat2$color <- col2Hex(dat2$color)
+      pushViewport(viewport(xscale=c(start(gr), end(gr))))
+      lab.pos <- jitterLables(start(.dat), 
+                              xscale=c(start(gr), end(gr)), 
+                              lineW=LINEW)
+      lab.pos <- reAdjustLabels(lab.pos, 
+                                lineW=LINEW)
+      popViewport()
+      dat2$labpos <- lab.pos
+      dat2
+    }
     trackdat <- function(.ele){
         dat <- .ele$dat
         dat2 <- .ele$dat2
@@ -185,11 +203,28 @@ browseTracks <- function(trackList,
                 style$color <- rep(style$color, 2)
             }
         }else{
+          if(.ele$type=="lollipopData"){
+            dat <- getLolliplotData(.ele$dat)
+            if(length(.ele$dat2)==0){
+              dat2 <- ZERO
+            }else{
+              dat2 <- getLolliplotData(.ele$dat2)
+            }
+            ylim <- c(0, 1)
+            if(length(style$color)==1){
+              style$color <- rep(style$color, 2)
+            }
+          }else{
             dat <- as.list(as.data.frame(.ele$dat))
             dat$seqnames <- chromosome
             dat$strand <- as.character(dat$strand)[1]
-            dat2 <- ZERO
+            if(length(.ele$dat2)==0){
+              dat2 <- ZERO
+            }else{
+              dat2 <- getLolliplotData(.ele$dat2)
+            }
             ylim <- c(0, 1)
+          }
         }
         list(dat=dat,
              dat2=dat2,
