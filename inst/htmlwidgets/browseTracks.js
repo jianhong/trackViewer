@@ -210,6 +210,11 @@ HTMLWidgets.widget({
                         	changeText(editable_ele.text().substring(0, editable_ele.text().length - 1));
                         }
                         break;
+                    case 16://shift
+                    case 17://ctrl
+                    case 18://alt
+                    case 20://caps lock
+                    	break;
                     default:
                         if(flag){
                             changeText(e.key);
