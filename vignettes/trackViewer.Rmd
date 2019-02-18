@@ -634,6 +634,7 @@ lolliplot(list(A=sample.gr, B=sample2.gr),
 
 ## Variant Call Format (VCF) data
 ```{r VCF, fig.width=6, fig.height=5}
+if(.Platform$OS.type!="windows"){# to avoid error from VariantAnnotation in windows platform, need to be removed when VariantAnnotation fixed the issue.
 library(VariantAnnotation)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
@@ -658,6 +659,7 @@ names(features) <- c(trs[[1]]$name, trs[[5]]$name)
 features$fill <- c("lightblue", "mistyrose")
 features$height <- c(.02, .04)
 lolliplot(mutation.frequency, features, ranges=gr)
+}
 ```
 
 ## Methylation data
