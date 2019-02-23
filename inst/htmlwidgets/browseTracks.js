@@ -186,7 +186,6 @@ HTMLWidgets.widget({
             if(typeof(editable_ele)!="undefined"){
             addBg();
             make_resizable();
-            var flag = 1;
             d3.select("body").on("keydown", function(){//must be keydown, not keypress, otherwise can not detect the un-printable character
                 // IE fix
                 if (!d3.event) d3.event = window.event;
@@ -205,23 +204,32 @@ HTMLWidgets.widget({
                         }
                         break;
                     case 8://backspace
-                    	console.log(editable_ele.text().length);
+                    	//console.log(editable_ele.text().length);
                     	if(editable_ele.text().length > 0){
                         	changeText(editable_ele.text().substring(0, editable_ele.text().length - 1));
+                        }
+                        break;
+                    case 40://Delete
+                    	//console.log(editable_ele.text().length);
+                    	if(editable_ele.text().length > 0){
+                        	changeText(editable_ele.text().substring(1, editable_ele.text().length));
                         }
                         break;
                     case 16://shift
                     case 17://ctrl
                     case 18://alt
                     case 20://caps lock
+                    case 33://Page up
+                    case 34://Page down
+                    case 35://End
+                    case 36://Home
+                    case 37://Left
+                    case 38://Up
+                    case 39://Right
+                    case 40://Down
                     	break;
                     default:
-                        if(flag){
-                            changeText(e.key);
-                            flag = 0;
-                        } else {
-                            changeText(editable_ele.text()+e.key);
-                        }
+                      changeText(editable_ele.text()+e.key);
                 }
             });
             }
@@ -679,7 +687,7 @@ HTMLWidgets.widget({
                      .attr("fill", "none")
                      .attr("stroke", color)
                      .attr("opacity", x.opacity[x.name[k]])
-                     .attr("orient", strand==="-"?0:180)
+                     .attr("orient", strand==="-"?180:0)
                      .append("path")
                      .attr("d", "M 0 0 L 10 5 L 0 10");
             for(var i=1; i<data.length; i++){
@@ -702,7 +710,7 @@ HTMLWidgets.widget({
         }
         
         // lolliplot
-        function lolliplot(lolli, trackdat, xscale, yscale, k, datatrack, ypos, from){
+        function lolliplot(lolli, trackdat, xscale, yscale, k, datatrack, ypos, label){
         	var pos;
         	switch(ypos){
         		case .165:
@@ -718,6 +726,7 @@ HTMLWidgets.widget({
         			pos=[.825, .65, .55, .50, .45, .95, .9];
         			break;
         	}
+        	//console.log(trackdat);
 			for(var i=0; i<trackdat.start.length; i++){
 				var thisSNP=lolli.append('g');
 				var snpLine=thisSNP.append('g')
@@ -745,6 +754,8 @@ HTMLWidgets.widget({
 				 .attr("y1", yscale(pos[2]))
 				 .attr("y2", yscale(pos[3]))
 				 .attr("stroke", trackdat.border[i]);
+				 
+				// circle style
 				var cir=thisSNP.append('g')
 					.attr("class", "lolliplot track"+k)
 					.attr("kvalue", k)
@@ -756,28 +767,40 @@ HTMLWidgets.widget({
 							.on("drag", draggedGroup)
 							.on("end", dragended));
 				var circenter=yscale(pos[4]);
-				for(var j=0; j<trackdat.score[i]; j++){
-					cir.append("circle")
-						.attr("cx", xscale(trackdat.labpos[i]))
-						.attr("cy", circenter)
-						.attr("r", yscale(pos[5]))
-						.attr("fill", trackdat.color[i]);
-					if(ypos<.5){
-						circenter-=yscale(pos[6]);
-					}else{
-						circenter+=yscale(pos[6]);
-					}
+				var curscore=trackdat.score[i];
+				if(curscore==0){
+				  cir.append("circle")
+  						.attr("cx", xscale(trackdat.labpos[i]))
+  						.attr("cy", circenter)
+  						.attr("r", yscale(pos[5]))
+  						.attr("fill", "white")
+  						.attr("stroke", trackdat.border[i]);
+  				  curscore=1;
+				}else{
+				  for(var j=0; j<trackdat.score[i]; j++){
+  					cir.append("circle")
+  						.attr("cx", xscale(trackdat.labpos[i]))
+  						.attr("cy", circenter)
+  						.attr("r", yscale(pos[5]))
+  						.attr("fill", trackdat.color[i])
+  						.attr("stroke", trackdat.border[i]);
+  					if(ypos<.5){
+  						circenter-=yscale(pos[6]);
+  					}else{
+  						circenter+=yscale(pos[6]);
+  					}
+  				  }
 				}
 				//add mask
 				var mask = thisSNP.append("defs")
 								  .append("mask")
 								  .attr("id", "mask_"+k+"_"+datatrack+"_"+i);
 				if(ypos<.5){
-					var thisY=yscale(pos[4])+yscale(pos[5])-trackdat.score[i]*2*yscale(pos[5]);
-					var thisH=trackdat.score[i]*2*yscale(pos[5]);
+					var thisY=yscale(pos[4])+yscale(pos[5])-curscore*2*yscale(pos[5]);
+					var thisH=curscore*2*yscale(pos[5]);
 				}else{
 					var thisY=yscale(pos[4])-yscale(pos[5]);
-					var thisH=trackdat.score[i]*2*yscale(pos[5]);
+					var thisH=curscore*2*yscale(pos[5]);
 				}
 				mask.append("rect")
 					.attr("x", xscale(trackdat.labpos[i])-yscale(pos[5]))
@@ -793,6 +816,28 @@ HTMLWidgets.widget({
 				//	.attr('height', thisH)
 				//	.style("fill", "black");
 				cir.attr("mask", "url(#mask_"+k+"_"+datatrack+"_"+i+")");
+				
+				//add label
+				if(typeof(trackdat.textlabel)!="undefined"){
+					if(trackdat.textlabel.length>0){
+						var thisX=xscale(trackdat.labpos[i]);
+						var thisY=ypos<.5?circenter+yscale(pos[6]):circenter-yscale(pos[6]);
+						thisSNP.append("g").attr("transform", "translate("+thisX+","+thisY+")")
+						       .append("text")
+								 .attr("x", 0)
+								 .attr("y", 0)
+								 .attr("text-anchor", "start")
+								 .attr("class", "lollipop label"+k)
+								 .attr("kvalue", k)
+								 .style("font-size", x.fontsize[label]+"px")
+								 .text(trackdat.textlabel[i])
+								 .attr("transform", "rotate(-45)")
+								 .on("click", make_editable)
+								 .call(d3.drag().on("start", dragstarted)
+												.on("drag", draggedText)
+												.on("end", dragended));
+					}
+				}
 			}
         }
         //gene track
@@ -807,7 +852,7 @@ HTMLWidgets.widget({
                 //console.log(track.dat2);
             	if(track.dat2.start.length>0){//plot lolliplot
 					var lolli=layer.append("g").attr("group", "lollipop");
-					lolliplot(lolli, track.dat2, xscale, yscale, k, "dat2", .165, "genetrack");
+					lolliplot(lolli, track.dat2, xscale, yscale, k, "dat2", .165, label);
 					layer=layer.append("g")
 							   .attr("group", "genemodel")
 							   .attr("transform", "translate(0,"+yscale(.66)+")");
@@ -874,7 +919,7 @@ HTMLWidgets.widget({
                          .attr("kvalue", k)
                          .on("click", make_editable);
                     // add arrows to center line
-                    plotArrow(layer, intron, xscale(start), xscale(end), yscale, track.strand, color, k);
+                    plotArrow(layer, intron, xscale(start), xscale(end), yscale, track.dat.strand[0], color, k);
                 }
                 //console.log(intron);
                 layer.selectAll(".exon"+k)
@@ -933,7 +978,7 @@ HTMLWidgets.widget({
 						 .attr("class", "geneBaseline track"+k)
 						 .attr("kvalue", k)
 						 .on("click", make_editable);
-					lolliplot(lolli, track.dat, xscale, yscale, k, "dat", ypos[0], "lollipopData");
+					lolliplot(lolli, track.dat, xscale, yscale, k, "dat", ypos[0], label);
             	}
             }
             
@@ -953,7 +998,7 @@ HTMLWidgets.widget({
 						 .attr("class", "geneBaseline track"+k)
 						 .attr("kvalue", k)
 						 .on("click", make_editable);
-					lolliplot(lolli, track.dat2, xscale, yscale, k, "dat2", ypos[1], "lollipopData");
+					lolliplot(lolli, track.dat2, xscale, yscale, k, "dat2", ypos[1], label);
             	}
             }
             // add gene symbols

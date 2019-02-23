@@ -140,7 +140,7 @@ browseTracks <- function(trackList,
     
     trackList <- filterTracks(trackList, chromosome, 
                               start, end, strand)
-    
+    trackList <- rev(trackList)
     viewerStyle=trackViewerStyle()
     ## trackList split into two parts: gene and data
     irl <- IRangesList(ranges(gr)[1])
@@ -176,16 +176,23 @@ browseTracks <- function(trackList,
     getLolliplotData <- function(.dat){
       if(length(.dat)==0) return(ZERO);
       .dat <- sort(.dat)
+      .dat$textlabel <- names(.dat)
+      names(.dat) <- NULL
+      if(length(.dat$score)!=length(.dat)){
+        .dat$score <- 1
+      }
       dat2 <- as.list(as.data.frame(.dat))
       dat2$seqnames <- chromosome
       dat2$border <- col2Hex(dat2$border)
       dat2$color <- col2Hex(dat2$color)
+      cex <- .75
+      if(length(dat2$cex)>0) cex <- cex*sapply(cex, `[`, 1)
       pushViewport(viewport(xscale=c(start(gr), end(gr))))
       lab.pos <- jitterLables(start(.dat), 
                               xscale=c(start(gr), end(gr)), 
-                              lineW=LINEW)
+                              lineW=LINEW*cex)
       lab.pos <- reAdjustLabels(lab.pos, 
-                                lineW=LINEW)
+                                lineW=LINEW*cex)
       popViewport()
       dat2$labpos <- lab.pos
       dat2
