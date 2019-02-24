@@ -57,7 +57,8 @@ browseTracks <- function(trackList,
         trackList <- list()
         n <- 1
         while(n>0){
-          filename <- readline(prompt = "Enter 0 to stop. Enter 1 to get gene track. Enter 2 to import BED/bedGraph/WIG/BigWig file: ")
+          message("Please select \n\t0\t stop import.\n\t1\t get gene track. \n\t2\t import BED/bedGraph/WIG/BigWig file.")
+          filename <- readline(prompt = "Enter the number: ")
           switch(filename, 
                  "0"={
                    n <- 0
@@ -115,7 +116,7 @@ browseTracks <- function(trackList,
                    }
                  })
         }
-        trackList <- trackList(trackList)
+        trackList <- optimizeStyle(trackList(trackList), theme="col")$tracks
       }else{
         stop("trackList is required.")
       }
@@ -185,7 +186,7 @@ browseTracks <- function(trackList,
       dat2$seqnames <- chromosome
       dat2$border <- col2Hex(dat2$border)
       dat2$color <- col2Hex(dat2$color)
-      cex <- .75
+      cex <- .5
       if(length(dat2$cex)>0) cex <- cex*sapply(cex, `[`, 1)
       pushViewport(viewport(xscale=c(start(gr), end(gr))))
       lab.pos <- jitterLables(start(.dat), 
@@ -205,7 +206,11 @@ browseTracks <- function(trackList,
         if(.ele$type=="data"){
             dat <- getData(.ele$dat)
             dat2 <- getData(.ele$dat2)
-            ylim <- range(c(dat, -1*dat2))
+            if(length(.ele$style@ylim)==2) {
+                ylim <- .ele$style@ylim
+              }else{
+                ylim <- range(c(dat, -1*dat2))
+              }
             if(length(style$color)==1){
                 style$color <- rep(style$color, 2)
             }
@@ -221,10 +226,19 @@ browseTracks <- function(trackList,
             if(length(style$color)==1){
               style$color <- rep(style$color, 2)
             }
-          }else{
-            dat <- as.list(as.data.frame(.ele$dat))
+          }else{##gene
+            dat$textlabel <- names(.ele$dat)
+            names(dat) <- NULL
+            if(length(dat$featureLayerID)==0){
+              dat$featureLayerID <- 1
+            }
+            if(length(dat$fill)==0){
+              dat$fill <- style$color[1]
+            }else{
+              dat$fill <- col2Hex(dat$fill)
+            }
+            dat <- as.list(as.data.frame(dat))
             dat$seqnames <- chromosome
-            dat$strand <- as.character(dat$strand)[1]
             if(length(.ele$dat2)==0){
               dat2 <- ZERO
             }else{

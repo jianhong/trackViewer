@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.19.6
+
+    o improve one-step visualization for browseTracks
+    o try to avoid the error caused by VariantAnnotation
+    
 CHANGES IN VERSION 1.19.5
 
     o improve one-step visualization for browseTracks

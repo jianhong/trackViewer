@@ -634,12 +634,12 @@ lolliplot(list(A=sample.gr, B=sample2.gr),
 
 ## Variant Call Format (VCF) data
 ```{r VCF, fig.width=6, fig.height=5}
-if(.Platform$OS.type!="windows"){# to avoid error from VariantAnnotation in windows platform, need to be removed when VariantAnnotation fixed the issue.
 library(VariantAnnotation)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
 fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
 gr <- GRanges("22", IRanges(50968014, 50970514, names="TYMP"))
+if(.Platform$OS.type!="windows"){# to avoid error from VariantAnnotation in windows platform, need to be removed when VariantAnnotation fixed the issue.
 tab <- TabixFile(fl)
 vcf <- readVcf(fl, "hg19", param=gr)
 mutation.frequency <- rowRanges(vcf)
@@ -650,6 +650,7 @@ mutation.frequency$color <-
     ifelse(grepl("^rs", names(mutation.frequency)), "lightcyan", "lavender")
 ## plot Global Allele Frequency based on AC/AN
 mutation.frequency$score <- mutation.frequency$AF*100
+}
 seqlevelsStyle(gr) <- seqlevelsStyle(mutation.frequency) <- "UCSC" 
 trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
                          org.Hs.eg.db,
@@ -658,9 +659,11 @@ features <- c(range(trs[[1]]$dat), range(trs[[5]]$dat))
 names(features) <- c(trs[[1]]$name, trs[[5]]$name)
 features$fill <- c("lightblue", "mistyrose")
 features$height <- c(.02, .04)
+if(.Platform$OS.type!="windows"){
 lolliplot(mutation.frequency, features, ranges=gr)
 }
 ```
+
 
 ## Methylation data
 ```{r methylation, eval=FALSE, echo=TRUE}
