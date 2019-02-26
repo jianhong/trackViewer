@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.19.7
+
+    o fix a bug in track class
+    o improve one-step visualization for browseTracks
+    
 CHANGES IN VERSION 1.19.6
 
     o improve one-step visualization for browseTracks

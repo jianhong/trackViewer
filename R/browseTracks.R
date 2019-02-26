@@ -170,6 +170,9 @@ browseTracks <- function(trackList,
         }
     }
     col2Hex <- function(x){
+        if(is(x, "AsIs")){
+          return(lapply(x, col2Hex))
+        }
         rgb <- col2rgb(x)
         rgb(rgb[1, ], rgb[2, ], rgb[3, ], maxColorValue = 255)
     }
@@ -182,19 +185,61 @@ browseTracks <- function(trackList,
       if(length(.dat$score)!=length(.dat)){
         .dat$score <- 1
       }
+      
+      cex <- .5
+      if(length(.dat$cex)>0) cex <- cex*sapply(cex, `[`, 1)
+      pushViewport(viewport(xscale=c(start(gr), end(gr))))
+      
+      if(length(.dat$stack.factor)>0){
+        stopifnot(is.vector(.dat$stack.factor, mode="character"))
+        if(length(.dat$stack.factor.order)>0 || 
+           length(.dat$stack.factor.first)>0){
+          warning("stack.factor.order and stack.factor.first are used by this function!",
+                  "The values in these column will be removed.")
+        }
+        ## condense the SNPs
+        stack.factors <- unique(as.character(.dat$stack.factor))
+        stack.factors <- sort(stack.factors)
+        stack.factors.order <- 1:length(stack.factors)
+        names(stack.factors.order) <- stack.factors
+        .dat <- .dat[order(as.character(seqnames(.dat)), start(.dat), 
+                           as.character(.dat$stack.factor))]
+        .dat$stack.factor.order <- stack.factors.order[.dat$stack.factor]
+        .dat$stack.factor.first <- !duplicated(.dat)
+        .dat.condense <- .dat
+        .dat.condense$oid <- 1:length(.dat)
+        .dat.condense$factor <- paste(as.character(seqnames(.dat)), start(.dat), end(.dat))
+        .dat.condense <- split(.dat.condense, .dat.condense$factor)
+        .dat.condense <- lapply(.dat.condense, function(.ele){
+          .oid <- .ele$oid
+          .gr <- .ele[1]
+          mcols(.gr) <- NULL
+          .gr$oid <- NumericList(.oid)
+          .gr
+        })
+        .dat.condense <- unlist(GRangesList(.dat.condense), use.names = FALSE)
+        .dat.condense <- sort(.dat.condense)
+        lab.pos.condense <- jitterLables(start(.dat.condense), 
+                                         xscale=c(start(gr), end(gr)), 
+                                         lineW=LINEW*cex)
+        lab.pos.condense <- reAdjustLabels(lab.pos.condense, 
+                                           lineW=LINEW*cex)
+        condense.ids <- .dat.condense$oid
+        lab.pos <- rep(lab.pos.condense, elementNROWS(condense.ids))
+        lab.pos <- lab.pos[order(unlist(condense.ids))]
+      }else{
+        lab.pos <- jitterLables(start(.dat), 
+                                xscale=c(start(gr), end(gr)), 
+                                lineW=LINEW*cex)
+        lab.pos <- reAdjustLabels(lab.pos, 
+                                  lineW=LINEW*cex)
+      }
+      popViewport()
+      
       dat2 <- as.list(as.data.frame(.dat))
       dat2$seqnames <- chromosome
       dat2$border <- col2Hex(dat2$border)
       dat2$color <- col2Hex(dat2$color)
-      cex <- .5
-      if(length(dat2$cex)>0) cex <- cex*sapply(cex, `[`, 1)
-      pushViewport(viewport(xscale=c(start(gr), end(gr))))
-      lab.pos <- jitterLables(start(.dat), 
-                              xscale=c(start(gr), end(gr)), 
-                              lineW=LINEW*cex)
-      lab.pos <- reAdjustLabels(lab.pos, 
-                                lineW=LINEW*cex)
-      popViewport()
       dat2$labpos <- lab.pos
       dat2
     }

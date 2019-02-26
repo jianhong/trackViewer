@@ -246,7 +246,7 @@ setClass("track", representation(dat="GRanges",
                  if(is.null(object@dat$score))
                      return("dat should contain score metadata.")
                  if(length(object@dat2)>0){
-                     if(is.null(object@dat$score))
+                     if(is.null(object@dat2$score))
                          return("dat2 should contain score metadata.")
                  }
                  if(object@format!="WIG"){
@@ -264,7 +264,7 @@ setClass("track", representation(dat="GRanges",
                    return("Width for lollipopData must be 1")
                  }
                  if(length(object@dat2)>0){
-                   if(is.null(object@dat$score))
+                   if(is.null(object@dat2$score))
                      return("dat2 should contain score metadata.")
                    if(!all(width(object@dat2)==1)){
                      return("Width for lollipopData must be 1")
@@ -274,7 +274,7 @@ setClass("track", representation(dat="GRanges",
                  if(is.null(mcols(object@dat)$feature))
                    return("The metadata of dat must contain colnumn 'feature'") 
                  if(length(object@dat2)>0){
-                   if(is.null(object@dat$score))
+                   if(is.null(object@dat2$score))
                      return("dat2 should contain score metadata.")
                    if(!all(width(object@dat2)==1)){
                      return("Width for lollipop data must be 1")

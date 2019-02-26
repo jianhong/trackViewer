@@ -650,8 +650,9 @@ mutation.frequency$color <-
     ifelse(grepl("^rs", names(mutation.frequency)), "lightcyan", "lavender")
 ## plot Global Allele Frequency based on AC/AN
 mutation.frequency$score <- mutation.frequency$AF*100
+seqlevelsStyle(mutation.frequency) <- "UCSC" 
 }
-seqlevelsStyle(gr) <- seqlevelsStyle(mutation.frequency) <- "UCSC" 
+seqlevelsStyle(gr) <- "UCSC" 
 trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
                          org.Hs.eg.db,
                          gr=gr)
