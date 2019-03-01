@@ -93,15 +93,19 @@ HTMLWidgets.widget({
         x.rotate = {};//track y label angle, track tick label angle, named as trackNames_tick
         x.color = {};//track y label color, track tick label color, named as trackNames_tick
         x.dataYlabelPos = {x:{},y:{}}; // track y label position
-        for(var k=0; k<x.name.length; k++){
-            x.opacity[x.name[k]] = 1;
-            x.fontsize[x.name[k]] = defaultFontSize;
-        }
         
         // get track name
         trackNames = function(){
+        	if(typeof(x.name)=="string"){
+        		x.name = [x.name];
+        	}
             return(x.name);
-        };       
+        }; 
+        
+        for(var k=0; k<trackNames().length; k++){
+            x.opacity[trackNames()[k]] = 1;
+            x.fontsize[trackNames()[k]] = defaultFontSize;
+        }     
       
         var xHeight=function(){
             var xH=[];
@@ -582,6 +586,50 @@ HTMLWidgets.widget({
                     self.svgDefault=true;
                 }
             };
+            self.addLegendLabel = function(d, i){
+            	if(self.svgDefault){
+                    var coords = d3.mouse(svg.node());
+                    var posx = Math.round(xscale().invert(coords[0]-margin.left));
+                    var posy = Math.round(coords[1]); // can not keep position
+                    var m = {
+                        "ref" : [posx, posy],
+                        "markertype" : 2,
+                        "color" : "black",
+                        "opacity" : 1,
+                        "fontsize" : 12,
+                        "txt" : "label",
+                        "angle": 0
+                    };
+                    x.markers["text"+posx + "_" + posy] = m;
+                    var opt = textDefaultOptions();
+                    opt.id = "text"+m.ref[0] + "_" + m.ref[1];
+                    opt.ref = "text"+m.ref[0] + "_" + m.ref[1];
+                    opt.color = m.color;
+                    opt.x = xscale()(m.ref[0]) + margin.left;
+                    opt.y = m.ref[1];
+                    opt.anchor = "start";
+                    opt.fontsize = m.fontsize;
+                    opt.angle = m.angle;
+                    opt.text = m.txt;
+                    opt.vp = self.g;
+                    opt.cls = "Mlabel";
+                    opt.colorPickerId = 9;
+                    var t = new Label(opt);
+                    var m1 = {
+                    	"markertype": 4,
+                        "cx" : Math.round(xscale().invert(coords[0]-13)), 
+                        "cy" : posy-5,
+                        "r" : 8,
+                        "color" : "#000",
+                        "opacity" : 1
+                    };
+                    x.markers["Legend"+m1.cx+"_"+m1.cy]=m1;
+                    var circle = new Circle(self.g, m1);
+                }else{
+                    self.svgDefault=true;
+                }
+            };
+            
             self.g = svg.append("g");
             self.draggedLine = function(d){
                 var coords = d3.mouse(svg.node())[0];
@@ -697,6 +745,46 @@ HTMLWidgets.widget({
                       obj.remove();
                     }
                 }
+            };
+            var Circle = function(legendcontainer, m){
+            	var cir = this;
+            	cir.remove = function(){
+            		cir.g.remove();
+            	};
+            	cir.g = legendcontainer.append("g")
+            							.attr("class", "Marker")
+                                       .attr("ref", "Legend"+m.cx+"_"+m.cy);
+                var marker = cir.g.append("circle")
+                				.attr("ref", "Legend"+m.cx+"_"+m.cy)
+                				.attr("kvalue", 0)
+                				.attr("cx", xscale()(m.cx))
+                				.attr("cy", m.cy)
+                				.attr("r", m.r)
+                				.attr("fill", m.color)
+                				.attr("stroke", m.border)
+                				.attr("opacity", m.opacity)
+                				.on("click", function(){ColorPicker(this, 9);})
+                				.call(d3.drag().on("drag", function(d){
+											var obj = d3.select(this);
+											obj.style("cursor", "move");
+											var coords = d3.mouse(svg.node());
+											var posx = Math.round(xscale().invert(coords[0]));
+											var posy = Math.round(coords[1]);
+											var parent = d3.select(this.parentNode);
+											var ref = parent.attr("ref");
+											var m = x.markers[ref];
+											if(posx!=m.cx || posy!=m.cy){
+												m.cx = posx;
+												m.cy = posy;
+												x.markers["Legend"+posx+"_"+posy] = m;
+												delete(x.markers[ref]);
+												parent.attr("ref", "Legend"+posx+"_"+posy);
+												obj.attr("cx", xscale()(posx))
+													  .attr("cy", posy)
+													  .attr("ref", "Legend"+posx+"_"+posy);
+											}
+										}));
+                return cir;
             };
             var Arrow = function(arrowcontainer, m){
                 var arrowline = this;
@@ -911,6 +999,9 @@ HTMLWidgets.widget({
                         case 3:
                             l= new Arrow(self.g, m);
                             break;
+                        case 4:
+                        	new Circle(self.g, m);
+                        	break;
                     }
                     if(m.markertype<2){
                         l.on("click", function(){ColorPicker(this, 9);})
@@ -1210,6 +1301,11 @@ HTMLWidgets.widget({
 					 onMouseClick: mg.addArrowLabel,
 					 check: function(){return true;}
 					}, 
+					{
+					 label:'add legend label',
+					 onMouseClick: mg.addLegendLabel,
+					 check: function(){return true;}
+					},
 					{label: 'decrease transcript height',
 					  check: function(){return true;},
 					  onMouseClick: function(){
@@ -1726,6 +1822,158 @@ HTMLWidgets.widget({
 					}
 				}
 			}
+			if(typeof(trackdat.type)!="undefined"){
+				if(trackdat.type[0] == "dandelion"){
+					var thisSNP=lolli.append('g');					
+					// set group
+					var maxgap = (x.end - x.start)/50;
+					if(typeof(trackdat.maxgap)!="undefined"){
+						maxgap = trackdat.maxgap[0];
+					}
+					trackdat.group = [0];
+					var groupSize = [1];
+					var treeData = [{x:trackdat.start[0],
+									 y:groupSize[0],
+									 r:1,
+									 score:[trackdat.score[0]],
+									 mean:trackdat.score[0],
+									 data:[1],
+									 start:[trackdat.start[0]],
+									 color:[trackdat.color[0]||"black"],
+									 border:[trackdat.border[0]||"black"]
+									}];
+					var method = "mean";
+					if(typeof(trackdat.method)!="undefined"){
+						method = trackdat.method[0];
+					}
+					for(var i=1; i<trackdat.start.length; i++){
+						if(trackdat.start[i] - trackdat.start[i-1]>maxgap){
+							trackdat.group[i] = trackdat.group[i-1] + 1;
+							groupSize[trackdat.group[i]] = 1;
+							treeData[trackdat.group[i]] = {x:0,y:0,r:1,score:[],mean:1,data:[],start:[],color:[],border:[]};
+						}else{
+							trackdat.group[i] = trackdat.group[i-1];
+							groupSize[trackdat.group[i]] = groupSize[trackdat.group[i]] + 1;
+							
+						}
+						treeData[trackdat.group[i]].y = groupSize[trackdat.group[i]];
+						treeData[trackdat.group[i]].x = 
+							(treeData[trackdat.group[i]].x * treeData[trackdat.group[i]].data.length + trackdat.start[i])/(treeData[trackdat.group[i]].data.length+1);
+						treeData[trackdat.group[i]].data.push(1);
+						treeData[trackdat.group[i]].r = treeData[trackdat.group[i]].data.length;
+						treeData[trackdat.group[i]].score.push(trackdat.score[i]);
+						treeData[trackdat.group[i]].start.push(trackdat.start[i]);
+						if(typeof(trackdat.border[i])!="undefined"){
+							treeData[trackdat.group[i]].border.push(trackdat.border[i]);
+						}
+						if(typeof(trackdat.color[i])!="undefined"){
+							treeData[trackdat.group[i]].color.push(trackdat.color[i]);
+						}
+					}
+					
+					var maxScore = 0;
+					for(var i=0; i<treeData.length; i++){
+						treeData[i].mean = 0;
+						switch(method){
+							case "count":
+								treeData[i].mean = treeData[i].r;
+								break;
+							case "mean":
+								for(var j=0; j<treeData[i].score.length; j++){
+									treeData[i].mean += treeData[i].score[j];
+								}
+								treeData[i].mean = treeData[i].mean/treeData[i].r;
+								break;
+							default: //mean value of score
+								for(var j=0; j<treeData[i].score.length; j++){
+									treeData[i].mean += treeData[i].score[j];
+								}
+								treeData[i].mean = treeData[i].mean/treeData[i].r;
+						}
+						if(maxScore < treeData[i].mean) maxScore = treeData[i].mean;
+					}
+						
+					var htUnit = (pos[4]-pos[1])/Math.round(...groupSize);
+					for(var i=0; i<trackdat.start.length; i++){						
+						var snpLine=thisSNP.append('g')
+								.attr("class", "lolliplotLine_"+k)
+								.attr("kvalue", k)
+								.attr("datatrack", datatrack)
+								.attr("poskey", i)
+								.attr("comp", "lines")
+								.on("click", function(){
+										ColorPicker(this, 5);
+									});
+						var bordercolor = "black";
+						if(typeof(trackdat.border[i])!="undefined"){
+							bordercolor = trackdat.border[i];
+						}
+						var lastLine = snpLine.append("line")
+								 .attr("x1", xscale(trackdat.start[i]))
+								 .attr("x2", xscale(trackdat.start[i]))
+								 .attr("y1", yscale(pos[0]))
+								 .attr("y2", yscale(pos[1]+htUnit*treeData[trackdat.group[i]].mean))
+								 .attr("stroke", bordercolor)
+								 .attr("id", "dandelionNodeLinker1_"+k+"_"+datatrack+"_"+i);
+					}
+					for(var i=0; i<treeData.length; i++){
+						treeData[i].mean = 0;
+						for(var j=0; j<treeData[i].score.length; j++){
+							treeData[i].mean += treeData[i].score[j];
+						}
+						treeData[i].mean = treeData[i].mean/treeData[i].r;
+						
+						var nodes = thisSNP.append("g")
+										.attr("transform", "translate("+xscale(treeData[i].x)+","+yscale(pos[1]+htUnit*treeData[i].mean)+")");
+						var pie = d3.pie().sort(null);
+						if(treeData[i].r>10){
+							pie.startAngle(Math.PI*.9).endAngle(-Math.PI*.9);
+						}else{
+							pie.startAngle(Math.PI/2).endAngle(-Math.PI/2);
+						}
+						nodes.datum(treeData[i].data).selectAll("line")
+								.data(pie)
+								.enter()
+								.append("line")
+								.attr("x1", (d,j) => xscale(treeData[i].start[j])-xscale(treeData[i].x))
+								.attr("x2", d => Math.sin((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
+								.attr("y1", 0)
+								.attr("y2", d => Math.cos((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
+								.attr("stroke", (d,j) => treeData[i].border[j]);
+						var circles=nodes.datum(treeData[i].data).selectAll("circle")
+								.data(pie)
+								.enter()
+								.append("circle")
+								.attr("r", yscale(pos[5])/4)
+								.attr("cx", d => Math.sin((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
+								.attr("cy", d => Math.cos((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
+								.attr("fill", (d,j) => treeData[i].color[j])
+								.attr("stroke", (d,j) => treeData[i].border[j]);
+						//add resizeLine
+					 	nodes.datum(treeData[i].data).selectAll("g")
+								.data(pie)
+								.enter().append('g')
+								.attr("transform", "translate(0,-"+yscale(.5)+")")
+								.append("line")
+								.attr('stroke', 'white')
+								.attr('stroke-width', '2px')
+								.attr('x1', d => Math.sin((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2 - yscale(pos[5])/4)
+								.attr('y1', yscale(0))
+								.attr('x2', d => Math.sin((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2 - yscale(pos[5])/4)
+								.attr('y2', yscale(1))
+								.style("opacity", 0)
+								.attr('poskey', i)
+								.attr('kvalue', k)
+								.attr('datatrack', datatrack)
+								.attr('ref', "-")
+								.attr("id", "lolliplotResizelineL_"+k+"_"+datatrack+"_"+i)
+								.style("cursor", "ew-resize")
+								.call(d3.drag().on("drag", draggedResize));
+					}
+					
+					return(null);
+				}
+			}
 			for(var i=0; i<trackdat.start.length; i++){
 				var bordercolor = "black";
 				if(typeof(trackdat.border[i])!="undefined"){
@@ -2024,6 +2272,7 @@ HTMLWidgets.widget({
 				 		}
 				 		break;
 				 	case "dandelion":
+				 		
 				 		break;
 				 	case "pie.stack":
 				 		var circenter=yscale(pos[4]);
@@ -2697,6 +2946,7 @@ HTMLWidgets.widget({
         };
         var plotregion = Draw();
         var ruler = new Ruler();
+        console.log(x);
       },
 
       resize: function(width, height) {
