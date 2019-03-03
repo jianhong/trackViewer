@@ -147,6 +147,15 @@ HTMLWidgets.widget({
             x.name[k] = txt;
             //console.log(x);
         };
+        
+        function changeTranslate(ele, dx, dy){
+			var s = ele.attr("transform");
+			var t = s.substring(s.indexOf("(")+1, s.indexOf(")"))
+					 .split(",");
+			ele.attr("transform", function(){
+				return("translate("+(Number(t[0])+dx)+","+(Number(t[1])+dy)+")");
+			 });
+        }
         //text
         var textDefaultOptions = function(){
         	return({
@@ -209,53 +218,73 @@ HTMLWidgets.widget({
 			  d3.select(this).style("cursor", "default").classed("active", false);
 			};
 			self.dragged = function() {
-			  self.x=Number(self.x)+d3.event.dx;
-			  self.y=Number(self.y)+d3.event.dy;
-			  var dx = self.x - self.oriX;
-			  var dy = self.y - self.oriY;
+			  var dx = d3.event.x - self.oriX;
+			  var dy = d3.event.y - self.oriY;
+			  self.x=self.x+dx;
+			  self.y=self.y+dy;
 			  if(self.cls=="xaxis_tick"){//xaxis tick
 					d3.selectAll(".xaxis_tick").each(function(){
-						var ele = d3.select(this.parentNode);
-						var s = ele.attr("transform");
-						var t = s.substring(s.indexOf("(")+1, s.indexOf(")"))
-								 .split(",");
-					    ele.attr("transform", function(){
-					     	return("translate("+(Number(t[0])+d3.event.dx)+","+(Number(t[1])+d3.event.dy)+")");
-					     });
+						changeTranslate(d3.select(this.parentNode), dx, dy);
 					});
-					xaxOpt.ddx = dx;
-					xaxOpt.ddy = dy;
+					xaxOpt.ddx += dx;
+					xaxOpt.ddy += dy;
 				}else{                
 					if(/yaxis_tick/.exec(self.cls)){//yaxis tick
 						d3.selectAll("."+self.cls).each(function(){
-							var ele = d3.select(this.parentNode);
-							ele.attr("transform", "translate("+self.x+","+self.y+")");
+							changeTranslate(d3.select(this.parentNode), dx, dy);
 						});
-						x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"]=self.x;
-						x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"]=self.y;
-						x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"]=self.x;
-						x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]=self.y;
+						if(typeof(x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"]=dx;
+						}else{
+							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"]+=dx;
+						}
+						if(typeof(x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"]=dy;
+						}else{
+							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"]+=dy;
+						}
+						if(typeof(x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"]=dx;
+						}else{
+							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"]+=dx;
+						}
+						if(typeof(x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]=dy;
+						}else{
+							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]+=dy;
+						}
 					}else{
 						if(/dataYlabel_/.exec(self.cls)){
 							x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
 							x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref]=self.y;
-							  self.g.attr("transform", "translate("+self.x+","+self.y+")");
+							changeTranslate(d3.select(this.parentNode), dx, dy);
 						}else{
-							if(self.cls=="Mlabel"){
-								  var m = x.markers[self.id];
-								  m.ref = [xscale().invert(self.x-margin.left), self.y];
-								  delete(x.markers[self.id]);
-								  self.id="text"+m.ref[0] + "_" + m.ref[1];
-								  self.ref="text"+m.ref[0] + "_" + m.ref[1];
-								  self.body.attr("ref", self.ref);
-								  x.markers[self.id] = m;
-								  self.g.attr("transform", "translate("+self.x+","+self.y+")");
+							if(/trackLayerLabel_/.exec(self.cls)){
+								x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
+								x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref]=self.y;
+								changeTranslate(self.g, dx, dy);
 							}else{
-								self.g.attr("transform", "translate("+self.x+","+self.y+")");
+								if(self.cls=="Mlabel"){
+									var coordinates = d3.mouse(svg.node());
+									self.y = coordinates[1];
+									self.x = coordinates[0];
+									  var m = x.markers[self.id];
+									  m.ref = [xscale().invert(self.x-margin.left), self.y];
+									  delete(x.markers[self.id]);
+									  self.id="text"+m.ref[0] + "_" + m.ref[1];
+									  self.ref="text"+m.ref[0] + "_" + m.ref[1];
+									  self.body.attr("ref", self.ref);
+									  x.markers[self.id] = m;
+									  self.g.attr("transform", "translate("+self.x+","+self.y+")");
+								}else{
+									self.body.attr("dx", d3.event.x)
+											.attr("dy", d3.event.y);
+								}
 							}
 						}
 					}
 				}
+				
 			};
 			self.resize_draged = function(){
                 self.fontsize = self.fontsize - d3.event.dy;
@@ -269,6 +298,9 @@ HTMLWidgets.widget({
                 	}else{
                 		if(/dataYlabel_/.exec(self.cls)){
                 			x.fontsize[trackNames()[self.k]]=self.fontsize;
+                		}
+                		if(/trackLayerLabel/.exec(self.cls)){
+                			x.fontsize[trackNames()[self.k]+"_"+self.ref]=self.fontsize;
                 		}
                 		if(/nodelabel/.exec(self.cls)){
                 			x.fontsize["lolliplotTrackLabel_"+self.k+"_"+self.datatrack+"_"+self.poskey]=self.fontsize;
@@ -344,8 +376,17 @@ HTMLWidgets.widget({
 						if(/dataYlabel_/.exec(self.cls)){
                 			x.rotate[trackNames()[self.k]]=self.angle;
                 		}
+                		if(/trackLayerLabel/.exec(self.cls)){
+                			x.rotate[trackNames()[self.k]+"_"+self.ref]=self.angle;
+                		}
                 		if(/nodelabel/.exec(self.cls)){
-                			x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"][self.poskey]=self.angle;
+                			if(typeof(x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"])=="undefined"){
+                				x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"] = [];
+                				for(var i=0; i<x.tracklist[trackNames()[self.k]][self.datatrack].start.length; i++){
+                					x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"].push(90);
+                				}
+                			}
+                			x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"][self.poskey]=-self.angle;
                 		}
                 		if(/Mlabel/.exec(self.cls)){
                 			x.markers[self.id].angle=self.angle;
@@ -425,8 +466,13 @@ HTMLWidgets.widget({
 									  self.id="text"+m.ref[0] + "_" + m.ref[1];
 									  self.ref="text"+m.ref[0] + "_" + m.ref[1];
 									  self.body.attr("ref", self.ref);
-									  x.markers[self.id] = m;
-									  
+									  x.markers[self.id] = m;  
+								}
+								if(/legend/.exec(self.cls)){
+									x.markers[self.id].text = txt;
+								}
+								if(/trackLayerLabel/.exec(self.cls)){
+									trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = txt;
 								}
 							})
 							.on("keypress", function() {
@@ -467,7 +513,13 @@ HTMLWidgets.widget({
 										  delete(x.markers[self.id]);
 										  self.id="text"+m.ref[0] + "_" + m.ref[1];
 										  x.markers[self.id] = m;
-									}			
+									}
+									if(/legend/.exec(self.cls)){
+										x.markers[self.id].text = self.text;
+									}	
+									if(/trackLayerLabel/.exec(self.cls)){
+										trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = self.text;
+									}		
 								}
 							});
 			};
@@ -499,6 +551,80 @@ HTMLWidgets.widget({
 			return(self);
         }
         
+        function legendLabel(option=textDefaultOptions()){
+        	var self=this;
+        	self.text = option.text;
+        	self.x = option.x;
+        	self.y = option.y;
+        	self.dx = option.dx;
+        	self.dy = option.dy;
+        	self.anchor = option.anchor;
+        	self.fontsize = option.fontsize;
+        	self.color = option.color;
+        	self.colorPickerId = option.colorPickerId;
+        	self.cls = option.cls;
+        	self.trackKey = option.trackKey || currentLayer;
+        	self.coor = option.coor;
+        	self.id = option.id;
+        	self.angle = option.angle;
+        	self.datatrack = option.datatrack;
+        	self.poskey = option.poskey;
+        	self.ref = option.ref;
+        	self.fill = option.fill || "black";
+        	self.border = option.border || "black";
+        	self.r = option.r || 8;
+        	self.vp = option.vp || svg;
+        	
+			self.vpg = self.vp.append("g")
+						 .attr("transform", "translate("+xscale()(self.x)+","+self.y+")")
+						 .attr("id", self.id)
+						 .call(d3.drag().on("drag", function(d){
+								var obj = d3.select(this);
+								obj.style("cursor", "move");
+								var coords = d3.mouse(svg.node());
+								var posx = Math.round(xscale().invert(coords[0]-margin.left));
+								var posy = Math.round(coords[1]-margin.top);
+								var ref = obj.attr("id");
+								var m = x.markers[ref];
+								if(posx!=m.x || posy!=m.y){
+									m.x = posx;
+									m.y = posy;
+									x.markers[m.id] = m;
+									obj.attr("transform", "translate("+xscale()(posx)+","+posy+")");
+								}
+						 }));
+						 
+        	self.remove = function(){
+        		self.vpg.remove();
+        	};
+        	
+        	var marker = self;
+        	marker.x =0;
+        	marker.y =0;
+        	marker.vp = self.vpg;
+        	self.marker = new Label(marker);
+        	self.circle = self.vpg.append("circle")
+                				.attr("kvalue", self.trackKey)
+                				.attr("cx", -self.fontsize/2-2)
+                				.attr("cy", -self.fontsize/3.5)
+                				.attr("r", self.r)
+                				.attr("fill", self.fill)
+                				.attr("stroke", self.border)
+                				.attr("ref", self.ref)
+                				.on("click", function(){
+                					var obj = d3.select(this);
+                					var picked = function(col){
+                						var m = x.markers[self.id];
+                						m.fill = col;
+                						x.markers[self.id] = m;
+                						obj.attr("fill", col);
+                					};
+                					ColorPicker(this, picked);
+                				});
+
+			return(self);
+		}
+		
         //Markers
         x.markers = [];
         var Marker = function(){
@@ -589,42 +715,25 @@ HTMLWidgets.widget({
             self.addLegendLabel = function(d, i){
             	if(self.svgDefault){
                     var coords = d3.mouse(svg.node());
-                    var posx = Math.round(xscale().invert(coords[0]-margin.left));
-                    var posy = Math.round(coords[1]); // can not keep position
-                    var m = {
-                        "ref" : [posx, posy],
-                        "markertype" : 2,
-                        "color" : "black",
-                        "opacity" : 1,
-                        "fontsize" : 12,
-                        "txt" : "label",
-                        "angle": 0
-                    };
-                    x.markers["text"+posx + "_" + posy] = m;
-                    var opt = textDefaultOptions();
-                    opt.id = "text"+m.ref[0] + "_" + m.ref[1];
-                    opt.ref = "text"+m.ref[0] + "_" + m.ref[1];
-                    opt.color = m.color;
-                    opt.x = xscale()(m.ref[0]) + margin.left;
-                    opt.y = m.ref[1];
-                    opt.anchor = "start";
-                    opt.fontsize = m.fontsize;
-                    opt.angle = m.angle;
-                    opt.text = m.txt;
-                    opt.vp = self.g;
-                    opt.cls = "Mlabel";
-                    opt.colorPickerId = 9;
-                    var t = new Label(opt);
-                    var m1 = {
-                    	"markertype": 4,
-                        "cx" : Math.round(xscale().invert(coords[0]-13)), 
-                        "cy" : posy-5,
-                        "r" : 8,
-                        "color" : "#000",
-                        "opacity" : 1
-                    };
-                    x.markers["Legend"+m1.cx+"_"+m1.cy]=m1;
-                    var circle = new Circle(self.g, m1);
+                    var m = textDefaultOptions();
+                    m.text = "legend";
+                    m.x = Math.round(xscale().invert(coords[0]));
+                    m.y = Math.round(coords[1]);
+                    m.anchor = "start";
+                    m.color = "black";
+                    m.cls = "legend_"+currentLayer+"_"+0;
+					m.trackKey = k;
+					m.id = "legend_"+currentLayer+"_"+0+"_"+m.color+"_"+m.text;
+					m.angle = 0;
+					m.datatrack = 0;
+					m.ref = m.id;
+					m.fill = m.color;
+					m.border = "black";
+					m.r = m.fontsize/2;
+					m.vp = self.g;
+					m.markertype = 4;
+                    x.markers[m.id]=m;
+                    legendLabel(m);
                 }else{
                     self.svgDefault=true;
                 }
@@ -746,46 +855,6 @@ HTMLWidgets.widget({
                     }
                 }
             };
-            var Circle = function(legendcontainer, m){
-            	var cir = this;
-            	cir.remove = function(){
-            		cir.g.remove();
-            	};
-            	cir.g = legendcontainer.append("g")
-            							.attr("class", "Marker")
-                                       .attr("ref", "Legend"+m.cx+"_"+m.cy);
-                var marker = cir.g.append("circle")
-                				.attr("ref", "Legend"+m.cx+"_"+m.cy)
-                				.attr("kvalue", 0)
-                				.attr("cx", xscale()(m.cx))
-                				.attr("cy", m.cy)
-                				.attr("r", m.r)
-                				.attr("fill", m.color)
-                				.attr("stroke", m.border)
-                				.attr("opacity", m.opacity)
-                				.on("click", function(){ColorPicker(this, 9);})
-                				.call(d3.drag().on("drag", function(d){
-											var obj = d3.select(this);
-											obj.style("cursor", "move");
-											var coords = d3.mouse(svg.node());
-											var posx = Math.round(xscale().invert(coords[0]));
-											var posy = Math.round(coords[1]);
-											var parent = d3.select(this.parentNode);
-											var ref = parent.attr("ref");
-											var m = x.markers[ref];
-											if(posx!=m.cx || posy!=m.cy){
-												m.cx = posx;
-												m.cy = posy;
-												x.markers["Legend"+posx+"_"+posy] = m;
-												delete(x.markers[ref]);
-												parent.attr("ref", "Legend"+posx+"_"+posy);
-												obj.attr("cx", xscale()(posx))
-													  .attr("cy", posy)
-													  .attr("ref", "Legend"+posx+"_"+posy);
-											}
-										}));
-                return cir;
-            };
             var Arrow = function(arrowcontainer, m){
                 var arrowline = this;
                 arrowline.remove = function(){
@@ -830,7 +899,14 @@ HTMLWidgets.widget({
                                     .attr("opacity", 0)
                                     .attr("class", "arrowline")
                                     .attr("ref", "arrow"+x1+"_"+x2+"_"+y1+"_"+y2)
-                                    .on("click", function(){ColorPicker(this, 9);})
+                                    .on("click", function(){
+                                    	var obj = d3.select(this);
+                                    	var picked = function(col){
+                                    		x.markers[obj.attr("ref")].color = col;
+                                    		self.redraw();
+                                    	};
+                                    	ColorPicker(this, picked);
+                                    })
                                     .on("dblclick", function(){
                                         var obj = d3.select(this);
                                         delete x.markers[d3.select(this.parentNode).attr("ref")];
@@ -1000,11 +1076,19 @@ HTMLWidgets.widget({
                             l= new Arrow(self.g, m);
                             break;
                         case 4:
-                        	new Circle(self.g, m);
+                        	m.vp = self.g;
+                        	new legendLabel(m);
                         	break;
                     }
                     if(m.markertype<2){
-                        l.on("click", function(){ColorPicker(this, 9);})
+                        l.on("click", function(){
+                        	var obj = d3.select(this);
+							var picked = function(col){
+								x.markers[obj.attr("ref")].color = col;
+								self.redraw();
+							};
+							ColorPicker(this, picked);
+                        })
                          .on("dblclick", function(){
                             var obj = d3.select(this);
                             obj.remove();
@@ -1058,7 +1142,7 @@ HTMLWidgets.widget({
                 for(var i=0; i<trackNames().length; i++){
                     H = H - x.height[trackNames()[i]];
                     if(H<0){
-						currentLayer = trackNames()[i];
+						currentLayer = i;
                         if(x.type[trackNames()[i]]==="data"){
                             var a=x.tracklist[trackNames()[i]].dat,
                                 b=x.tracklist[trackNames()[i]].dat2;
@@ -1071,7 +1155,7 @@ HTMLWidgets.widget({
                         }
                     }
                 }
-				currentLayer = trackNames()[i];
+				currentLayer = i;
                 return(trackNames()[i]);
             }
             self.rulemove = function(coords){
@@ -1110,22 +1194,29 @@ HTMLWidgets.widget({
         //ColorPicker
         var cp;//colorPicker;
         var color = "#000";
-        var ColorPicker = function (target, datId) {
+        var ColorPicker = function (target, picked) {
         	var self = this;
         	var target = d3.select(target);
         	//console.log(target);
         	var currentId = Number(target.attr("kvalue"));
-            var colorScale = ["#FFD300", "#FFFF00", "#A2F300", "#00DB00", "#00B7FF", 
-                              "#1449C4", "#4117C7", "#820AC3", "#DB007C", "#FF0000", 
-                              "#FF7400", "#FFAA00"];//change to color blindness safe?
+            var colorScale = ["#FFD300","#FFFF00","#BEBEBE","#A2F300","#00DB00","#00CD00","#00FFFF",
+                              "#00B7FF","#0000FF","#1449C4","#4117C7","#820AC3","#DB007C",
+                              "#FF0000","#FF00FF","#FF7400","#FFAA00"];//change to color blindness safe?
             var getColor = function (i) {
                 return colorScale[i];
             };
+            if(typeof(target.attr("fill"))!="undefined"){
+            	color = target.attr("fill");
+            }else{
+				if(typeof(target.attr("stroke"))!="undefined"){
+					color = target.attr("stroke");
+				}
+            }
             defaultColor = color || getColor(0);
         
             self.pickedColor = defaultColor;
-            self.picked = function (col) {
-            	switch(datId){
+            self.defaultPicked = function (col) {
+            	switch(picked){
             		case 0: //data track dat
             			x.tracklist[trackNames()[currentId]].style.color[0] = col;
             			break;
@@ -1178,7 +1269,11 @@ HTMLWidgets.widget({
                 newCP();//keep it on top
             };
             var clicked = function () {
-                self.picked(self.pickedColor);
+            	if(typeof(picked)=="function"){
+            		picked(self.pickedColor);
+            	}else{
+                	self.defaultPicked(self.pickedColor);
+                }
             };
         
             var pie = d3.pie().sort(null);
@@ -1231,7 +1326,7 @@ HTMLWidgets.widget({
                     .attr("cx", -45)
                     .attr("cy", 45)
                     .on("mouseover", function () {
-                        var fill = d3.select(this).attr("fill");
+                        var fill = target.attr("fill");
                         self.pickedColor = fill;
                         plate.attr("fill", fill);
                     })
@@ -1268,8 +1363,12 @@ HTMLWidgets.widget({
                 .attr("cx", 0)
                 .attr("cy", 0)
                 .on("click", clicked);
-        
-            cp.datum([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        	
+        	var colLen = [];
+        	for(var i=0; i<colorScale.length; i++){
+        		colLen.push(1);
+        	}
+            cp.datum(colLen)
                 .selectAll("path")
                 .data(pie)
                 .enter()
@@ -1439,13 +1538,46 @@ HTMLWidgets.widget({
 						}
 						plotregion.renew();
 					 }
-					}/*,
+					},
+					{label:'condense isoforms', 
+					check: function(){
+						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+					},
+					onMouseClick: function(){
+						isoformR[eventLayer] +=  .25;
+						plotregion.renew();
+					}},
+					{label:'loose isoforms', 
+					check: function(){
+						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+					},
+					onMouseClick: function(){
+						isoformR[eventLayer] -= - .25;
+						plotregion.renew();
+					}},
+					{label:'increase maxgap', 
+					check: function(){
+						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+					},
+					onMouseClick: function(){
+						maxGAP *= 1.25;
+						plotregion.renew();
+					}},
+					{label:'decrease maxgap', 
+					check: function(){
+						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+					},
+					onMouseClick: function(){
+						maxGAP *= .75;
+						plotregion.renew();
+					}}/*,
 					{label:'flip coordinates', 
+					check: function(){},
 					onMouseClick: function(){
 						alert("coming soon.");
 					}}*/
 				];
-	        var eventLayer = currentLayer;
+	        var eventLayer = trackNames()[currentLayer];
 	        var condenseLollipops = function(data, condense=true){
 	        	var labpos = [];
 	        	var labCenter = 0;
@@ -1476,7 +1608,7 @@ HTMLWidgets.widget({
 	        };
 			function menu(x, y) {
 				d3.select('.context-menu').remove();
-			    eventLayer = currentLayer;
+			    eventLayer = trackNames()[currentLayer];
 			    if(y + height*items.length > +svg.attr("height")){
 			    	y = +svg.attr("height") - height*items.length;
 			    }
@@ -1669,7 +1801,9 @@ HTMLWidgets.widget({
         
         // lolliplot
         var circleR=[];
-        function lolliplot(lolli, trackdat, xscale, yscale, k, datatrack, ypos, from){
+        var YposSTART = [];
+        var maxGAP=1;
+        var lolliplot = function(lolli, trackdat, xscale, yscale, k, datatrack, ypos, from){
         	var pos;
         	var defaultCircleR=.05;
         	if(typeof(circleR[trackNames()[k]+"_"+datatrack])=="undefined"){
@@ -1678,18 +1812,20 @@ HTMLWidgets.widget({
         	var thisCR=circleR[trackNames()[k]+"_"+datatrack];
         	var thisCR2 = 1 - 2*thisCR;
         	thisCR = 1 - thisCR;
+        	var yposStart = 0;
+        	if(typeof(YposSTART[trackNames()[k]+"_"+datatrack])!="undefined") yposStart = YposSTART[trackNames()[k]+"_"+datatrack];
         	switch(ypos){
         		case .165:
-        			pos=[.165, .35, .45, .55, .6, thisCR, thisCR2];
+        			pos=[.165, .35+yposStart, .45+yposStart*2, .55+yposStart*3, .6+yposStart*3, thisCR, thisCR2];
         			break;
         		case .45:
-        			pos=[.45, .55, .65, .70, .75, thisCR, thisCR2];
+        			pos=[.45, .55+yposStart, .65+yposStart*2, .70+yposStart*3, .75+yposStart*3, thisCR, thisCR2];
         			break;
         		case .55:
-        			pos=[.55, .45, .35, .30, .25, thisCR, thisCR2];
+        			pos=[.55, .45-yposStart, .35-yposStart*2, .30-yposStart*3, .25-yposStart*3, thisCR, thisCR2];
         			break;
         		case .825:
-        			pos=[.825, .65, .55, .50, .45, thisCR, thisCR2];
+        			pos=[.825, .65-yposStart, .55-yposStart*2, .50-yposStart*3, .45-yposStart*3, thisCR, thisCR2];
         			break;
         	}
         	function dragstarted(d) {
@@ -1793,42 +1929,71 @@ HTMLWidgets.widget({
 				// add legend;
 				var legend = lolli.append("g");
 				var factorLevel = Math.max(...trackdat["stack.factor.order"]);
-				for(var i=0; i<factorLevel; i++){
+				for(var i=0; i<factorLevel+1; i++){
 					for(var j=0; j<trackdat.start.length; j++){
 						if(i==trackdat["stack.factor.order"][j]){
 							var col = trackdat.color[Object.keys(trackdat.color)[j]][0];
-							legend.append("circle")
-								  .attr("cx", widthF()/2+(i-factorLevel/2)*100 - yscale(pos[5]))
-								  .attr("cy", -yscale(pos[5])/2.4)
-								  .attr("r", yscale(pos[5])/1.2)
-								  .attr("fill", col)
-								  .attr("stroke", "black");
-							var opt = textDefaultOptions();
-								opt.id = "lolliplotLegend_"+k+"_"+datatrack+"_"+j;
-								opt.angle= 0;
-								opt.y = 0;
-								opt.x = widthF()/2+(i-factorLevel/2)*100;
-								opt.anchor = "start";
-								opt.cls = "lolliplotLegend_"+k+"_"+datatrack;
-								opt.trackKey = k;
-								opt.text = trackdat["stack.factor"][j];
-								opt.vp = legend;
-								opt.fontsize = x.fontsize["lolliplotLegend_"+k+"_"+datatrack] || opt.fontsize;
-								opt.datatrack = datatrack;
-								opt.poskey = j;
-								var label = new Label(opt);
+							var m = textDefaultOptions();
+							var id = "legend_"+k+"_"+datatrack+"_"+col+"_"+trackdat["stack.factor"][j];
+							if(typeof(x.markers[id])!="undefined"){
+								m = x.markers[id];
+								m.vp = legend;
+							}else{//init
+								m.text = trackdat["stack.factor"][j];
+								m.x = xscale.invert(widthF()/2+(i-factorLevel/2)*100);
+								m.y = m.fontsize;
+								m.anchor = "start";
+								m.color = col;
+								m.cls = "legend_"+k+"_"+datatrack;
+								m.trackKey = k;
+								m.id = id;
+								m.angle = 0;
+								m.datatrack = datatrack;
+								m.ref = m.id;
+								m.fill = col;
+								m.border = "black";
+								m.r = m.fontsize/2;
+								m.vp = legend;
+							}
+							x.markers[m.id] = m;
+							legendLabel(m);
 							break;
 						}
 					}
 				}
 			}
+			var thisSNP=lolli.append('g');
+			
+			// add resizable SNPline
+			var thisSNPresizeLine = thisSNP.append("line")
+							.attr('stroke', 'white')
+							.attr('stroke-width', '2px')
+							.attr('x1', 0)
+							.attr('y1', yscale(pos[3]))
+							.attr('x2', widthF())
+							.attr('y2', yscale(pos[3]))
+							.style("opacity", 0)
+							.attr('kvalue', k)
+							.attr('datatrack', datatrack)
+							.attr('ref', "-")
+							.attr("id", "lolliplotResizelineB_"+k+"_"+datatrack)
+							.style("cursor", "ns-resize")
+							.call(d3.drag().on("drag", function(){
+									if(typeof(YposSTART[trackNames()[k]+"_"+datatrack])=="undefined") YposSTART[trackNames()[k]+"_"+datatrack] = 0;
+									if(d3.event.dy<10) YposSTART[trackNames()[k]+"_"+datatrack] -= 1-yscale.invert(d3.event.dy/3);
+									plotregion.renew();
+								}));
+			
 			if(typeof(trackdat.type)!="undefined"){
 				if(trackdat.type[0] == "dandelion"){
-					var thisSNP=lolli.append('g');					
+					thisSNPresizeLine.attr('y1', yscale(pos[1])).attr('y2', yscale(pos[1]));					
 					// set group
 					var maxgap = (x.end - x.start)/50;
 					if(typeof(trackdat.maxgap)!="undefined"){
 						maxgap = trackdat.maxgap[0];
+					}
+					if(typeof(maxGAP)!="undefined"){
+						maxgap *= maxGAP;
 					}
 					trackdat.group = [0];
 					var groupSize = [1];
@@ -1843,10 +2008,16 @@ HTMLWidgets.widget({
 									 border:[trackdat.border[0]||"black"]
 									}];
 					var method = "mean";
+					var colorSets = [];
 					if(typeof(trackdat.method)!="undefined"){
 						method = trackdat.method[0];
 					}
 					for(var i=1; i<trackdat.start.length; i++){
+						if(typeof(colorSets[trackdat.color[i]])=="undefined"){
+							colorSets[trackdat.color[i]]=1;
+						}else{
+							colorSets[trackdat.color[i]] +=1;
+						}
 						if(trackdat.start[i] - trackdat.start[i-1]>maxgap){
 							trackdat.group[i] = trackdat.group[i-1] + 1;
 							groupSize[trackdat.group[i]] = 1;
@@ -1902,7 +2073,15 @@ HTMLWidgets.widget({
 								.attr("poskey", i)
 								.attr("comp", "lines")
 								.on("click", function(){
-										ColorPicker(this, 5);
+										var obj=d3.select(this);
+										var poskey = Number(obj.attr("poskey"));
+										var datatrack = obj.attr("datatrack");
+										var k = Number(obj.attr("kvalue"));
+										var picked = function(col){
+											x.tracklist[trackNames()[k]][datatrack].border[poskey]=col;
+											d3.select("#dandelionNodeLinker1_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
+										};
+										ColorPicker(this, picked);
 									});
 						var bordercolor = "black";
 						if(typeof(trackdat.border[i])!="undefined"){
@@ -1970,16 +2149,43 @@ HTMLWidgets.widget({
 								.style("cursor", "ew-resize")
 								.call(d3.drag().on("drag", draggedResize));
 					}
-					
+					//addd legend
+					var legend = lolli.append("g");
+					for(var i=0; i<Object.keys(colorSets).length; i++){
+						var col = Object.keys(colorSets)[i];
+						var m = textDefaultOptions();
+						if(typeof(x.markers["legend_"+k+"_"+datatrack+"_"+col])!="undefined"){
+							m = x.markers["legend_"+k+"_"+datatrack+"_"+col];
+							m.vp = legend;
+						}else{//init
+							m.text = "color set " + (i+1);
+							m.x = xscale.invert(widthF()/2+(i-Object.keys(colorSets).length/2)*100);
+							m.y = m.fontsize;
+							m.anchor = "start";
+							m.color = col;
+							m.cls = "legend_"+k+"_"+datatrack;
+							m.trackKey = k;
+							m.id = "legend_"+k+"_"+datatrack+"_"+col;
+							m.angle = 0;
+							m.datatrack = datatrack;
+							m.ref = m.id;
+							m.fill = col;
+							m.border = "black";
+							m.r = m.fontsize/2;
+							m.vp = legend;
+						}
+						x.markers[m.id] = m;
+						legendLabel(m);
+					}
 					return(null);
 				}
 			}
+			
 			for(var i=0; i<trackdat.start.length; i++){
 				var bordercolor = "black";
 				if(typeof(trackdat.border[i])!="undefined"){
 					bordercolor = trackdat.border[i];
 				}
-				var thisSNP=lolli.append('g');
 				var plotSNPline = true;
 				if(typeof(trackdat["stack.factor.first"])!="undefined"){
 					if(!trackdat["stack.factor.first"][i]){
@@ -1994,14 +2200,27 @@ HTMLWidgets.widget({
 							.attr("poskey", i)
 							.attr("comp", "lines")
 							.on("click", function(){
-									ColorPicker(this, 5);
+									var obj=d3.select(this);
+									var poskey = Number(obj.attr("poskey"));
+									var datatrack = obj.attr("datatrack");
+									var k = Number(obj.attr("kvalue"));
+									var picked = function(col){
+										x.tracklist[trackNames()[k]][datatrack].border[poskey]=col;
+										var old = d3.select("#lollipopNodeLinkerB_"+k+"_"+datatrack+"_"+poskey).attr("stroke");
+										d3.select("#lollipopNodeLinkerB_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
+										d3.select("#lollipopNodeLinker0_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
+										d3.select("#lollipopNodeLinker1_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
+										d3.select("#lolliplotTrackNode_"+k+"_"+datatrack+"_"+poskey).selectAll("circle").attr("stroke", col);
+									};
+									ColorPicker(this, picked);
 								});
 					snpLine.append("line")
 					 .attr("x1", xscale(trackdat.start[i]))
 					 .attr("x2", xscale(trackdat.start[i]))
 					 .attr("y1", yscale(pos[0]))
 					 .attr("y2", yscale(pos[1]))
-					 .attr("stroke", bordercolor);
+					 .attr("stroke", bordercolor)
+					 .attr("id", "lollipopNodeLinkerB_"+k+"_"+datatrack+"_"+i);
 					snpLine.append("line")
 					 .attr("x1", xscale(trackdat.start[i]))
 					 .attr("x2", xscale(trackdat.labpos[i]))
@@ -2063,7 +2282,15 @@ HTMLWidgets.widget({
 							.attr("poskey", i)
 							.attr("comp", "nodes")
 							.on("click", function(){
-										ColorPicker(this, 4);
+										var obj = d3.select(this);
+										var poskey = Number(obj.attr("poskey"));
+										var datatrack = obj.attr("datatrack");
+										var k = Number(obj.attr("kvalue"));
+                                    	var picked = function(col){
+                                    		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
+                                    		plotregion.renew();
+                                    	};
+                                    	ColorPicker(this, picked);
 									})
 							.call(d3.drag().on("start", dragstarted)
 									.on("drag", draggedGroup)
@@ -2122,7 +2349,10 @@ HTMLWidgets.widget({
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
 								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
-								opt.angle= -trackdat["label.parameter.rot"][i] || 0;
+								opt.angle= -90;
+								if(typeof(trackdat["label.parameter.rot"])!="undefined"){
+									opt.angle = -trackdat["label.parameter.rot"][i];
+								}
 								opt.y = circenter;
 								opt.x = xscale(trackdat.labpos[i]);
 								opt.anchor = "start";
@@ -2157,7 +2387,15 @@ HTMLWidgets.widget({
 							.attr("poskey", i)
 							.attr("comp", "nodes")
 							.on("click", function(){
-										ColorPicker(this, 4);
+										var obj = d3.select(this);
+										var poskey = Number(obj.attr("poskey"));
+										var datatrack = obj.attr("datatrack");
+										var k = Number(obj.attr("kvalue"));
+                                    	var picked = function(col){
+                                    		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
+                                    		plotregion.renew();
+                                    	};
+                                    	ColorPicker(this, picked);
 									})
 							.call(d3.drag().on("start", dragstarted)
 									.on("drag", draggedGroup)
@@ -2221,7 +2459,15 @@ HTMLWidgets.widget({
 							.attr("comp", "nodes")
 							.attr("transform", "translate("+xscale(trackdat.labpos[i])+","+(+circenter+((ypos<.5?-1:1)*6*yscale(pos[5])))+")")
 							.on("click", function(){
-										ColorPicker(this, 4);
+										var obj = d3.select(this);
+										var poskey = Number(obj.attr("poskey"));
+										var datatrack = obj.attr("datatrack");
+										var k = Number(obj.attr("kvalue"));
+                                    	var picked = function(col){
+                                    		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
+                                    		plotregion.renew();
+                                    	};
+                                    	ColorPicker(this, picked);
 									})
 							.call(d3.drag().on("start", dragstarted)
 									.on("drag", draggedGroup)
@@ -2315,15 +2561,26 @@ HTMLWidgets.widget({
 				 		break;
 				 }
 			}
-        }
+        };
         
         //gene track
         var geneTrackHeightFactor = [];
+        var isoformR=[];
+        var trackLayerDataTxt = [];
         var geneTrack = function(layer, track, start, end, xscale, yscale, wscale, line, k, label){
             var self=this;
+            self.layer=layer;
+            self.redraw = function(){
+            	self.lolli.remove();
+            	self.layer.remove();
+            	geneTrack(layer, track, start, end, xscale, yscale, wscale, line, k, label);
+            };
             var color = track.style.color;
             if(typeof(geneTrackHeightFactor[trackNames()[k]])=="undefined"){
             	geneTrackHeightFactor[trackNames()[k]] = 1;
+            }
+            if(typeof(isoformR[trackNames()[k]])=="undefined"){
+            	isoformR[trackNames()[k]] = 0;
             }
             if(typeof(color)!="string"){
             	color = color[0];
@@ -2334,7 +2591,7 @@ HTMLWidgets.widget({
             	if(track.dat2.start.length>0){//plot lolliplot
 					self.lolli=layer.append("g").attr("ref", "lollipop");
 					lolliplot(self.lolli, track.dat2, xscale, yscale, k, "dat2", .165, "genetrack");
-					layer=layer.append("g")
+					self.layer=layer.append("g")
 							   .attr("group", "genemodel")
 							   .attr("transform", "translate(0,"+yscale(.66)+")");
 					Y=.25;
@@ -2365,20 +2622,6 @@ HTMLWidgets.widget({
                 for(var j=1; j<=fLayer; j++){
 					var data=[];
 					var intron=[];
-                	// add resize line
-                	layer.append('line')
-				        .attr('stroke', 'white')
-				        .attr('stroke-width', '2px')
-						.attr("x1", xscale(geneStart))
-						.attr("x2", xscale(geneEnd))
-						.attr("y1", yscale(Y+j/(fLayer+1)/2 + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
-						.attr("y2", yscale(Y+j/(fLayer+1)/2 + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
-                        .style("opacity", 0)
-                        .attr('fLayer', fLayer)
-				        .attr('kvalue', k)
-				        .attr("id", "geneTrackResizelineB_"+trackNames()[k]+"_"+fLayer)
-				        .style("cursor", "ns-resize")
-                        .call(d3.drag().on("drag", draggedResize));
                     
                 	var trackLayerData = {start:[],end:[],feature:[],textlabel:label, strand:"*", fill:[], color:color};
                 	for(var i=0; i<track.dat.start.length; i++){
@@ -2426,13 +2669,28 @@ HTMLWidgets.widget({
 							geneEnd = trackLayerData.end[i];
 						}
 					}
-					// add a center line
-					var thisYpos = Y+j/(fLayer+1)/2;
+					
+					var thisYpos = Y+(j+isoformR[trackNames()[k]])/(fLayer+1+2*isoformR[trackNames()[k]])/2;
 					var thisY = yscale(thisYpos);
+                	// add resize line
+                	self.layer.append('line')
+				        .attr('stroke', 'white')
+				        .attr('stroke-width', '2px')
+						.attr("x1", xscale(geneStart))
+						.attr("x2", xscale(geneEnd))
+						.attr("y1", yscale(thisYpos + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+						.attr("y2", yscale(thisYpos + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+                        .style("opacity", 0)
+                        .attr('fLayer', fLayer)
+				        .attr('kvalue', k)
+				        .attr("id", "geneTrackResizelineB_"+trackNames()[k]+"_"+fLayer)
+				        .style("cursor", "ns-resize")
+                        .call(d3.drag().on("drag", draggedResize));
+					// add a center line
 					if(geneStart < start) geneStart = start;
 					if(geneEnd > end) geneEnd = end;
 					if(geneStart < geneEnd){
-						layer.append("line")
+						self.layer.append("line")
 							 .attr("x1", xscale(geneStart))
 							 .attr("x2", xscale(geneEnd))
 							 .attr("y1", thisY)
@@ -2444,16 +2702,29 @@ HTMLWidgets.widget({
 							 .attr("kvalue", k)
 							 .attr("ref", j)
 							 .on("click", function(){
-									ColorPicker(this, 2);
+							 		var obj = d3.select(this);
+							 		var featureLayerID = Number(obj.attr("ref"));
+							 		var k = Number(obj.attr("kvalue"));
+							 		var old = obj.attr("stroke");
+							 		var picked = function(col){
+										for(var i=0; i<x.tracklist[trackNames()[k]].dat.featureLayerID.length; i++){
+											if(x.tracklist[trackNames()[k]].dat.featureLayerID[i]==featureLayerID && 
+												x.tracklist[trackNames()[k]].dat.fill[i] == old){
+												x.tracklist[trackNames()[k]].dat.fill[i] = col;
+											}
+										}
+							 			self.redraw();
+							 		};
+									ColorPicker(this, picked);
 								});
 						// add arrows to center line
 						//console.log(yscale(j/(fLayer+1)));
 						//console.log(trackLayerData);
-						plotArrow(layer, intron, xscale(start), xscale(end), thisY, trackLayerData.strand, trackLayerData.color, k);
+						plotArrow(self.layer, intron, xscale(start), xscale(end), thisY, trackLayerData.strand, trackLayerData.color, k);
 					}
 					//console.log(intron);
 					//console.log(data);
-					layer.selectAll(".exon"+k)
+					self.layer.selectAll(".exon"+k)
 						.data(data).enter().append("rect")
 						.attr("class", "exon track"+k)
 						.attr("kvalue", k)
@@ -2464,19 +2735,34 @@ HTMLWidgets.widget({
 						.attr("fill", d=> d.c)
 						.attr("ref", j)
 						.on("click", function(){
-									ColorPicker(this, 2);
+									var obj = d3.select(this);
+							 		var featureLayerID = Number(obj.attr("ref"));
+							 		var k = Number(obj.attr("kvalue"));
+							 		var old = obj.attr("fill");
+							 		var picked = function(col){
+										for(var i=0; i<x.tracklist[trackNames()[k]].dat.featureLayerID.length; i++){
+											if(x.tracklist[trackNames()[k]].dat.featureLayerID[i]==featureLayerID && 
+												x.tracklist[trackNames()[k]].dat.fill[i] == old){
+												x.tracklist[trackNames()[k]].dat.fill[i] = col;
+											}
+										}
+							 			self.redraw();
+							 		};
+									ColorPicker(this, picked);
 								});
 					// add gene symbols
 					var opt = textDefaultOptions();
-					opt.angle= typeof(x.rotate[trackNames()[k]])=="undefined"?0:x.rotate[trackNames()[k]];
+					opt.angle= typeof(x.rotate[trackNames()[k]+"_"+j])=="undefined"?0:x.rotate[trackNames()[k]+"_"+j];
 					opt.y = typeof(x.dataYlabelPos.y[k+"_0_"+j])=="undefined"?thisY+4:x.dataYlabelPos.y[k+"_0_"+j];
 					opt.x = typeof(x.dataYlabelPos.x[k+"_0_"+j])=="undefined"?xscale(geneStart) - 10:xscale(x.dataYlabelPos.x[k+"_0_"+j]);
 					opt.anchor = "end";
-					opt.cls = "dataYlabel_"+k;
+					opt.cls = "trackLayerLabel_"+k;
 					opt.trackKey = k;
-					opt.text = trackLayerData.textlabel;//should be changed
-					opt.vp = layer;
-					opt.fontsize = x.fontsize[label];
+					opt.text = trackLayerData.textlabel;
+					if(typeof(trackLayerDataTxt[trackNames()[k]+"_"+j])!="undefined") opt.text = trackLayerDataTxt[trackNames()[k]+"_"+j];
+					trackLayerDataTxt[trackNames()[k]+"_"+j] = opt.text;
+					opt.vp = self.layer;
+					opt.fontsize = x.fontsize[trackNames()[k]+"_"+j] || defaultFontSize;
 					opt.color = x.color[trackNames()[k]] || opt.color;
 					opt.colorPickerId = 3;
 					opt.ref = j;
@@ -2502,7 +2788,6 @@ HTMLWidgets.widget({
             }
             
             if(typeof(track.dat.start)!="undefined"){
-                //console.log(track.dat);
             	if(track.dat.start.length>0){//plot lolliplot
 					self.lolli1=layer.append("g").attr("group", "lollipop");
 					// add a center line
@@ -2585,7 +2870,14 @@ HTMLWidgets.widget({
                     .attr("class", "dataPath1 track"+k)
                     .attr("kvalue", k)
                     .on("click", function(){
-                    	ColorPicker(this, 0);
+                    	var obj = d3.select(this);
+                    	var k=obj.attr("kvalue");
+                    	var picked = function(col){
+                    		x.tracklist[trackNames()[k]].style.color[0] = col;
+                    		obj.attr("fill", col);
+                    		d3.select(".dataBaseline"+k).attr("stroke", col);
+                    	};
+                    	ColorPicker(this, picked);
                     });
             }
             //signal dat2
@@ -2607,7 +2899,13 @@ HTMLWidgets.widget({
                     .attr("class", "dataPath2 track"+k)
                     .attr("kvalue", k)
                     .on("click", function(){
-                    	ColorPicker(this, 1);
+                    	var obj = d3.select(this);
+                    	var k=obj.attr("kvalue");
+                    	var picked = function(col){
+                    		x.tracklist[trackNames()[k]].style.color[1] = col;
+                    		obj.attr("fill", col);
+                    	};
+                    	ColorPicker(this, picked);
                     });
             }
             // add a line at 0
@@ -2619,11 +2917,8 @@ HTMLWidgets.widget({
                  .attr("stroke", color[0])
                  .attr("stroke-width", x.opacity[x.name[k]]==1 ? "1px" : "10px")
                  .attr("opacity", x.opacity[x.name[k]])
-                 .attr("class", "dataBaseline track"+k)
-                 .attr("kvalue", k)
-                 .on("click", function(){
-                 	ColorPicker(this, 2);
-                 });
+                 .attr("class", "dataBaseline"+k)
+                 .attr("kvalue", k);
             
             self.yaxis = new yaxis(layer, yscale, track.ylim, height, trackNames()[k], k);
             
