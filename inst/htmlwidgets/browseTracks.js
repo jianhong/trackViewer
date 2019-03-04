@@ -220,8 +220,6 @@ HTMLWidgets.widget({
 			self.dragged = function() {
 			  var dx = d3.event.x - self.oriX;
 			  var dy = d3.event.y - self.oriY;
-			  self.x=self.x+dx;
-			  self.y=self.y+dy;
 			  if(self.cls=="xaxis_tick"){//xaxis tick
 					d3.selectAll(".xaxis_tick").each(function(){
 						changeTranslate(d3.select(this.parentNode), dx, dy);
@@ -254,6 +252,9 @@ HTMLWidgets.widget({
 							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]+=dy;
 						}
 					}else{
+						dy = dy + x.height[trackNames()[self.k]]*heightF()/2;
+						  self.x=self.x+dx;
+						  self.y=self.y+dy;
 						if(/dataYlabel_/.exec(self.cls)){
 							x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
 							x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref]=self.y;
@@ -1199,7 +1200,7 @@ HTMLWidgets.widget({
         	var target = d3.select(target);
         	//console.log(target);
         	var currentId = Number(target.attr("kvalue"));
-            var colorScale = ["#FFD300","#FFFF00","#BEBEBE","#A2F300","#00DB00","#00CD00","#00FFFF",
+            var colorScale = ["#FFD300","#FFFF00","#A2F300","#00DB00","#00CD00","#00FFFF",
                               "#00B7FF","#0000FF","#1449C4","#4117C7","#820AC3","#DB007C",
                               "#FF0000","#FF00FF","#FF7400","#FFAA00"];//change to color blindness safe?
             var getColor = function (i) {
@@ -1305,86 +1306,115 @@ HTMLWidgets.widget({
                 }).on("end", function(d){
                     d3.select(this).style("cursor", "default");
                 }));
-            var defaultPlate = cp.append("circle")
-                    .attr("fill", defaultColor)
-                    .attr("stroke", "#fff")
-                    .attr("stroke-width", 2)
-                    .attr("r", 10)
-                    .attr("cx", 45)
-                    .attr("cy", 45)
-                    .on("mouseover", function () {
-                        var fill = d3.select(this).attr("fill");
-                        self.pickedColor = fill;
-                        plate.attr("fill", fill);
-                    })
-                    .on("click", clicked);
-            var blackPlate = cp.append("circle")
-                    .attr("fill", "black")
-                    .attr("stroke", "#fff")
-                    .attr("stroke-width", 2)
-                    .attr("r", 10)
-                    .attr("cx", -45)
-                    .attr("cy", 45)
-                    .on("mouseover", function () {
-                        var fill = target.attr("fill");
-                        self.pickedColor = fill;
-                        plate.attr("fill", fill);
-                    })
-                    .on("click", clicked);
-            var closePlate = cp.append("g")
-                    .attr("width", 20)
-                    .attr("height", 20)
-                    .attr("transform", "translate(45 -45)");
-            closePlate.append("circle")
-                    .attr("fill", "#fff")
-                    .attr("stroke", "#000")
-                    .attr("stroke-width", 1)
-                    .attr("r", 10)
-                    .attr("cx", 0)
-                    .attr("cy", 0)
-                    .on("click", function(){
-                        cp.remove();
-                    });
-            closePlate.append("text")
-                    .attr("fill", "#000")
-                    .attr("x", -5)
-                    .attr("y", 5)
-                    .text("X")
-                    .style("cursor", "default")
-                    .on("click", function(){
-                        cp.remove();
-                    });
-        
-            var plate = cp.append("circle")
-                .attr("fill", defaultColor)
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 2)
-                .attr("r", 25)
-                .attr("cx", 0)
-                .attr("cy", 0)
-                .on("click", clicked);
-        	
-        	var colLen = [];
-        	for(var i=0; i<colorScale.length; i++){
-        		colLen.push(1);
-        	}
-            cp.datum(colLen)
-                .selectAll("path")
-                .data(pie)
-                .enter()
-                .append("path")
-                .attr("fill", function (d, i) {
-                    return getColor(i);
-                })
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 2)
-                .attr("d", arc)
-                .on("mouseover", function () {
-                    var fill = d3.select(this).attr("fill");
-                    self.pickedColor = fill;
-                    plate.attr("fill", fill);
-                })
-                .on("click", clicked);
+				var defaultPlate = cp.append("circle")
+						.attr("fill", defaultColor)
+						.attr("stroke", "#fff")
+						.attr("stroke-width", 2)
+						.attr("r", 10)
+						.attr("cx", 45)
+						.attr("cy", 45)
+						.on("mouseover", function () {
+							var fill = d3.select(this).attr("fill");
+							self.pickedColor = fill;
+							plate.attr("fill", fill);
+						})
+						.on("click", clicked);
+				var blackPlate = cp.append("circle")
+						.attr("fill", "black")
+						.attr("stroke", "#fff")
+						.attr("stroke-width", 2)
+						.attr("r", 10)
+						.attr("cx", -45)
+						.attr("cy", 45)
+						.on("mouseover", function () {
+							var fill = target.attr("fill");
+							self.pickedColor = fill;
+							plate.attr("fill", fill);
+						})
+						.on("click", clicked);
+				var closePlate = cp.append("g")
+						.attr("width", 20)
+						.attr("height", 20)
+						.attr("transform", "translate(45 -45)");
+				closePlate.append("circle")
+						.attr("fill", "#fff")
+						.attr("stroke", "#000")
+						.attr("stroke-width", 1)
+						.attr("r", 10)
+						.attr("cx", 0)
+						.attr("cy", 0)
+						.on("click", function(){
+							cp.remove();
+						});
+				closePlate.append("text")
+						.attr("fill", "#000")
+						.attr("x", -5)
+						.attr("y", 5)
+						.text("X")
+						.style("cursor", "default")
+						.on("click", function(){
+							cp.remove();
+						});
+		
+				var plate = cp.append("circle")
+					.attr("fill", defaultColor)
+					.attr("stroke", "#fff")
+					.attr("stroke-width", 2)
+					.attr("r", 25)
+					.attr("cx", 0)
+					.attr("cy", 0)
+					.on("click", clicked);
+			
+				var colLen = [];
+				for(var i=0; i<colorScale.length; i++){
+					colLen.push(1);
+				}
+				cp.datum(colLen)
+					.selectAll("path")
+					.data(pie)
+					.enter()
+					.append("path")
+					.attr("fill", function (d, i) {
+						return getColor(i);
+					})
+					.attr("stroke", "#fff")
+					.attr("stroke-width", 2)
+					.attr("d", arc)
+					.on("mouseover", function () {
+						var fill = d3.select(this).attr("fill");
+						self.pickedColor = fill;
+						plate.attr("fill", fill);
+					})
+					.on("click", clicked);
+				var frm = cp.append("foreignObject")
+							.attr("x", -28)
+							.attr("y", 50)
+							.attr("width", 50)
+							.attr("height", 20);
+				var inp = frm.append("xhtml:form")
+								.append("input")
+								.attr("value", defaultColor)
+								.attr("style", "width:50px;")
+								.on("keypress", function(){
+									// IE fix
+									if (!d3.event)
+										d3.event = window.event;
+									var e = d3.event;
+									if (e.keyCode == 13)
+									{
+										if (typeof(e.cancelBubble) !== 'undefined') // IE
+										  e.cancelBubble = true;
+										if (e.stopPropagation)
+										  e.stopPropagation();
+										e.preventDefault();
+										 var fill = inp.node().value;
+										 if(/^#(?:[0-9a-fA-F]{3}){1,2}$/.exec(fill)){
+											 self.pickedColor = fill;
+											 plate.attr("fill", self.pickedColor);
+											 clicked();
+										 }
+									}
+								});
             };
             newCP();
             return(self);
@@ -2314,9 +2344,9 @@ HTMLWidgets.widget({
 								.attr("fill", trackdat.color[i])
 								.attr("stroke", bordercolor);
 							if(ypos<.5){
-								circenter-=yscale(pos[6]);
+								circenter-=2*yscale(pos[5]);
 							}else{
-								circenter+=yscale(pos[6]);
+								circenter+=2*yscale(pos[5]);
 							}
 						  }
 						}
@@ -2337,12 +2367,14 @@ HTMLWidgets.widget({
 							.attr('height', thisH)
 							.style("fill", "white")
 							.style("opacity", 1);
-						//cir.append("rect")
-						//	.attr("x", xscale(trackdat.labpos[i])-yscale(pos[5]))
-						//	.attr('y', thisY)
-						//	.attr('width', yscale(pos[5])*2)
-						//	.attr('height', thisH)
-						//	.style("fill", "black");
+						/*cir.append("rect")
+							.attr("x", xscale(trackdat.labpos[i])-yscale(pos[5]))
+							.attr('y', thisY)
+							.attr('width', yscale(pos[5])*2)
+							.attr('height', thisH)
+							.attr("stroke", "black")
+							.attr('fill', "white")
+							.attr("opacity", .5);*/
 						cir.attr("mask", "url(#mask_"+k+"_"+datatrack+"_"+i+")");
 				
 						if(typeof(trackdat.textlabel)!="undefined"){
@@ -2361,7 +2393,7 @@ HTMLWidgets.widget({
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
 								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || color[0];
+								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.color;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
