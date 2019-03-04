@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.19.9
+
+    o Build shiny output objects for browseTracks
+    
 CHANGES IN VERSION 1.19.8
 
     o add dandelion plots to browseTracks
