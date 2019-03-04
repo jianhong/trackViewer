@@ -1628,12 +1628,35 @@ HTMLWidgets.widget({
 	        			labCp = i;
 	        		}
 	        	}
-	        	for(var i=0; i<data.labpos.length; i++){
-					if(condense){
-						data.labpos[i] += (labCp-i)*labShift;
-					}else{
-						data.labpos[i] -= (labCp-i)*labShift;
+	        	if(typeof(data["stack.factor"])=="undefined"){
+					for(var i=0; i<data.labpos.length; i++){
+						if(condense){
+							data.labpos[i] += (labCp-i)*labShift;
+						}else{
+							data.labpos[i] -= (labCp-i)*labShift;
+						}
 					}
+	        	}else{
+	        		//group by labpos
+	        		var labposGroup = {};
+	        		var labposGroupInv = [];
+	        		for(var i=0; i<data.labpos.length; i++){
+	        			if(typeof(labposGroup["X"+data.labpos[i]])=="undefined"){
+	        				labposGroup["X"+data.labpos[i]] = [];
+	        			}
+						labposGroup["X"+data.labpos[i]].push(i);
+						labposGroupInv.push("X"+data.labpos[i]);
+					}
+					var key = Object.keys(labposGroup);
+	        		for(var i=0; i<key.length; i++){
+						for(var j=0; j<labposGroup[key[i]].length; j++){
+							if(condense){
+								data.labpos[labposGroup[key[i]][j]] += (key.indexOf(labposGroupInv[labCp])-i)*labShift;
+							}else{
+								data.labpos[labposGroup[key[i]][j]] -= (key.indexOf(labposGroupInv[labCp])-i)*labShift;
+							}
+						}
+	        		}
 	        	}
 	        };
 			function menu(x, y) {
