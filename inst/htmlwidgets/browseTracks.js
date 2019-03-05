@@ -3294,6 +3294,9 @@ HTMLWidgets.widget({
             });
             return(self);
         };
+        
+        //clear canvas
+        svg.selectAll("*").remove();
         var plotregion = Draw();
         var ruler = new Ruler();
         console.log(x);
