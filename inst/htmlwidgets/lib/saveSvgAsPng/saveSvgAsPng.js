@@ -203,7 +203,7 @@
           console.warn('Failed to load font from: ' + font.url);
           console.warn(e)
           css += font.text + '\n';
-          processFontQueue();
+          processFontQueue([]);
         }
 
         function updateFontStyle(font, fontInBase64) {
