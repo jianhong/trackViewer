@@ -1529,7 +1529,15 @@ HTMLWidgets.widget({
 					},
 					{label: 'change lollipops type',
 					 check: function(){
-					 	return(x.type[eventLayer]!="data")
+					 	if(x.type[eventLayer]!="data"){
+					 		if(x.type[eventLayer]=="lollipopData"){
+					 			return(typeof(x.tracklist[eventLayer].dat["stack.factor"])=="undefined");
+					 		}else{
+					 			return(typeof(x.tracklist[eventLayer].dat2["stack.factor"])=="undefined");
+					 		}
+					 	}else{
+					 		return false;
+					 	}
 					 },
 					 onMouseClick: function(){
 					 	var types = {"circle":"pin", "pin":"pie", "pie":"dandelion", "dandelion":"circle"};
@@ -1544,12 +1552,12 @@ HTMLWidgets.widget({
 									}else{
 										x.tracklist[eventLayer].dat.type = [];
 										for(var i=0; i<x.tracklist[eventLayer].dat.labpos.length; i++){
-											x.tracklist[eventLayer].dat.type.push("circle");
+											x.tracklist[eventLayer].dat.type.push("pin");
 										}
 									}
 								}
 							}else{
-								if(typeof(x.tracklist[eventLayer].dat["stack.factor"])=="undefined"){
+								if(typeof(x.tracklist[eventLayer].dat2["stack.factor"])=="undefined"){
 									if(typeof(x.tracklist[eventLayer].dat2.labpos)!="undefined"){
 										if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 											for(var i=0; i<x.tracklist[eventLayer].dat2.type.length; i++){
@@ -1559,7 +1567,7 @@ HTMLWidgets.widget({
 										}else{
 											x.tracklist[eventLayer].dat2.type = [];
 											for(var i=0; i<x.tracklist[eventLayer].dat2.labpos.length; i++){
-												x.tracklist[eventLayer].dat2.type.push("circle");
+												x.tracklist[eventLayer].dat2.type.push("pin");
 											}
 										}
 									}
@@ -2089,9 +2097,13 @@ HTMLWidgets.widget({
 						treeData[trackdat.group[i]].start.push(trackdat.start[i]);
 						if(typeof(trackdat.border[i])!="undefined"){
 							treeData[trackdat.group[i]].border.push(trackdat.border[i]);
+						}else{
+							treeData[trackdat.group[i]].border.push("black");
 						}
 						if(typeof(trackdat.color[i])!="undefined"){
 							treeData[trackdat.group[i]].color.push(trackdat.color[i]);
+						}else{
+							treeData[trackdat.group[i]].color.push("black");
 						}
 					}
 					
@@ -2234,10 +2246,26 @@ HTMLWidgets.widget({
 				}
 			}
 			
+			var setcol1=false;
+			var setcol2=false;
+			if(typeof(trackdat.color)=="undefined"){
+				trackdat.color = [];
+				setcol1=true;
+			}
+			if(typeof(trackdat.color2)=="undefined"){
+				trackdat.color2 = [];
+				setcol2=true;
+			}
 			for(var i=0; i<trackdat.start.length; i++){
 				var bordercolor = "black";
 				if(typeof(trackdat.border[i])!="undefined"){
 					bordercolor = trackdat.border[i];
+				}
+				if(setcol1){
+					trackdat.color[i] = bordercolor;
+				}
+				if(setcol2){
+					trackdat.color2[i] = bordercolor;
 				}
 				var plotSNPline = true;
 				if(typeof(trackdat["stack.factor.first"])!="undefined"){
@@ -2285,7 +2313,7 @@ HTMLWidgets.widget({
 					 .attr("x1", xscale(trackdat.labpos[i]))
 					 .attr("x2", xscale(trackdat.labpos[i]))
 					 .attr("y1", yscale(pos[2]))
-					 .attr("y2", yscale(pos[4]))
+					 .attr("y2", yscale(pos[4])+yscale(pos[5]))
 					 .attr("stroke", bordercolor)
 					 .attr("id", "lollipopNodeLinker1_"+k+"_"+datatrack+"_"+i);
 				 
@@ -2441,17 +2469,6 @@ HTMLWidgets.widget({
 							.attr("datatrack", datatrack)
 							.attr("poskey", i)
 							.attr("comp", "nodes")
-							.on("click", function(){
-										var obj = d3.select(this);
-										var poskey = Number(obj.attr("poskey"));
-										var datatrack = obj.attr("datatrack");
-										var k = Number(obj.attr("kvalue"));
-                                    	var picked = function(col){
-                                    		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
-                                    		plotregion.renew();
-                                    	};
-                                    	ColorPicker(this, picked);
-									})
 							.call(d3.drag().on("start", dragstarted)
 									.on("drag", draggedGroup)
 									.on("end", dragended));
@@ -2461,12 +2478,40 @@ HTMLWidgets.widget({
 								.attr("cy", thisY+((ypos<.5?-1:1)*6*yscale(pos[5])))
 								.attr("r", 4*yscale(pos[5]))
 								.attr("fill", trackdat.color[i])
-								.attr("stroke", bordercolor);
+								.attr("stroke", bordercolor)
+								.attr("kvalue", k)
+								.attr("datatrack", datatrack)
+								.attr("poskey", i)
+								.on("click", function(){
+											var obj = d3.select(this);
+											var poskey = Number(obj.attr("poskey"));
+											var datatrack = obj.attr("datatrack");
+											var k = Number(obj.attr("kvalue"));
+											var picked = function(col){
+												x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
+												plotregion.renew();
+											};
+											ColorPicker(this, picked);
+										});
 						cir.append("circle")
 								.attr("cx", xscale(trackdat.labpos[i]))
 								.attr("cy", thisY+((ypos<.5?-1:1)*6*yscale(pos[5])))
 								.attr("r", 2*yscale(pos[5]))
-								.attr("fill", "black");
+								.attr("fill", typeof(trackdat.color2[i])=="undefined"?"black":trackdat.color2[i])
+								.attr("kvalue", k)
+								.attr("datatrack", datatrack)
+								.attr("poskey", i)
+								.on("click", function(){
+											var obj = d3.select(this);
+											var poskey = Number(obj.attr("poskey"));
+											var datatrack = obj.attr("datatrack");
+											var k = Number(obj.attr("kvalue"));
+											var picked = function(col){
+												x.tracklist[trackNames()[k]][datatrack].color2[poskey]=col;
+												plotregion.renew();
+											};
+											ColorPicker(this, picked);
+										});
 				 		cir.append('path')
 				 			.attr("fill", trackdat.color[i])
 				 			.attr("stroke", "none")
@@ -2475,7 +2520,8 @@ HTMLWidgets.widget({
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
 								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
-								opt.angle= -trackdat["label.parameter.rot"][i] || 0;
+								opt.angle= 0;
+								if(typeof(trackdat["label.parameter.rot"])!="undefined") opt.angle = -trackdat["label.parameter.rot"][i];
 								opt.y = thisY+((ypos<.5?-1:1)*11*yscale(pos[5]));
 								opt.x = xscale(trackdat.labpos[i]);
 								opt.anchor = "start";
@@ -2484,7 +2530,7 @@ HTMLWidgets.widget({
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
 								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || color[0];
+								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || bordercolor;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
@@ -2531,7 +2577,33 @@ HTMLWidgets.widget({
 				 		var data = [trackdat.score[i], Math.max(...trackdat.score)-trackdat.score[i]];
 				 		var pie = d3.pie().sort(null);
 				 		var arc = d3.arc().innerRadius(0).outerRadius(6*yscale(pos[5]));
-				 		var colorSet = [trackdat.color[i], bordercolor];
+				 		function invertColor(hex) {
+				 		//https://stackoverflow.com/questions/35969656/how-can-i-generate-the-opposite-color-according-to-current-color
+				 			if(typeof(hex)!="string"){
+				 				console.log(hex);
+				 				return bordercolor;
+				 			}
+							if (hex.indexOf('#') === 0) {
+								hex = hex.slice(1);
+							}
+							// convert 3-digit hex to 6-digits.
+							if (hex.length === 3) {
+								hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+							}
+							if (hex.length !== 6) {
+								return '#CCCCCC';
+							}
+							var r = parseInt(hex.slice(0, 2), 16),
+								g = parseInt(hex.slice(2, 4), 16),
+								b = parseInt(hex.slice(4, 6), 16);
+							return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+								? '#000000'
+								: '#FFFFFF';
+						}
+				 		var colorSet = [trackdat.color[i], trackdat.color2[i]];
+				 		if(colorSet[1]==colorSet[0]){
+				 			colorSet[1] = invertColor(colorSet[0]);
+				 		}
 				 		var getColor = function(i) {
 				 			return(colorSet[i]);
 				 		}
@@ -2552,7 +2624,10 @@ HTMLWidgets.widget({
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
 								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
-								opt.angle= -trackdat["label.parameter.rot"][i] || 0;
+								opt.angle= 0;
+								if(typeof(trackdat["label.parameter.rot"])!="undefined"){
+									opt.angle=-trackdat["label.parameter.rot"][i]
+								}
 								opt.y = circenter+((ypos<.5?-1:1)*7*yscale(pos[5]));
 								opt.x = xscale(trackdat.labpos[i]);
 								opt.anchor = "start";
@@ -2561,7 +2636,7 @@ HTMLWidgets.widget({
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
 								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || color[0];
+								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || bordercolor;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
