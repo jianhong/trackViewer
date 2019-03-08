@@ -1435,6 +1435,19 @@ HTMLWidgets.widget({
 					 onMouseClick: mg.addLegendLabel,
 					 check: function(){return true;}
 					},
+					{
+					 label:'remove all guidelines',
+					 onMouseClick: function(){
+					 	var keys = Object.keys(x.markers);
+					 	for(var i=0; i<keys.length; i++){
+					 		if(x.markers[keys[i]].markertype==0){
+					 			d3.select('.Marker[ref="'+keys[i]+'"]').remove();
+					 			delete x.markers[keys[i]];
+					 		}
+					 	}
+					 },
+					 check: function(){return true;}
+					},
 					{label: 'decrease transcript height',
 					  check: function(){return true;},
 					  onMouseClick: function(){

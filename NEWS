@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.19.12
+
+    o add remove all guideline function.
+
 CHANGES IN VERSION 1.19.11
 
     o fix the fonts bug for export png in browseTracks
