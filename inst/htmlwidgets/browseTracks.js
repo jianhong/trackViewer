@@ -1758,6 +1758,8 @@ HTMLWidgets.widget({
                                  .attr("ref", 3)
                                  .style("opacity", 0)
                                  .style("cursor", "ns-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
                                  .call(d3.drag().on("drag", draggedMargin));
             self.marginbottom = svg.append("line")
                                  .attr("stroke", "white")
@@ -1769,6 +1771,8 @@ HTMLWidgets.widget({
                                  .attr("ref", 1)
                                  .style("opacity", 0)
                                  .style("cursor", "ns-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
                                  .call(d3.drag().on("drag", draggedMargin));
             self.marginleft = svg.append("line")
                                  .attr("stroke", "white")
@@ -1780,6 +1784,8 @@ HTMLWidgets.widget({
                                  .attr("ref", 2)
                                  .style("opacity", 0)
                                  .style("cursor", "ew-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
                                  .call(d3.drag().on("drag", draggedMargin));
             self.marginright = svg.append("line")
                                  .attr("stroke", "white")
@@ -1791,6 +1797,8 @@ HTMLWidgets.widget({
                                  .attr("ref", 4)
                                  .style("opacity", 0)
                                  .style("cursor", "ew-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
                                  .call(d3.drag().on("drag", draggedMargin));
             self.remove = function(){
                 self.margintop.remove();
@@ -2052,6 +2060,8 @@ HTMLWidgets.widget({
 							.attr('ref', "-")
 							.attr("id", "lolliplotResizelineB_"+k+"_"+datatrack)
 							.style("cursor", "ns-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
 							.call(d3.drag().on("drag", function(){
 									if(typeof(YposSTART[trackNames()[k]+"_"+datatrack])=="undefined") YposSTART[trackNames()[k]+"_"+datatrack] = 0;
 									if(d3.event.dy<10) YposSTART[trackNames()[k]+"_"+datatrack] -= 1-yscale.invert(d3.event.dy/3);
@@ -2828,6 +2838,8 @@ HTMLWidgets.widget({
 				        .attr('kvalue', k)
 				        .attr("id", "geneTrackResizelineB_"+trackNames()[k]+"_"+fLayer)
 				        .style("cursor", "ns-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
                         .call(d3.drag().on("drag", draggedResize));
 					// add a center line
 					if(geneStart < start) geneStart = start;
@@ -3239,6 +3251,8 @@ HTMLWidgets.widget({
 								   .attr("stroke-width", "3px")
 								   .attr("opacity", 0)
 								   .style("cursor", "ns-resize")
+								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
 								   .call(d3.drag()
 								   .on("start", function(d){
 									   self.coor = d3.mouse(svg.node());
