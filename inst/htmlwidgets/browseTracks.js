@@ -988,6 +988,8 @@ HTMLWidgets.widget({
                                      .attr("fill", "white")
                                      .attr("stroke", "none")
                                      .attr("opacity", 0)
+                                     .on("mouseover", function(){ d3.select(this).attr("fill", "#DEDEDE").attr("opacity", 0.5); })
+                                     .on("mouseout", function(){ d3.select(this).attr("fill", "white").attr("opacity", 0); })
                                      .call(d3.drag()
                                              .on("start", self.dragstarted)
                                              .on("drag", self.dragged)
