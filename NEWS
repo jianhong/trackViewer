@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.19.13
+
+    o add undo for browseTracks.
+
 CHANGES IN VERSION 1.19.12
 
     o add remove all guideline function.

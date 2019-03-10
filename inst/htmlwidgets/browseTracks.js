@@ -18,6 +18,11 @@ HTMLWidgets.widget({
                  .attr("name", "exportPNG")
                  .attr("id", "exportPNG")
                  .attr("value", "exportPNG");
+    var menu3 = d3.select(el).append("input")
+                 .attr("type", "button")
+                 .attr("name", "undo")
+                 .attr("id", "undo")
+                 .attr("value", "Undo");
     return {
       renderValue: function(x) {
         //console.log(x);
@@ -93,6 +98,9 @@ HTMLWidgets.widget({
         x.rotate = {};//track y label angle, track tick label angle, named as trackNames_tick
         x.color = {};//track y label color, track tick label color, named as trackNames_tick
         x.dataYlabelPos = {x:{},y:{}}; // track y label position
+        
+        //parameter to save all parameters
+        var parameter = {};
         
         // get track name
         trackNames = function(){
@@ -213,6 +221,58 @@ HTMLWidgets.widget({
         	//move tracks order
 			self.dragstarted = function () {
 			  d3.select(this).style("cursor", "move").raise().classed("active", true);
+			  var tmpstatus = {
+			  	ddx: parameter.xaxOpt.ddx,
+			  	ddy: parameter.xaxOpt.ddy,
+			  	ylabx0: x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"],
+			  	ylabx1: x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"],
+			  	ylaby0: x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"],
+			  	ylaby1: x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"],
+			  	yx: x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref],
+			  	yy: x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref],
+			  	label: clone(x.markers[self.id]),
+			  	font: self.fontsize
+			  };
+			  addNewHistory({
+			  	undo:function(){
+			  		if(self.cls=="xaxis_tick"){//xaxis tick
+			  			parameter.xaxOpt.ddx = tmpstatus.ddx;
+			  			parameter.xaxOpt.ddy = tmpstatus.ddy;
+			  			parameter.xaxOpt.fontsize=tmpstatus.fontsize;
+			  		}else{
+			  			if(/yaxis_tick/.exec(self.cls)){//yaxis tick
+							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"] = tmpstatus.ylabx0;
+							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"] = tmpstatus.ylabx1;
+							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"] = tmpstatus.ylaby0;
+							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"] = tmpstatus.ylaby1;
+							x.fontsize[trackNames()[self.k]+"__tick"]=tmpstatus.fontsize;
+			  			}else{
+			  				if(/dataYlabel_/.exec(self.cls)){
+			  					x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
+			  					x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
+			  					x.fontsize[trackNames()[self.k]]=tmpstatus.fontsize;
+			  				}else{
+			  					if(/trackLayerLabel_/.exec(self.cls)){
+			  						x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
+									x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
+									x.fontsize[trackNames()[self.k]+"_"+self.ref]=tmpstatus.fontsize;
+			  					}else{
+			  						if(self.cls=="Mlabel"){
+			  							x.markers[self.id] = tmpstatus.label;
+			  							x.markers[self.id].fontsize=tmpstatus.fontsize;
+			  						}else{
+			  							if(/nodelabel/.exec(self.cls)){
+			  								x.fontsize["lolliplotTrackLabel_"+self.k+"_"+self.datatrack+"_"+self.poskey]=tmpstatus.fontsize;
+			  							}
+			  						}
+			  					}
+			  				}
+			  			}
+			  		}
+			  		plotregion.renew();
+			  	},
+			  	redo:function(){}
+			  });
 			};
 			self.dragended = function () {
 			  d3.select(this).style("cursor", "default").classed("active", false);
@@ -224,8 +284,8 @@ HTMLWidgets.widget({
 					d3.selectAll(".xaxis_tick").each(function(){
 						changeTranslate(d3.select(this.parentNode), dx, dy);
 					});
-					xaxOpt.ddx += dx;
-					xaxOpt.ddy += dy;
+					parameter.xaxOpt.ddx += dx;
+					parameter.xaxOpt.ddy += dy;
 				}else{                
 					if(/yaxis_tick/.exec(self.cls)){//yaxis tick
 						d3.selectAll("."+self.cls).each(function(){
@@ -291,7 +351,7 @@ HTMLWidgets.widget({
                 self.fontsize = self.fontsize - d3.event.dy;
                 if(self.cls=="xaxis_tick"){//xaxis tick
                 	d3.selectAll(".xaxis_tick").style("font-size", self.fontsize+"px");
-                	xaxOpt.fontsize=self.fontsize;
+                	parameter.xaxOpt.fontsize=self.fontsize;
                 }else{                
                 	if(/yaxis_tick/.exec(self.cls)){//yaxis tick
                 		d3.selectAll("."+self.cls).style("font-size", self.fontsize+"px");
@@ -364,11 +424,39 @@ HTMLWidgets.widget({
               }
 			};
 			function rotateText(ang){
+				var tmpstatus = self.angle;
+				addNewHistory({
+					undo:function(){
+						self.angle = tmpstatus;
+						if(self.cls=="xaxis_tick"){//xaxis tick
+							parameter.xaxOpt.angle=tmpstatus;
+						}else{
+							if(/yaxis_tick/.exec(self.cls)){//yaxis tick
+								x.rotate[trackNames()[self.k]+"__tick"] = tmpstatus;
+							}else{
+								if(/dataYlabel_/.exec(self.cls)){
+									x.rotate[trackNames()[self.k]]=tmpstatus;
+								}
+								if(/trackLayerLabel/.exec(self.cls)){
+									x.rotate[trackNames()[self.k]+"_"+self.ref]=tmpstatus;
+								}
+								if(/nodelabel/.exec(self.cls)){
+									x.tracklist[trackNames()[self.k]][self.datatrack]["label.parameter.rot"][self.poskey]+=tmpstatus;
+								}
+								if(/Mlabel/.exec(self.cls)){
+									x.markers[self.id].angle=tmpstatus;
+								}
+							}
+						}
+						plotregion.renew();
+					},
+					redo:function(){}
+				});
 				self.angle = self.angle + ang;
 				if(self.cls=="xaxis_tick"){//xaxis tick
                 	d3.selectAll(".xaxis_tick")
                 	       .attr("transform", "rotate("+self.angle+")");
-                	xaxOpt.angle=self.angle;
+                	parameter.xaxOpt.angle=self.angle;
                 }else{                
                 	if(/yaxis_tick/.exec(self.cls)){//yaxis tick
                 		d3.selectAll("."+self.cls).attr("transform", "rotate("+self.angle+")");
@@ -431,7 +519,8 @@ HTMLWidgets.widget({
 				xy.y -= p_xy.y/2;
 
 				var frm = self.g.append("foreignObject");
-
+								
+				var tmpstatus = self.text;
 				var inp = frm
 					.attr("x", xy.x)
 					.attr("y", xy.y)
@@ -446,6 +535,35 @@ HTMLWidgets.widget({
 							.attr("style", "width: 200px;")
 							// make the form go away when you jump out (form looses focus) or hit ENTER:
 							.on("blur", function() {
+								addNewHistory({
+									undo:function(){
+										self.text = tmpstatus;
+										if(/yaxis_/.exec(self.cls)){
+											x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
+										}
+										if(/dataYlabel_/.exec(self.cls)){
+											changeTrackName(self.k, self.text)
+										}
+										if(/Mlabel/.exec(self.cls)){
+											var m = x.markers[self.id];
+											  m.ref = [xscale().invert(self.x-margin.left), self.y];
+											  m.txt = self.text;
+											  delete(x.markers[self.id]);
+											  self.id="text"+m.ref[0] + "_" + m.ref[1];
+											  self.ref="text"+m.ref[0] + "_" + m.ref[1];
+											  self.body.attr("ref", self.ref);
+											  x.markers[self.id] = m;  
+										}
+										if(/legend/.exec(self.cls)){
+											x.markers[self.id].text = self.text;
+										}
+										if(/trackLayerLabel/.exec(self.cls)){
+											parameter.trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = self.text;
+										}
+										plotregion.renew();
+									},
+									redo:function(){}
+								});
 								var txt = inp.node().value;
 								var old = self.text;
 								self.text = txt;
@@ -473,7 +591,7 @@ HTMLWidgets.widget({
 									x.markers[self.id].text = txt;
 								}
 								if(/trackLayerLabel/.exec(self.cls)){
-									trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = txt;
+									parameter.trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = txt;
 								}
 							})
 							.on("keypress", function() {
@@ -519,7 +637,7 @@ HTMLWidgets.widget({
 										x.markers[self.id].text = self.text;
 									}	
 									if(/trackLayerLabel/.exec(self.cls)){
-										trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = self.text;
+										parameter.trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = self.text;
 									}		
 								}
 							});
@@ -552,7 +670,7 @@ HTMLWidgets.widget({
 			return(self);
         }
         
-        function legendLabel(option=textDefaultOptions()){
+        var legendLabel = function(option=textDefaultOptions()){
         	var self=this;
         	self.text = option.text;
         	self.x = option.x;
@@ -576,6 +694,7 @@ HTMLWidgets.widget({
         	self.r = option.r || 8;
         	self.vp = option.vp || svg;
         	
+        	var M = clone(x.markers[self.id]);
 			self.vpg = self.vp.append("g")
 						 .attr("transform", "translate("+xscale()(self.x)+","+self.y+")")
 						 .attr("id", self.id)
@@ -593,9 +712,39 @@ HTMLWidgets.widget({
 									x.markers[m.id] = m;
 									obj.attr("transform", "translate("+xscale()(posx)+","+posy+")");
 								}
-						 }));
-						 
-        	self.remove = function(){
+						 }).on("start", function(d){
+						 	d3.select(this).style("cursor", "move").raise().classed("active", true);
+						 	var tmpstatus={};
+						 	if(typeof(x.markers[M.id])!="undefined"){
+								tmpstatus={
+									x: x.markers[M.id].x,
+									y: x.markers[M.id].y
+								};
+						 	}
+							addNewHistory({
+								undo:function(){
+										if(typeof(x.markers[M.id])!="undefined"){
+											x.markers[M.id].x = tmpstatus.x;
+											x.markers[M.id].y = tmpstatus.y;
+											plotregion.renew();
+										}
+									},
+								redo:function(){}
+							});
+						 }).on("end", function(d){
+						 	d3.select(this).style("cursor", "default").classed("active", false);
+						 }))
+						 .on("dblclick", self.remove);
+	 
+        	self.remove = function(){	
+        		addNewHistory({
+        			undo: function(){
+        				x.markers[M.id] = M;
+						plotregion.renew();
+        			},
+        			redo: self.remove
+        		});
+        		delete x.markers[self.ref];
         		self.vpg.remove();
         	};
         	
@@ -621,10 +770,11 @@ HTMLWidgets.widget({
                 						obj.attr("fill", col);
                 					};
                 					ColorPicker(this, picked);
-                				});
+                				})
+						 .on("dblclick", self.remove);
 
 			return(self);
-		}
+		};
 		
         //Markers
         x.markers = [];
@@ -684,6 +834,28 @@ HTMLWidgets.widget({
                         "txt" : "label",
                         "angle": 0
                     };
+                    var m1 = {
+                        "ref" : [posx, posy, Math.round(xscale().invert(coords[0]-margin.left-20)), posy+20],
+                        "markertype" : 3,
+                        "color" : "#000",
+                        "opacity" : 1,
+                        "linetype" : "solid",
+                        "linewidth" : 1
+                    };
+                    
+                	var tmpstatus={
+                		text: "text"+posx + "_" + posy,
+                		arrow: "arrow"+m1.ref[0]+"_"+m1.ref[2]+"_"+m1.ref[1]+"_"+m1.ref[3]
+                	};
+                	addNewHistory({
+                		undo:function(){
+                			if(typeof(x.markers[tmpstatus.text])!="undefined") delete x.markers[tmpstatus.text];
+                			if(typeof(x.markers[tmpstatus.arrow])!="undefined") delete x.markers[tmpstatus.arrow];
+                			plotregion.renew();
+                		},
+                		redo:function(){}
+                	});
+                	
                     x.markers["text"+posx + "_" + posy] = m;
                     var opt = textDefaultOptions();
                     opt.id = "text"+m.ref[0] + "_" + m.ref[1];
@@ -699,14 +871,6 @@ HTMLWidgets.widget({
                     opt.cls = "Mlabel";
                     opt.colorPickerId = 9;
                     var t = new Label(opt);
-                    var m1 = {
-                        "ref" : [posx, posy, Math.round(xscale().invert(coords[0]-margin.left-20)), posy+20],
-                        "markertype" : 3,
-                        "color" : "#000",
-                        "opacity" : 1,
-                        "linetype" : "solid",
-                        "linewidth" : 1
-                    };
                     x.markers["arrow"+m1.ref[0]+"_"+m1.ref[2]+"_"+m1.ref[1]+"_"+m1.ref[3]]=m1;
                     var arrow = new Arrow(self.g, m1);
                 }else{
@@ -734,7 +898,16 @@ HTMLWidgets.widget({
 					m.vp = self.g;
 					m.markertype = 4;
                     x.markers[m.id]=m;
-                    legendLabel(m);
+                    var tmpstatus=m.id;
+                	addNewHistory({
+                		undo:function(){
+                			if(typeof(x.markers[tmpstatus])!="undefined") delete x.markers[tmpstatus];
+                			plotregion.renew();
+                		},
+                		redo:function(){}
+                	});
+                	
+                    var llab = new legendLabel(m);
                 }else{
                     self.svgDefault=true;
                 }
@@ -755,6 +928,15 @@ HTMLWidgets.widget({
                     x.markers["line"+posx].ref = posx;
                     d3.select(this).attr("ref", "line"+posx);
                     self.redraw();
+                    addNewHistory({
+                		undo:function(){
+                			x.markers[old] = x.markers["line"+posx];
+                			x.markers["line"+posx].ref = Number(old.replace("line", ""));
+                			delete(x.markers["line"+posx]);
+                			self.redraw();
+                		},
+                		redo:function(){}
+                	});
                 }
             }
             self.dragstarted = function(d){
@@ -797,6 +979,13 @@ HTMLWidgets.widget({
                                         "linetype" : "solid",
                                         "linewidth" : xscale().invert(coords[0] - margin.left) - posx
                                     };
+                                    addNewHistory({
+										undo:function(){
+											delete(x.markers["rect"+posx]);
+											self.redraw();
+										},
+										redo:function(){}
+									});
                                 }else{
                                     x.markers["line"+posx] = {
                                         "ref" : posx,
@@ -806,6 +995,13 @@ HTMLWidgets.widget({
                                         "linetype" : "dashed",
                                         "linewidth" : 1
                                     };
+                                    addNewHistory({
+										undo:function(){
+											delete(x.markers["line"+posx]);
+											self.redraw();
+										},
+										redo:function(){}
+									});
                                 }
                                 self.redraw();
                             };
@@ -910,10 +1106,29 @@ HTMLWidgets.widget({
                                     })
                                     .on("dblclick", function(){
                                         var obj = d3.select(this);
-                                        delete x.markers[d3.select(this.parentNode).attr("ref")];
-                                        d3.select(this.parentNode).remove();
+                                        var par = d3.select(this.parentNode);
+                                        var ref = par.attr("ref");
+                                    	addNewHistory({
+                                    		undo:function(){
+                                    			var m1 = ref.replace("arrow", "").split("_");
+												var m={
+													"ref" : [m1[0], m1[2], m1[1], m1[3]],
+													"markertype" : 3,
+													"color" : "#000",
+													"opacity" : 1,
+													"linetype" : "solid",
+													"linewidth" : 1
+												};
+                                    			x.markers[ref]=m;
+                                    			self.redraw();
+                                    		},
+                                    		redo:function(){}
+                                    	});
+                                        delete x.markers[ref];
+                                        par.remove();
                                         self.svgDefault = false;
                                      });
+                var oldstart={x1:x1, y1:y1, x2:x2, y2:y2, col:m.color};
                 arrowline.start = arrowline.g.append("circle")
                                             .attr("r", 4)
                                             .attr("cx", xscale()(x1)+margin.left)
@@ -945,6 +1160,27 @@ HTMLWidgets.widget({
                                             })
                                             .on("end", function(d){
                                                  d3.select(this).style("cursor", "default");
+                                                 var ref=d3.select(this.parentNode).attr("ref");
+                                                 addNewHistory({
+													undo:function(){
+														delete(x.markers[ref]);
+														var m={
+															"ref" : [oldstart.x1, oldstart.y1, oldstart.x2, oldstart.y2],
+															"markertype" : 3,
+															"color" : oldstart.col,
+															"opacity" : 1,
+															"linetype" : "solid",
+															"linewidth" : 1
+														};
+														x.markers["arrow"+oldstart.x1+"_"+oldstart.x2+"_"+oldstart.y1+"_"+oldstart.y2]=m;
+														self.redraw();
+													},
+													redo:function(){}
+												});
+                                            })
+                                            .on("start", function(d){
+                                            	d3.select(this).style("cursor", "move");
+                                            	oldstart={x1:x1, y1:y1, x2:x2, y2:y2, col:m.color};
                                             }));
                 arrowline.end = arrowline.g.append("circle")
                                             .attr("r", 4)
@@ -977,6 +1213,27 @@ HTMLWidgets.widget({
                                             })
                                             .on("end", function(d){
                                                  d3.select(this).style("cursor", "default");
+                                                 var ref=d3.select(this.parentNode).attr("ref");
+                                                 addNewHistory({
+													undo:function(){
+														delete(x.markers[ref]);
+														var m={
+															"ref" : [oldstart.x1, oldstart.y1, oldstart.x2, oldstart.y2],
+															"markertype" : 3,
+															"color" : oldstart.col,
+															"opacity" : 1,
+															"linetype" : "solid",
+															"linewidth" : 1
+														};
+														x.markers["arrow"+oldstart.x1+"_"+oldstart.x2+"_"+oldstart.y1+"_"+oldstart.y2]=m;
+														self.redraw();
+													},
+													redo:function(){}
+												});
+                                            })
+                                            .on("start", function(d){
+                                            	d3.select(this).style("cursor", "move");
+                                            	oldstart={x1:x1, y1:y1, x2:x2, y2:y2, col:m.color};
                                             }));
                 return(arrowline);
             };
@@ -1080,7 +1337,7 @@ HTMLWidgets.widget({
                             break;
                         case 4:
                         	m.vp = self.g;
-                        	new legendLabel(m);
+                        	var llab = new legendLabel(m);
                         	break;
                     }
                     if(m.markertype<2){
@@ -1450,8 +1707,20 @@ HTMLWidgets.widget({
 					 },
 					 check: function(){return true;}
 					},
-					{label: 'decrease transcript height',
-					  check: function(){return true;},
+					{label: 'decrease gene track height',
+					  check: function(){
+					  	var tx=false;
+					  	var dat=false;
+					  	var keys=Object.keys(x.type);
+					  	for(var i=0; i<keys.length; i++){
+					  		if(x.type[keys[i]]=="data" || x.type[keys[i]]=="lollipopData"){
+					  			dat=true;
+					  		}else{
+					  			tx=true;
+					  		}
+					  	}
+					  	return(dat && tx);
+					  },
 					  onMouseClick: function(){
 					  	d3.selectAll('g[type = "transcript"]')
 							 .each(function(){
@@ -1475,8 +1744,20 @@ HTMLWidgets.widget({
 					  	plotregion.renew();
 					  }
 					}, 
-					{label: 'increase transcript height',
-					  check: function(){return true;},
+					{label: 'increase gene track height',
+					  check: function(){
+					  	var tx=false;
+					  	var dat=false;
+					  	var keys=Object.keys(x.type);
+					  	for(var i=0; i<keys.length; i++){
+					  		if(x.type[keys[i]]=="data" || x.type[keys[i]]=="lollipopData"){
+					  			dat=true;
+					  		}else{
+					  			tx=true;
+					  		}
+					  	}
+					  	return(dat && tx);
+					  },
 					  onMouseClick: function(){
 					  	d3.selectAll('g[type = "transcript"]')
 							 .each(function(){
@@ -1502,17 +1783,21 @@ HTMLWidgets.widget({
 					},
 					{label: 'change Y-axis position',
 					 check:function(){
-					  	return(x.type[eventLayer]=="data")
+					  	return(x.type[eventLayer]=="data");
 					  },
 					  onMouseClick: function(){
-					  	console.log(eventLayer);
 					  	x.tracklist[eventLayer].style.yaxis.main = !x.tracklist[eventLayer].style.yaxis.main;
 					  	plotregion.renew();
 					  }
 					},
 					{label: 'condense lollipops',
 					 check: function(){
-					 	return(x.type[eventLayer]!="data")
+					 	if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return false;
+							}
+						}
+						return(x.type[eventLayer]!="data");
 					 },
 					 onMouseClick: function(){
 						if(x.type[eventLayer]!="data"){
@@ -1526,9 +1811,14 @@ HTMLWidgets.widget({
 					 	}
 					 }
 					},
-					{label: 'loose lollipops',
+					{label: 'expand lollipops',
 					 check: function(){
-					 	return(x.type[eventLayer]!="data")
+					 	if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return false;
+							}
+						}
+						return(x.type[eventLayer]!="data");
 					 },
 					 onMouseClick: function(){
 						if(x.type[eventLayer]!="data"){
@@ -1597,31 +1887,41 @@ HTMLWidgets.widget({
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
-						isoformR[eventLayer] +=  .25;
+						parameter.isoformR[eventLayer] +=  0.25;
 						plotregion.renew();
 					}},
-					{label:'loose isoforms', 
+					{label:'expand isoforms', 
 					check: function(){
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
-						isoformR[eventLayer] -= - .25;
+						parameter.isoformR[eventLayer] -= 0.25;
 						plotregion.renew();
 					}},
 					{label:'increase maxgap', 
 					check: function(){
-						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return true;
+							}
+						}
+						return false;
 					},
 					onMouseClick: function(){
-						maxGAP *= 1.25;
+						parameter.maxGAP *= 1.25;
 						plotregion.renew();
 					}},
 					{label:'decrease maxgap', 
 					check: function(){
-						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return true;
+							}
+						}
+						return false;
 					},
 					onMouseClick: function(){
-						maxGAP *= .75;
+						parameter.maxGAP *= .75;
 						plotregion.renew();
 					}}/*,
 					{label:'flip coordinates', 
@@ -1694,7 +1994,7 @@ HTMLWidgets.widget({
 				// Draw the menu
 				svg.append('g').attr('class', 'context-menu')
 					.selectAll('.menu-entry')
-					.data(items).enter()
+					.data(items.filter(function(d){return d.check();})).enter()
 					.append('g').attr('class', 'menu-entry')
 					.style('cursor', 'pointer')
 					.on('mouseover', function(){ 
@@ -1846,12 +2146,12 @@ HTMLWidgets.widget({
         
         
         //arrow of intron
-        var arrowId = 0;
+        parameter.arrowId = 0;
         var plotArrow = function(container, data, start, end, ypos, strand, color, k){
             if(strand==="*") return(null);
-            arrowId +=1;
+            parameter.arrowId +=1;
             var marker = container.append("marker")
-                     .attr("id", "arrow"+k+"_"+arrowId)
+                     .attr("id", "arrow"+k+"_"+parameter.arrowId)
                      .attr("kvalue", k)
                      .attr("viewBox", "0, 0, 10, 10")
                      .attr("refX", 0)
@@ -1873,7 +2173,7 @@ HTMLWidgets.widget({
                             .attr("y1", ypos)
                             .attr("x2",  j)
                             .attr("y2", ypos)
-                            .attr("marker-end", "url(#arrow"+k+"_"+arrowId+")")
+                            .attr("marker-end", "url(#arrow"+k+"_"+parameter.arrowId+")")
                             .attr("stroke-width", 1)
                             .attr("class", "geneArrow track"+k)
                             .attr("kvalue", k);
@@ -1884,20 +2184,20 @@ HTMLWidgets.widget({
         }
         
         // lolliplot
-        var circleR=[];
-        var YposSTART = [];
-        var maxGAP=1;
+        parameter.circleR=[];
+        parameter.YposSTART = [];
+        parameter.maxGAP=1;
         var lolliplot = function(lolli, trackdat, xscale, yscale, k, datatrack, ypos, from){
         	var pos;
         	var defaultCircleR=.05;
-        	if(typeof(circleR[trackNames()[k]+"_"+datatrack])=="undefined"){
-        		circleR[trackNames()[k]+"_"+datatrack] = defaultCircleR;
+        	if(typeof(parameter.circleR[trackNames()[k]+"_"+datatrack])=="undefined"){
+        		parameter.circleR[trackNames()[k]+"_"+datatrack] = defaultCircleR;
         	}
-        	var thisCR=circleR[trackNames()[k]+"_"+datatrack];
+        	var thisCR=parameter.circleR[trackNames()[k]+"_"+datatrack];
         	var thisCR2 = 1 - 2*thisCR;
         	thisCR = 1 - thisCR;
         	var yposStart = 0;
-        	if(typeof(YposSTART[trackNames()[k]+"_"+datatrack])!="undefined") yposStart = YposSTART[trackNames()[k]+"_"+datatrack];
+        	if(typeof(parameter.YposSTART[trackNames()[k]+"_"+datatrack])!="undefined") yposStart = parameter.YposSTART[trackNames()[k]+"_"+datatrack];
         	switch(ypos){
         		case .165:
         			pos=[.165, .35+yposStart, .45+yposStart*2, .55+yposStart*3, .6+yposStart*3, thisCR, thisCR2];
@@ -1914,6 +2214,18 @@ HTMLWidgets.widget({
         	}
         	function dragstarted(d) {
 			  d3.select(this).style("cursor", "move").raise().classed("active", true);
+			  var ele = d3.select(this);
+			  var k = Number(ele.attr("kvalue"));
+			  var datatrack = ele.attr("datatrack");
+			  var poskey = Number(ele.attr("poskey"));
+			  var oldpos = x.tracklist[trackNames()[k]][datatrack].labpos[poskey];
+			  addNewHistory({
+			  	undo:function(){
+			  		x.tracklist[trackNames()[k]][datatrack].labpos[poskey]=oldpos;
+			  		plotregion.renew();
+			  	},
+			  	redo:function(){}
+			  });
 			}
 			function dragended(d) {
 			  d3.select(this).style("cursor", "default").classed("active", false);
@@ -1997,15 +2309,27 @@ HTMLWidgets.widget({
 				var ref = ele.attr("ref");
 				if(ref=="+") dx = -1*dx;
 				if(dx!=0){
-					dx = yscale.invert(yscale(circleR[trackNames()[k]+"_"+datatrack]) + dx);
+					dx = yscale.invert(yscale(parameter.circleR[trackNames()[k]+"_"+datatrack]) + dx);
 					if(dx > 0 && dx < 1){
-						circleR[trackNames()[k]+"_"+datatrack] = dx;
+						parameter.circleR[trackNames()[k]+"_"+datatrack] = dx;
 					};
 				}
 				//renew;
 				plotregion.renew();
 			}
-			
+			function draggedStart(){
+				var ele = d3.select(this);
+				var k = Number(ele.attr("kvalue"));
+				var datatrack = ele.attr("datatrack");
+				var tmpstatus = parameter.circleR[trackNames()[k]+"_"+datatrack];
+				addNewHistory({
+					undo:function(){
+						parameter.circleR[trackNames()[k]+"_"+datatrack] = tmpstatus;
+						plotregion.renew();
+					},
+					redo:function(){}
+				});
+			}
 			
 			var type = "circle";
 			if(typeof(trackdat["stack.factor"])!="undefined"){
@@ -2040,7 +2364,7 @@ HTMLWidgets.widget({
 								m.vp = legend;
 							}
 							x.markers[m.id] = m;
-							legendLabel(m);
+							var llab = new legendLabel(m);
 							break;
 						}
 					}
@@ -2049,6 +2373,7 @@ HTMLWidgets.widget({
 			var thisSNP=lolli.append('g');
 			
 			// add resizable SNPline
+			var thisSNPresizeLabel;
 			var thisSNPresizeLine = thisSNP.append("line")
 							.attr('stroke', 'white')
 							.attr('stroke-width', '2px')
@@ -2062,12 +2387,36 @@ HTMLWidgets.widget({
 							.attr('ref', "-")
 							.attr("id", "lolliplotResizelineB_"+k+"_"+datatrack)
 							.style("cursor", "ns-resize")
-								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
-								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
+							.on("mouseover", function(){
+								d3.select(this).attr("stroke", 'gray').style("opacity", 0.5);
+								thisSNPresizeLabel = thisSNP.append("text")
+															.attr("fill", "#222222")
+															.attr("x", widthF()/2)
+															.attr("y", yscale(pos[3])-5)
+															.style("font-size", "10px")
+															.text("drag to change the height of lollipop stick");
+								})
+							.on("mouseout", function(){
+								d3.select(this).attr("stroke", 'white').style("opacity", 0);
+								if(typeof(thisSNPresizeLabel)!="undefined"){
+											thisSNPresizeLabel.remove();
+										}
+								})
 							.call(d3.drag().on("drag", function(){
-									if(typeof(YposSTART[trackNames()[k]+"_"+datatrack])=="undefined") YposSTART[trackNames()[k]+"_"+datatrack] = 0;
-									if(d3.event.dy<10) YposSTART[trackNames()[k]+"_"+datatrack] -= 1-yscale.invert(d3.event.dy/3);
+									if(typeof(parameter.YposSTART[trackNames()[k]+"_"+datatrack])=="undefined") parameter.YposSTART[trackNames()[k]+"_"+datatrack] = 0;
+									if(d3.event.dy<10) parameter.YposSTART[trackNames()[k]+"_"+datatrack] -= 1-yscale.invert(d3.event.dy/3);
 									plotregion.renew();
+								}).on("start", function(){
+									d3.select(this).style("cursor", "ns-resize").raise().classed("active", true);
+									addNewHistory({
+										undo:function(){
+											parameter.YposSTART[trackNames()[k]+"_"+datatrack] = 0;
+											plotregion.renew();
+										},
+										redo:function(){}
+									});
+								}).on("end", function(){
+									d3.select(this).style("cursor", "default").classed("active", false);
 								}));
 			
 			if(typeof(trackdat.type)!="undefined"){
@@ -2078,8 +2427,8 @@ HTMLWidgets.widget({
 					if(typeof(trackdat.maxgap)!="undefined"){
 						maxgap = trackdat.maxgap[0];
 					}
-					if(typeof(maxGAP)!="undefined"){
-						maxgap *= maxGAP;
+					if(typeof(parameter.maxGAP)!="undefined"){
+						maxgap *= parameter.maxGAP;
 					}
 					trackdat.group = [0];
 					var groupSize = [1];
@@ -2237,7 +2586,7 @@ HTMLWidgets.widget({
 								.attr('ref', "-")
 								.attr("id", "lolliplotResizelineL_"+k+"_"+datatrack+"_"+i)
 								.style("cursor", "ew-resize")
-								.call(d3.drag().on("drag", draggedResize));
+								.call(d3.drag().on("drag", draggedResize).on("start", draggedStart));
 					}
 					//addd legend
 					var legend = lolli.append("g");
@@ -2265,7 +2614,7 @@ HTMLWidgets.widget({
 							m.vp = legend;
 						}
 						x.markers[m.id] = m;
-						legendLabel(m);
+						var llab = new legendLabel(m);
 					}
 					return(null);
 				}
@@ -2357,7 +2706,7 @@ HTMLWidgets.widget({
 							.attr('ref', "-")
 							.attr("id", "lolliplotResizelineL_"+k+"_"+datatrack+"_"+i)
 							.style("cursor", "ew-resize")
-							.call(d3.drag().on("drag", draggedResize));
+							.call(d3.drag().on("drag", draggedResize).on("start", draggedStart));
 					 /*thisSNP.append('line')
 							.attr('stroke', 'white')
 							.attr('stroke-width', '2px')
@@ -2719,9 +3068,9 @@ HTMLWidgets.widget({
         };
         
         //gene track
-        var geneTrackHeightFactor = [];
-        var isoformR=[];
-        var trackLayerDataTxt = [];
+        parameter.geneTrackHeightFactor = [];
+        parameter.isoformR=[];
+        parameter.trackLayerDataTxt = [];
         var geneTrack = function(layer, track, start, end, xscale, yscale, wscale, line, k, label){
             var self=this;
             self.layer=layer;
@@ -2731,11 +3080,11 @@ HTMLWidgets.widget({
             	geneTrack(layer, track, start, end, xscale, yscale, wscale, line, k, label);
             };
             var color = track.style.color;
-            if(typeof(geneTrackHeightFactor[trackNames()[k]])=="undefined"){
-            	geneTrackHeightFactor[trackNames()[k]] = 1;
+            if(typeof(parameter.geneTrackHeightFactor[trackNames()[k]])=="undefined"){
+            	parameter.geneTrackHeightFactor[trackNames()[k]] = 1;
             }
-            if(typeof(isoformR[trackNames()[k]])=="undefined"){
-            	isoformR[trackNames()[k]] = 0;
+            if(typeof(parameter.isoformR[trackNames()[k]])=="undefined"){
+            	parameter.isoformR[trackNames()[k]] = 0;
             }
             if(typeof(color)!="string"){
             	color = color[0];
@@ -2756,23 +3105,34 @@ HTMLWidgets.widget({
             function draggedResize(){
             	var ele = d3.select(this);
             	if(d3.event.dy> 2){
-            		geneTrackHeightFactor[trackNames()[ele.attr("kvalue")]] *= .75;
+            		parameter.geneTrackHeightFactor[trackNames()[ele.attr("kvalue")]] *= .75;
             	}
             	if(d3.event.dy< -2){
-            		geneTrackHeightFactor[trackNames()[ele.attr("kvalue")]] *= 1.25;
+            		parameter.geneTrackHeightFactor[trackNames()[ele.attr("kvalue")]] *= 1.25;
             	}
             	plotregion.renew();
+            }
+            function draggedResizeStart(){
+            	var k = d3.select(this).attr("kvalue");
+            	var tmpstatus = parameter.geneTrackHeightFactor[trackNames()[k]];
+            	addNewHistory({
+            		undo:function(){
+            			parameter.geneTrackHeightFactor[trackNames()[k]] = tmpstatus;
+            			plotregion.renew();
+            		},
+            		redo:function(){}
+            	});
             }
             if(track.dat.start.length>0){
                 var geneStart=end, geneEnd=start;
                 var intronStart=end+5, intronEnd=start-5;
                 var fLayer = Math.max(...track.dat.featureLayerID);
                 var feature={
-                    "utr5" : Y*geneTrackHeightFactor[trackNames()[k]]/2/fLayer,
-                    "CDS"  : Y*geneTrackHeightFactor[trackNames()[k]]/fLayer,
-                    "exon" : Y*geneTrackHeightFactor[trackNames()[k]]/fLayer,
-                    "utr3" : Y*geneTrackHeightFactor[trackNames()[k]]/2/fLayer,
-                    "ncRNA": Y*geneTrackHeightFactor[trackNames()[k]]/2/fLayer
+                    "utr5" : Y*parameter.geneTrackHeightFactor[trackNames()[k]]/2/fLayer,
+                    "CDS"  : Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer,
+                    "exon" : Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer,
+                    "utr3" : Y*parameter.geneTrackHeightFactor[trackNames()[k]]/2/fLayer,
+                    "ncRNA": Y*parameter.geneTrackHeightFactor[trackNames()[k]]/2/fLayer
                 };
                 for(var j=1; j<=fLayer; j++){
 					var data=[];
@@ -2825,7 +3185,7 @@ HTMLWidgets.widget({
 						}
 					}
 					
-					var thisYpos = Y+(j+isoformR[trackNames()[k]])/(fLayer+1+2*isoformR[trackNames()[k]])/2;
+					var thisYpos = Y+(j+parameter.isoformR[trackNames()[k]])/(fLayer+1+2*parameter.isoformR[trackNames()[k]])/2;
 					var thisY = yscale(thisYpos);
                 	// add resize line
                 	self.layer.append('line')
@@ -2833,16 +3193,16 @@ HTMLWidgets.widget({
 				        .attr('stroke-width', '2px')
 						.attr("x1", xscale(geneStart))
 						.attr("x2", xscale(geneEnd))
-						.attr("y1", yscale(thisYpos + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
-						.attr("y2", yscale(thisYpos + Y*geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+						.attr("y1", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+						.attr("y2", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
                         .style("opacity", 0)
                         .attr('fLayer', fLayer)
 				        .attr('kvalue', k)
 				        .attr("id", "geneTrackResizelineB_"+trackNames()[k]+"_"+fLayer)
 				        .style("cursor", "ns-resize")
-								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
-								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
-                        .call(d3.drag().on("drag", draggedResize));
+						.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+						.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
+                        .call(d3.drag().on("drag", draggedResize).on("start", draggedResizeStart));
 					// add a center line
 					if(geneStart < start) geneStart = start;
 					if(geneEnd > end) geneEnd = end;
@@ -2916,8 +3276,8 @@ HTMLWidgets.widget({
 					opt.cls = "trackLayerLabel_"+k;
 					opt.trackKey = k;
 					opt.text = trackLayerData.textlabel;
-					if(typeof(trackLayerDataTxt[trackNames()[k]+"_"+j])!="undefined") opt.text = trackLayerDataTxt[trackNames()[k]+"_"+j];
-					trackLayerDataTxt[trackNames()[k]+"_"+j] = opt.text;
+					if(typeof(parameter.trackLayerDataTxt[trackNames()[k]+"_"+j])!="undefined") opt.text = parameter.trackLayerDataTxt[trackNames()[k]+"_"+j];
+					parameter.trackLayerDataTxt[trackNames()[k]+"_"+j] = opt.text;
 					opt.vp = self.layer;
 					opt.fontsize = x.fontsize[trackNames()[k]+"_"+j] || defaultFontSize;
 					opt.color = x.color[trackNames()[k]] || opt.color;
@@ -3084,7 +3444,7 @@ HTMLWidgets.widget({
         
         
         // xaxis
-        var xaxOpt = {angle: 0, fontsize: defaultFontSize, ddx: 0, ddy: 0, color: "#000"};
+        parameter.xaxOpt = {angle: 0, fontsize: defaultFontSize, ddx: 0, ddy: 0, color: "#000"};
         var xaxis = function(layer){
         	var self=this;
         	self.ticks=[];
@@ -3097,13 +3457,13 @@ HTMLWidgets.widget({
             	var opt = textDefaultOptions();
             	opt.id = "xaxis_"+i;
             	opt.text = thisTick.text();
-            	opt.color = xaxOpt.color;
-            	opt.x = Number(thisTick.attr("x"))+xaxOpt.ddx;
-            	opt.y = Number(thisTick.attr("y"))+xaxOpt.ddy;
+            	opt.color = parameter.xaxOpt.color;
+            	opt.x = Number(thisTick.attr("x"))+parameter.xaxOpt.ddx;
+            	opt.y = Number(thisTick.attr("y"))+parameter.xaxOpt.ddy;
             	opt.dy = thisTick.attr("dy");
             	opt.cls = "xaxis_tick";
-            	opt.angle = xaxOpt.angle;
-            	opt.fontsize = xaxOpt.fontsize;
+            	opt.angle = parameter.xaxOpt.angle;
+            	opt.fontsize = parameter.xaxOpt.fontsize;
             	opt.vp = vp;
             	self.ticks.push(new Label(opt));
             	thisTick.remove();
@@ -3253,11 +3613,32 @@ HTMLWidgets.widget({
 								   .attr("stroke-width", "3px")
 								   .attr("opacity", 0)
 								   .style("cursor", "ns-resize")
-								.on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
-								.on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
+									.on("mouseover", function(){
+										d3.select(this).attr("stroke", 'gray').style("opacity", 0.5);
+										self.trackBottomText = self.track.append("text")
+																	.attr("fill", "#222222")
+																	.attr("x", widthF()/2)
+																	.attr("y", self.height()-5)
+																	.style("font-size", "10px")
+																	.text("drag to change the height of track");
+									})
+									.on("mouseout", function(){
+										d3.select(this).attr("stroke", 'white').style("opacity", 0);
+										if(typeof(self.trackBottomText)!="undefined"){
+											self.trackBottomText.remove();
+										}
+									})
 								   .call(d3.drag()
 								   .on("start", function(d){
 									   self.coor = d3.mouse(svg.node());
+									   var tmpstatus = clone(x.height);
+									   addNewHistory({
+										undo:function(){
+											x.height=tmpstatus;
+											plotregion.renew();
+										},
+										redo:function(){}
+									  });
 								   })
 								   .on("drag", function(d){
 									   var obj = d3.select(this);
@@ -3404,6 +3785,62 @@ HTMLWidgets.widget({
         var plotregion = Draw();
         var ruler = new Ruler();
         console.log(x);
+        
+        // set undo
+        function clone(obj) {//from https://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
+			var copy;
+			// Handle the 3 simple types, and null or undefined
+			if (null == obj || "object" != typeof obj) return obj;
+
+			// Handle Date
+			if (obj instanceof Date) {
+				copy = new Date();
+				copy.setTime(obj.getTime());
+				return copy;
+			}
+
+			// Handle Array
+			if (obj instanceof Array) {
+				copy = [];
+				for (var i = 0, len = obj.length; i < len; i++) {
+					copy[i] = clone(obj[i]);
+				}
+				return copy;
+			}
+
+			// Handle Object
+			if (obj instanceof Object) {
+				copy = {};
+				for (var attr in obj) {
+					if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+				}
+				return copy;
+			}
+
+			throw new Error("Unable to copy obj! Its type isn't supported.");
+		}
+        var history = [];
+        var historyIndex = 0;
+        function addNewHistory(item){
+        	if(history.length>0) history=history.slice(0, historyIndex);
+        	history.push(item);
+			historyIndex++;
+        }
+        function undo(){
+        	if(history.length>0 && historyIndex > 0){
+        		historyIndex--;
+        		var action = history[historyIndex];
+        		if(typeof(action)!="undefined") action.undo();
+        	}
+        }
+        function redo(){
+        	if(history.length>historyIndex){
+        		historyIndex++;
+        		var action = history[historyIndex];
+        		action.redo();
+        	}
+        }
+        d3.select("#undo").on("click", undo);
       },
 
       resize: function(width, height) {
