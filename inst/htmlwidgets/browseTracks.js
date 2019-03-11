@@ -98,6 +98,7 @@ HTMLWidgets.widget({
         x.rotate = {};//track y label angle, track tick label angle, named as trackNames_tick
         x.color = {};//track y label color, track tick label color, named as trackNames_tick
         x.dataYlabelPos = {x:{},y:{}}; // track y label position
+        x.lolliplotTrackLabel = {};
         
         //parameter to save all parameters
         var parameter = {};
@@ -219,19 +220,23 @@ HTMLWidgets.widget({
         	self.rotate_bg = self.bgg.append('g');//rotate point
         	         
         	//move tracks order
+        	var oriX,oriY;
 			self.dragstarted = function () {
 			  d3.select(this).style("cursor", "move").raise().classed("active", true);
+			  oriX = d3.event.x;
+			  oriY = d3.event.y;
 			  var tmpstatus = {
 			  	ddx: parameter.xaxOpt.ddx,
 			  	ddy: parameter.xaxOpt.ddy,
-			  	ylabx0: x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"],
-			  	ylabx1: x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"],
-			  	ylaby0: x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"],
-			  	ylaby1: x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"],
-			  	yx: x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref],
-			  	yy: x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref],
+			  	ylabx0: x.dataYlabelPos.x[trackNames()[self.k]+"_0_"+self.ref+"_tick"],
+			  	ylabx1: x.dataYlabelPos.x[trackNames()[self.k]+"_1_"+self.ref+"_tick"],
+			  	ylaby0: x.dataYlabelPos.y[trackNames()[self.k]+"_0_"+self.ref+"_tick"],
+			  	ylaby1: x.dataYlabelPos.y[trackNames()[self.k]+"_1_"+self.ref+"_tick"],
+			  	yx: x.dataYlabelPos.x[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref],
+			  	yy: x.dataYlabelPos.y[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref],
 			  	label: clone(x.markers[self.id]),
-			  	font: self.fontsize
+			  	font: self.fontsize,
+			  	lolliplotTrackLabel: x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey]
 			  };
 			  addNewHistory({
 			  	undo:function(){
@@ -241,20 +246,20 @@ HTMLWidgets.widget({
 			  			parameter.xaxOpt.fontsize=tmpstatus.fontsize;
 			  		}else{
 			  			if(/yaxis_tick/.exec(self.cls)){//yaxis tick
-							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"] = tmpstatus.ylabx0;
-							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"] = tmpstatus.ylabx1;
-							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"] = tmpstatus.ylaby0;
-							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"] = tmpstatus.ylaby1;
-							x.fontsize[trackNames()[self.k]+"__tick"]=tmpstatus.fontsize;
+							x.dataYlabelPos.x[trackNames()[self.k]+"_0_"+self.ref+"_tick"] = tmpstatus.ylabx0;
+							x.dataYlabelPos.x[trackNames()[self.k]+"_1_"+self.ref+"_tick"] = tmpstatus.ylabx1;
+							x.dataYlabelPos.y[trackNames()[self.k]+"_0_"+self.ref+"_tick"] = tmpstatus.ylaby0;
+							x.dataYlabelPos.y[trackNames()[self.k]+"_1_"+self.ref+"_tick"] = tmpstatus.ylaby1;
+							x.fontsize[trackNames()[trackNames()[self.k]]+"__tick"]=tmpstatus.fontsize;
 			  			}else{
 			  				if(/dataYlabel_/.exec(self.cls)){
-			  					x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
-			  					x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
+			  					x.dataYlabelPos.x[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
+			  					x.dataYlabelPos.y[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
 			  					x.fontsize[trackNames()[self.k]]=tmpstatus.fontsize;
 			  				}else{
 			  					if(/trackLayerLabel_/.exec(self.cls)){
-			  						x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
-									x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
+			  						x.dataYlabelPos.x[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yx;
+									x.dataYlabelPos.y[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref] = tmpstatus.yy;
 									x.fontsize[trackNames()[self.k]+"_"+self.ref]=tmpstatus.fontsize;
 			  					}else{
 			  						if(self.cls=="Mlabel"){
@@ -262,7 +267,8 @@ HTMLWidgets.widget({
 			  							x.markers[self.id].fontsize=tmpstatus.fontsize;
 			  						}else{
 			  							if(/nodelabel/.exec(self.cls)){
-			  								x.fontsize["lolliplotTrackLabel_"+self.k+"_"+self.datatrack+"_"+self.poskey]=tmpstatus.fontsize;
+			  								x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey] = tmpstatus.lolliplotTrackLabel;
+			  								x.fontsize["lolliplotTrackLabel_"+trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey]=tmpstatus.fontsize;
 			  							}
 			  						}
 			  					}
@@ -278,8 +284,8 @@ HTMLWidgets.widget({
 			  d3.select(this).style("cursor", "default").classed("active", false);
 			};
 			self.dragged = function() {
-			  var dx = d3.event.x - self.oriX;
-			  var dy = d3.event.y - self.oriY;
+			  var dx = d3.event.x - oriX;
+			  var dy = d3.event.y - oriY;
 			  if(self.cls=="xaxis_tick"){//xaxis tick
 					d3.selectAll(".xaxis_tick").each(function(){
 						changeTranslate(d3.select(this.parentNode), dx, dy);
@@ -291,38 +297,37 @@ HTMLWidgets.widget({
 						d3.selectAll("."+self.cls).each(function(){
 							changeTranslate(d3.select(this.parentNode), dx, dy);
 						});
-						if(typeof(x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"])=="undefined"){
-							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"]=dx;
+						if(typeof(x.dataYlabelPos.x[trackNames()[self.k]+"_0_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.x[trackNames()[self.k]+"_0_"+self.ref+"_tick"]=dx;
 						}else{
-							x.dataYlabelPos.x[self.k+"_0_"+self.ref+"_tick"]+=dx;
+							x.dataYlabelPos.x[trackNames()[self.k]+"_0_"+self.ref+"_tick"]+=dx;
 						}
-						if(typeof(x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"])=="undefined"){
-							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"]=dy;
+						if(typeof(x.dataYlabelPos.y[trackNames()[self.k]+"_0_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.y[trackNames()[self.k]+"_0_"+self.ref+"_tick"]=dy;
 						}else{
-							x.dataYlabelPos.y[self.k+"_0_"+self.ref+"_tick"]+=dy;
+							x.dataYlabelPos.y[trackNames()[self.k]+"_0_"+self.ref+"_tick"]+=dy;
 						}
-						if(typeof(x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"])=="undefined"){
-							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"]=dx;
+						if(typeof(x.dataYlabelPos.x[trackNames()[self.k]+"_1_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.x[trackNames()[self.k]+"_1_"+self.ref+"_tick"]=dx;
 						}else{
-							x.dataYlabelPos.x[self.k+"_1_"+self.ref+"_tick"]+=dx;
+							x.dataYlabelPos.x[trackNames()[self.k]+"_1_"+self.ref+"_tick"]+=dx;
 						}
-						if(typeof(x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"])=="undefined"){
-							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]=dy;
+						if(typeof(x.dataYlabelPos.y[trackNames()[self.k]+"_1_"+self.ref+"_tick"])=="undefined"){
+							x.dataYlabelPos.y[trackNames()[self.k]+"_1_"+self.ref+"_tick"]=dy;
 						}else{
-							x.dataYlabelPos.y[self.k+"_1_"+self.ref+"_tick"]+=dy;
+							x.dataYlabelPos.y[trackNames()[self.k]+"_1_"+self.ref+"_tick"]+=dy;
 						}
 					}else{
-						dy = dy + x.height[trackNames()[self.k]]*heightF()/2;
 						  self.x=self.x+dx;
 						  self.y=self.y+dy;
 						if(/dataYlabel_/.exec(self.cls)){
-							x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
-							x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref]=self.y;
+							x.dataYlabelPos.x[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
+							x.dataYlabelPos.y[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref]=self.y;
 							changeTranslate(d3.select(this.parentNode), dx, dy);
 						}else{
 							if(/trackLayerLabel_/.exec(self.cls)){
-								x.dataYlabelPos.x[self.k+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
-								x.dataYlabelPos.y[self.k+"_"+self.datatrack+"_"+self.ref]=self.y;
+								x.dataYlabelPos.x[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref]=xscale().invert(self.x);
+								x.dataYlabelPos.y[trackNames()[self.k]+"_"+self.datatrack+"_"+self.ref]=self.y;
 								changeTranslate(self.g, dx, dy);
 							}else{
 								if(self.cls=="Mlabel"){
@@ -338,8 +343,17 @@ HTMLWidgets.widget({
 									  x.markers[self.id] = m;
 									  self.g.attr("transform", "translate("+self.x+","+self.y+")");
 								}else{
-									self.body.attr("dx", d3.event.x)
-											.attr("dy", d3.event.y);
+									if(/nodelabel/.exec(self.cls)){
+										if(typeof(x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey])!="undefined"){
+											x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey].x += dx;
+											x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey].y += dy;
+										}else{
+											x.lolliplotTrackLabel[trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey] = {x:dx, y:dy};
+										}
+										changeTranslate(d3.select(this.parentNode), dx, dy);
+									}else{
+										changeTranslate(d3.select(this.parentNode), dx, dy);
+									}
 								}
 							}
 						}
@@ -364,7 +378,7 @@ HTMLWidgets.widget({
                 			x.fontsize[trackNames()[self.k]+"_"+self.ref]=self.fontsize;
                 		}
                 		if(/nodelabel/.exec(self.cls)){
-                			x.fontsize["lolliplotTrackLabel_"+self.k+"_"+self.datatrack+"_"+self.poskey]=self.fontsize;
+                			x.fontsize["lolliplotTrackLabel_"+trackNames()[self.k]+"_"+self.datatrack+"_"+self.poskey]=self.fontsize;
                 		}
                 		if(/Mlabel/.exec(self.cls)){
                 			x.markers[self.id].fontsize=self.fontsize;
@@ -713,6 +727,7 @@ HTMLWidgets.widget({
         	self.vp = option.vp || svg;
         	
         	var M = clone(x.markers[self.id]);
+        	var oriX,oriY,curX,curY;
 			self.vpg = self.vp.append("g")
 						 .attr("transform", "translate("+xscale()(self.x)+","+self.y+")")
 						 .attr("id", self.id)
@@ -720,18 +735,18 @@ HTMLWidgets.widget({
 								var obj = d3.select(this);
 								obj.style("cursor", "move");
 								var coords = d3.mouse(svg.node());
-								var posx = Math.round(xscale().invert(coords[0]-margin.left));
-								var posy = Math.round(coords[1]-margin.top);
-								var ref = obj.attr("id");
-								var m = x.markers[ref];
-								if(posx!=m.x || posy!=m.y){
-									m.x = posx;
-									m.y = posy;
-									x.markers[m.id] = m;
-									obj.attr("transform", "translate("+xscale()(posx)+","+posy+")");
-								}
+								var dx = coords[0] - curX;
+								var dy = coords[1] - curY;
+								curX = coords[0];
+								curY = coords[1];
+								changeTranslate(obj, dx, dy);
 						 }).on("start", function(d){
 						 	d3.select(this).style("cursor", "move").raise().classed("active", true);
+						 	var coords = d3.mouse(svg.node());
+						 	oriX = coords[0];
+						 	oriY = coords[1];
+							curX = coords[0];
+							curY = coords[1];
 						 	var tmpstatus={};
 						 	if(typeof(x.markers[M.id])!="undefined"){
 								tmpstatus={
@@ -751,6 +766,10 @@ HTMLWidgets.widget({
 							});
 						 }).on("end", function(d){
 						 	d3.select(this).style("cursor", "default").classed("active", false);
+						 	var m = x.markers[d3.select(this).attr("id")];
+						 	m.x = Math.round(xscale().invert(curX));
+						 	m.y = Math.round(curY);
+						 	x.markers[d3.select(this).attr("id")] = m;
 						 }))
 						 .on("dblclick", self.remove);
 	 
@@ -2633,7 +2652,7 @@ HTMLWidgets.widget({
 															.attr("x", widthF()/2)
 															.attr("y", yscale(pos[3])-5)
 															.style("font-size", "10px")
-															.text("drag to change the height of lollipop stems");
+															.text("drag to change the height of lollipop stick");
 								})
 							.on("mouseout", function(){
 								d3.select(this).attr("stroke", 'white').style("opacity", 0);
@@ -3077,20 +3096,24 @@ HTMLWidgets.widget({
 						if(typeof(trackdat.textlabel)!="undefined"){
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
-								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
+								opt.id = "lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i;
 								opt.angle= -90;
 								if(typeof(trackdat["label.parameter.rot"])!="undefined"){
 									opt.angle = -trackdat["label.parameter.rot"][i];
 								}
 								opt.y = circenter;
 								opt.x = xscale(trackdat.labpos[i]);
+								if(typeof(x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i])!="undefined"){
+									opt.x += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].x;
+									opt.y += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].y;
+								}
 								opt.anchor = "start";
-								opt.cls = "nodelabel_"+k;
+								opt.cls = "nodelabel_"+trackNames()[k];
 								opt.trackKey = k;
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
-								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.color;
+								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || opt.fontsize;
+								opt.color = x.color["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || opt.color;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
@@ -3187,18 +3210,22 @@ HTMLWidgets.widget({
 				 		if(typeof(trackdat.textlabel)!="undefined"){
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
-								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
+								opt.id = "lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i;
 								opt.angle= 0;
 								if(typeof(trackdat["label.parameter.rot"])!="undefined") opt.angle = -trackdat["label.parameter.rot"][i];
 								opt.y = thisY+((ypos<.5?-1:1)*11*yscale(pos[5]));
 								opt.x = xscale(trackdat.labpos[i]);
+								if(typeof(x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i])!="undefined"){
+									opt.x += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].x;
+									opt.y += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].y;
+								}
 								opt.anchor = "start";
-								opt.cls = "nodelabel_"+k;
+								opt.cls = "nodelabel_"+trackNames()[k];
 								opt.trackKey = k;
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
-								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || bordercolor;
+								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || opt.fontsize;
+								opt.color = x.color["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || bordercolor;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
@@ -3302,20 +3329,24 @@ HTMLWidgets.widget({
 				 		if(typeof(trackdat.textlabel)!="undefined"){
 							if(typeof(trackdat.textlabel[i])=="string"){
 								var opt = textDefaultOptions();
-								opt.id = "lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i;
+								opt.id = "lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i;
 								opt.angle= 0;
 								if(typeof(trackdat["label.parameter.rot"])!="undefined"){
 									opt.angle=-trackdat["label.parameter.rot"][i]
 								}
 								opt.y = circenter+((ypos<.5?-1:1)*7*yscale(pos[5]));
 								opt.x = xscale(trackdat.labpos[i]);
+								if(typeof(x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i])!="undefined"){
+									opt.x += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].x;
+									opt.y += x.lolliplotTrackLabel[trackNames()[k]+"_"+datatrack+"_"+i].y;
+								}
 								opt.anchor = "start";
-								opt.cls = "nodelabel_"+k;
+								opt.cls = "nodelabel_"+trackNames()[k];
 								opt.trackKey = k;
 								opt.text = trackdat.textlabel[i];
 								opt.vp = lolli;
-								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || opt.fontsize;
-								opt.color = x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+i] || bordercolor;
+								opt.fontsize = x.fontsize["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || opt.fontsize;
+								opt.color = x.color["lolliplotTrackLabel_"+trackNames()[k]+"_"+datatrack+"_"+i] || bordercolor;
 								opt.datatrack = datatrack;
 								opt.poskey = i;
 								opt.colorPickerId = 6;
@@ -3593,8 +3624,8 @@ HTMLWidgets.widget({
 					// add gene symbols
 					var opt = textDefaultOptions();
 					opt.angle= typeof(x.rotate[trackNames()[k]+"_"+j])=="undefined"?0:x.rotate[trackNames()[k]+"_"+j];
-					opt.y = typeof(x.dataYlabelPos.y[k+"_0_"+j])=="undefined"?thisY+4:x.dataYlabelPos.y[k+"_0_"+j];
-					opt.x = typeof(x.dataYlabelPos.x[k+"_0_"+j])=="undefined"?xscale(geneStart) - 10:xscale(x.dataYlabelPos.x[k+"_0_"+j]);
+					opt.y = typeof(x.dataYlabelPos.y[trackNames()[k]+"_0_"+j])=="undefined"?thisY+4:x.dataYlabelPos.y[trackNames()[k]+"_0_"+j];
+					opt.x = typeof(x.dataYlabelPos.x[trackNames()[k]+"_0_"+j])=="undefined"?xscale(geneStart) - 10:xscale(x.dataYlabelPos.x[trackNames()[k]+"_0_"+j]);
 					opt.anchor = "end";
 					opt.cls = "trackLayerLabel_"+k;
 					opt.trackKey = k;
@@ -3672,8 +3703,8 @@ HTMLWidgets.widget({
             // add name symbols
             var opt = textDefaultOptions();
             opt.angle= typeof(x.rotate[trackNames()[k]])=="undefined"?0:x.rotate[trackNames()[k]];
-			opt.y = typeof(x.dataYlabelPos.y[k+"_0_text"])=="undefined"?yscale(0.5)+4:x.dataYlabelPos.y[k+"_0_text"];
-			opt.x = typeof(x.dataYlabelPos.x[k+"_0_text"])=="undefined"?xscale(start) - 10:xscale(x.dataYlabelPos.x[k+"_0_text"]);
+			opt.y = typeof(x.dataYlabelPos.y[trackNames()[k]+"_0_text"])=="undefined"?yscale(0.5)+4:x.dataYlabelPos.y[trackNames()[k]+"_0_text"];
+			opt.x = typeof(x.dataYlabelPos.x[trackNames()[k]+"_0_text"])=="undefined"?xscale(start) - 10:xscale(x.dataYlabelPos.x[trackNames()[k]+"_0_text"]);
             opt.anchor = "end";
             opt.cls = "dataYlabel_"+k;
             opt.trackKey = k;
@@ -3836,8 +3867,8 @@ HTMLWidgets.widget({
 					var opt = textDefaultOptions();
 					opt.id = "yaxis_"+k+"_"+i;
 					opt.text = thisTick.text();
-					opt.y = typeof(x.dataYlabelPos.y[k+"_"+i+"_text_tick"])=="undefined"?thisTick.attr("y"):x.dataYlabelPos.y[k+"_"+i+"_text_tick"];
-					opt.x = typeof(x.dataYlabelPos.x[k+"_"+i+"_text_tick"])=="undefined"?thisTick.attr("x"):x.dataYlabelPos.x[k+"_"+i+"_text_tick"];
+					opt.y = typeof(x.dataYlabelPos.y[trackNames()[k]+"_"+i+"_text_tick"])=="undefined"?thisTick.attr("y"):x.dataYlabelPos.y[trackNames()[k]+"_"+i+"_text_tick"];
+					opt.x = typeof(x.dataYlabelPos.x[trackNames()[k]+"_"+i+"_text_tick"])=="undefined"?thisTick.attr("x"):x.dataYlabelPos.x[trackNames()[k]+"_"+i+"_text_tick"];
 					opt.dy = thisTick.attr("dy");
 					opt.anchor = yaxisStyle.yaxis.main?"end":"start";
 					opt.cls = "yaxis_tick_"+k;
@@ -3855,8 +3886,8 @@ HTMLWidgets.widget({
             // trackName
             var opt = textDefaultOptions();
             opt.angle= typeof(x.rotate[trackNames()[k]])=="undefined"?(yaxisStyle.yaxis.main?-90:0):x.rotate[trackNames()[k]];
-			opt.y = typeof(x.dataYlabelPos.y[k+"_0_text"])=="undefined"?height/2:x.dataYlabelPos.y[k+"_0_text"];
-			opt.x = typeof(x.dataYlabelPos.x[k+"_0_text"])=="undefined"?-8:xscale()(x.dataYlabelPos.x[k+"_0_text"]);
+			opt.y = typeof(x.dataYlabelPos.y[trackNames()[k]+"_0_text"])=="undefined"?height/2:x.dataYlabelPos.y[trackNames()[k]+"_0_text"];
+			opt.x = typeof(x.dataYlabelPos.x[trackNames()[k]+"_0_text"])=="undefined"?-8:xscale()(x.dataYlabelPos.x[trackNames()[k]+"_0_text"]);
             opt.anchor = yaxisStyle.yaxis.main?"middle":"end";
             opt.cls = "dataYlabel_"+k;
             opt.trackKey = k;
@@ -3969,7 +4000,7 @@ HTMLWidgets.widget({
 																	.attr("x", widthF()/2)
 																	.attr("y", self.height()-5)
 																	.style("font-size", "10px")
-																	.text("drag to change the height of the track");
+																	.text("drag to change the height of track");
 									})
 									.on("mouseout", function(){
 										d3.select(this).attr("stroke", 'white').style("opacity", 0);
@@ -4092,6 +4123,7 @@ HTMLWidgets.widget({
                                .attr("y", svg.attr("height")-resizeBtnSize)
                                .attr("width", resizeBtnSize)
                                .attr("height", resizeBtnSize)
+                               .attr("opacity", 0)
                                .style("cursor", "nwse-resize")
                                .call(d3.drag().on("drag", function(d){
 									svg.attr("width", d3.event.x).attr("height", d3.event.y);
