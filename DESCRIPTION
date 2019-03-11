@@ -16,3 +16,4 @@ Suggests: biomaRt, TxDb.Hsapiens.UCSC.hg19.knownGene, RUnit, org.Hs.eg.db,
 biocViews: Visualization
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
+Encoding: UTF-8
