@@ -520,7 +520,6 @@ HTMLWidgets.widget({
 
 				var frm = self.g.append("foreignObject");
 								
-				var tmpstatus = self.text;
 				var inp = frm
 					.attr("x", xy.x)
 					.attr("y", xy.y)
@@ -535,30 +534,24 @@ HTMLWidgets.widget({
 							.attr("style", "width: 200px;")
 							// make the form go away when you jump out (form looses focus) or hit ENTER:
 							.on("blur", function() {
+								var tmpstatus = clone(self);
 								addNewHistory({
 									undo:function(){
-										self.text = tmpstatus;
-										if(/yaxis_/.exec(self.cls)){
-											x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
+										if(/yaxis_/.exec(tmpstatus.cls)){
+											x.tracklist[trackNames()[tmpstatus.k]].ylim[tmpstatus.datatrack]=Number(tmpstatus.text);
 										}
-										if(/dataYlabel_/.exec(self.cls)){
-											changeTrackName(self.k, self.text)
+										if(/dataYlabel_/.exec(tmpstatus.cls)){
+											changeTrackName(tmpstatus.k, tmpstatus.text)
 										}
-										if(/Mlabel/.exec(self.cls)){
-											var m = x.markers[self.id];
-											  m.ref = [xscale().invert(self.x-margin.left), self.y];
-											  m.txt = self.text;
-											  delete(x.markers[self.id]);
-											  self.id="text"+m.ref[0] + "_" + m.ref[1];
-											  self.ref="text"+m.ref[0] + "_" + m.ref[1];
-											  self.body.attr("ref", self.ref);
-											  x.markers[self.id] = m;  
+										if(/Mlabel/.exec(tmpstatus.cls)){
+											  x.markers[tmpstatus.id].ref = [xscale().invert(tmpstatus.x-margin.left), tmpstatus.y];
+											  x.markers[tmpstatus.id].txt = tmpstatus.text;
 										}
-										if(/legend/.exec(self.cls)){
-											x.markers[self.id].text = self.text;
+										if(/legend/.exec(tmpstatus.cls)){
+											x.markers[tmpstatus.id].text = tmpstatus.text;
 										}
-										if(/trackLayerLabel/.exec(self.cls)){
-											parameter.trackLayerDataTxt[trackNames()[self.k]+"_"+self.ref] = self.text;
+										if(/trackLayerLabel/.exec(tmpstatus.cls)){
+											parameter.trackLayerDataTxt[trackNames()[tmpstatus.k]+"_"+tmpstatus.ref] = tmpstatus.text;
 										}
 										plotregion.renew();
 									},
@@ -607,6 +600,31 @@ HTMLWidgets.widget({
 									if (e.stopPropagation)
 									  e.stopPropagation();
 									e.preventDefault();
+									
+									
+									var tmpstatus = clone(self);
+									addNewHistory({
+										undo:function(){
+											if(/yaxis_/.exec(tmpstatus.cls)){
+												x.tracklist[trackNames()[tmpstatus.k]].ylim[tmpstatus.datatrack]=Number(tmpstatus.text);
+											}
+											if(/dataYlabel_/.exec(tmpstatus.cls)){
+												changeTrackName(tmpstatus.k, tmpstatus.text)
+											}
+											if(/Mlabel/.exec(tmpstatus.cls)){
+												  x.markers[tmpstatus.id].ref = [xscale().invert(tmpstatus.x-margin.left), tmpstatus.y];
+												  x.markers[tmpstatus.id].txt = tmpstatus.text;
+											}
+											if(/legend/.exec(tmpstatus.cls)){
+												x.markers[tmpstatus.id].text = tmpstatus.text;
+											}
+											if(/trackLayerLabel/.exec(tmpstatus.cls)){
+												parameter.trackLayerDataTxt[trackNames()[tmpstatus.k]+"_"+tmpstatus.ref] = tmpstatus.text;
+											}
+											plotregion.renew();
+										},
+										redo:function(){}
+									});
 									
 									var old = self.text;
 									self.text = inp.node().value;
@@ -764,6 +782,14 @@ HTMLWidgets.widget({
                 				.on("click", function(){
                 					var obj = d3.select(this);
                 					var picked = function(col){
+										var tmpstatus = {k:self.id, v:x.markers[self.id].fill};
+										addNewHistory({
+											undo:function(){
+												x.markers[tmpstatus.k].fill = tmpstatus.v;
+												plotregion.renew();
+											},
+											redo:function(){}
+										});
                 						var m = x.markers[self.id];
                 						m.fill = col;
                 						x.markers[self.id] = m;
@@ -917,12 +943,15 @@ HTMLWidgets.widget({
             self.draggedLine = function(d){
                 var coords = d3.mouse(svg.node())[0];
                 d3.select(this).attr("x1", coords).attr("x2", coords);
+                d3.select("line[ref='"+d3.select(this).attr("ref")+"']")
+                	.attr("x1", coords).attr("x2", coords);
             }
             self.dragendLine = function(d){
                 var coords = d3.mouse(svg.node());
                 var posx = Math.round(xscale().invert(coords[0]-margin.left));
                 var old = d3.select(this).attr("ref");
-                if(old != "line"+posx){
+                var oldx = Number(old.replace("line", ""));
+                if(Math.abs(xscale()(oldx)+ margin.left - coords[0])>1){
                     x.markers["line"+posx] = x.markers[old];
                     delete(x.markers[old]);
                     x.markers["line"+posx].ref = posx;
@@ -937,6 +966,21 @@ HTMLWidgets.widget({
                 		},
                 		redo:function(){}
                 	});
+                }else{
+                	var obj = d3.select(this);
+					var picked = function(col){
+						var tmpstatus = {k:obj.attr("ref"), v:x.markers[obj.attr("ref")].color};
+						addNewHistory({
+							undo:function(){
+								x.markers[tmpstatus.k].color = tmpstatus.v;
+								plotregion.renew();
+							},
+							redo:function(){}
+						});
+						x.markers[obj.attr("ref")].color = col;
+						self.redraw();
+					};
+					ColorPicker(this, picked);
                 }
             }
             self.dragstarted = function(d){
@@ -1011,6 +1055,29 @@ HTMLWidgets.widget({
                 var obj = d3.select(this);
                 var ref = obj.attr("ref");
                 if(posx != x.markers[ref].ref){
+                    obj.attr("x1", xscale()(posx) + margin.left)
+                       .attr("x2", xscale()(posx) + margin.left);
+                    var newWid = d3.select("#rectR"+x.markers[ref].ref).attr("x1") - coords[0];
+                    d3.select("#rect"+x.markers[ref].ref)
+                      .attr("x", xscale()(posx) + margin.left)
+                      .attr("width", newWid>0?newWid:0);
+                }
+            };
+            self.resizeRectLEnd = function(d){
+                var coords = d3.mouse(this);
+                var posx = Math.round(xscale().invert(coords[0] - margin.left));
+                var obj = d3.select(this);
+                var ref = obj.attr("ref");
+                if(posx != x.markers[ref].ref){
+                	var tmpstatus = {k:ref,k2:posx,v:clone(x.markers[ref])};
+                	addNewHistory({
+                		undo:function(){
+                			x.markers[tmpstatus.k] = clone(tmpstatus.v);
+                			delete(x.markers["rect"+tmpstatus.k2]);
+                			plotregion.renew();
+                		},
+                		redo:function(){}
+                	});
                     x.markers[ref].linewidth = x.markers[ref].ref - posx + x.markers[ref].linewidth;
                     obj.attr("ref", "rect" + posx)
                        .attr("id", "rectL" + posx)
@@ -1040,7 +1107,26 @@ HTMLWidgets.widget({
                 var posx = Math.round(xscale().invert(coords[0] - margin.left));
                 var obj = d3.select(this);
                 var ref = obj.attr("ref");
+				obj.attr("x1", xscale()(posx) + margin.left)
+				   .attr("x2", xscale()(posx) + margin.left);
+				var newWid = xscale()(posx) - xscale()(x.markers[ref].ref);
+				d3.select("#rect"+x.markers[ref].ref)
+				  .attr("width", newWid>0?newWid:0);
+            };
+            self.resizeRectREnd = function(d){
+                var coords = d3.mouse(this);
+                var posx = Math.round(xscale().invert(coords[0] - margin.left));
+                var obj = d3.select(this);
+                var ref = obj.attr("ref");
                 if(posx != x.markers[ref].ref + x.markers[ref].linewidth){
+                	var tmpstatus = {k:ref,v:clone(x.markers[ref])};
+                	addNewHistory({
+                		undo:function(){
+                			x.markers[tmpstatus.k] = clone(tmpstatus.v);
+                			plotregion.renew();
+                		},
+                		redo:function(){}
+                	});
                     obj.attr("x1", xscale()(posx) + margin.left)
                        .attr("x2", xscale()(posx) + margin.left);
                     var newWid = xscale()(posx) - xscale()(x.markers[ref].ref);
@@ -1092,13 +1178,21 @@ HTMLWidgets.widget({
                                     .attr("y1", y1)
                                     .attr("y2", y2)
                                     .attr("stroke", m.color)
-                                    .attr("stroke-width", m.linewidth * 4)
+                                    .attr("stroke-width", m.linewidth * 10)
                                     .attr("opacity", 0)
                                     .attr("class", "arrowline")
                                     .attr("ref", "arrow"+x1+"_"+x2+"_"+y1+"_"+y2)
                                     .on("click", function(){
                                     	var obj = d3.select(this);
                                     	var picked = function(col){
+											var tmpstatus = {k:obj.attr("ref"), v:x.markers[obj.attr("ref")].color};
+											addNewHistory({
+												undo:function(){
+													x.markers[tmpstatus.k].color = tmpstatus.v;
+													plotregion.renew();
+												},
+												redo:function(){}
+											});
                                     		x.markers[obj.attr("ref")].color = col;
                                     		self.redraw();
                                     	};
@@ -1130,7 +1224,7 @@ HTMLWidgets.widget({
                                      });
                 var oldstart={x1:x1, y1:y1, x2:x2, y2:y2, col:m.color};
                 arrowline.start = arrowline.g.append("circle")
-                                            .attr("r", 4)
+                                            .attr("r", 10)
                                             .attr("cx", xscale()(x1)+margin.left)
                                             .attr("cy", y1)
                                             .attr("class", "arrowlineStart")
@@ -1183,7 +1277,7 @@ HTMLWidgets.widget({
                                             	oldstart={x1:x1, y1:y1, x2:x2, y2:y2, col:m.color};
                                             }));
                 arrowline.end = arrowline.g.append("circle")
-                                            .attr("r", 4)
+                                            .attr("r", 10)
                                             .attr("cx", xscale()(x2)+margin.left)
                                             .attr("cy", y2)
                                             .attr("class", "arrowlineEnd")
@@ -1257,7 +1351,18 @@ HTMLWidgets.widget({
                     var l;
                     switch(m.markertype){
                         case 0:
-                            l= self.g.append("line")
+                            l= self.g.append("rect")
+									   .attr("stroke", "none")
+									   .attr("fill", "white")
+									   .attr("opacity", 0)
+									   .attr("x", xscale()(m.ref) + margin.left - 5)
+									   .attr("width", 10)
+									   .attr("y", margin.top)
+									   .attr("height", +svg.attr("height") - margin.bottom - margin.top)
+                                       .style("cursor", "move")
+                                       .attr("ref", "line"+m.ref)
+                                       .attr("class", "Marker");
+                            var ll=self.g.append("line")
                                        .attr("y1", margin.top)
                                        .attr("y2", +svg.attr("height") - margin.bottom)
                                        .attr("x1", xscale()(m.ref) + margin.left)
@@ -1269,7 +1374,7 @@ HTMLWidgets.widget({
                                        .attr("ref", "line"+m.ref)
                                        .attr("class", "Marker");
                             if(m.linetype==="dashed"){
-                                l.style("stroke-dasharray", ("3, 3"));
+                                ll.style("stroke-dasharray", ("3, 3"));
                             }else{
                                 //solid
                             }
@@ -1301,7 +1406,7 @@ HTMLWidgets.widget({
                                    .style("opacity", 0)
                                    .style("cursor", "ew-resize")
                                    .attr("ref", "rect"+m.ref)
-                                   .call(d3.drag().on("drag", self.resizeRectL));
+                                   .call(d3.drag().on("drag", self.resizeRectL).on("end", self.resizeRectLEnd));
                             self.g.append("line")
                                    .attr("id", "rectR"+m.ref)
                                    .attr("y1", margin.top)
@@ -1313,7 +1418,7 @@ HTMLWidgets.widget({
                                    .style("opacity", 0)
                                    .style("cursor", "ew-resize")
                                    .attr("ref", "rect"+m.ref)
-                                   .call(d3.drag().on("drag", self.resizeRectR));
+                                   .call(d3.drag().on("drag", self.resizeRectR).on("end", self.resizeRectREnd));
                             }
                             break;
                         case 2:
@@ -1344,6 +1449,14 @@ HTMLWidgets.widget({
                         l.on("click", function(){
                         	var obj = d3.select(this);
 							var picked = function(col){
+								var tmpstatus = {k:obj.attr("ref"), v:x.markers[obj.attr("ref")].color};
+								addNewHistory({
+									undo:function(){
+										x.markers[tmpstatus.k].color = tmpstatus.v;
+										plotregion.renew();
+									},
+									redo:function(){}
+								});
 								x.markers[obj.attr("ref")].color = col;
 								self.redraw();
 							};
@@ -1351,8 +1464,19 @@ HTMLWidgets.widget({
                         })
                          .on("dblclick", function(){
                             var obj = d3.select(this);
-                            obj.remove();
+                         	var tmpstatus = {
+                         		k:obj.attr("ref"),
+                         		v:clone(x.markers[obj.attr("ref")])
+                         	};
+                         	addNewHistory({
+                         		undo:function(){
+                         			x.markers[tmpstatus.k] = clone(tmpstatus.v);
+                         			self.redraw();
+                         		},
+                         		redo:function(){}
+                         	});
                             delete x.markers[obj.attr("ref")];
+                            obj.remove();
                             self.redraw();
                             self.svgDefault = false;
                          });
@@ -1493,6 +1617,14 @@ HTMLWidgets.widget({
             			}
             			break;
             		case 3: //label or lines
+            			var tmpstatus = {k:currentId,v:x.color[trackNames()[currentId]]};
+            			addNewHistory({
+            				undo:function(){
+            					x.color[trackNames()[tmpstatus.k]] = tmpstatus.v;
+            					plotregion.renew();
+            				},
+            				redo:function(){}
+            			});
             			x.color[trackNames()[currentId]] = col;
             			break;
             		case 4: //lollipop nodes
@@ -1511,6 +1643,14 @@ HTMLWidgets.widget({
             			var poskey = Number(target.attr("poskey"));
             			var datatrack = target.attr("datatrack");
             			var k = Number(target.attr("kvalue"));
+            			var tmpstatus = {k:k,datatrack:datatrack,poskey:poskey,v:x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+poskey]};
+            			addNewHistory({
+            				undo:function(){
+            					x.color["lolliplotTrackLabel_"+tmpstatus.k+"_"+tmpstatus.datatrack+"_"+tmpstatus.poskey] = tmpstatus.v;
+            					plotregion.renew();
+            				},
+            				redo:function(){}
+            			});
             			x.color["lolliplotTrackLabel_"+k+"_"+datatrack+"_"+poskey] = col;
             			break;
             		case 7: // lollipop baseline bottom line
@@ -1518,6 +1658,14 @@ HTMLWidgets.widget({
             		case 8: // lollipop baseline top line
             			break;
             		case 9: //markers
+            			var tmpstatus = {k:target.attr("ref"),v:x.markers[target.attr("ref")].color};
+            			addNewHistory({
+            				undo:function(){
+            					x.markers[tmpstatus.k].color = tmpstatus.v;
+            					plotregion.renew();
+            				},
+            				redo:function(){}
+            			});
             			x.markers[target.attr("ref")].color = col;
             			break;
             		default: 
@@ -1697,13 +1845,25 @@ HTMLWidgets.widget({
 					{
 					 label:'remove all guidelines',
 					 onMouseClick: function(){
+					 	var tmpstatus = {};
 					 	var keys = Object.keys(x.markers);
 					 	for(var i=0; i<keys.length; i++){
 					 		if(x.markers[keys[i]].markertype==0){
 					 			d3.select('.Marker[ref="'+keys[i]+'"]').remove();
+					 			tmpstatus[keys[i]] = clone(x.markers[keys[i]]);
 					 			delete x.markers[keys[i]];
 					 		}
 					 	}
+					 	addNewHistory({
+										undo:function(){
+											var keys = Object.keys(tmpstatus);
+											for(var i=0; i<keys.length; i++){
+												x.markers[keys[i]] = clone(tmpstatus[keys[i]]);
+											}
+											plotregion.renew();
+										},
+										redo:function(){}
+									  });
 					 },
 					 check: function(){return true;}
 					},
@@ -1722,6 +1882,14 @@ HTMLWidgets.widget({
 					  	return(dat && tx);
 					  },
 					  onMouseClick: function(){
+					  	var tmpstatus = clone(x.height);
+					  	addNewHistory({
+										undo:function(){
+											x.height = tmpstatus;
+											plotregion.renew();
+										},
+										redo:function(){}
+									  });
 					  	d3.selectAll('g[type = "transcript"]')
 							 .each(function(){
 								var obj=d3.select(this);
@@ -1759,6 +1927,14 @@ HTMLWidgets.widget({
 					  	return(dat && tx);
 					  },
 					  onMouseClick: function(){
+					  	var tmpstatus = clone(x.height);
+					  	addNewHistory({
+										undo:function(){
+											x.height = tmpstatus;
+											plotregion.renew();
+										},
+										redo:function(){}
+									  });
 					  	d3.selectAll('g[type = "transcript"]')
 							 .each(function(){
 								var obj=d3.select(this);
@@ -1786,6 +1962,15 @@ HTMLWidgets.widget({
 					  	return(x.type[eventLayer]=="data");
 					  },
 					  onMouseClick: function(){
+					  	var tmpstatus = {k:eventLayer,
+					  					 v:x.tracklist[eventLayer].style.yaxis.main};
+					  	addNewHistory({
+										undo:function(){
+											x.tracklist[tmpstatus.k].style.yaxis.main = tmpstatus.v;
+											plotregion.renew();
+										},
+										redo:function(){}
+									  });
 					  	x.tracklist[eventLayer].style.yaxis.main = !x.tracklist[eventLayer].style.yaxis.main;
 					  	plotregion.renew();
 					  }
@@ -1846,8 +2031,12 @@ HTMLWidgets.widget({
 					 },
 					 onMouseClick: function(){
 					 	var types = {"circle":"pin", "pin":"pie", "pie":"dandelion", "dandelion":"circle"};
+					 	var tmpstatus = {k:eventLayer};
 						if(x.type[eventLayer]!="data"){
 							if(x.type[eventLayer]=="lollipopData"){
+								tmpstatus = {k:eventLayer,
+												 d:"dat",
+												 v:clone(x.tracklist[eventLayer].dat.type)};
 								if(typeof(x.tracklist[eventLayer].dat["stack.factor"])=="undefined"){
 									if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
 										for(var i=0; i<x.tracklist[eventLayer].dat.type.length; i++){
@@ -1862,6 +2051,9 @@ HTMLWidgets.widget({
 									}
 								}
 							}else{
+								tmpstatus = {k:eventLayer,
+												 d:"dat2",
+												 v:clone(x.tracklist[eventLayer].dat2.type)};
 								if(typeof(x.tracklist[eventLayer].dat2["stack.factor"])=="undefined"){
 									if(typeof(x.tracklist[eventLayer].dat2.labpos)!="undefined"){
 										if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
@@ -1880,6 +2072,13 @@ HTMLWidgets.widget({
 							}
 						}
 						plotregion.renew();
+					 	addNewHistory({
+					 		undo:function(){
+					 			x.tracklist[tmpstatus.k][tmpstatus.d].type = clone(tmpstatus.v);
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
 					 }
 					},
 					{label:'condense isoforms', 
@@ -1887,6 +2086,14 @@ HTMLWidgets.widget({
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
+						var tmpstatus = {k:eventLayer,v:parameter.isoformR[eventLayer]};
+						addNewHistory({
+					 		undo:function(){
+					 			parameter.isoformR[tmpstatus.k] = tmpstatus.v;
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
 						parameter.isoformR[eventLayer] +=  0.25;
 						plotregion.renew();
 					}},
@@ -1895,6 +2102,14 @@ HTMLWidgets.widget({
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
+						var tmpstatus = {k:eventLayer,v:parameter.isoformR[eventLayer]};
+						addNewHistory({
+					 		undo:function(){
+					 			parameter.isoformR[tmpstatus.k] = tmpstatus.v;
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
 						parameter.isoformR[eventLayer] -= 0.25;
 						plotregion.renew();
 					}},
@@ -1908,6 +2123,14 @@ HTMLWidgets.widget({
 						return false;
 					},
 					onMouseClick: function(){
+						var tmpstatus = parameter.maxGAP;
+						addNewHistory({
+					 		undo:function(){
+					 			parameter.maxGAP = tmpstatus;
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
 						parameter.maxGAP *= 1.25;
 						plotregion.renew();
 					}},
@@ -1921,6 +2144,14 @@ HTMLWidgets.widget({
 						return false;
 					},
 					onMouseClick: function(){
+						var tmpstatus = parameter.maxGAP;
+						addNewHistory({
+					 		undo:function(){
+					 			parameter.maxGAP = tmpstatus;
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
 						parameter.maxGAP *= .75;
 						plotregion.renew();
 					}}/*,
@@ -1934,6 +2165,14 @@ HTMLWidgets.widget({
 	        var condenseLollipops = function(data, condense=true){
 	        	var labpos = [];
 	        	var labCenter = 0;
+	        	var tmpstatus = clone(data.labpos);
+	        	addNewHistory({
+	        		undo:function(){
+	        			data.labpos = clone(tmpstatus);
+	        			plotregion.renew();
+	        		},
+	        		redo:function(){}
+	        	});
 	        	for(var i=0; i<data.labpos.length; i++){
 	        		labpos.push(data.labpos[i]);
 	        		labCenter +=data.labpos[i];
@@ -2517,6 +2756,17 @@ HTMLWidgets.widget({
 										var datatrack = obj.attr("datatrack");
 										var k = Number(obj.attr("kvalue"));
 										var picked = function(col){
+											var tmpstatus = {k:k, 
+															 datatrack:datatrack,
+															 poskey:poskey,
+															 v:x.tracklist[trackNames()[k]][datatrack].border[poskey]};
+											addNewHistory({
+												undo:function(){
+													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].border[tmpstatus.poskey] = tmpstatus.v;
+													plotregion.renew();
+												},
+												redo:function(){}
+											});
 											x.tracklist[trackNames()[k]][datatrack].border[poskey]=col;
 											d3.select("#dandelionNodeLinker1_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
 										};
@@ -2660,6 +2910,17 @@ HTMLWidgets.widget({
 									var datatrack = obj.attr("datatrack");
 									var k = Number(obj.attr("kvalue"));
 									var picked = function(col){
+										var tmpstatus = {k:k, 
+														 datatrack:datatrack,
+														 poskey:poskey,
+														 v:x.tracklist[trackNames()[k]][datatrack].border[poskey]};
+										addNewHistory({
+											undo:function(){
+												x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].border[tmpstatus.poskey] = tmpstatus.v;
+												plotregion.renew();
+											},
+											redo:function(){}
+										});
 										x.tracklist[trackNames()[k]][datatrack].border[poskey]=col;
 										var old = d3.select("#lollipopNodeLinkerB_"+k+"_"+datatrack+"_"+poskey).attr("stroke");
 										d3.select("#lollipopNodeLinkerB_"+k+"_"+datatrack+"_"+poskey).attr("stroke", col);
@@ -2742,6 +3003,17 @@ HTMLWidgets.widget({
 										var datatrack = obj.attr("datatrack");
 										var k = Number(obj.attr("kvalue"));
                                     	var picked = function(col){
+                                    		var tmpstatus = {k:k, 
+															 datatrack:datatrack,
+															 poskey:poskey,
+															 v:x.tracklist[trackNames()[k]][datatrack].color[poskey]};
+											addNewHistory({
+												undo:function(){
+													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.poskey] = tmpstatus.v;
+													plotregion.renew();
+												},
+												redo:function(){}
+											});
                                     		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
                                     		plotregion.renew();
                                     	};
@@ -2862,6 +3134,17 @@ HTMLWidgets.widget({
 											var datatrack = obj.attr("datatrack");
 											var k = Number(obj.attr("kvalue"));
 											var picked = function(col){
+												var tmpstatus = {k:k, 
+																 datatrack:datatrack,
+																 poskey:poskey,
+																 v:x.tracklist[trackNames()[k]][datatrack].color[poskey]};
+												addNewHistory({
+													undo:function(){
+														x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.poskey] = tmpstatus.v;
+														plotregion.renew();
+													},
+													redo:function(){}
+												});
 												x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
 												plotregion.renew();
 											};
@@ -2881,6 +3164,17 @@ HTMLWidgets.widget({
 											var datatrack = obj.attr("datatrack");
 											var k = Number(obj.attr("kvalue"));
 											var picked = function(col){
+												var tmpstatus = {k:k, 
+																 datatrack:datatrack,
+																 poskey:poskey,
+																 v:x.tracklist[trackNames()[k]][datatrack].color2[poskey]};
+												addNewHistory({
+													undo:function(){
+														x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color2[tmpstatus.poskey] = tmpstatus.v;
+														plotregion.renew();
+													},
+													redo:function(){}
+												});
 												x.tracklist[trackNames()[k]][datatrack].color2[poskey]=col;
 												plotregion.renew();
 											};
@@ -2939,6 +3233,17 @@ HTMLWidgets.widget({
 										var datatrack = obj.attr("datatrack");
 										var k = Number(obj.attr("kvalue"));
                                     	var picked = function(col){
+                                    		var tmpstatus = {k:k, 
+															 datatrack:datatrack,
+															 poskey:poskey,
+															 v:x.tracklist[trackNames()[k]][datatrack].color[poskey]};
+											addNewHistory({
+												undo:function(){
+													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.poskey] = tmpstatus.v;
+													plotregion.renew();
+												},
+												redo:function(){}
+											});
                                     		x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
                                     		plotregion.renew();
                                     	};
@@ -3224,6 +3529,15 @@ HTMLWidgets.widget({
 							 		var k = Number(obj.attr("kvalue"));
 							 		var old = obj.attr("stroke");
 							 		var picked = function(col){
+							 			var tmpstatus = {k:k, 
+														 v:clone(x.tracklist[trackNames()[k]].dat.fill)};
+										addNewHistory({
+											undo:function(){
+												x.tracklist[trackNames()[tmpstatus.k]].dat.fill = clone(tmpstatus.v);
+												plotregion.renew();
+											},
+											redo:function(){}
+										});
 										for(var i=0; i<x.tracklist[trackNames()[k]].dat.featureLayerID.length; i++){
 											if(x.tracklist[trackNames()[k]].dat.featureLayerID[i]==featureLayerID && 
 												x.tracklist[trackNames()[k]].dat.fill[i] == old){
@@ -3257,6 +3571,15 @@ HTMLWidgets.widget({
 							 		var k = Number(obj.attr("kvalue"));
 							 		var old = obj.attr("fill");
 							 		var picked = function(col){
+							 			var tmpstatus = {k:k, 
+														 v:clone(x.tracklist[trackNames()[k]].dat.fill)};
+										addNewHistory({
+											undo:function(){
+												x.tracklist[trackNames()[tmpstatus.k]].dat.fill = clone(tmpstatus.v);
+												plotregion.renew();
+											},
+											redo:function(){}
+										});
 										for(var i=0; i<x.tracklist[trackNames()[k]].dat.featureLayerID.length; i++){
 											if(x.tracklist[trackNames()[k]].dat.featureLayerID[i]==featureLayerID && 
 												x.tracklist[trackNames()[k]].dat.fill[i] == old){
@@ -3390,6 +3713,15 @@ HTMLWidgets.widget({
                     	var obj = d3.select(this);
                     	var k=obj.attr("kvalue");
                     	var picked = function(col){
+                    		var tmpstatus = {k:k, 
+											 v:x.tracklist[trackNames()[k]].style.color[0]};
+							addNewHistory({
+								undo:function(){
+									x.tracklist[trackNames()[tmpstatus.k]].style.color[0] = tmpstatus.v;
+									plotregion.renew();
+								},
+								redo:function(){}
+							});
                     		x.tracklist[trackNames()[k]].style.color[0] = col;
                     		obj.attr("fill", col);
                     		d3.select(".dataBaseline"+k).attr("stroke", col);
@@ -3419,6 +3751,15 @@ HTMLWidgets.widget({
                     	var obj = d3.select(this);
                     	var k=obj.attr("kvalue");
                     	var picked = function(col){
+                    		var tmpstatus = {k:k, 
+											 v:x.tracklist[trackNames()[k]].style.color[1]};
+							addNewHistory({
+								undo:function(){
+									x.tracklist[trackNames()[tmpstatus.k]].style.color[1] = tmpstatus.v;
+									plotregion.renew();
+								},
+								redo:function(){}
+							});
                     		x.tracklist[trackNames()[k]].style.color[1] = col;
                     		obj.attr("fill", col);
                     	};
@@ -3557,6 +3898,14 @@ HTMLWidgets.widget({
             var currentId;
 			function dragstarted(d) {
 			  d3.select(this).style("cursor", "move").raise().classed("active", true);
+			  var tmpstatus = clone(x.name);
+			  addNewHistory({
+								undo:function(){
+									x.name=tmpstatus;
+									plotregion.renew();
+								},
+								redo:function(){}
+							  });
 			  currentId = Number(d3.select(this).attr("kvalue"));
 			}
 			function dragended(d) {
@@ -3737,11 +4086,12 @@ HTMLWidgets.widget({
             	self.x_axis = new xaxis(self.g);
             };
             // resize svg size
+            var resizeBtnSize = 20;
             self.resizeBtn = svg.append("rect").attr("fill", "white")
-                               .attr("x", svg.attr("width")-10)
-                               .attr("y", svg.attr("height")-10)
-                               .attr("width", 10)
-                               .attr("height", 10)
+                               .attr("x", svg.attr("width")-resizeBtnSize)
+                               .attr("y", svg.attr("height")-resizeBtnSize)
+                               .attr("width", resizeBtnSize)
+                               .attr("height", resizeBtnSize)
                                .style("cursor", "nwse-resize")
                                .call(d3.drag().on("drag", function(d){
 									svg.attr("width", d3.event.x).attr("height", d3.event.y);
@@ -3749,10 +4099,19 @@ HTMLWidgets.widget({
 												 .attr("height", svg.attr("height"));*/
 									self.renew();
 									if(typeof(self.ruler)!="undefined") ruler.rulemove(d3.mouse(this));
-                               }));
+                               }).on("start", function(d){
+									   var tmpstatus = {w:svg.attr("width"),h:svg.attr("height")};
+									   addNewHistory({
+										undo:function(){
+											svg.attr("width", tmpstatus.w).attr("height", tmpstatus.h);
+											self.renew();
+										},
+										redo:function(){}
+									  });
+								   }));
             self.renewResizeBtn = function(){
-            	self.resizeBtn.attr("x", svg.attr("width")-10)
-							.attr("y", svg.attr("height")-10);
+            	self.resizeBtn.attr("x", svg.attr("width")-resizeBtnSize)
+							.attr("y", svg.attr("height")-resizeBtnSize);
             };
             
             self.marginBox = new Margin(self);
