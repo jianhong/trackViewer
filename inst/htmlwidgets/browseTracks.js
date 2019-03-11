@@ -2633,7 +2633,7 @@ HTMLWidgets.widget({
 															.attr("x", widthF()/2)
 															.attr("y", yscale(pos[3])-5)
 															.style("font-size", "10px")
-															.text("drag to change the height of lollipop stick");
+															.text("drag to change the height of lollipop stems");
 								})
 							.on("mouseout", function(){
 								d3.select(this).attr("stroke", 'white').style("opacity", 0);
@@ -3969,7 +3969,7 @@ HTMLWidgets.widget({
 																	.attr("x", widthF()/2)
 																	.attr("y", self.height()-5)
 																	.style("font-size", "10px")
-																	.text("drag to change the height of track");
+																	.text("drag to change the height of the track");
 									})
 									.on("mouseout", function(){
 										d3.select(this).attr("stroke", 'white').style("opacity", 0);
