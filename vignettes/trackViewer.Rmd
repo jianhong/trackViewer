@@ -847,7 +847,7 @@ plotGInteractions(gi, range, feature.gr)
 ```
 
 # Web application of **trackViewer**
-We created a web application of **trackViewer** (available in 1.19.14 or later) by leveraging the R package **Shiny**. The web application of trackViewer, and sample data are available at  https://github.com/jianhong/trackViewer.documentation/tree/master/trackViewerShinyApp.Here is a demo on how to to use the web application at https://youtu.be/juATgGMQCqo.
+We created a web application of **trackViewer** (available in 1.19.14 or later) by leveraging the R package **Shiny**. The web application of trackViewer, and sample data are available at  https://github.com/jianhong/trackViewer.documentation/tree/master/trackViewerShinyApp. Here is a demo on how to to use the web application at https://youtu.be/juATgGMQCqo.
 
 # Session Info
 ```{r sessionInfo, results='asis'}
