@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: A R/Bioconductor package with web interface for drawing elegant interactive tracks or lollipop plot to facilitate integrated analysis of multi-omics data
-Version: 1.19.15
+Version: 1.19.16
 Author: Jianhong Ou and Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@duke.edu>
 Description: Visualize mapped reads along with annotation as track layers for NGS dataset 
