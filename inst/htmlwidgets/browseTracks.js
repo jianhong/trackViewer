@@ -3640,8 +3640,7 @@ HTMLWidgets.widget({
             var self=this;
             self.layer=layer;
             self.redraw = function(){
-            	self.lolli.remove();
-            	self.layer.remove();
+            	self.layer.selectAll("*").remove();
             	geneTrack(layer, track, start, end, xscale, yscale, wscale, line, k, label);
             };
             var color = track.style.color;
