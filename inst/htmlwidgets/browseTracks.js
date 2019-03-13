@@ -240,12 +240,13 @@ HTMLWidgets.widget({
         	         
         	//move tracks order
         	var oriX,oriY;
-        	var tmpstatus = {};
+			var tmp_id = []; // key: spring, value: parent
 			self.dragstarted = function () {
 			  d3.select(this).style("cursor", "move").raise().classed("active", true);
 			  oriX = d3.event.x;
 			  oriY = d3.event.y;
-			  tmpstatus = {
+			  tmp_id.push({});
+			  var tmpstatus = {
 			  	ddx: parameter.xaxOpt.ddx,
 			  	ddy: parameter.xaxOpt.ddy,
 			  	ylabx0: x.dataYlabelPos.x[safeNames()[self.k]+"_0_"+self.ref+"_tick"],
@@ -284,9 +285,21 @@ HTMLWidgets.widget({
 									x.fontsize[safeNames()[self.k]+"_"+self.ref]=tmpstatus.fontsize;
 			  					}else{
 			  						if(self.cls=="Mlabel"){
+			  							if(tmp_id.length>0){
+			  							var keys = Object.keys(tmp_id[tmp_id.length-1]);
+			  							for(var j=keys.length-1; j>=0; j--){
+			  								if(tmp_id[tmp_id.length-1][keys[j]]==tmpstatus.id){
+			  									if(typeof(x.markers[keys[j]])!="undefined"){
+			  							 			delete(x.markers[keys[j]]);
+												}
+												break;
+			  								}
+			  							}
+			  								tmp_id.pop();
+			  							}
 			  							x.markers[tmpstatus.id] = tmpstatus.label;
 			  							x.markers[tmpstatus.id].fontsize=tmpstatus.font;
-			  							if(typeof(x.markers[tmpstatus.newid])!="undefined") delete(x.markers[tmpstatus.newid]);
+			  							
 			  						}else{
 			  							if(/nodelabel/.exec(self.cls)){
 			  								x.lolliplotTrackLabel[safeNames()[self.k]+"_"+self.datatrack+"_"+self.poskey] = tmpstatus.lolliplotTrackLabel;
@@ -359,11 +372,17 @@ HTMLWidgets.widget({
 									  var m = x.markers[self.id];
 									  m.ref = [Math.round(xscale().invert(self.x-margin.left)), self.y];
 									  delete(x.markers[self.id]);
+									  var old_id = self.id;
 									  self.id="text"+m.ref[0] + "_" + m.ref[1];
 									  self.ref="text"+m.ref[0] + "_" + m.ref[1];
 									  self.body.attr("ref", self.ref);
 									  x.markers[self.id] = m;
-									  tmpstatus.newid = self.id;
+									  if(typeof(tmp_id[tmp_id.length-1][old_id])!="undefined"){
+									  	tmp_id[tmp_id.length-1][self.id] = tmp_id[tmp_id.length-1][old_id];
+									  	if(old_id!=self.id) delete(tmp_id[tmp_id.length-1][old_id]);
+									  }else{
+									  	tmp_id[tmp_id.length-1][self.id] = old_id;
+									  }
 									  self.g.attr("transform", "translate("+self.x+","+self.y+")");
 								}else{
 									if(/nodelabel/.exec(self.cls)){
@@ -583,7 +602,7 @@ HTMLWidgets.widget({
 											}
 											if(/Mlabel/.exec(tmpstatus.cls)){
 												  x.markers[tmpstatus.id].ref = [xscale().invert(tmpstatus.x-margin.left), tmpstatus.y];
-												  x.markers[tmpstatus.id].txt = tmpstatus.text;
+												  x.markers[tmpstatus.id].text = tmpstatus.text;
 											}
 											if(/legend/.exec(tmpstatus.cls)){
 												x.markers[tmpstatus.id].text = tmpstatus.text;
@@ -646,7 +665,7 @@ HTMLWidgets.widget({
 												}
 												if(/Mlabel/.exec(tmpstatus.cls)){
 													  x.markers[tmpstatus.id].ref = [xscale().invert(tmpstatus.x-margin.left), tmpstatus.y];
-													  x.markers[tmpstatus.id].txt = tmpstatus.text;
+													  x.markers[tmpstatus.id].text = tmpstatus.text;
 												}
 												if(/legend/.exec(tmpstatus.cls)){
 													x.markers[tmpstatus.id].text = tmpstatus.text;
@@ -894,7 +913,7 @@ HTMLWidgets.widget({
                         "color" : "black",
                         "opacity" : 1,
                         "fontsize" : 12,
-                        "txt" : "label",
+                        "text" : "label",
                         "angle": 0
                     };
                     var m1 = {
@@ -928,7 +947,7 @@ HTMLWidgets.widget({
                     opt.anchor = "start";
                     opt.fontsize = m.fontsize;
                     opt.angle = m.angle;
-                    opt.text = m.txt;
+                    opt.text = m.text;
                     opt.vp = self.g;
                     opt.cls = "Mlabel";
                     opt.colorPickerId = 9;
@@ -1467,7 +1486,7 @@ HTMLWidgets.widget({
 							opt.anchor = "start";
 							opt.fontsize = m.fontsize;
 							opt.angle = m.angle;
-							opt.text = m.txt;
+							opt.text = m.text;
 							opt.vp = self.g;
 							opt.cls = "Mlabel";
 							opt.colorPickerId = 9;
