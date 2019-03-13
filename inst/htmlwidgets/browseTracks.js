@@ -1763,7 +1763,7 @@ HTMLWidgets.widget({
 						})
 						.on("click", clicked);
 				var blackPlate = cp.append("circle")
-						.attr("fill", "black")
+						.attr("fill", "#000")
 						.attr("stroke", "#fff")
 						.attr("stroke-width", 2)
 						.attr("r", 10)
@@ -3814,7 +3814,22 @@ HTMLWidgets.widget({
 						 .attr("class", "geneBaseline_"+safeNames()[k])
 						 .attr("kvalue", k)
 						 .on("click", function(){
-						 	ColorPicker(this, 7);
+						 	var target = d3.select(this);
+						 	var picked = function(col){
+								var k = Number(target.attr("kvalue"));
+								var tmpstatus = {k:k,
+												v:x.tracklist[trackNames()[k]].style.color[0]};
+								addNewHistory({
+									undo:function(){
+										x.tracklist[trackNames()[tmpstatus.k]].style.color[0] = tmpstatus.v;
+										plotregion.renew();
+									},
+									redo:function(){}
+								});
+								x.tracklist[trackNames()[k]].style.color[0]=col;
+								target.attr("stroke", col);
+						 	};
+						 	ColorPicker(this, picked);
 						 });
 					self.lolliplot1=lolliplot(self.lolli1, track.dat, xscale, yscale, k, "dat", ypos[0], "lollipopData");
             	}
@@ -3835,7 +3850,22 @@ HTMLWidgets.widget({
 						 .attr("class", "geneBaseline_"+safeNames()[k])
 						 .attr("kvalue", k)
 						 .on("click", function(){
-						 	ColorPicker(this, 8);
+						 	var target = d3.select(this);
+						 	var picked = function(col){
+								var k = Number(target.attr("kvalue"));
+								var tmpstatus = {k:k,
+												v:x.tracklist[trackNames()[k]].style.color[1]};
+								addNewHistory({
+									undo:function(){
+										x.tracklist[trackNames()[tmpstatus.k]].style.color[1] = tmpstatus.v;
+										plotregion.renew();
+									},
+									redo:function(){}
+								});
+								x.tracklist[trackNames()[k]].style.color[1]=col;
+								target.attr("stroke", col);
+						 	};
+						 	ColorPicker(this, picked);
 						 });
 					self.lolliplot2=lolliplot(self.lolli2, track.dat2, xscale, yscale, k, "dat2", ypos[1], "lollipopData");
             	}
