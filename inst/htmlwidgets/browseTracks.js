@@ -54,7 +54,7 @@ HTMLWidgets.widget({
 				cp = undefined;
 			}
 			
-            svgAsDataUri(svg.node(), 'trackViewer.svg', function(uri){
+            svgAsDataUri(svg.node(), {width:svg.attr("width"), height:svg.attr("height"), scale: 4}, function(uri){
                 var a = document.createElement('a');
                 a.href = uri;
                 a.download = 'trackViewer.svg';
@@ -1524,7 +1524,7 @@ HTMLWidgets.widget({
         };
         
         // Ruler
-        var currentLayer = "";
+        var currentLayer = 0;
         var Ruler = function(){
             var self = this;
             self.xrule = svg.insert("line", ":first-child")
@@ -2024,6 +2024,7 @@ HTMLWidgets.widget({
 					},
 					{label: 'change Y-axis position',
 					 check:function(){
+					 	if(eventLayer=="") return false;
 					  	return(x.type[eventLayer]=="data");
 					  },
 					  onMouseClick: function(){
@@ -2042,6 +2043,7 @@ HTMLWidgets.widget({
 					},
 					{label: 'condense lollipops',
 					 check: function(){
+					 	if(eventLayer=="") return false;
 					 	if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return false;
@@ -2063,6 +2065,7 @@ HTMLWidgets.widget({
 					},
 					{label: 'expand lollipops',
 					 check: function(){
+					 	if(eventLayer=="") return false;
 					 	if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return false;
@@ -2084,6 +2087,7 @@ HTMLWidgets.widget({
 					},
 					{label: 'rotate all labels 45 degree',
 					 check: function(){
+					 	if(eventLayer=="") return false;
 					 	if(x.type[eventLayer]!="data"){
 					 		if(x.type[eventLayer]=="lollipopData"){
 					 			return(typeof(x.tracklist[eventLayer].dat["textlabel"])!="undefined");
@@ -2123,6 +2127,7 @@ HTMLWidgets.widget({
 					},
 					{label: 'change lollipops type',
 					 check: function(){
+					 	if(eventLayer=="") return false;
 					 	if(x.type[eventLayer]!="data"){
 					 		if(x.type[eventLayer]=="lollipopData"){
 					 			return(typeof(x.tracklist[eventLayer].dat["stack.factor"])=="undefined");
@@ -2187,6 +2192,7 @@ HTMLWidgets.widget({
 					},
 					{label:'condense isoforms', 
 					check: function(){
+					 	if(eventLayer=="") return false;
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
@@ -2203,6 +2209,7 @@ HTMLWidgets.widget({
 					}},
 					{label:'expand isoforms', 
 					check: function(){
+					 	if(eventLayer=="") return false;
 						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
 					},
 					onMouseClick: function(){
@@ -2219,6 +2226,7 @@ HTMLWidgets.widget({
 					}},
 					{label:'increase maxgap', 
 					check: function(){
+					 	if(eventLayer=="") return false;
 						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return true;
@@ -2240,6 +2248,7 @@ HTMLWidgets.widget({
 					}},
 					{label:'decrease maxgap', 
 					check: function(){
+					 	if(eventLayer=="") return false;
 						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return true;
@@ -2330,6 +2339,9 @@ HTMLWidgets.widget({
 				y0=y;
 				d3.select('.context-menu').remove();
 			    eventLayer = trackNames()[currentLayer];
+			    if(typeof(eventLayer)=="undefined"){
+			    	eventLayer = "";
+			    }
 			    if(y + height*items.length > +svg.attr("height")){
 			    	y = +svg.attr("height") - height*items.length;
 			    }
@@ -2785,7 +2797,8 @@ HTMLWidgets.widget({
 									 data:[1],
 									 start:[trackdat.start[0]],
 									 color:[trackdat.color[0]||"black"],
-									 border:[trackdat.border[0]||"black"]
+									 border:[trackdat.border[0]||"black"],
+									 poskey:[0]
 									}];
 					var method = "mean";
 					var colorSets = [];
@@ -2801,7 +2814,7 @@ HTMLWidgets.widget({
 						if(trackdat.start[i] - trackdat.start[i-1]>maxgap){
 							trackdat.group[i] = trackdat.group[i-1] + 1;
 							groupSize[trackdat.group[i]] = 1;
-							treeData[trackdat.group[i]] = {x:0,y:0,r:1,score:[],mean:1,data:[],start:[],color:[],border:[]};
+							treeData[trackdat.group[i]] = {x:0,y:0,r:1,score:[],mean:1,data:[],start:[],color:[],border:[],poskey:[]};
 						}else{
 							trackdat.group[i] = trackdat.group[i-1];
 							groupSize[trackdat.group[i]] = groupSize[trackdat.group[i]] + 1;
@@ -2824,6 +2837,7 @@ HTMLWidgets.widget({
 						}else{
 							treeData[trackdat.group[i]].color.push("black");
 						}
+						treeData[trackdat.group[i]].poskey.push(i);
 					}
 					
 					var maxScore = 0;
@@ -2932,7 +2946,44 @@ HTMLWidgets.widget({
 								.attr("cx", d => Math.sin((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
 								.attr("cy", d => Math.cos((d.startAngle+d.endAngle)/2) * -yscale(Math.max(0, 1-(1-pos[5])*Math.sqrt(treeData[i].r)))/2)
 								.attr("fill", (d,j) => treeData[i].color[j])
-								.attr("stroke", (d,j) => treeData[i].border[j]);
+								.attr("stroke", (d,j) => treeData[i].border[j])
+								.attr("poskey", (d,j) => treeData[i].poskey[j])
+								.attr("kvalue", k)
+								.attr("datatrack", datatrack)
+								.attr("id", (d,j) => "dandelionNode_"+safeNames()[k]+"_"+datatrack+"_"+treeData[i].poskey[j])
+								.on("click", function(){
+										var obj=d3.select(this);
+										var poskey = Number(obj.attr("poskey"));
+										var datatrack = obj.attr("datatrack");
+										var k = Number(obj.attr("kvalue"));
+										var picked = function(col){
+											var tmpstatus = {k:k, 
+															 datatrack:datatrack,
+															 poskey:poskey,
+															 v:clone(x.tracklist[trackNames()[k]][datatrack].color)};
+											addNewHistory({
+												undo:function(){
+													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color = clone(tmpstatus.v);
+													plotregion.renew();
+												},
+												redo:function(){}
+											});
+											if(cpCheckAll){
+												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
+												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
+													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
+															x.tracklist[trackNames()[k]][datatrack].color[j]=col;
+													}
+												}
+												plotregion.renew();
+											}else{
+												x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
+												d3.select("#dandelionNode_"+safeNames()[k]+"_"+datatrack+"_"+poskey).attr("fill", col);
+											}
+										};
+										cpCheckAll = true;
+										ColorPicker(this, picked, true);
+									});
 						//add resizeLine
 					 	nodes.datum(treeData[i].data).selectAll("g")
 								.data(pie)
