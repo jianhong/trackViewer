@@ -2123,6 +2123,9 @@ HTMLWidgets.widget({
 							tmpstatus = {k:eventLayer,
 										 d:"dat",
 										 v:clone(x.tracklist[eventLayer].dat["label.parameter.rot"])};
+							if(typeof(x.tracklist[eventLayer].dat["label.parameter.rot"])=="undefined"){
+								x.tracklist[eventLayer].dat["label.parameter.rot"] = [];
+							}
 					 		for(var i=0; i<x.tracklist[eventLayer].dat["textlabel"].length; i++){
 					 			if(typeof(x.tracklist[eventLayer].dat["label.parameter.rot"][i])=="undefined"){
 					 				x.tracklist[eventLayer].dat["label.parameter.rot"][i] = 0;
@@ -2133,6 +2136,9 @@ HTMLWidgets.widget({
 							tmpstatus = {k:eventLayer,
 										 d:"dat2",
 										 v:clone(x.tracklist[eventLayer].dat2["label.parameter.rot"])};
+							if(typeof(x.tracklist[eventLayer].dat2["label.parameter.rot"])=="undefined"){
+								x.tracklist[eventLayer].dat["label.parameter.rot"] = [];
+							}
 							for(var i=0; i<x.tracklist[eventLayer].dat2["textlabel"].length; i++){
 					 			if(typeof(x.tracklist[eventLayer].dat2["label.parameter.rot"][i])=="undefined"){
 					 				x.tracklist[eventLayer].dat2["label.parameter.rot"][i] = 0;
