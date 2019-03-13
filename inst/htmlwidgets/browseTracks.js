@@ -3862,6 +3862,15 @@ HTMLWidgets.widget({
 						 .attr("stroke", color[0])
 						 .attr("stroke-width", x.opacity[label]==1 ? "1px" : "10px")
 						 .attr("opacity", x.opacity[label])
+						 .attr("id", "geneBaseline_"+safeNames()[k]+"_dat");
+					self.lolli1.append("line")
+						 .attr("x1", xscale(start))
+						 .attr("x2", xscale(end))
+						 .attr("y1", yscale(ypos[0]))
+						 .attr("y2", yscale(ypos[0]))
+						 .attr("stroke", color[0])
+						 .attr("stroke-width", "10px")
+						 .attr("opacity", 0)
 						 .attr("class", "geneBaseline_"+safeNames()[k])
 						 .attr("kvalue", k)
 						 .on("click", function(){
@@ -3878,7 +3887,7 @@ HTMLWidgets.widget({
 									redo:function(){}
 								});
 								x.tracklist[trackNames()[k]].style.color[0]=col;
-								target.attr("stroke", col);
+								d3.select("#geneBaseline_"+safeNames()[k]+"_dat").attr("stroke", col);
 						 	};
 						 	ColorPicker(this, picked);
 						 });
@@ -3898,6 +3907,15 @@ HTMLWidgets.widget({
 						 .attr("stroke", color[1])
 						 .attr("stroke-width", x.opacity[label]==1 ? "1px" : "10px")
 						 .attr("opacity", x.opacity[label])
+						 .attr("id", "geneBaseline_"+safeNames()[k]+"_dat2");
+					self.lolli2.append("line")
+						 .attr("x1", xscale(start))
+						 .attr("x2", xscale(end))
+						 .attr("y1", yscale(ypos[1]))
+						 .attr("y2", yscale(ypos[1]))
+						 .attr("stroke", color[1])
+						 .attr("stroke-width", "10px")
+						 .attr("opacity", 0)
 						 .attr("class", "geneBaseline_"+safeNames()[k])
 						 .attr("kvalue", k)
 						 .on("click", function(){
@@ -3914,7 +3932,7 @@ HTMLWidgets.widget({
 									redo:function(){}
 								});
 								x.tracklist[trackNames()[k]].style.color[1]=col;
-								target.attr("stroke", col);
+								d3.select("#geneBaseline_"+safeNames()[k]+"_dat2").attr("stroke", col);
 						 	};
 						 	ColorPicker(this, picked);
 						 });
