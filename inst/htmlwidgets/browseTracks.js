@@ -3816,7 +3816,7 @@ HTMLWidgets.widget({
 						.attr("x", d=> xscale(d.x))
 						.attr("y", d=> yscale(thisYpos + d.h/2))
 						.attr("width", d=> wscale(d.w))
-						.attr("height", d=> yscale(1 - d.h))
+						.attr("height", d=> yscale(1 - d.h)>3?yscale(1 - d.h):3)
 						.attr("fill", d=> d.c)
 						.attr("ref", j)
 						.on("click", function(){
