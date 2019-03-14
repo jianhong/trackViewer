@@ -2068,6 +2068,16 @@ HTMLWidgets.widget({
 								return false;
 							}
 						}
+					 	if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								return false;
+							}
+						}
+						if(x.type[eventLayer]!="lollipopData"){
+							if(typeof(x.tracklist[eventLayer].dat2.start)=="undefined"){
+								return false;
+							}
+						}
 						return(x.type[eventLayer]!="data");
 					 },
 					 onMouseClick: function(){
@@ -2087,6 +2097,16 @@ HTMLWidgets.widget({
 					 	if(eventLayer=="") return false;
 					 	if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return false;
+							}
+						}
+					 	if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								return false;
+							}
+						}
+						if(x.type[eventLayer]!="lollipopData"){
+							if(typeof(x.tracklist[eventLayer].dat2.start)=="undefined"){
 								return false;
 							}
 						}
@@ -2161,9 +2181,15 @@ HTMLWidgets.widget({
 					 	if(eventLayer=="") return false;
 					 	if(x.type[eventLayer]!="data"){
 					 		if(x.type[eventLayer]=="lollipopData"){
-					 			return(typeof(x.tracklist[eventLayer].dat["stack.factor"])=="undefined");
+					 			if(typeof(x.tracklist[eventLayer].dat["stack.factor"])!="undefined"){
+					 				return false;
+					 			}
+					 			return(typeof(x.tracklist[eventLayer].dat.score)!="undefined");
 					 		}else{
-					 			return(typeof(x.tracklist[eventLayer].dat2["stack.factor"])=="undefined");
+					 			if(typeof(x.tracklist[eventLayer].dat2["stack.factor"])!="undefined"){
+					 				return false;
+					 			};
+					 			return(typeof(x.tracklist[eventLayer].dat2.score)!="undefined");
 					 		}
 					 	}else{
 					 		return false;
@@ -2224,7 +2250,19 @@ HTMLWidgets.widget({
 					{label:'condense isoforms', 
 					check: function(){
 					 	if(eventLayer=="") return false;
-						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+					 	function onlyUnique(value, index, self) { 
+							return self.indexOf(value) === index;
+						}
+						if(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript"){
+							if(typeof(x.tracklist[eventLayer].dat.featureLayerID)=="undefined"){
+								return(false);
+							}
+							var unique = x.tracklist[eventLayer].dat.featureLayerID.filter(onlyUnique);
+							if(unique.length>1){
+								return(true);
+							}
+						}
+						return(false);
 					},
 					onMouseClick: function(){
 						var tmpstatus = {k:eventLayer,v:parameter.isoformR[eventLayer]};
@@ -2241,7 +2279,19 @@ HTMLWidgets.widget({
 					{label:'expand isoforms', 
 					check: function(){
 					 	if(eventLayer=="") return false;
-						return(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript")
+						function onlyUnique(value, index, self) { 
+							return self.indexOf(value) === index;
+						}
+						if(x.type[eventLayer]=="gene" || x.type[eventLayer]=="transcript"){
+							if(typeof(x.tracklist[eventLayer].dat.featureLayerID)=="undefined"){
+								return(false);
+							}
+							var unique = x.tracklist[eventLayer].dat.featureLayerID.filter(onlyUnique);
+							if(unique.length>1){
+								return(true);
+							}
+						}
+						return(false);
 					},
 					onMouseClick: function(){
 						var tmpstatus = {k:eventLayer,v:parameter.isoformR[eventLayer]};
