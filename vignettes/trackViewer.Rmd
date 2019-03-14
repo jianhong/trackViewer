@@ -487,7 +487,7 @@ lolliplot(sample.gr, features, legend=legend)
 ## Control the labels
 
 Users can control the paramters of labels by naming the metadata start as label.parameter.<properties>  such as label.parameter.rot, or 
-label.parameter.gp. The parameter is used for \link[grid]{grid.text}.
+label.parameter.gp. The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
 
 ```{r lolliplot.labels.control, fig.width=6, fig.height=5}
 sample.gr.rot <- sample.gr
