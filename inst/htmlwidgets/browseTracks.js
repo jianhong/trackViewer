@@ -2104,7 +2104,7 @@ HTMLWidgets.widget({
 					 	}
 					 }
 					},
-					{label: 'rotate all labels 45 degree',
+					{label: 'rotate all labels 45º(CW)',
 					 check: function(){
 					 	if(eventLayer=="") return false;
 					 	if(x.type[eventLayer]!="data"){
@@ -2128,7 +2128,7 @@ HTMLWidgets.widget({
 							}
 					 		for(var i=0; i<x.tracklist[eventLayer].dat["textlabel"].length; i++){
 					 			if(typeof(x.tracklist[eventLayer].dat["label.parameter.rot"][i])=="undefined"){
-					 				x.tracklist[eventLayer].dat["label.parameter.rot"][i] = 0;
+					 				x.tracklist[eventLayer].dat["label.parameter.rot"][i] = 90;
 					 			}
 								x.tracklist[eventLayer].dat["label.parameter.rot"][i]-=45;
 							}
@@ -2141,7 +2141,7 @@ HTMLWidgets.widget({
 							}
 							for(var i=0; i<x.tracklist[eventLayer].dat2["textlabel"].length; i++){
 					 			if(typeof(x.tracklist[eventLayer].dat2["label.parameter.rot"][i])=="undefined"){
-					 				x.tracklist[eventLayer].dat2["label.parameter.rot"][i] = 0;
+					 				x.tracklist[eventLayer].dat2["label.parameter.rot"][i] = 90;
 					 			}
 								x.tracklist[eventLayer].dat2["label.parameter.rot"][i]-=45;
 							}
