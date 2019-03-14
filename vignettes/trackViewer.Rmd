@@ -500,7 +500,7 @@ lolliplot(sample.gr.rot, features, legend=legend)
 
 If you want to change the text in the ylab, please try to set the labels in the ylab.
 Please note that **lolliplot** does not support any parameters to set the title and xlab. If you want to 
-add the title and xlab, please try to add them by \link[grid]{grid.text}.
+add the title and xlab, please try to add them by [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
 ```{r lolliplot.xlab.ylab.title, fig.width=6, fig.height=5.2}
 lolliplot(sample.gr.rot, features, legend=legend, ylab="y label here")
 grid.text("label of x-axis here", x=.5, y=.01, just="bottom")
