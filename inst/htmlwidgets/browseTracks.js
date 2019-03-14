@@ -2920,6 +2920,14 @@ HTMLWidgets.widget({
 											});
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
+												if(typeof(thiscol)=="undefined"){
+													if(typeof(x.tracklist[trackNames()[k]][datatrack].border)=="undefined"){
+														x.tracklist[trackNames()[k]][datatrack].border = [];
+														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+															x.tracklist[trackNames()[k]][datatrack].border[i] = "black";
+														}
+													}
+												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].border.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].border[j]==thiscol){
 															x.tracklist[trackNames()[k]][datatrack].border[j]=col;
@@ -3001,6 +3009,14 @@ HTMLWidgets.widget({
 											});
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
+												if(typeof(thiscol)=="undefined"){
+													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
+														x.tracklist[trackNames()[k]][datatrack].color = [];
+														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+														}
+													}
+												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
 															x.tracklist[trackNames()[k]][datatrack].color[j]=col;
@@ -3121,6 +3137,14 @@ HTMLWidgets.widget({
 										});
 										if(cpCheckAll){
 											var thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
+											if(typeof(thiscol)=="undefined"){
+												if(typeof(x.tracklist[trackNames()[k]][datatrack].border)=="undefined"){
+													x.tracklist[trackNames()[k]][datatrack].border = [];
+													for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+														x.tracklist[trackNames()[k]][datatrack].border[i] = "black";
+													}
+												}
+											}
 											for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].border.length; j++){
 												if(x.tracklist[trackNames()[k]][datatrack].border[j]==thiscol){
 														x.tracklist[trackNames()[k]][datatrack].border[j]=col;
@@ -3225,6 +3249,14 @@ HTMLWidgets.widget({
 											});
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
+												if(typeof(thiscol)=="undefined"){
+													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
+														x.tracklist[trackNames()[k]][datatrack].color = [];
+														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+														}
+													}
+												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
 															x.tracklist[trackNames()[k]][datatrack].color[j]=col;
@@ -3370,6 +3402,14 @@ HTMLWidgets.widget({
 												});
 												if(cpCheckAll){
 													var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
+													if(typeof(thiscol)=="undefined"){
+														if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
+															x.tracklist[trackNames()[k]][datatrack].color = [];
+															for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+															}
+														}
+													}
 													for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 														if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
 																x.tracklist[trackNames()[k]][datatrack].color[j]=col;
@@ -3410,6 +3450,14 @@ HTMLWidgets.widget({
 												});
 												if(cpCheckAll){
 													var thiscol = x.tracklist[trackNames()[k]][datatrack].color2[poskey];
+													if(typeof(thiscol)=="undefined"){
+														if(typeof(x.tracklist[trackNames()[k]][datatrack].color2)=="undefined"){
+															x.tracklist[trackNames()[k]][datatrack].color2 = [];
+															for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+																x.tracklist[trackNames()[k]][datatrack].color2[i] = "black";
+															}
+														}
+													}
 													for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color2.length; j++){
 														if(x.tracklist[trackNames()[k]][datatrack].color2[j]==thiscol){
 																x.tracklist[trackNames()[k]][datatrack].color2[j]=col;
@@ -3493,6 +3541,14 @@ HTMLWidgets.widget({
 											});
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
+												if(typeof(thiscol)=="undefined"){
+													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
+														x.tracklist[trackNames()[k]][datatrack].color = [];
+														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
+															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+														}
+													}
+												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
 															x.tracklist[trackNames()[k]][datatrack].color[j]=col;
