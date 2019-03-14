@@ -2921,12 +2921,12 @@ HTMLWidgets.widget({
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
 												if(typeof(thiscol)=="undefined"){
-													if(typeof(x.tracklist[trackNames()[k]][datatrack].border)=="undefined"){
-														x.tracklist[trackNames()[k]][datatrack].border = [];
 														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-															x.tracklist[trackNames()[k]][datatrack].border[i] = "black";
+															if(typeof(x.tracklist[trackNames()[k]][datatrack].border[i])=="undefined"){
+																x.tracklist[trackNames()[k]][datatrack].border[i] = "black";	
+															}
 														}
-													}
+														thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
 												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].border.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].border[j]==thiscol){
@@ -3010,12 +3010,12 @@ HTMLWidgets.widget({
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												if(typeof(thiscol)=="undefined"){
-													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
-														x.tracklist[trackNames()[k]][datatrack].color = [];
 														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+															if(typeof(x.tracklist[trackNames()[k]][datatrack].color[i])=="undefined"){
+																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";	
+															}
 														}
-													}
+														thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
@@ -3138,12 +3138,12 @@ HTMLWidgets.widget({
 										if(cpCheckAll){
 											var thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
 											if(typeof(thiscol)=="undefined"){
-												if(typeof(x.tracklist[trackNames()[k]][datatrack].border)=="undefined"){
-													x.tracklist[trackNames()[k]][datatrack].border = [];
 													for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-														x.tracklist[trackNames()[k]][datatrack].border[i] = "black";
+														if(typeof(x.tracklist[trackNames()[k]][datatrack].border[i])=="undefined"){
+															x.tracklist[trackNames()[k]][datatrack].border[i] = "black";	
+														}
 													}
-												}
+													thiscol = x.tracklist[trackNames()[k]][datatrack].border[poskey];
 											}
 											for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].border.length; j++){
 												if(x.tracklist[trackNames()[k]][datatrack].border[j]==thiscol){
@@ -3250,12 +3250,12 @@ HTMLWidgets.widget({
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												if(typeof(thiscol)=="undefined"){
-													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
-														x.tracklist[trackNames()[k]][datatrack].color = [];
 														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+															if(typeof(x.tracklist[trackNames()[k]][datatrack].color[i])=="undefined"){
+																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";	
+															}
 														}
-													}
+														thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
@@ -3309,10 +3309,10 @@ HTMLWidgets.widget({
 						}
 						var thisH=curscore*2*yscale(pos[5]);
 						mask.append("rect")
-							.attr("x", xscale(trackdat.labpos[i])-yscale(pos[5]))
-							.attr('y', thisY)
-							.attr('width', yscale(pos[5])*2)
-							.attr('height', thisH)
+							.attr("x", xscale(trackdat.labpos[i])-yscale(pos[5])-1)
+							.attr('y', thisY-1)
+							.attr('width', yscale(pos[5])*2+2)
+							.attr('height', thisH+2)
 							.style("fill", "white")
 							.style("opacity", 1);
 						/*cir.append("rect")
@@ -3403,12 +3403,12 @@ HTMLWidgets.widget({
 												if(cpCheckAll){
 													var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 													if(typeof(thiscol)=="undefined"){
-														if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
-															x.tracklist[trackNames()[k]][datatrack].color = [];
 															for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+																if(typeof(x.tracklist[trackNames()[k]][datatrack].color[i])=="undefined"){
+																	x.tracklist[trackNames()[k]][datatrack].color[i] = "black";	
+																}
 															}
-														}
+															thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 													}
 													for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 														if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
@@ -3451,12 +3451,12 @@ HTMLWidgets.widget({
 												if(cpCheckAll){
 													var thiscol = x.tracklist[trackNames()[k]][datatrack].color2[poskey];
 													if(typeof(thiscol)=="undefined"){
-														if(typeof(x.tracklist[trackNames()[k]][datatrack].color2)=="undefined"){
-															x.tracklist[trackNames()[k]][datatrack].color2 = [];
 															for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-																x.tracklist[trackNames()[k]][datatrack].color2[i] = "black";
+																if(typeof(x.tracklist[trackNames()[k]][datatrack].color2[i])=="undefined"){
+																	x.tracklist[trackNames()[k]][datatrack].color2[i] = "black";	
+																}
 															}
-														}
+															thiscol = x.tracklist[trackNames()[k]][datatrack].color2[poskey];
 													}
 													for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color2.length; j++){
 														if(x.tracklist[trackNames()[k]][datatrack].color2[j]==thiscol){
@@ -3542,12 +3542,12 @@ HTMLWidgets.widget({
 											if(cpCheckAll){
 												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												if(typeof(thiscol)=="undefined"){
-													if(typeof(x.tracklist[trackNames()[k]][datatrack].color)=="undefined"){
-														x.tracklist[trackNames()[k]][datatrack].color = [];
 														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-															x.tracklist[trackNames()[k]][datatrack].color[i] = "black";
+															if(typeof(x.tracklist[trackNames()[k]][datatrack].color[i])=="undefined"){
+																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";	
+															}
 														}
-													}
+														thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
 												}
 												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
 													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){

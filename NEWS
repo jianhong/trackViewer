@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.19.21
+
+    o fix the bug of that can not set color for undefined for browseTracks.
+    
 CHANGES IN VERSION 1.19.20
 
     o fix the bug of lable is not saved for browseTracks.
