@@ -1908,7 +1908,7 @@ HTMLWidgets.widget({
 										.attr("height", 20)
 										.attr("transform", "translate(-45 -45)");
 					var frm2 = check4all.append("foreignObject")
-								.attr("x", -14)
+								.attr("x", -18)
 								.attr("y", -10)
 								.attr("width", 20)
 								.attr("height", 20);
@@ -1923,9 +1923,10 @@ HTMLWidgets.widget({
 					if(cpCheckAll) inp2.attr("checked", true);
 					var check4allLabel = check4all.append("text")
 												  .attr("fill", "#000")
-												  .attr("x", 3)
+												  .attr("x", -1)
 												  .attr("y", 5)
-												  .text("all")
+												  .text("All")
+												  .attr("font-weight", "bold")
 												  .style("cursor", "default");
 				}
             };
@@ -3597,46 +3598,6 @@ HTMLWidgets.widget({
 							.attr("poskey", i)
 							.attr("comp", "nodes")
 							.attr("transform", "translate("+xscale(trackdat.labpos[i])+","+(+circenter+((ypos<.5?-1:1)*6*yscale(pos[5])))+")")
-							.on("click", function(){
-										var obj = d3.select(this);
-										var poskey = Number(obj.attr("poskey"));
-										var datatrack = obj.attr("datatrack");
-										var k = Number(obj.attr("kvalue"));
-                                    	var picked = function(col){
-                                    		var tmpstatus = {k:k, 
-															 datatrack:datatrack,
-															 poskey:poskey,
-															 v:clone(x.tracklist[trackNames()[k]][datatrack].color)};
-											addNewHistory({
-												undo:function(){
-													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color = clone(tmpstatus.v);
-													plotregion.renew();
-												},
-												redo:function(){}
-											});
-											if(cpCheckAll){
-												var thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
-												if(typeof(thiscol)=="undefined"){
-														for(var i=0; i< x.tracklist[trackNames()[k]][datatrack].start.length; i++){
-															if(typeof(x.tracklist[trackNames()[k]][datatrack].color[i])=="undefined"){
-																x.tracklist[trackNames()[k]][datatrack].color[i] = "black";	
-															}
-														}
-														thiscol = x.tracklist[trackNames()[k]][datatrack].color[poskey];
-												}
-												for(var j=0; j<x.tracklist[trackNames()[k]][datatrack].color.length; j++){
-													if(x.tracklist[trackNames()[k]][datatrack].color[j]==thiscol){
-															x.tracklist[trackNames()[k]][datatrack].color[j]=col;
-													}
-												}
-												plotregion.renew();
-											}else{
-												x.tracklist[trackNames()[k]][datatrack].color[poskey]=col;
-												plotregion.renew();
-											}
-                                    	};
-                                    	ColorPicker(this, picked, true);
-									})
 							.call(d3.drag().on("start", dragstarted)
 									.on("drag", draggedGroup)
 									.on("end", dragended));
@@ -3678,7 +3639,48 @@ HTMLWidgets.widget({
 				 			.enter()
 				 			.append("path")
 				 			.attr("fill", function(d, i) {return getColor(i);} )
-				 			.attr("d", arc);
+				 			.attr("d", arc)
+							.on("click", function(d, i){
+								var obj = d3.select(this.parentNode);
+								var poskey = Number(obj.attr("poskey"));
+								var datatrack = obj.attr("datatrack");
+								var k = Number(obj.attr("kvalue"));
+								var picked = function(col){
+									var colorChanel = i==0?"color":"color2";
+									var tmpstatus = {k:k, 
+													 datatrack:datatrack,
+													 poskey:poskey,
+													 v:clone(x.tracklist[trackNames()[k]][datatrack][colorChanel])};
+									addNewHistory({
+										undo:function(){
+											x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack][colorChanel] = clone(tmpstatus.v);
+											plotregion.renew();
+										},
+										redo:function(){}
+									});
+									if(cpCheckAll){
+										var thiscol =  x.tracklist[trackNames()[k]][datatrack][colorChanel][poskey];
+										if(typeof(thiscol)=="undefined"){
+												for(var j=0; j< x.tracklist[trackNames()[k]][datatrack].start.length; j++){
+													if(typeof(x.tracklist[trackNames()[k]][datatrack][colorChanel][j])=="undefined"){
+														x.tracklist[trackNames()[k]][datatrack][colorChanel][j] = "#000";	
+													}
+												}
+												thiscol = x.tracklist[trackNames()[k]][datatrack][colorChanel][poskey];
+										}
+										for(var j=0; j<x.tracklist[trackNames()[k]][datatrack][colorChanel].length; j++){
+											if(x.tracklist[trackNames()[k]][datatrack][colorChanel][j]==thiscol){
+													x.tracklist[trackNames()[k]][datatrack][colorChanel][j]=col;
+											}
+										}
+										plotregion.renew();
+									}else{
+										x.tracklist[trackNames()[k]][datatrack][colorChanel][poskey]=col;
+										plotregion.renew();
+									}
+								};
+								ColorPicker(this, picked, true);
+							});
 				 		/*cir.append("circle")
 								.attr("cx", xscale(trackdat.labpos[i]))
 								.attr("cy", circenter+((ypos<.5?-1:1)*6*yscale(pos[5])))
@@ -3757,7 +3759,49 @@ HTMLWidgets.widget({
 				 			.append("path")
 				 			.attr("fill", function(d, i) {return getColor(i);} )
 				 			.attr("stroke", bordercolor)
-				 			.attr("d", arc);
+				 			.attr("d", arc)
+				 			.on("click", function(d, i){
+				 				var obj = d3.select(this.parentNode);
+								var poskey = Number(obj.attr("poskey"));
+								var datatrack = obj.attr("datatrack");
+								var k = Number(obj.attr("kvalue"));
+								var picked = function(col){
+									var color = x.tracklist[trackNames()[k]][datatrack].color;
+									var keys = Object.keys(color);
+									var key = keys[poskey];
+									var colorSet = color[key];
+									var colorSet1 = clone(colorSet);
+									colorSet1[i] = col;
+									var tmpstatus = {k:k, 
+													 datatrack:datatrack,
+													 poskey:poskey,
+													 v:clone(colorSet),
+													 v1:clone(colorSet1),
+													 keys:clone(keys),
+													 key:key};
+									addNewHistory({
+										undo:function(){
+											for(var j=0; j<tmpstatus.keys.length; j++){
+												if(JSON.stringify(x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.keys[j]])==
+														JSON.stringify(tmpstatus.v1)){
+													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.keys[j]] = clone(tmpstatus.v);
+												}
+											}
+											plotregion.renew();
+										},
+										redo:function(){}
+									});
+									for(var j=0; j<keys.length; j++){
+										if(JSON.stringify(x.tracklist[trackNames()[k]][datatrack].color[keys[j]])==
+												JSON.stringify(colorSet)){
+												x.tracklist[trackNames()[k]][datatrack].color[keys[j]]=clone(colorSet1);
+										}
+									}
+									plotregion.renew();
+									
+								};
+								ColorPicker(this, picked, false);
+				 			});
 				 		break;
 				 }
 			}
