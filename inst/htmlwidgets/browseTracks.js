@@ -3776,14 +3776,12 @@ HTMLWidgets.widget({
 													 datatrack:datatrack,
 													 poskey:poskey,
 													 v:clone(colorSet),
-													 v1:clone(colorSet1),
 													 keys:clone(keys),
 													 key:key};
 									addNewHistory({
 										undo:function(){
 											for(var j=0; j<tmpstatus.keys.length; j++){
-												if(JSON.stringify(x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.keys[j]])==
-														JSON.stringify(tmpstatus.v1)){
+												if(tmpstatus.keys[j].replace(new RegExp("\\..*?$"), "")==tmpstatus.key.replace(new RegExp("\\..*?$"), "")){
 													x.tracklist[trackNames()[tmpstatus.k]][tmpstatus.datatrack].color[tmpstatus.keys[j]] = clone(tmpstatus.v);
 												}
 											}
@@ -3792,8 +3790,7 @@ HTMLWidgets.widget({
 										redo:function(){}
 									});
 									for(var j=0; j<keys.length; j++){
-										if(JSON.stringify(x.tracklist[trackNames()[k]][datatrack].color[keys[j]])==
-												JSON.stringify(colorSet)){
+										if(keys[j].replace(new RegExp("\\..*?$"), "")==key.replace(new RegExp("\\..*?$"), "")){
 												x.tracklist[trackNames()[k]][datatrack].color[keys[j]]=clone(colorSet1);
 										}
 									}
