@@ -258,7 +258,9 @@ HTMLWidgets.widget({
 			  	label: clone(x.markers[self.id]),
 			  	id: self.id,
 			  	font: self.fontsize,
-			  	lolliplotTrackLabel: x.lolliplotTrackLabel[safeNames()[self.k]+"_"+self.datatrack+"_"+self.poskey]
+			  	lolliplotTrackLabel: x.lolliplotTrackLabel[safeNames()[self.k]+"_"+self.datatrack+"_"+self.poskey],
+			  	dx:self.dx,
+			  	dy:self.dy
 			  };
 			  addNewHistory({
 			  	undo:function(){
@@ -304,6 +306,12 @@ HTMLWidgets.widget({
 			  							if(/nodelabel/.exec(self.cls)){
 			  								x.lolliplotTrackLabel[safeNames()[self.k]+"_"+self.datatrack+"_"+self.poskey] = tmpstatus.lolliplotTrackLabel;
 			  								x.fontsize["lolliplotTrackLabel_"+safeNames()[self.k]+"_"+self.datatrack+"_"+self.poskey]=tmpstatus.fontsize;
+			  							}else{
+											if(/legend/.exec(self.cls)){
+												x.markers[tmpstatus.id].dx=tmpstatus.dx;
+												x.markers[tmpstatus.id].dy=tmpstatus.dy;
+												x.markers[tmpstatus.id].fontsize=tmpstatus.font;
+											}
 			  							}
 			  						}
 			  					}
@@ -394,7 +402,15 @@ HTMLWidgets.widget({
 										}
 										changeTranslate(d3.select(this.parentNode), dx, dy);
 									}else{
-										changeTranslate(d3.select(this.parentNode), dx, dy);
+										if(/legend/.exec(self.cls)){
+											changeTranslate(d3.select(this.parentNode), dx, dy);
+											self.dx=dx;
+											self.dy=dy;
+											x.markers[self.id].dx +=dx;
+											x.markers[self.id].dy +=dy;
+										}else{
+											changeTranslate(d3.select(this.parentNode), dx, dy);
+										}
 									}
 								}
 							}
@@ -425,6 +441,9 @@ HTMLWidgets.widget({
                 		if(/Mlabel/.exec(self.cls)){
                 			x.markers[self.id].fontsize=self.fontsize;
                 		}
+						if(/legend/.exec(self.cls)){
+							x.markers[self.id].fontsize = self.fontsize;
+						}
                 		self.body.style("font-size", self.fontsize+"px");
                 	}
                 }
@@ -502,6 +521,9 @@ HTMLWidgets.widget({
 								if(/Mlabel/.exec(self.cls)){
 									x.markers[self.id].angle=tmpstatus;
 								}
+								if(/legend/.exec(self.cls)){
+									x.markers[self.id].angle = tmpstatus;
+								}
 							}
 						}
 						plotregion.renew();
@@ -536,6 +558,9 @@ HTMLWidgets.widget({
                 		if(/Mlabel/.exec(self.cls)){
                 			x.markers[self.id].angle=self.angle;
                 		}
+						if(/legend/.exec(self.cls)){
+							x.markers[self.id].angle = self.angle;
+						}
                 	}
                 }
 				self.body.attr("transform", "rotate("+self.angle+")");
@@ -704,7 +729,7 @@ HTMLWidgets.widget({
 									}	
 									if(/trackLayerLabel/.exec(self.cls)){
 										parameter.trackLayerDataTxt[safeNames()[self.k]+"_"+self.ref] = self.text;
-									}		
+									}	
 								}
 							});
 			};
@@ -802,8 +827,8 @@ HTMLWidgets.widget({
 						 }).on("end", function(d){
 						 	d3.select(this).style("cursor", "default").classed("active", false);
 						 	var m = x.markers[d3.select(this).attr("id")];
-						 	m.x = Math.round(xscale().invert(curX));
-						 	m.y = Math.round(curY);
+						 	m.x = Math.round(xscale().invert(curX-margin.left));
+						 	m.y = Math.round(curY-margin.top);
 						 	x.markers[d3.select(this).attr("id")] = m;
 						 }))
 						 .on("dblclick", self.remove);
