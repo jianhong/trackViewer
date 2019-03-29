@@ -8,37 +8,40 @@ HTMLWidgets.widget({
   	// canvas
     var svg = d3.select(el).append("svg");
     // export menu
+    var menus = [{id:"export", value:"exportSVG"},
+    			 {id:"exportPNG", value:"exportPNG"},
+    			 {id:"undo", value:"Undo"},
+    			 {id:"save", value:"save"},
+    			 {id:"open", value:"open"}];
+    var menu = d3.select(el).selectAll("input")
+    			 .data(menus)
+    			 .enter()
+    			 .append("input")
+                 .attr("type", "button")
+                 .attr("name", d => d.id)
+                 .attr("id",  d => d.id)
+                 .attr("value",  d => d.value);
     var menu = d3.select(el).append("input")
-                 .attr("type", "button")
-                 .attr("name", "export")
-                 .attr("id", "export")
-                 .attr("value", "exportSVG");
-    var menu2 = d3.select(el).append("input")
-                 .attr("type", "button")
-                 .attr("name", "exportPNG")
-                 .attr("id", "exportPNG")
-                 .attr("value", "exportPNG");
-    var menu3 = d3.select(el).append("input")
-                 .attr("type", "button")
-                 .attr("name", "undo")
-                 .attr("id", "undo")
-                 .attr("value", "Undo");
+    			 .attr("type", "file")
+    			 .attr("id", "importjsonfilename")
+    			 .style("opacity", 0);
     return {
       renderValue: function(x) {
         //export functions
+        function fireEvent(obj,evt){
+		  var fireOnThis = obj;
+		  var evObj;
+		  if( document.createEvent ) {
+			evObj = document.createEvent('MouseEvents');
+			evObj.initEvent( evt, true, false );
+			fireOnThis.dispatchEvent( evObj );
+		  } else if( document.createEventObject ) {
+			evObj = document.createEventObject();
+			fireOnThis.fireEvent( 'on' + evt, evObj );
+		  }
+		}
         function writeDownloadLink(){
-            function fireEvent(obj,evt){
-              var fireOnThis = obj;
-              var evObj;
-              if( document.createEvent ) {
-                evObj = document.createEvent('MouseEvents');
-                evObj.initEvent( evt, true, false );
-                fireOnThis.dispatchEvent( evObj );
-              } else if( document.createEventObject ) {
-                evObj = document.createEventObject();
-                fireOnThis.fireEvent( 'on' + evt, evObj );
-              }
-            }
+            
             if(typeof(ruler)!="undefined"){
                 ruler.remove();
                 ruler = undefined;
@@ -92,6 +95,21 @@ HTMLWidgets.widget({
             plotregion.renew();
             ruler = new Ruler();
           });
+        
+        d3.select("#save")
+        	.on("click", function(){
+        		var p = {x:x, parameter:parameter, history:history, historyIndex:historyIndex};
+        		var d = JSON.stringify(p);
+        		var a = document.createElement('a');
+        		a.href = "data:text/json;charset=utf-8," + encodeURIComponent(d);
+        		a.download = "trackViewer.json";
+        		fireEvent(a, 'click');
+        	});
+        
+        d3.select("#load")
+        	.on("click", function(){
+        		document.getElementById("importjsonfilename").click();
+        	});
         
         //set canvas size
         svg.attr("width", width)
@@ -3352,11 +3370,14 @@ HTMLWidgets.widget({
 						var circenter=yscale(pos[4]);
 						var curscore=trackdat.score[i];
 						if(curscore==0){
+							if(typeof(trackdat.color[i])=="undefined"){
+								trackdat.color[i] = "#FFFFFF";
+							}
 						  cir.append("circle")
 								.attr("cx", xscale(trackdat.labpos[i]))
 								.attr("cy", circenter)
 								.attr("r", yscale(pos[5]))
-								.attr("fill", "white")
+								.attr("fill", trackdat.color[i])
 								.attr("stroke", bordercolor);
 						  curscore=1;
 						}else{
