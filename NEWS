@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.19.24
+
+    o add save and load for browseTracks.
+    o add swith dandelion height method (mean or count) for browseTracks.
+    
 CHANGES IN VERSION 1.19.23
 
     o add color picker for pie.stack for browseTracks.

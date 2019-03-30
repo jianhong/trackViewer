@@ -21,10 +21,11 @@ HTMLWidgets.widget({
                  .attr("name", d => d.id)
                  .attr("id",  d => d.id)
                  .attr("value",  d => d.value);
-    var menu = d3.select(el).append("input")
+    var menuload = d3.select(el).append("input")
     			 .attr("type", "file")
     			 .attr("id", "importjsonfilename")
-    			 .style("opacity", 0);
+    			 .style("opacity", 0)
+    			 .attr("accept", ".json");
     return {
       renderValue: function(x) {
         //export functions
@@ -98,15 +99,33 @@ HTMLWidgets.widget({
         
         d3.select("#save")
         	.on("click", function(){
-        		var p = {x:x, parameter:parameter, history:history, historyIndex:historyIndex};
+        		console.log(x);
+        		var p = {x:x, parameter:parameter};
+        		console.log(p);
         		var d = JSON.stringify(p);
+        		console.log(d);
         		var a = document.createElement('a');
         		a.href = "data:text/json;charset=utf-8," + encodeURIComponent(d);
         		a.download = "trackViewer.json";
         		fireEvent(a, 'click');
         	});
-        
-        d3.select("#load")
+        	
+        menuload.on("change", function() {
+			var file = d3.event.target.files[0];
+			if (file) {
+			  var reader = new FileReader();
+			  reader.onload = function(){
+				 var result = JSON.parse(reader.result);
+				 console.log(result);
+				 x=result.x;
+				 console.log(x);
+				 parameter=result.parameter;
+				 plotregion.renew();
+			  };
+			 reader.readAsText(file);
+			}
+		 })
+        d3.select("#open")
         	.on("click", function(){
         		document.getElementById("importjsonfilename").click();
         	});
@@ -900,10 +919,10 @@ HTMLWidgets.widget({
 		};
 		
         //Markers
-        x.markers = [];
+        x.markers = {};
         var Marker = function(){
             if(typeof(x.markers)==="undefined"){
-                x.markers = [];
+                x.markers = {};
             }
             var self = this;
             self.svgDefault = true;
@@ -2349,6 +2368,40 @@ HTMLWidgets.widget({
 						parameter.isoformR[eventLayer] -= 0.25;
 						plotregion.renew();
 					}},
+					{label: 'switch height method',
+					check: function(){
+						if(eventLayer=="") return false;
+						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								return true;
+							}
+						}
+						return false;
+					},
+					onMouseClick: function(){
+						tmpstatus = {k:eventLayer,
+									 d:"dat2",
+									 v:clone(x.tracklist[eventLayer].dat2.method)};
+						var method={"mean":"count", "count":"mean"};
+						if(typeof(x.tracklist[tmpstatus.k][tmpstatus.d].method)=="undefined"){
+							x.tracklist[tmpstatus.k][tmpstatus.d].method = [];
+							for(var i=0; i<x.tracklist[tmpstatus.k][tmpstatus.d].start.length; i++){
+								x.tracklist[tmpstatus.k][tmpstatus.d].method[i]="mean";
+							}
+						}
+						thisMethod = method[x.tracklist[tmpstatus.k][tmpstatus.d].method[0]];
+						for(var i=0; i<x.tracklist[tmpstatus.k][tmpstatus.d].method.length; i++){
+							x.tracklist[tmpstatus.k][tmpstatus.d].method[i] = thisMethod;
+						}
+						plotregion.renew();
+					 	addNewHistory({
+					 		undo:function(){
+					 			x.tracklist[tmpstatus.k][tmpstatus.d].method = clone(tmpstatus.v);
+					 			plotregion.renew();
+					 		},
+					 		redo:function(){}
+					 	});
+					}},
 					{label:'increase maxgap', 
 					check: function(){
 					 	if(eventLayer=="") return false;
@@ -2666,8 +2719,8 @@ HTMLWidgets.widget({
         }
         
         // lolliplot
-        parameter.circleR=[];
-        parameter.YposSTART = [];
+        parameter.circleR={};
+        parameter.YposSTART = {};
         parameter.maxGAP=1;
         var lolliplot = function(lolli, trackdat, xscale, yscale, k, datatrack, ypos, from){
         	var pos;
@@ -2987,7 +3040,7 @@ HTMLWidgets.widget({
 						if(maxScore < treeData[i].mean) maxScore = treeData[i].mean;
 					}
 						
-					var htUnit = (pos[4]-pos[1])/Math.round(...groupSize);
+					var htUnit = (pos[4]-pos[1])/maxScore;
 					for(var i=0; i<trackdat.start.length; i++){						
 						var snpLine=thisSNP.append('g')
 								.attr("class", "lolliplotLine_"+safeNames()[k])
@@ -3048,12 +3101,6 @@ HTMLWidgets.widget({
 								 .attr("id", "dandelionNodeLinker1_"+safeNames()[k]+"_"+datatrack+"_"+i);
 					}
 					for(var i=0; i<treeData.length; i++){
-						treeData[i].mean = 0;
-						for(var j=0; j<treeData[i].score.length; j++){
-							treeData[i].mean += treeData[i].score[j];
-						}
-						treeData[i].mean = treeData[i].mean/treeData[i].r;
-						
 						var nodes = thisSNP.append("g")
 										.attr("transform", "translate("+xscale(treeData[i].x)+","+yscale(pos[1]+htUnit*treeData[i].mean)+")");
 						var pie = d3.pie().sort(null);
@@ -3826,9 +3873,9 @@ HTMLWidgets.widget({
         };
         
         //gene track
-        parameter.geneTrackHeightFactor = [];
-        parameter.isoformR=[];
-        parameter.trackLayerDataTxt = [];
+        parameter.geneTrackHeightFactor = {};
+        parameter.isoformR={};
+        parameter.trackLayerDataTxt = {};
         var geneTrack = function(layer, track, start, end, xscale, yscale, wscale, line, k, label){
             var self=this;
             self.layer=layer;
