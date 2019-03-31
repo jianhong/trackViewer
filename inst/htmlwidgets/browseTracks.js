@@ -3417,12 +3417,11 @@ HTMLWidgets.widget({
 						var circenter=yscale(pos[4]);
 						var curscore=trackdat.score[i];
 						if(curscore==0){
-						  trackdat.color[i] = "#FFFFFF";
 						  cir.append("circle")
 								.attr("cx", xscale(trackdat.labpos[i]))
 								.attr("cy", circenter)
 								.attr("r", yscale(pos[5]))
-								.attr("fill", trackdat.color[i])
+								.attr("fill", "#FFFFFF")
 								.attr("stroke", bordercolor);
 						  curscore=1;
 						}else{
