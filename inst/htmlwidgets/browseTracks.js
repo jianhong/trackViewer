@@ -99,11 +99,8 @@ HTMLWidgets.widget({
         
         d3.select("#save")
         	.on("click", function(){
-        		console.log(x);
         		var p = {x:x, parameter:parameter};
-        		console.log(p);
         		var d = JSON.stringify(p);
-        		console.log(d);
         		var a = document.createElement('a');
         		a.href = "data:text/json;charset=utf-8," + encodeURIComponent(d);
         		a.download = "trackViewer.json";
@@ -116,9 +113,7 @@ HTMLWidgets.widget({
 			  var reader = new FileReader();
 			  reader.onload = function(){
 				 var result = JSON.parse(reader.result);
-				 console.log(result);
 				 x=result.x;
-				 console.log(x);
 				 parameter=result.parameter;
 				 plotregion.renew();
 			  };
@@ -2371,6 +2366,11 @@ HTMLWidgets.widget({
 					{label: 'switch height method',
 					check: function(){
 						if(eventLayer=="") return false;
+						if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								return true;
+							}
+						}
 						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return true;
@@ -2379,8 +2379,19 @@ HTMLWidgets.widget({
 						return false;
 					},
 					onMouseClick: function(){
+						var d="";
+						if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								d = "dat";
+							}
+						}
+						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
+								d = "dat2";
+							}
+						}
 						tmpstatus = {k:eventLayer,
-									 d:"dat2",
+									 d:d,
 									 v:clone(x.tracklist[eventLayer].dat2.method)};
 						var method={"mean":"count", "count":"mean"};
 						if(typeof(x.tracklist[tmpstatus.k][tmpstatus.d].method)=="undefined"){
@@ -2405,6 +2416,11 @@ HTMLWidgets.widget({
 					{label:'increase maxgap', 
 					check: function(){
 					 	if(eventLayer=="") return false;
+						if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								return true;
+							}
+						}
 						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return true;
@@ -2427,6 +2443,11 @@ HTMLWidgets.widget({
 					{label:'decrease maxgap', 
 					check: function(){
 					 	if(eventLayer=="") return false;
+						if(typeof(x.tracklist[eventLayer].dat.type)!="undefined"){
+							if(x.tracklist[eventLayer].dat.type[0] == "dandelion"){
+								return true;
+							}
+						}
 						if(typeof(x.tracklist[eventLayer].dat2.type)!="undefined"){
 							if(x.tracklist[eventLayer].dat2.type[0] == "dandelion"){
 								return true;
