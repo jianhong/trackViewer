@@ -3417,9 +3417,7 @@ HTMLWidgets.widget({
 						var circenter=yscale(pos[4]);
 						var curscore=trackdat.score[i];
 						if(curscore==0){
-							if(typeof(trackdat.color[i])=="undefined"){
-								trackdat.color[i] = "#FFFFFF";
-							}
+						  trackdat.color[i] = "#FFFFFF";
 						  cir.append("circle")
 								.attr("cx", xscale(trackdat.labpos[i]))
 								.attr("cy", circenter)
