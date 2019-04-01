@@ -10,9 +10,9 @@ HTMLWidgets.widget({
     // export menu
     var menus = [{id:"export", value:"exportSVG"},
     			 {id:"exportPNG", value:"exportPNG"},
-    			 {id:"undo", value:"Undo"},
-    			 {id:"save", value:"save"},
-    			 {id:"open", value:"open"}];
+    			 {id:"undo", value:"undo"},
+    			 {id:"save", value:"save the session"},
+    			 {id:"open", value:"load a saved session"}];
     var menu = d3.select(el).selectAll("input")
     			 .data(menus)
     			 .enter()
