@@ -12,7 +12,7 @@ optimizeStyle(trackList, viewerStyle = trackViewerStyle(),
 
 \item{viewerStyle}{An object of \code{\link{trackViewerStyle}}}
 
-\item{theme}{A character string. Could be "bw" or "col".}
+\item{theme}{A character string. Could be "bw", "col" or "safe".}
 }
 \value{
 a list of a \code{\link{trackList}} and a \code{\link{trackViewerStyle}}

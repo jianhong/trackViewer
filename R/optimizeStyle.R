@@ -36,7 +36,7 @@ optFontSize1 <- function(height){
 #' @description Automatic optimize the stlye of trackViewer
 #' @param trackList An object of \code{\link{trackList}}
 #' @param viewerStyle An object of \code{\link{trackViewerStyle}}
-#' @param theme A character string. Could be "bw" or "col".
+#' @param theme A character string. Could be "bw", "col" or "safe".
 #' @return a list of a \code{\link{trackList}} and a \code{\link{trackViewerStyle}}
 #' @seealso See Also as \code{\link{viewTracks}}
 #' @export
@@ -141,6 +141,28 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
             }
             if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
         }
+      if(theme=="safe"){
+        safeColors <- c("#000000", "#D55E00", "#009E73", "#0072B2",
+                        "#56B4E9", "#CC79A7", "#E69F00", "#BEBEBE")
+        for(i in 1:length(trackList)){
+          if(trackList[[i]]@type %in% c("data", "lollipopData")){
+            trackList[[i]]@style@ylabpos="bottomleft"
+            trackList[[i]]@style@marginBottom=.2
+            trackList[[i]]@style@ylabgp=
+              list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
+                   col="black")
+          }else{
+            trackList[[i]]@style@ylabpos="upstream"
+            trackList[[i]]@style@ylabgp=
+              list(cex=optFontSize1(trackList[[i]]@style@height), 
+                   col="black")
+          }
+          trackList[[i]]@style@color=
+            rep(rep(safeColors, ceiling(i/7))[i+1], 2)
+          trackList[[i]]@style@yaxis@main=FALSE
+        }
+        if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
+      }
     }
     return(list(tracks=trackList, style=viewerStyle))
     }

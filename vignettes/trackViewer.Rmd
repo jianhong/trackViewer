@@ -307,6 +307,13 @@ viewerStyle <- optSty$style
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
+```{r themeSafe,fig.cap='colorful theme',fig.width=8,fig.height=4}
+optSty <- optimizeStyle(trackList(repA, fox2, trs), theme="safe")
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+```
+
 ### Plot with breaks
 
 We could plot the tracks with breaks by setting multiple genomic ranges.
