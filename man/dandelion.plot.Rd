@@ -6,8 +6,10 @@
 \usage{
 dandelion.plot(SNP.gr, features = NULL, ranges = NULL,
   type = c("fan", "circle", "pie", "pin"), newpage = TRUE,
-  ylab = TRUE, xaxis = TRUE, yaxis = FALSE, legend = NULL,
-  cex = 1, maxgaps = 1/50, heightMethod = NULL, ...)
+  ylab = TRUE, ylab.gp = gpar(col = "black"), xaxis = TRUE,
+  xaxis.gp = gpar(col = "black"), yaxis = FALSE, yaxis.gp = gpar(col
+  = "black"), legend = NULL, cex = 1, maxgaps = 1/50,
+  heightMethod = NULL, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
@@ -25,6 +27,8 @@ dandelion.plot(SNP.gr, features = NULL, ranges = NULL,
 
 \item{ylab}{plot ylab or not. If it is a character vector, 
 the vector will be used as ylab.}
+
+\item{ylab.gp, xaxis.gp, yaxis.gp}{An object of class gpar for ylab, xaxis or yaxis.}
 
 \item{xaxis, yaxis}{plot xaxis/yaxis or not. If it is a numeric vector with length 
 greater than 1, the vector will be used as the 

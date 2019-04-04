@@ -1,5 +1,5 @@
 ##levels of feature "CDS"   "ncRNA" "utr3"  "utr5"
-plotGeneModel <- function(track, xscale, chr){
+plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar()){
   if(length(track@dat2)>0){
     feature.height <- 
       if(is.list(track@dat2$feature.height)) track@dat2$feature.height[[1]] else track@dat2$feature.height[1]
@@ -136,7 +136,7 @@ plotGeneModel <- function(track, xscale, chr){
       GAP <- .2 * LINEH
       ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
       plotLollipops(track@dat2, feature.height=y+unit, bottomHeight=0, baseline=y, 
-                    type=type, ranges=xscale.gr, yaxis=FALSE, 
+                    type=type, ranges=xscale.gr, yaxis=FALSE, yaxis.gp=yaxis.gp,
                     scoreMax=scoreMax, scoreMax0=scoreMax0, scoreType=scoreType, 
                     LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                     side="top", jitter=jitter)

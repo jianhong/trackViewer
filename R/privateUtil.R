@@ -253,8 +253,8 @@ putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang, withlol
     popViewport()
 }
 
-putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height){
-    ##c("left", "right", "topleft", "bottomleft", "topright", "bottomright")
+putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height, yscale){
+    ##c("left", "right", "topleft", "bottomleft", "topright", "bottomright", "abovebaseline", "underbaseline")
     vp <- switch(style@ylabpos,
                  left=viewport(x=curViewStyle@margin[2]*.4, 
                                width=curViewStyle@margin[2]*.8,
@@ -266,6 +266,8 @@ putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height
                  bottomleft=viewport(y=0, height=yHeightBottom, just="bottom"),
                  topright=viewport(y=1-yHeightTop, height=yHeightTop, just="bottom"),
                  bottomright=viewport(y=0, height=yHeightBottom, just="bottom"),
+                 abovebaseline=viewport(y=0.5, height = 1, just="center",yscale=yscale),
+                 underbaseline=viewport(y=0.5, height = 1, just="center",yscale=yscale),
                  viewport(x=curViewStyle@margin[2]*.4, 
                           width=curViewStyle@margin[2]*.8))
     just <- switch(style@ylabpos,
@@ -275,6 +277,8 @@ putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height
                    topright=c(1, 0),
                    bottomleft=c(0, 1),
                    bottomright=c(1, 1),
+                   abovebaseline=c(0, 0),
+                   underbaseline=c(0, 1),
                    "center"
         )
     x <- switch(style@ylabpos,
@@ -284,6 +288,8 @@ putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height
                 topright=1-curViewStyle@margin[4],
                 bottomleft=curViewStyle@margin[2],
                 bottomright=1-curViewStyle@margin[4],
+                abovebaseline=curViewStyle@margin[2],
+                underbaseline=curViewStyle@margin[2],
                 .5
         )
     y <- switch(style@ylabpos,
@@ -293,13 +299,15 @@ putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height
                 topright=.1,
                 bottomleft=.9,
                 bottomright=.9,
+                abovebaseline=unit(0, "native")+unit(2, "points"),
+                underbaseline=unit(0, "native")-unit(2, "points"),
                 .5
         )
     pushViewport(vp)
     rot <- ifelse(style@ylablas %in% c(0, 3), 90, 0)
     gp <- style@ylabgp
     class(gp) <- "gpar"
-    if(style@ylabpos %in% c("topleft", "topright", "bottomleft", "bottomright")){
+    if(style@ylabpos %in% c("topleft", "topright", "bottomleft", "bottomright", "abovebaseline", "underbaseline")){
         rot <- 0
         curHeight <- ifelse(grepl("top",style@ylabpos), yHeightTop, yHeightBottom)
         if(is.null(gp$cex)) gp$cex <- optFontSize("z", curViewStyle, 
@@ -319,6 +327,7 @@ putYlab <- function(curViewStyle, style, name, yHeightBottom, yHeightTop, height
         }
     }
     grid.text(x=x, y=y, label=name, rot=rot, just=just, gp=gp)
+
     popViewport()
 }
 
@@ -387,13 +396,13 @@ drawXscale <- function(scale){
               default.units=scale@from@unit)
 }
 
-maxStringWidth <- function(labels, spaces="WWWWW"){
-    max(as.numeric(convertX(stringWidth(paste0(labels, spaces)), "line")))
+maxStringWidth <- function(labels, spaces="WW", cex){
+    max(as.numeric(convertX(stringWidth(paste0(labels, spaces)), "line"))*cex)
 }
 
-getColNum <- function(labels, spaces="WWWWW"){
+getColNum <- function(labels, spaces="WW", cex){
     ncol <- floor(as.numeric(convertX(unit(1, "npc"), "line")) / 
-                      maxStringWidth(labels, spaces=spaces) / 
+                      maxStringWidth(labels, spaces=spaces, cex) / 
               as.numeric(convertX(stringWidth("W"), "line")))
     nrow <- ceiling(length(labels) / ncol)
     ncol <- ceiling(length(labels) / nrow)
@@ -481,15 +490,22 @@ setFeatureLayerID <- function(feature, ranges, i){
 }
 
 ## bottomblank, the transcripts legend height
-plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis){
-  bottomblank <- 4
+plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis, xaxis.gp){
+  if(length(xaxis)>1 || as.logical(xaxis[1])){
+    xaxisSpace <- 2
+    if(is.numeric(xaxis.gp$cex)) xaxisSpace <- 2*xaxis.gp$cex
+  }else{
+    xaxisSpace <- 0
+  }
   if(length(names(feature))>0){ ## features legend
     feature.s <- feature[!duplicated(names(feature))]
-    ncol <- getColNum(names(feature.s))
-    bottomblank <- max(ceiling(length(names(feature.s)) / ncol), 4)
-    pushViewport(viewport(x=.5, y=bottomblank*LINEH/2, 
+    cex <- if(length(unlist(feature.s$cex))==length(feature.s)) 
+      unlist(feature.s$cex) else 1
+    ncol <- getColNum(names(feature.s), cex=cex)
+    featureLegendSpace <- max(ceiling(length(names(feature.s)) / ncol) * cex + 1 )
+    pushViewport(viewport(x=.5, y=featureLegendSpace*LINEH/2, 
                           width=1,
-                          height=bottomblank*LINEH,
+                          height=featureLegendSpace*LINEH,
                           xscale=c(start(ranges[i]), end(ranges[i]))))
     color <- if(length(unlist(feature.s$color))==length(feature.s)) 
       unlist(feature.s$color) else "black"
@@ -499,27 +515,44 @@ plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis){
       unlist(feature.s$pch) else 22
     grid.legend(label=names(feature.s), ncol=ncol,
                 byrow=TRUE, vgap=unit(.2, "lines"),
+                hgap=unit(.5, "lines"),
                 pch=pch,
-                gp=gpar(col=color, fill=fill))
+                gp=gpar(col=color, fill=fill, cex=cex))
     popViewport()
   }else{
-    if(length(xaxis)>1 || as.logical(xaxis[1])){
-      bottomblank <- 2
-    }else{
-      bottomblank <- 0
-    }
+    featureLegendSpace <- 0
   }
+  bottomblank <- (xaxisSpace + featureLegendSpace) * LINEH
   return(bottomblank)
 }
 
-plot.grid.xaxis <- function(xaxis, col="black"){
+plot.grid.xaxis <- function(xaxis, gp=gpar(col="black")){
   ## axis, should be in the bottom of transcripts
   if(length(xaxis)==1 && as.logical(xaxis)) {
-    grid.xaxis(gp=gpar(col=col))
+    grid.xaxis(gp=gp)
   }
   if(length(xaxis)>1 && is.numeric(xaxis)){
     xaxisLabel <- names(xaxis)
     if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
-    grid.xaxis(at=xaxis, label=xaxisLabel, gp=gpar(col=col))
+    grid.xaxis(at=xaxis, label=xaxisLabel, gp=gp)
   }
 }
+
+
+grid.circle1 <- function(x = 0.5, y = 0.5, r = 0.5, 
+                         default.units = "npc", name = NULL, 
+                         gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  if(is.null(fill)) fill <- "white"
+  twopi <- 2 * pi
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  t2xy <- function(t) {
+    t2p <- twopi * t + pi/2
+    list(x = r * cos(t2p)/ratio.yx, y = r * sin(t2p))
+  }
+  P <- t2xy(seq.int(0, 1, length.out = 100))
+  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), gp=gpar(col = col, fill = fill, lwd=lwd)))
+}
+

@@ -20,6 +20,7 @@
 #' the vector will be used as the points at which tick-marks are to be drawn. 
 #' And the names of the vector will be used to as labels to be placed at the tick 
 #' points if it has names. 
+#' @param ylab.gp,xaxis.gp,yaxis.gp An object of class gpar for ylab, xaxis or yaxis.
 #' @param legend If it is a list with named color vectors, a legend will be added.
 #' @param cex cex will control the size of circle.
 #' @param dashline.col color for the dashed line.
@@ -65,8 +66,10 @@
 
 lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type="circle",
-                      newpage=TRUE, ylab=TRUE, yaxis=TRUE,
-                      xaxis=TRUE, legend=NULL, cex=1, 
+                      newpage=TRUE, ylab=TRUE, ylab.gp=gpar(col="black"),
+                      yaxis=TRUE, yaxis.gp=gpar(col="black"), 
+                      xaxis=TRUE, xaxis.gp=gpar(col="black"), 
+                      legend=NULL, cex=1, 
                       dashline.col="gray80", 
                       jitter=c("node", "label"), 
                       rescale=FALSE, ...){
@@ -132,6 +135,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         pushViewport(vp)
         LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
         LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+        totalH <- as.numeric(unit(1, "npc"))
+        if(LINEH > totalH/20){
+          LINEH <- totalH/20
+        }
+        
         ## GAP the gaps between any elements
         GAP <- .2 * LINEH
         ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
@@ -235,7 +243,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         feature.splited <- split(feature, feature$featureLayerID)
         
         ## bottomblank, the transcripts legend height
-        bottomblank <- plotFeatureLegend(feature, LINEH, ranges, i, xaxis)
+        bottomblank <- plotFeatureLegend(feature, as.numeric(convertY(unit(1, "line"), "npc")),
+                                         ranges, i, xaxis, xaxis.gp)
         
         ## get the max score and scoreType
         scoreMax0 <- scoreMax <- 
@@ -282,11 +291,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         if(length(SNPs.bottom)<1) IsCaterpillar <- FALSE
         ## viewport of plot region
         if(!IsCaterpillar){
-            bottomblank <- bottomblank + 2 ## the height of xaxis
+            bottomblank <- bottomblank
         }
-        pushViewport(viewport(x=LINEW + .5, y=bottomblank*LINEH/2 + .5, 
+        pushViewport(viewport(x=LINEW + .5, y=bottomblank/2 + .5, 
                               width= 1 - 7*LINEW,
-                              height= 1 - bottomblank*LINEH,
+                              height= 1 - bottomblank,
                               xscale=c(start(ranges[i]), end(ranges[i])),
                               clip="off"))
         
@@ -305,10 +314,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             vp <- viewport(y=bottomHeight, just="bottom",
                            xscale=c(start(ranges[i]), end(ranges[i])))
             pushViewport(vp)
-            plot.grid.xaxis(xaxis, "gray")
+            xaxis.gp$col <- "gray"
+            plot.grid.xaxis(xaxis, gp=xaxis.gp)
             popViewport()
         }else{
-            plot.grid.xaxis(xaxis)
+            plot.grid.xaxis(xaxis, gp=xaxis.gp)
         }
         
         ## the baseline, the center of the first transcript
@@ -324,14 +334,14 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         if(length(SNPs.bottom)>0){
             plotLollipops(SNPs.bottom, feature.height, bottomHeight, baselineN, 
-                          type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
+                          type, ranges[i], yaxis, yaxis.gp, scoreMax, scoreMax0, scoreType, 
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                           side="bottom", jitter=jitter)
         }
         feature.height <- feature.height + 2*GAP
         if(length(SNPs.top)>0){
             plotLollipops(SNPs.top, feature.height, bottomHeight, baseline, 
-                          type, ranges[i], yaxis, scoreMax, scoreMax0, scoreType, 
+                          type, ranges[i], yaxis, yaxis.gp, scoreMax, scoreMax0, scoreType, 
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                           side="top", jitter=jitter)
         }
@@ -346,23 +356,31 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         popViewport()
         
-        this.height <- bottomblank*LINEH + 
-            this.height * (1 - bottomblank*LINEH)
+        this.height <- bottomblank + 
+            this.height * (1 - bottomblank)
         
         ## ylab
+        if(length(yaxis)>1 && is.numeric(yaxis)){
+          x <- LINEW
+        }else{
+          x <- unit(3, "lines")
+          if(yaxis){
+            x <- LINEW
+          }
+        }
         vp <- viewport(x=.5, y=this.height*0.5, 
                        width=1, height=this.height)
         pushViewport(vp)
         if(is.logical(ylab)){
             if(ylab && length(names(SNP.gr))>0){
-                grid.text(names(SNP.gr)[i], x = LINEW, 
-                          y = .5, rot = 90)
+                grid.text(names(SNP.gr)[i], x = x, 
+                          y = .5, rot = 90, gp=ylab.gp)
             }
         }
         if(is.character(ylab)){
             if(length(ylab)==1) ylab <- rep(ylab, len)
-            grid.text(ylab[i], x = LINEW,
-                      y = .5, rot = 90)
+            grid.text(ylab[i], x = x,
+                      y = .5, rot = 90, gp=ylab.gp)
         }
         popViewport()
         

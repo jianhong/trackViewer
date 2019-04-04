@@ -87,7 +87,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
     stopifnot(is.numeric(c(x0, x1, x2, y0, y1, y2, radius, edges)))
     type <- match.arg(type)
     grid.lines(x=c(x0, x1, x2), y=c(y0, y1, y2), 
-               gp=gpar(col=border))
+               gp=gpar(col=border, lwd=lwd))
     if(length(pin)>0){
         if(length(border)>0) pin@paths[[2]]@rgb <- rgb2hex(col2rgb(border[1]))
         if(length(col)>0) pin@paths[[1]]@rgb <- rgb2hex(col2rgb(col[1]))
@@ -107,7 +107,7 @@ grid.dandelion <- function(x0, y0, x1, y1, x2, y2,
                if(length(border)==0) border <- "black"
                if(length(col)==0) col <- "white"
                if(length(lwd)==0) lwd <- 1
-               grid.circle(x=x2, y=y2,
+               grid.circle1(x=x2, y=y2,
                            r=radius*ratio.yx, 
                            gp=gpar(col=border, fill=col, lwd=lwd))
                if(!is.na(id)){

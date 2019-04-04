@@ -137,7 +137,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
     }else{
         if(style@ylabpos=="upstream") style@ylabpos <- "left"
         if(style@ylabpos=="downstream") style@ylabpos <- "right"
-        putYlab(curViewStyle, style, name, yHeightBottom, yHeightTop, height)
+        putYlab(curViewStyle, style, name, yHeightBottom, yHeightTop, height, yscale)
     }
     
     pushViewport(viewport(x=0, y=yHeightBottom, 
@@ -220,11 +220,11 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
           }
           maxHeight <- max(c(getMaxHeight(track@dat), getMaxHeight(track@dat2)), na.rm = TRUE)
           if(length(track@dat2)>0) maxHeight + .5
-          plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, 
+          plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, gpar(),
                            ybase, side="top", main=style@yaxis@main,
                            baselineCol=style@color[1], maxHeight=maxHeight)
           if(length(track@dat2)>0) {
-            plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, 
+            plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, gpar(),
                              ybase, side="bottom", main=style@yaxis@main,
                              baselineCol=style@color[2], maxHeight=maxHeight)
           }

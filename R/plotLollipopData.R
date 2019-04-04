@@ -1,4 +1,4 @@
-plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=TRUE, baselineCol="black", maxHeight){
+plotLollipopData <- function(dat, xscale, chr, yaxis, yaxis.gp, ybase=0, side="top", main=TRUE, baselineCol="black", maxHeight){
   if(length(dat)>0){
     dat <- orderedGR(dat)
     xscale.gr <- GRanges(seqnames = chr, ranges=IRanges(min(xscale), max(xscale)))
@@ -50,7 +50,7 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, ybase=0, side="top", main=
     guideline <- ifelse(side=="top", ybase, ybase+feature.height)
     grid.lines(y=c(guideline, guideline), gp = gpar(col=baselineCol))
     plotLollipops(dat, feature.height=feature.height, bottomHeight=ybase, baseline=0, 
-                  type=type, ranges=xscale.gr, yaxis=yaxis, 
+                  type=type, ranges=xscale.gr, yaxis=yaxis, yaxis.gp=yaxis.gp,
                   scoreMax=scoreMax, scoreMax0=scoreMax0, scoreType=scoreType, 
                   LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                   side=side, jitter=jitter, main=main)

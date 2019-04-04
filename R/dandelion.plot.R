@@ -14,6 +14,7 @@
 #' greater than 1, the vector will be used as the 
 #' points at which tick-marks are to be drawn. And the names of the vector will be
 #' used to as labels to be placed at the tick points if it has names. 
+#' @param ylab.gp,xaxis.gp,yaxis.gp An object of class gpar for ylab, xaxis or yaxis.
 #' @param legend If it is a list with named color vectors, a legend will be added.
 #' @param cex cex will control the size of circle.
 #' @param maxgaps maxgaps between the stem of dandelions. 
@@ -43,9 +44,10 @@
 
 dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                       type=c("fan", "circle", "pie", "pin"),
-                      newpage=TRUE, ylab=TRUE, 
-                      xaxis=TRUE, yaxis=FALSE, legend=NULL, 
-                      cex=1, maxgaps=1/50, heightMethod=NULL, ...){
+                      newpage=TRUE, ylab=TRUE, ylab.gp=gpar(col="black"),
+                      xaxis=TRUE, xaxis.gp=gpar(col="black"), 
+                      yaxis=FALSE, yaxis.gp=gpar(col="black"), 
+                      legend=NULL, cex=1, maxgaps=1/50, heightMethod=NULL, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -96,18 +98,32 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         vp <- viewport(x=.5, y=height*(i-0.5), width=1, height=height)
         pushViewport(vp)
         LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
-        LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+        LINEH <- as.numeric(convertY(unit(1, "line"), "npc")) # LINEH is used for gap
+        totalH <- as.numeric(unit(1, "npc"))
+        if(LINEH > totalH/20){
+          LINEH <- totalH/20
+        }
+        
         ## ylab
+        if(length(yaxis)>1 && is.numeric(yaxis)){
+          x <- LINEW
+        }else{
+          x <- unit(3, "lines")
+          if(yaxis){
+            x <- LINEW
+          }
+        }
+        
         if(is.logical(ylab)){
             if(ylab && length(names(SNP.gr))>0){
-                grid.text(names(SNP.gr)[i], x = LINEW, 
-                          y = .5, rot = 90)
+                grid.text(names(SNP.gr)[i], x = x, 
+                          y = .5, rot = 90, gp=ylab.gp)
             }
         }
         if(is.character(ylab)){
             if(length(ylab)==1) ylab <- rep(ylab, len)
-            grid.text(ylab[i], x = LINEW,
-                      y = .5, rot = 90)
+            grid.text(ylab[i], x = x,
+                      y = .5, rot = 90, gp=ylab.gp)
         }
         
         if(is(features, "GRangesList")){
@@ -126,15 +142,16 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         gap <- .2 * LINEH
         
         ## bottomblank, the transcripts legend height
-        bottomblank <- plotFeatureLegend(feature, LINEH, ranges, i, xaxis)
+        bottomblank <- plotFeatureLegend(feature, as.numeric(convertY(unit(1, "line"), "npc")), 
+                                         ranges, i, xaxis, xaxis.gp)
         
-        pushViewport(viewport(x=LINEW + .5, y= (bottomblank+2)*LINEH/2 + .5, 
+        pushViewport(viewport(x=LINEW + .5, y= bottomblank/2 + .5, 
                               width= 1 - 7*LINEW,
-                              height= 1 - (bottomblank+2)*LINEH,
+                              height= 1 - bottomblank,
                               xscale=c(start(ranges[i]), end(ranges[i])),
                               clip = "off"))
         ## axis
-        plot.grid.xaxis(xaxis)
+        plot.grid.xaxis(xaxis, gp=xaxis.gp)
         
         ## the baseline, the center of the first transcript
         baseline <- 
@@ -189,15 +206,19 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             if(length(names(SNPs))>0){
               maxStrHeight <- 
                 max(as.numeric(
-                  convertY(stringWidth(names(SNPs)), "npc")
-                ))+LINEW/2
+                  convertX(stringWidth("W"), "npc")
+                )*nchar(names(SNPs)))+LINEW/2
             }else{
               maxStrHeight <- 0
             }
             ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-            ypos <- LINEW*max(ratio.yx, 1.2) + maxStrHeight*cex + 2*LINEH 
+            ypos <- LINEW*max(ratio.yx, 1.2) + maxStrHeight*cex + LINEH*cex 
             if(length(legend[[i]])>0){
-              ypos <- ypos + 3*LINEH
+              if(!is.null(legend[[i]]$gp$cex)){
+                ypos <- ypos + 1.5*LINEH*legend[[i]]$gp$cex
+              }else{
+                ypos <- ypos + 1.5*LINEH
+              }
             }
             SNPs.groups <- Y1pos(SNPs.groups, c(start(ranges[i]), end(ranges[i])), LINEW, width, cex, 
                                  ypos, 
@@ -209,7 +230,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
               pushViewport(viewport(y= width + (1-width-ypos-cex*LINEW*ratio.yx)/2, 
                                     height= 1 - width-ypos-cex*LINEW*ratio.yx,
                                     yscale = yyscale))
-              grid.yaxis()
+              grid.yaxis(gp=yaxis.gp)
               popViewport()
             }
             if(length(yaxis)>1 && is.numeric(yaxis)){
@@ -218,7 +239,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
               pushViewport(viewport(y= width + (1-width-ypos-cex*LINEW*ratio.yx)/2, 
                                     height= 1 - width-ypos-cex*LINEW*ratio.yx,
                                     yscale = yyscale))
-              grid.yaxis(at=yaxis, label=yaxisLabel)
+              grid.yaxis(at=yaxis, label=yaxisLabel, gp=yaxis.gp)
               popViewport()
             }
             ## legend
@@ -229,20 +250,22 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
               if(is.list(legend[[i]])){
                 thisLabels <- legend[[i]][["labels"]]
                 gp <- legend[[i]][names(legend[[i]])!="labels"]
+                if(is.null(gp$cex)) gp$cex <- 1
                 class(gp) <- "gpar"
               }else{
                 thisLabels <- names(legend[[i]])
-                gp <- gpar(fill=legend[[i]]) 
+                gp <- gpar(fill=legend[[i]], cex=1) 
               }
               if(length(thisLabels)>0){
-                ncol <- getColNum(thisLabels)
-                topblank <- ceiling(length(thisLabels) / ncol)
+                ncol <- getColNum(thisLabels, cex=gp$cex)
+                topblank <- ceiling(length(thisLabels) / ncol) * gp$cex
                 pushViewport(viewport(x=.5, y=ypos+topblank*LINEH/2, 
                                       width=1,
                                       height=topblank*LINEH,
                                       just="bottom"))
                 grid.legend(label=thisLabels, ncol=ncol,
-                            byrow=TRUE, vgap=unit(.2, "lines"),
+                            byrow=TRUE, vgap=unit(.1*gp$cex, "lines"),
+                            hgap=unit(.5*gp$cex, "lines"),
                             pch=21,
                             gp=gp)
                 popViewport()

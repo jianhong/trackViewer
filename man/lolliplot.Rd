@@ -5,9 +5,11 @@
 \title{Lolliplots}
 \usage{
 lolliplot(SNP.gr, features = NULL, ranges = NULL, type = "circle",
-  newpage = TRUE, ylab = TRUE, yaxis = TRUE, xaxis = TRUE,
-  legend = NULL, cex = 1, dashline.col = "gray80",
-  jitter = c("node", "label"), rescale = FALSE, ...)
+  newpage = TRUE, ylab = TRUE, ylab.gp = gpar(col = "black"),
+  yaxis = TRUE, yaxis.gp = gpar(col = "black"), xaxis = TRUE,
+  xaxis.gp = gpar(col = "black"), legend = NULL, cex = 1,
+  dashline.col = "gray80", jitter = c("node", "label"),
+  rescale = FALSE, ...)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 
@@ -30,6 +32,8 @@ The metadata 'featureLayerID' are used for drawing features in different layers.
 
 \item{ylab}{Plot ylab or not. If it is a character vector, 
 the vector will be used as ylab.}
+
+\item{ylab.gp, xaxis.gp, yaxis.gp}{An object of class gpar for ylab, xaxis or yaxis.}
 
 \item{yaxis}{Plot yaxis or not.}
 

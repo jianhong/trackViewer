@@ -135,7 +135,7 @@ ideogramPlot <- function(ideo, dataList, layout=NULL,
     if(length(labels)==0){
       labels <- paste0("colorKey", 1:length(dataList))
     }
-    labels.width <- convertX(stringWidth(labels), "inches", valueOnly = TRUE)
+    labels.width <- convertX(stringWidth("W"), "inches", valueOnly = TRUE)*nchar(labels)
     colorKey.width <- 1
     oneChar.width <- convertX(unit(1, "lines"), "inches", valueOnly = TRUE)
     pushViewport(viewport(y=unit(1.75, "lines"), height=unit(3.5, "lines"),

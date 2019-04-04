@@ -33,6 +33,7 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
                 this.dat$fill
             if(length(fill)==0) fill <- "white"
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
+            lwd <- if(length(this.dat$lwd)>0) this.dat$lwd[[1]][1] else 1
             this.feature.height.m <- 
                 if(length(this.dat$height)>0) 
                     this.dat$height[[1]][1] else 
@@ -40,7 +41,7 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
             grid.rect(x=start(this.dat)-.1, y=bottomHeight+feature.height, 
                       width=width(this.dat)-.8, 
                       height=this.feature.height.m,
-                      just="left", gp=gpar(col=color, fill=fill), 
+                      just="left", gp=gpar(col=color, fill=fill, lwd=lwd), 
                       default.units = "native")
         }
         feature.height <- feature.height + this.feature.height
@@ -49,7 +50,7 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
 }
 
 plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline, 
-                          type, ranges, yaxis, scoreMax, scoreMax0, scoreType,
+                          type, ranges, yaxis, yaxis.gp, scoreMax, scoreMax0, scoreType,
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
                           side=c("top", "bottom"), jitter=c("node", "label"),
                           main=TRUE){
@@ -129,6 +130,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 grid.yaxis(at=yaxisat,
                            label=yaxisLabel,
                            main = main,
+                           gp=yaxis.gp,
                            vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
                                        y=feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex,
@@ -139,6 +141,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 grid.yaxis(at=yaxisat,
                            label=yaxisLabel,
                            main = main,
+                           gp=yaxis.gp,
                            vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
                                        y=1-(feature.height+5.25*GAP*cex+
                                            scoreMax*LINEW*ratio.yx/2*cex),
@@ -284,26 +287,28 @@ plotLegend <- function(legend, this.height, LINEH){
         if(is.list(legend)){
             thisLabels <- legend[["labels"]]
             gp <- legend[names(legend)!="labels"]
+            if(is.null(gp$cex)) gp$cex <- 1
             class(gp) <- "gpar"
         }else{
             thisLabels <- names(legend)
-            gp <- gpar(fill=legend) 
+            gp <- gpar(fill=legend, cex=1) 
         }
         if(length(thisLabels)>0){
-            ncol <- getColNum(thisLabels)
-            topblank <- ceiling(length(thisLabels) / ncol)
+            ncol <- getColNum(thisLabels, cex=gp$cex)
+            topblank <- ceiling(length(thisLabels) / ncol) * gp$cex
             pushViewport(viewport(x=.5, 
-                                  y=ypos+(topblank+.5)*LINEH/2, 
+                                  y=ypos+(topblank+.2*gp$cex)*LINEH/2, 
                                   width=1,
                                   height=topblank*LINEH,
                                   just="bottom"))
-            this.height <- ypos + (topblank+1)*LINEH 
+            this.height <- ypos + (topblank+.2*gp$cex)*LINEH 
             grid.legend(label=thisLabels, ncol=ncol,
-                        byrow=TRUE, vgap=unit(.2, "lines"),
+                        byrow=TRUE, vgap=unit(.1*gp$cex, "lines"), 
+                        hgap=unit(.5*gp$cex, "lines"),
                         pch=21,
                         gp=gp)
             popViewport()
         }
     }
-    this.height
+    this.height + LINEH
 }

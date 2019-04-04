@@ -65,18 +65,18 @@ grid.lollipop <- function (x1=.5, y1=.5,
             y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx)
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x1, x1, x2, x2), y=y0, 
-                       gp=gpar(col=border))
+                       gp=gpar(col=border, lwd=lwd))
             y0 <- c(y2+y3+y4+(this.score-.5)*2*radius*ratio.yx, 
                     y2+y3+y4+scoreMax*ratio.yx)
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x2, x2), 
                        y=y0, 
-                       gp=gpar(col=dashline.col, lty=3))
+                       gp=gpar(col=dashline.col, lty=3, lwd=lwd))
         }else{
             y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-.5)*2*radius*ratio.yx)
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x1, x1, x2, x2), y=y0, 
-                       gp=gpar(col=border))
+                       gp=gpar(col=border, lwd=lwd))
         }
         
     }else{
@@ -85,18 +85,18 @@ grid.lollipop <- function (x1=.5, y1=.5,
                 y0 <- c(y1, y2, y2+y3, y2+y3+y4)
                 if(side) y0 <- 1 - y0
                 grid.lines(x=c(x1, x1, x2, x2), y=y0, 
-                           gp=gpar(col=border))
+                           gp=gpar(col=border, lwd=lwd))
                 y0 <- c(y2+y3+y4, y2+y3+y4+scoreMax*ratio.yx)
                 if(side) y0 <- 1 - y0
                 grid.lines(x=c(x2, x2), 
                            y=y0,
-                           gp=gpar(col=dashline.col, lty=3))
+                           gp=gpar(col=dashline.col, lty=3, lwd=lwd))
             }
         }else{
             y0 <- c(y1, y2, y2+y3, y2+y3+y4)
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x1, x1, x2, x2), y=y0, 
-                       gp=gpar(col=border))
+                       gp=gpar(col=border, lwd=lwd))
         }
     }
     
@@ -109,19 +109,18 @@ grid.lollipop <- function (x1=.5, y1=.5,
            circle={
                if(length(border)==0) border <- "black"
                if(length(col)==0) col <- "white"
-               if(length(lwd)==0) lwd <- 1
                if(scoreType){
                    for(i in 1:this.score){
                        y0 <- y2+y3+y4/2+2*radius*ratio.yx*(i-.5)
                        if(side) y0 <- 1 - y0
-                       grid.circle(x=x2, y=y0,
+                       grid.circle1(x=x2, y=y0,
                                    r=radius*ratio.yx, 
                                    gp=gpar(col=border, fill=col, lwd=lwd))
                    }
                }else{
                    y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
                    if(side) y0 <- 1 - y0
-                   grid.circle(x=x2, y=y0,
+                   grid.circle1(x=x2, y=y0,
                                r=radius*ratio.yx, 
                                gp=gpar(col=border, fill=col, lwd=lwd))
                    if(!is.na(id)){

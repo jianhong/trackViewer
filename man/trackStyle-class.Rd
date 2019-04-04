@@ -77,7 +77,8 @@ it should have two values.}
 \item{\code{ylim}}{\code{"numeric"} y-axis range}
 
 \item{\code{ylabpos}}{\code{"character"}, ylable postion, ylabpos should 
-be 'left', 'right', 'topleft', 'bottomleft', 'topright' or 'bottomright'.
+be 'left', 'right', 'topleft', 'bottomleft', 'topright', 'bottomright',
+'abovebaseline' or 'underbaseline'.
 For gene type track, it also could be 'upstream' or 'downstream'}
 
 \item{\code{ylablas}}{\code{"numeric"} y lable direction. It should 
