@@ -78,8 +78,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     jitter <- match.arg(jitter)
     rescale.old <- rescale
     xaxis.old <- xaxis
-    if(type!="circle"&&jitter=="label"){
-      jitter <- "node"
+    if(any(type!="circle"&jitter=="label")){
+      jitter[which(type!="circle"&jitter=="label")] <- "node"
       warning("if jitter set to label, type must be cirle.")
       message("jitter is set to node.")
     }
