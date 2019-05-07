@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.1
+
+    o fix the bug if condiction with multiple logical values.
+    
 CHANGES IN VERSION 1.19.28
 
     o fit the small size canvas.
