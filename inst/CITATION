@@ -6,7 +6,8 @@ citEntry(entry="Article",
 	journal="Nature Methods",
 	volume=16,
 	year=2019,
+	pages="453–454",
 	url="https://doi.org/10.1038/s41592-019-0430-y",
 	doi="10.1038/s41592-019-0430-y",
-	textVersion="Ou J. Zhu L. trackViewer: a Bioconductor package for interactive and integrative visualization of multi-omics data. Nature Methods 16 (2019)"
+	textVersion="Ou J. Zhu L. trackViewer: a Bioconductor package for interactive and integrative visualization of multi-omics data. Nature Methods 16, 453–454 (2019)"
 )
