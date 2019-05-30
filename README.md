@@ -1,5 +1,6 @@
-# trackViewer [![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs41592--019--0430--y-brightgreen.svg)](https://doi.org/10.1038/s41592-019-0430-y)
+# trackViewer
 
+[![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs41592--019--0430--y-brightgreen.svg)](https://doi.org/10.1038/s41592-019-0430-y)
 [![platforms](http://bioconductor.org/shields/availability/devel/trackViewer.svg)](http://bioconductor.org/packages/devel/bioc/html/trackViewer.html)
 [![build](http://bioconductor.org/shields/build/devel/bioc/trackViewer.svg)](http://bioconductor.org/packages/devel/bioc/html/trackViewer.html)
 
