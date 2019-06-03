@@ -25,3 +25,5 @@ To view documentation of trackViewer, start R and enter:
 browseVignettes("trackViewer")
 ```
 
+Or view it online at:
+https://bioconductor.org/packages/release/bioc/vignettes/trackViewer/inst/doc/trackViewer.html
