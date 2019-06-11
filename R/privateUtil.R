@@ -538,13 +538,14 @@ plot.grid.xaxis <- function(xaxis, gp=gpar(col="black")){
   }
 }
 
-
+#"circle", "square", "diamond", "triangle_point_up", "star", or "triangle point_down"
 grid.circle1 <- function(x = 0.5, y = 0.5, r = 0.5, 
                          default.units = "npc", name = NULL, 
                          gp = gpar(), draw = TRUE, vp = NULL){
   fill <- gp$fill
   col <- gp$col
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
   twopi <- 2 * pi
   ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
@@ -553,6 +554,89 @@ grid.circle1 <- function(x = 0.5, y = 0.5, r = 0.5,
     list(x = r * cos(t2p)/ratio.yx, y = r * sin(t2p))
   }
   P <- t2xy(seq.int(0, 1, length.out = 100))
-  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), gp=gpar(col = col, fill = fill, lwd=lwd)))
+  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), 
+                         gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
 }
 
+grid.square <- function(x = 0.5, y = 0.5, r = 0.5, 
+                        default.units = "npc", name = NULL, 
+                        gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
+  if(is.null(fill)) fill <- "white"
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  invisible(grid.rect(unit(x,"npc"), unit(y, "npc"), 
+                      width = unit(r*2/ratio.yx, "npc"), 
+                      height = unit(r*2, "npc"),
+                      gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}
+
+grid.diamond <- function(x = 0.5, y = 0.5, r = 0.5, 
+                        default.units = "npc", name = NULL, 
+                        gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
+  if(is.null(fill)) fill <- "white"
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  P <- 
+    list(x = c(0, r/ratio.yx, 0, -r/ratio.yx), 
+         y = c(-r, 0, r, 0))
+  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), 
+                         gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}
+
+grid.triangle_point_up <- function(x = 0.5, y = 0.5, r = 0.5, 
+                         default.units = "npc", name = NULL, 
+                         gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
+  if(is.null(fill)) fill <- "white"
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  P <- 
+    list(x = c(-r/ratio.yx, r/ratio.yx, 0, -r/ratio.yx), 
+         y = c(-r, -r, r, -r))
+  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), 
+                         gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}
+
+grid.triangle_point_down <- function(x = 0.5, y = 0.5, r = 0.5, 
+                                   default.units = "npc", name = NULL, 
+                                   gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
+  if(is.null(fill)) fill <- "white"
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  P <- 
+    list(x = c(-r/ratio.yx, r/ratio.yx, 0, -r/ratio.yx), 
+         y = c(r, r, -r, r))
+  invisible(grid.polygon(unit(P$x+x,"npc"), unit(P$y+y, "npc"), 
+                         gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}
+
+
+grid.star <- function(x = 0.5, y = 0.5, r = 0.5, 
+                      default.units = "npc", name = NULL, 
+                      gp = gpar(), draw = TRUE, vp = NULL){
+  fill <- gp$fill
+  col <- gp$col
+  lwd <- if(length(gp$lwd)>0) gp$lwd else 1
+  alpha <- gp$alpha
+  if(is.null(fill)) fill <- "white"
+  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  i <- 1:11
+  angle <- 180
+  alpha <- 2*pi / 10
+  r <- r * (i %% 2 + 1)/2
+  omega <- alpha * i + angle * pi /180
+  invisible(grid.polygon(unit(r*sin(omega)/ratio.yx+x,"npc"), 
+                         unit(r*cos(omega)+y, "npc"), 
+                         gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}

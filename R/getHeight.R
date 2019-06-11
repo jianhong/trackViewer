@@ -8,7 +8,7 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                circle={
                    labels.y <- LINEW + # add gaps for labels
                        6.5*GAP*cex + 
-                       (scoreMax-0.5) * LINEW * ratio.yx*cex
+                       scoreMax * LINEW * ratio.yx*cex
                },
                pin={
                    if(length(SNPs$score)>0) {
@@ -62,7 +62,7 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    }
                    maxStrHeight <- maxStrHeight * labels.length.rate
                    ypos <- LINEW + 6.5*GAP*cex + 
-                       (scoreMax-0.5) * LINEW * ratio.yx*cex + maxStrHeight
+                       scoreMax * LINEW * ratio.yx*cex + maxStrHeight
                },
                pin={
                    if(length(names(SNPs))>0){

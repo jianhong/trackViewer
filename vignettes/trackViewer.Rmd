@@ -392,11 +392,17 @@ sample.gr$border <- sample(c("gray80", "gray30"), length(SNP), replace=TRUE)
 lolliplot(sample.gr, features)
 ```
 
+### Change the opacity of the lollipop.
+```{r lolliplotOpacity, fig.width=6, fig.height=3}
+sample.gr$alpha <- sample(100:255, length(SNP), replace = TRUE)/255
+lolliplot(sample.gr, features)
+```
+
 
 ## Add the index labels in the node
 ```{r lolliplot.index, fig.width=6, fig.height=3}
 sample.gr$label <- as.character(1:length(sample.gr))
-sample.gr$label.col <- "white"
+sample.gr$label.col <- ifelse(sample.gr$alpha>0.5, "white", "black")
 lolliplot(sample.gr, features)
 ```
 
@@ -517,6 +523,16 @@ grid.text("title here", x=.5, y=.98, just="top",
 
 ## Change the lolliplot type
 
+### Change the shape for "circle" plot
+
+```{r lolliplotShape, fig.width=6, fig.height=4.5}
+## shape must be "circle", "square", "diamond", "star", "triangle_point_up", or "triangle_point_down"
+available.shapes <- c("circle", "square", "diamond", "star",
+                      "triangle_point_up", "triangle_point_down")
+sample.gr$shape <- sample(available.shapes, size = length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features, type="circle")
+```
+
 ### Google pin
 ```{r lolliplot5, fig.width=6, fig.height=4.5}
 lolliplot(sample.gr, features, type="pin")
@@ -545,7 +561,7 @@ lolliplot(sample.gr.flag, features,
 
 ### Pie plot
 ```{r lolliplot6, fig.width=6, fig.height=3}
-sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns except column "color", "fill", "lwd", "id" and "id.col".
+sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns except column "color", "fill", "alpha", "shape", "lwd", "id" and "id.col".
 sample.gr$label <- NULL
 sample.gr$label.col <- NULL
 x <- sample.int(100, length(SNP))
