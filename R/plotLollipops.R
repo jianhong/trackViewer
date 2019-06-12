@@ -158,7 +158,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             }
           }else{ ## not correct format.
             SNPs$alpha <- as.numeric(factor(as.character(SNPs$alpha)))
-            SNPs$alpha <- SNPs$alpha/max(SNPs$alpha)
+            SNPs$alpha <- (SNPs$alpha+max(SNPs$alpha))/max(SNPs$alpha)/2
           }
         }else{
           SNPs$alpha <- NULL

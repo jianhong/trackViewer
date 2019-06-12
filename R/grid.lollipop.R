@@ -68,7 +68,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
     if(!type %in% c("pie", "pie.stack")){
         this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
         if(type=="circle"){
-            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-cex)*2*radius*ratio.yx)
+            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-1)*2*radius*ratio.yx+(1-cex)*radius*ratio.yx)
             if(scoreType) y0[4] <- y2+y3+y4
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x1, x1, x2, x2), y=y0, 

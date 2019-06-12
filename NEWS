@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.5
+
+    o fix the bug that lollipop stem is too long.
+    
 CHANGES IN VERSION 1.21.4
 
     o add shape for lolliplot.
