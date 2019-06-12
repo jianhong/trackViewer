@@ -454,6 +454,8 @@ lolliplot(sample.gr, features)
 sample.gr$score <- runif(length(sample.gr))*10
 lolliplot(sample.gr, features)
 # Score should not be smaller than 1
+# remove the alpha for following samples
+sample.gr$alpha <- NULL
 ```
 
 ## Customize the x-axis label position
