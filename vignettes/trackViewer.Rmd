@@ -660,7 +660,7 @@ lolliplot(list(A=sample.gr, B=sample2.gr),
 
 ## EMBL-EBI Proteins API
 
-Following code will show how to use EBI Proteins REST API to get annotations of protein domains.
+Following code will show how to use [EBI Proteins REST API](https://www.ebi.ac.uk/proteins/api/doc/) to get annotations of protein domains.
 
 ```{r ProteinsAPI, fig.width=6, fig.height=3}
 library(httr) # load library to get data from REST API
