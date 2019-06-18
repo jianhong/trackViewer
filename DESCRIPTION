@@ -1,7 +1,7 @@
 Package: trackViewer
 Type: Package
 Title: A R/Bioconductor package with web interface for drawing elegant interactive tracks or lollipop plot to facilitate integrated analysis of multi-omics data
-Version: 1.21.5
+Version: 1.21.6
 Author@R: c(person(given="Jianhong", family="Ou", email="jianhong.ou@duke.edu", 
         role=c("aut", "cre"), comment=c(ORCID="0000-0002-8652-2488")), 
         person(given="Julie", family="Zhu", middle="Lihua", 
@@ -16,7 +16,7 @@ Imports: GenomeInfoDb, GenomicAlignments, GenomicFeatures, Gviz, Rsamtools, S4Ve
         rtracklayer, BiocGenerics, scales, tools, IRanges, AnnotationDbi, grImport,
         htmlwidgets, plotrix, Rgraphviz, InteractionSet, graph, utils
 Suggests: biomaRt, TxDb.Hsapiens.UCSC.hg19.knownGene, RUnit, org.Hs.eg.db,
-        BiocStyle, knitr, VariantAnnotation
+        BiocStyle, knitr, VariantAnnotation, httr
 biocViews: Visualization
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
