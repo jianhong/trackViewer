@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.20.4
+
+    o fix the bug in label.param.gp.
+    
 CHANGES IN VERSION 1.20.3
 
     o change the web application video address.
