@@ -246,14 +246,21 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             mergeList <- function(.ele){
               .n <- unique(unlist(lapply(.ele, names)))
               .out <- list()
-              for(.name in .n){
-                .out[[.name]] <- sapply(.ele, function(.e){
-                  if(.name %in% names(.e)){
-                    .e[[.name]][1]
-                  }else{
-                    NA
-                  }
-                })
+              if(length(.n)>0){
+                for(.name in .n){
+                  .out[[.name]] <- sapply(.ele, function(.e){
+                    if(.name %in% names(.e)){
+                      .e[[.name]][1]
+                    }else{
+                      NA
+                    }
+                  })
+                }
+              }else{
+                .n <- unique(names(.ele))
+                for(.name in .n){
+                  .out[[.name]] <- unlist(.ele[names(.ele) %in% .name])
+                }
               }
               .out
             }
