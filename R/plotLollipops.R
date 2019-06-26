@@ -268,7 +268,24 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                            mcols(SNPs)[, label.para])
                 }
             }
-            labels.gp <- c(labels.gp, cex=cex)
+            if(!"cex" %in% names(labels.gp)){
+              labels.gp <- c(labels.gp, cex=cex)
+            }
+            mergeList <- function(.ele){
+              .n <- unique(unlist(lapply(.ele, names)))
+              .out <- list()
+              for(.name in .n){
+                .out[[.name]] <- sapply(.ele, function(.e){
+                  if(.name %in% names(.e)){
+                    .e[[.name]][1]
+                  }else{
+                    NA
+                  }
+                })
+              }
+              .out
+            }
+            labels.gp <- mergeList(labels.gp)
             labels.gp[duplicated(names(labels.gp))] <- NULL
             labels.gp <- do.call(gpar, labels.gp)
             if(jitter=="label"){
@@ -312,10 +329,11 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
 
 plotLegend <- function(legend, this.height, LINEH){
     ypos <- this.height
+    pch <- 21
     if(length(legend)>0){
         if(is.list(legend)){
             thisLabels <- legend[["labels"]]
-            gp <- legend[names(legend)!="labels"]
+            gp <- legend[!names(legend) %in% "labels"]
             if(is.null(gp$cex)) gp$cex <- 1
             class(gp) <- "gpar"
         }else{
@@ -334,7 +352,7 @@ plotLegend <- function(legend, this.height, LINEH){
             grid.legend(label=thisLabels, ncol=ncol,
                         byrow=TRUE, vgap=unit(.1*gp$cex, "lines"), 
                         hgap=unit(.5*gp$cex, "lines"),
-                        pch=21,
+                        pch=pch,
                         gp=gp)
             popViewport()
         }

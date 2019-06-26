@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.7
+
+    o fix the label label.parameters.gp.
+    
 CHANGES IN VERSION 1.21.6
 
     o add sample code of Proteins API.
