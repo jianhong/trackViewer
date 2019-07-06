@@ -165,11 +165,11 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         }
         if(type=="circle"){
           if(length(SNPs$shape)==length(SNPs)){
-            ## shape could only be "circle", "square", "diamond", "triangle_point_up", "star", "triangle_point_down"
-            if(!all(SNPs$shape %in% c("circle", "square", "diamond", "triangle_point_up", "star", "triangle_point_down"))){
-              message('shape must be "circle", "square", "diamond", "star", "triangle_point_up", or "triangle_point_down"')
+            ## shape could only be "circle", "square", "diamond", "triangle_point_up", "triangle_point_down"
+            if(!all(SNPs$shape %in% c("circle", "square", "diamond", "triangle_point_up", "triangle_point_down"))){
+              message('shape must be "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"')
               SNPs$shape <- as.numeric(factor(SNPs$shape))
-              SNPs$shape <- rep(c("circle", "square", "diamond", "triangle_point_up", "star", "triangle_point_down"), 
+              SNPs$shape <- rep(c("circle", "square", "diamond", "triangle_point_up", "triangle_point_down"), 
                                 max(SNPs$shape))[SNPs$shape]
             }
           }else{
@@ -340,7 +340,8 @@ plotLegend <- function(legend, this.height, LINEH){
     if(length(legend)>0){
         if(is.list(legend)){
             thisLabels <- legend[["labels"]]
-            gp <- legend[!names(legend) %in% "labels"]
+            if("pch" %in% names(legend)) pch <- legend[["pch"]]
+            gp <- legend[!names(legend) %in% c("labels", "pch")]
             if(is.null(gp$cex)) gp$cex <- 1
             class(gp) <- "gpar"
         }else{
@@ -349,16 +350,16 @@ plotLegend <- function(legend, this.height, LINEH){
         }
         if(length(thisLabels)>0){
             ncol <- getColNum(thisLabels, cex=gp$cex)
-            topblank <- ceiling(length(thisLabels) / ncol) * gp$cex
+            topblank <- ceiling(length(thisLabels) / ncol) * gp$cex[1]
             pushViewport(viewport(x=.5, 
-                                  y=ypos+(topblank+.2*gp$cex)*LINEH/2, 
+                                  y=ypos+(topblank+.2*gp$cex[1])*LINEH/2, 
                                   width=1,
                                   height=topblank*LINEH,
                                   just="bottom"))
-            this.height <- ypos + (topblank+.2*gp$cex)*LINEH 
+            this.height <- ypos + (topblank+.2*gp$cex[1])*LINEH 
             grid.legend(label=thisLabels, ncol=ncol,
-                        byrow=TRUE, vgap=unit(.1*gp$cex, "lines"), 
-                        hgap=unit(.5*gp$cex, "lines"),
+                        byrow=TRUE, vgap=unit(.1*gp$cex[1], "lines"), 
+                        hgap=unit(.5*gp$cex[1], "lines"),
                         pch=pch,
                         gp=gp)
             popViewport()

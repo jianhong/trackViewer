@@ -498,6 +498,12 @@ lolliplot(sample.gr, features, legend=legend)
 ## see more examples in the section [Plot multiple samples](#plot-multiple-samples)
 legend <- list(legend)
 lolliplot(sample.gr, features, legend=legend)
+
+# from version 1.21.8, users can also try to set legend 
+# as a column name in the metadata of GRanges.
+sample.gr.newlegend <- sample.gr
+sample.gr.newlegend$legend <- LETTERS[sample.gr$color]
+lolliplot(sample.gr.newlegend, features, legend="legend")
 ```
 
 ## Control the labels
@@ -524,16 +530,33 @@ grid.text("title here", x=.5, y=.98, just="top",
           gp=gpar(cex=1.5, fontface="bold"))
 ```
 
+
+Users can control the labels one by one by setting label.parameter.gp. 
+Please note that for each label, the label.parameter.gp must be a list.
+
+```{r lolliplot.labels.ctl.one.by.one, fig.width=6, fig.height=5}
+label.parameter.gp.brown <- gpar(col="brown")
+label.parameter.gp.blue <- gpar(col="blue")
+label.parameter.gp.red <- gpar(col="red")
+sample.gr$label.parameter.gp <- sample(list(label.parameter.gp.blue,
+                                            label.parameter.gp.brown,
+                                            label.parameter.gp.red),
+                                       length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features)
+```
+
+
 ## Change the lolliplot type
 
 ### Change the shape for "circle" plot
 
 ```{r lolliplotShape, fig.width=6, fig.height=4.5}
-## shape must be "circle", "square", "diamond", "star", "triangle_point_up", or "triangle_point_down"
-available.shapes <- c("circle", "square", "diamond", "star",
+## shape must be "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"
+available.shapes <- c("circle", "square", "diamond", 
                       "triangle_point_up", "triangle_point_down")
 sample.gr$shape <- sample(available.shapes, size = length(sample.gr), replace = TRUE)
-lolliplot(sample.gr, features, type="circle")
+sample.gr$legend <- paste0("legend", as.numeric(factor(sample.gr$shape)))
+lolliplot(sample.gr, features, type="circle", legend = "legend")
 ```
 
 ### Google pin

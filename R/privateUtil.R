@@ -413,8 +413,47 @@ getColNum <- function(labels, spaces="WW", cex){
 ## set the legend as a list, 
 ## if all the legend for different tracks is same
 ## set draw legend for last track later
-handleLegend <- function(legend, len){
+handleLegend <- function(legend, len, dat){
   if(length(legend)>0){
+    if(is.character(legend)){
+      if(!missing(dat)){
+        if(is.list(dat)){
+          if(length(legend)<length(dat)){
+            legend <- rep(legend, length(dat))[seq_along(dat)]
+          }
+        }else{
+          dat <- GRangesList(dat)
+          legend <- legend[1]
+        }
+        para <- c("shape", "color", "border", "alpha")
+        preset <- list("circle", "white", "black", 1)
+        shapeMap <- c("circle"=21, "square"=22, "diamond"=23, 
+                      "triangle_point_up"=24, "triangle_point_down"=25)
+        names(preset) <- para
+        legend <- mapply(function(.legend, .dat){
+          coln <- colnames(mcols(.dat))
+          if(.legend %in% coln){
+            labels <- mcols(.dat)[, .legend]
+            gp <- lapply(para, function(.ele){
+              if(.ele %in% coln){
+                mcols(.dat)[, .ele]
+              }else{
+                rep(preset[[.ele]], length(.dat))
+              }
+            })
+            names(gp) <- para
+            names(gp)[names(gp)=="color"] <- "fill"
+            gp <- as.data.frame(gp, stringsAsFactors=FALSE)
+            gp <- cbind(labels=labels, gp)
+            gp[, "shape"] <- shapeMap[gp[, "shape"]]
+            names(gp)[names(gp)=="shape"] <- "pch"
+            gp <- gp[!duplicated(gp[, "labels"]), ]
+            gp <- gp[order(gp[, "labels"]), ]
+            gp <- as.list(gp)
+          }
+        }, legend, dat, SIMPLIFY = FALSE)
+      }
+    }
     if(!is.list(legend)){
       tmp <- legend
       legend <- vector(mode = "list", length = len)

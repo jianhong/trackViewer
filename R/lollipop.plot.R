@@ -106,8 +106,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     ## set the legend as a list, 
     ## if all the legend for different tracks is same
     ## set draw legend for last track later
-    legend <- handleLegend(legend, len)
-    
+    legend <- handleLegend(legend, len, SNP.gr)
+
     features.name <- deparse(substitute(features))
     
     ################ handle ranges #####################
