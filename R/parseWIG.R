@@ -78,6 +78,14 @@ parseWIG <- function(trackScore, chrom, from, to){
     gc(reset=TRUE)
     trackScore@dat2 <- parser(trackScore@dat2, chrom, from, to)
     gc(reset=TRUE)
+    ## check the score
+    ## if any score of dat smaller than 0, change it to dat2
+    if(length(trackScore@dat2)<1 && any(trackScore@dat$score<0)){
+      message("data with score smaller than 0 in dat slot moved to dat2 slot.")
+      trackScore@dat2 <- trackScore@dat[trackScore@dat$score<0]
+      trackScore@dat2$score <- -1 * trackScore@dat2$score
+      trackScore@dat <- trackScore@dat[trackScore@dat$score>=0]
+    }
     trackScore@format <- "BED"
     return(trackScore)
 }
