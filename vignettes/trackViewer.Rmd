@@ -515,6 +515,22 @@ grid.text("title here", x=.5, y=.98, just="top",
           gp=gpar(cex=1.5, fontface="bold"))
 ```
 
+
+Users can control the labels one by one by setting label.parameter.gp. 
+Please note that for each label, the label.parameter.gp must be a list.
+
+```{r lolliplot.labels.ctl.one.by.one, fig.width=6, fig.height=5}
+label.parameter.gp.brown <- gpar(col="brown")
+label.parameter.gp.blue <- gpar(col="blue")
+label.parameter.gp.red <- gpar(col="red")
+sample.gr$label.parameter.gp <- sample(list(label.parameter.gp.blue,
+                                            label.parameter.gp.brown,
+                                            label.parameter.gp.red),
+                                       length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features)
+```
+
+
 ## Change the lolliplot type
 
 ### Google pin

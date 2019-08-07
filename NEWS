@@ -1,6 +1,7 @@
 CHANGES IN VERSION 1.20.5
 
     o fix the bug of score is NumericList.
+    o add documentation for label.param.gp.
     
 CHANGES IN VERSION 1.20.4
 
