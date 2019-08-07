@@ -248,6 +248,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                          ranges, i, xaxis, xaxis.gp)
         
         ## get the max score and scoreType
+        if(length(SNPs$score)>0){
+            SNPs$score <- sapply(SNPs$score, mean) ## fix the bug of score is NumericList
+        }
         scoreMax0 <- scoreMax <- 
             if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
         if(type=="pie.stack") scoreMax <- length(unique(SNPs$stack.factor))

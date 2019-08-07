@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.10
+
+    o fix the bug of score is NumericList.
+    
 CHANGES IN VERSION 1.21.9
 
     o accept negative values for bigwig files.
