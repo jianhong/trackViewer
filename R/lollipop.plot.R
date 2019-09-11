@@ -183,6 +183,32 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
               rescale$to.start[-1] <- rescale$to.start[-1] + 1
             }
           }
+        }else{
+          if(is.numeric(rescale)){## rescale is a percentage, convert it into from.start, from.end, to.start, to.end
+           ## reset the scale for exons and introns
+            feature.rd <- disjoin(c(feature, ranges[i]))
+            feature.segment.points <- sort(unique(c(start(feature.rd), end(feature.rd))))
+            ## filter the points by viewer port.
+            feature.segment.points <- 
+              feature.segment.points[feature.segment.points>=start(ranges[i]) &
+                                       feature.segment.points<=end(ranges[i])]
+            rescale <- rescale/sum(rescale, na.rm = TRUE)
+            rescale <- rescale[!is.na(rescale)]
+            if(length(rescale)==length(feature.segment.points)-1){
+              rescale.ir <- IRanges(feature.segment.points[-length(feature.segment.points)]+1, 
+                                    feature.segment.points[-1])
+              start(rescale.ir)[1] <- start(rescale.ir)[1]-1
+              rescale.ir.width <- sum(width(rescale.ir))
+              rescale.ir.new.width <- cumsum(round(rescale.ir.width*rescale, digits = 0))
+              rescale <- data.frame(from.start=start(rescale.ir), 
+                                    from.end=end(rescale.ir),
+                                    to.start=feature.segment.points[1] + 
+                                      c(0, rescale.ir.new.width[-length(rescale.ir.new.width)]),
+                                    to.end=feature.segment.points[1] + rescale.ir.new.width)
+            }else{
+              stop("The length of rescale is not as same as the number of segments (including features and non-features).")
+            }
+          }
         }
         if(is.data.frame(rescale)){
           if(all(c("from.start", "from.end", "to.start", "to.end") %in% colnames(rescale))){

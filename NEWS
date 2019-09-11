@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.11
+
+    o set rescale of lolliplot by precentage.
+    
 CHANGES IN VERSION 1.21.10
 
     o fix the bug of score is NumericList.
