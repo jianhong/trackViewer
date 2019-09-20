@@ -23,6 +23,21 @@ hrScale <- function(r){
     return(list(scale=x, unit=suffix[i], range=r))
 }
 
+convertNum2HumanNum <- function(x){
+  x <- x[1]
+  stopifnot(x>0)
+  suffix <- c("bp", "K", "M", "G")
+  base <- 1000L
+  n <- length(suffix)
+  for(i in 1:n){
+    if(x >= base){
+      if(i < n)
+        x <- x/base
+    }else break
+  }
+  return(paste(x, suffix[i]))
+}
+
 locateScale <- function(x, y, maxY, scale){
     if(length(x)==0) return(c(start=NA, end=NA))
     suffix <- c(1, 1000, 1000000, 1000000000)

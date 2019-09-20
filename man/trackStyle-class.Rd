@@ -56,6 +56,11 @@ An object of class \code{"trackStyle"} represents track style.
 
 An object of class \code{"track"} represents scores of a given track.
 }
+\details{
+The attr of \code{setTrackXscaleParam} could not only be a slot of xscale, but also be position.
+If the attr is set to position, value must be a list of x, y and label. For example
+setTrackXscaleParam(track, attr="position", value=list(x=122929675, y=4, label=500))
+}
 \section{Slots}{
 
 \describe{

@@ -175,7 +175,10 @@ viewerStyle <- optSty$style
 setTrackViewerStyleParam(viewerStyle, "xaxis", FALSE)
 setTrackViewerStyleParam(viewerStyle, "margin", c(.01, .05, .01, .01))
 setTrackXscaleParam(trackList[[1]], "draw", TRUE)
-setTrackXscaleParam(trackList[[1]], "gp", list(cex=.5))
+setTrackXscaleParam(trackList[[1]], "gp", list(cex=0.8))
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+setTrackXscaleParam(trackList[[1]], attr="position", 
+                    value=list(x=122929700, y=3, label=200))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 

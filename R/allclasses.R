@@ -356,13 +356,33 @@ setGeneric("setTrackXscaleParam", function(ts, attr, value)
     standardGeneric("setTrackXscaleParam"))
 #' @rdname trackStyle-class
 #' @aliases setTrackXscaleParam,track,character,ANY-method
+#' @details 
+#' The attr of \code{setTrackXscaleParam} could not only be a slot of xscale, but also be position.
+#' If the attr is set to position, value must be a list of x, y and label. For example
+#' setTrackXscaleParam(track, attr="position", value=list(x=122929675, y=4, label=500))
 setMethod("setTrackXscaleParam", 
           signature(ts="track", attr="character", value="ANY"),
           function(ts, attr, value){
-              if(!attr %in% c("from", "to", "label", "gp", "draw"))
+              if(!attr %in% c("from", "to", "label", "gp", "draw", "position"))
                   stop("attr must be a slot name of xscale object")
               x <- ts
-              slot(x@style@xscale, attr, check = TRUE) <- value
+              if(attr=="position"){
+                if(!is.list(value)){
+                  stop("if attr is position, value must be a list of x, y, and label.")
+                }
+                if(any(!c("x", "y", "label") %in% names(value))){
+                  stop("if attr is position, value must be a list of x, y, and label. eg: list(x=122929375, y=0.5, label=1000)")
+                }
+                label0 <- as.numeric(value$label)
+                if(is.na(label0)){
+                  stop("label can not be converted to number.")
+                }
+                slot(x@style@xscale, "from", check = TRUE)  <- new("pos", x=value$x-label0/2, y=value$y, unit="native")
+                slot(x@style@xscale, "to", check = TRUE)  <- new("pos", x=value$x+label0/2, y=value$y, unit="native")
+                slot(x@style@xscale, "label", check = TRUE) <- convertNum2HumanNum(value$label)
+              }else{
+                slot(x@style@xscale, attr, check = TRUE) <- value
+              }
               eval.parent(substitute(ts <- x))
               return(invisible(x))
           })

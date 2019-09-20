@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.12
+
+    o setTrackXscaleParam accept position attribute.
+    
 CHANGES IN VERSION 1.21.11
 
     o set rescale of lolliplot by precentage.
