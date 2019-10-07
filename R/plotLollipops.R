@@ -199,7 +199,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                    c("color", "fill", "lwd", "id", 
                                      "cex", "dashline.col", 
                                      "id.col", "stack.factor", "SNPsideID",
-                                     "shape", "allpha"), 
+                                     "shape", "alpha"), 
                                drop=FALSE]
             if(type!="pie.stack"){
                 this.dat.mcols <- 

@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.13
+
+    o Fix a typo in plotLollipops.
+    
 CHANGES IN VERSION 1.21.12
 
     o setTrackXscaleParam accept position attribute.
