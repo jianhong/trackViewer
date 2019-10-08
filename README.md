@@ -27,3 +27,12 @@ browseVignettes("trackViewer")
 
 Or view it online at:
 https://bioconductor.org/packages/release/bioc/vignettes/trackViewer/inst/doc/trackViewer.html
+
+## Citation
+
+Please cite the paper below for the trackViewer package.
+
+  Ou J. Zhu L. trackViewer: a Bioconductor package for interactive and
+  integrative visualization of multi-omics data. Nature Methods 16, 453–454
+  (2019)
+  

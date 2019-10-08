@@ -1,4 +1,4 @@
-citHeader("Please cite the paper below for the motifStack package.")
+citHeader("Please cite the paper below for the trackViewer package.")
 
 citEntry(entry="Article",
 	title="trackViewer: a Bioconductor package for interactive and integrative visualization of multi-omics data",
