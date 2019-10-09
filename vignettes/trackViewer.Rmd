@@ -983,3 +983,28 @@ We created a web application of **trackViewer** (available in 1.19.14 or later) 
 ```{r sessionInfo, results='asis'}
 sessionInfo()
 ```
+
+# Google Scholar
+
+```{r, echo=FALSE,results='asis'}
+library(knitr)
+library(httr)
+library(htmltools)
+fd <- list(submit="Search", q='"trackViewer"', hl="en")
+res <- GET("https://scholar.google.com", path="scholar", query=fd)
+x <- toString(res)
+x <- gsub("/scholar\\?", "https://scholar.google.com/scholar?", x)
+x <- gsub("/scholar_settings\\?", "https://scholar.google.com/scholar_settings?", x)
+x <- gsub("/scholar_alerts\\?", "https://scholar.google.com/scholar_alerts?", x)
+x <- gsub('action="/scholar', 'action="https://scholar.google.com/scholar', x)
+x <- gsub('"/intl', '"https://www.google.com/intl', x)
+x <- gsub('"/(citations|schhp)', 'https://www.google.com/\\1', x)
+x <- gsub('url\\(.?/intl', 'url(https://www.google.com/intl', x)
+x <- gsub("/favicon.ico", "https://www.google.com/favicon.ico", x)
+x <- gsub("html,body,form,table,div,h1,h2,h3,h4,h5,h6,img,ol,ul,li,button",
+          "img,ol,ul,li,button",
+          x)
+tmpfile <- tempfile()
+writeLines(x, tmpfile)
+includeHTML(tmpfile)
+```
