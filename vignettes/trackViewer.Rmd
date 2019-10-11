@@ -1,8 +1,8 @@
 ---
 title: "trackViewer Vignette"
 author: "Jianhong Ou, Lihua Julie Zhu"
-date: "`r doc_date()`"
-package: "`r pkg_ver('trackViewer')`"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('trackViewer')`"
 abstract: >
   Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
@@ -11,7 +11,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::html_document
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    fig_caption: true
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE}
