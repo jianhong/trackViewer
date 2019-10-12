@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.21.17
+
+    o remove google scholar in vignette.
+    
 CHANGES IN VERSION 1.21.16
 
     o Try to avoid the error introduced by BiocStyle: Invalid Parameter - /figure-html.
