@@ -58,7 +58,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
     }
-    if(trackList[[length(trackList)]]@type=="data" && viewerStyle@margin[3] < .02)
+    if(trackList[[length(trackList)]]@type %in% c("data", "interactionData") && viewerStyle@margin[3] < .02)
         viewerStyle@margin[3] <- .02
     ##put x-axis?
     dataTracksIdx <- sapply(trackList, function(.ele) .ele@type=="data")
@@ -87,14 +87,14 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     ##put y-axis?
     if(all(!(sapply(trackList, function(.ele) .ele@style@yaxis@label)))){
         for(i in 1:length(trackList)){
-            if(trackList[[i]]@type=="data"){
+            if(trackList[[i]]@type %in% c("data")){
                 trackList[[i]]@style@yaxis@label <- TRUE
                 trackList[[i]]@style@yaxis@gp <- 
                     c(trackList[[i]]@style@yaxis@gp, 
                       cex=optFontSize("y", viewerStyle))
                 trackList[[i]]@style@marginTop <- .1
             }
-          if(trackList[[i]]@type=="lollipopData"){
+          if(trackList[[i]]@type %in% c("lollipopData", "interactionData")){
             trackList[[i]]@style@yaxis@draw <- FALSE
           }
         }
@@ -104,7 +104,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     if(!is.null(theme)){
         if(theme=="bw"){
             for(i in 1:length(trackList)){
-                if(trackList[[i]]@type %in% c("data", "lollipopData")){
+                if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
                     trackList[[i]]@style@ylabpos="bottomleft"
                     trackList[[i]]@style@marginBottom=.2
                     trackList[[i]]@style@ylabgp=
@@ -123,7 +123,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
         }
         if(theme=="col"){
             for(i in 1:length(trackList)){
-                if(trackList[[i]]@type %in% c("data", "lollipopData")){
+                if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
                     trackList[[i]]@style@ylabpos="bottomleft"
                     trackList[[i]]@style@marginBottom=.2
                     trackList[[i]]@style@ylabgp=
@@ -145,7 +145,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
         safeColors <- c("#000000", "#D55E00", "#009E73", "#0072B2",
                         "#56B4E9", "#CC79A7", "#E69F00", "#BEBEBE")
         for(i in 1:length(trackList)){
-          if(trackList[[i]]@type %in% c("data", "lollipopData")){
+          if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
             trackList[[i]]@style@ylabpos="bottomleft"
             trackList[[i]]@style@marginBottom=.2
             trackList[[i]]@style@ylabgp=

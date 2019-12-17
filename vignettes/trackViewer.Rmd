@@ -962,6 +962,18 @@ ideogramPlot(ideo, dataList,
 
 # Plot genomic interactions data
 
+Plot genomic interactions data as tracks.
+
+```{r}
+library(InteractionSet)
+gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
+range <- GRanges("chr6", IRanges(51120000, 53200000))
+tr <- gi2track(gi)
+ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
+viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+```
+
+
 Different from most of the available tools, plotGInteractions try to plot the data with the 2D structure. The nodes indicate the region with interactions and
 the edges indicates the interactions. The size of the nodes are relative to the width of the region.
 The features could be the enhancers, promoters or genes. The enhancer and promoter are shown as

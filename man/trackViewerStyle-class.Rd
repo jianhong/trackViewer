@@ -13,8 +13,7 @@ trackViewerStyle(...)
 
 setTrackViewerStyleParam(tvs, attr, value)
 
-\S4method{setTrackViewerStyleParam}{trackViewerStyle,character}(tvs, attr,
-  value)
+\S4method{setTrackViewerStyleParam}{trackViewerStyle,character}(tvs, attr, value)
 }
 \arguments{
 \item{\dots}{Each argument in \dots becomes an slot in the new trackViewerStyle.}

@@ -4,12 +4,25 @@
 \alias{lolliplot}
 \title{Lolliplots}
 \usage{
-lolliplot(SNP.gr, features = NULL, ranges = NULL, type = "circle",
-  newpage = TRUE, ylab = TRUE, ylab.gp = gpar(col = "black"),
-  yaxis = TRUE, yaxis.gp = gpar(col = "black"), xaxis = TRUE,
-  xaxis.gp = gpar(col = "black"), legend = NULL, cex = 1,
-  dashline.col = "gray80", jitter = c("node", "label"),
-  rescale = FALSE, ...)
+lolliplot(
+  SNP.gr,
+  features = NULL,
+  ranges = NULL,
+  type = "circle",
+  newpage = TRUE,
+  ylab = TRUE,
+  ylab.gp = gpar(col = "black"),
+  yaxis = TRUE,
+  yaxis.gp = gpar(col = "black"),
+  xaxis = TRUE,
+  xaxis.gp = gpar(col = "black"),
+  legend = NULL,
+  cex = 1,
+  dashline.col = "gray80",
+  jitter = c("node", "label"),
+  rescale = FALSE,
+  ...
+)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges}, 

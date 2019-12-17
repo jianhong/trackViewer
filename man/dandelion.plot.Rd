@@ -4,12 +4,24 @@
 \alias{dandelion.plot}
 \title{dandelion.plots}
 \usage{
-dandelion.plot(SNP.gr, features = NULL, ranges = NULL,
-  type = c("fan", "circle", "pie", "pin"), newpage = TRUE,
-  ylab = TRUE, ylab.gp = gpar(col = "black"), xaxis = TRUE,
-  xaxis.gp = gpar(col = "black"), yaxis = FALSE, yaxis.gp = gpar(col
-  = "black"), legend = NULL, cex = 1, maxgaps = 1/50,
-  heightMethod = NULL, ...)
+dandelion.plot(
+  SNP.gr,
+  features = NULL,
+  ranges = NULL,
+  type = c("fan", "circle", "pie", "pin"),
+  newpage = TRUE,
+  ylab = TRUE,
+  ylab.gp = gpar(col = "black"),
+  xaxis = TRUE,
+  xaxis.gp = gpar(col = "black"),
+  yaxis = FALSE,
+  yaxis.gp = gpar(col = "black"),
+  legend = NULL,
+  cex = 1,
+  maxgaps = 1/50,
+  heightMethod = NULL,
+  ...
+)
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 

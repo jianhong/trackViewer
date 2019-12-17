@@ -1,3 +1,7 @@
+Changes in version 1.23.1
+
+    o add interactionData track.
+    
 Changes in version 1.21.18
 
     o update NEWS file from "CHANGES IN VERSION" to "Changes in version".

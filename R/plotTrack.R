@@ -145,7 +145,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp2
     xy <- list()
-    if(track@type %in% c("data", "lollipopData")){
+    if(track@type %in% c("data", "lollipopData", "interactionData")){
         if(track@type=="data") {
           ##plot yaxis
           drawYaxis(yscale, style@yaxis, curViewStyle)
@@ -182,51 +182,68 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
             drawXscale(style@xscale)
           }
         }else{
-          pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
-                                height=1, 
-                                width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
-                                clip="on",
-                                just=c(0,0), 
-                                xscale=xscale))
-          ybase <- ifelse(length(track@dat2)>0, .5, 0)
-          
-          LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
-          LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
-          ## GAP the gaps between any elements
-          GAP <- .2 * LINEH
-          ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-          getMaxHeight <- function(lollipopData){
-            if(length(lollipopData)==0) return(0)
-            TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
-            type <- if(is.list(lollipopData$type)) lollipopData$type[[1]] else lollipopData$type[1]
-            if(length(type)==0) type <- "circle"
-            if(!type %in% TYPES) type <- "circle"
-            cex <- if(is.list(lollipopData$cex)) lollipopData$cex[[1]] else lollipopData$cex[1]
-            if(length(cex)==0) cex <- 1
-            scoreMax0 <- scoreMax <- 
-              if(length(lollipopData$score)>0) ceiling(max(c(lollipopData$score, 1), na.rm=TRUE)) else 1
-            if(type=="pie.stack") scoreMax <- length(unique(lollipopData$stack.factor))
-            if(!type %in% c("pie", "pie.stack")){
-              if(scoreMax>10) {
-                scoreMax <- 10*scoreMax0/scoreMax
-              }else{
-                scoreMax <- scoreMax0
+          if(track@type=="lollipopData"){
+            pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                  height=1, 
+                                  width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                  clip="on",
+                                  just=c(0,0), 
+                                  xscale=xscale))
+            ybase <- ifelse(length(track@dat2)>0, .5, 0)
+            
+            LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+            LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+            ## GAP the gaps between any elements
+            GAP <- .2 * LINEH
+            ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+            getMaxHeight <- function(lollipopData){
+              if(length(lollipopData)==0) return(0)
+              TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
+              type <- if(is.list(lollipopData$type)) lollipopData$type[[1]] else lollipopData$type[1]
+              if(length(type)==0) type <- "circle"
+              if(!type %in% TYPES) type <- "circle"
+              cex <- if(is.list(lollipopData$cex)) lollipopData$cex[[1]] else lollipopData$cex[1]
+              if(length(cex)==0) cex <- 1
+              scoreMax0 <- scoreMax <- 
+                if(length(lollipopData$score)>0) ceiling(max(c(lollipopData$score, 1), na.rm=TRUE)) else 1
+              if(type=="pie.stack") scoreMax <- length(unique(lollipopData$stack.factor))
+              if(!type %in% c("pie", "pie.stack")){
+                if(scoreMax>10) {
+                  scoreMax <- 10*scoreMax0/scoreMax
+                }else{
+                  scoreMax <- scoreMax0
+                }
               }
+              getHeight(lollipopData, 
+                        ratio.yx, LINEW, GAP, cex, type,
+                        scoreMax=scoreMax,
+                        level="data")
             }
-            getHeight(lollipopData, 
-                      ratio.yx, LINEW, GAP, cex, type,
-                      scoreMax=scoreMax,
-                      level="data")
-          }
-          maxHeight <- max(c(getMaxHeight(track@dat), getMaxHeight(track@dat2)), na.rm = TRUE)
-          if(length(track@dat2)>0) maxHeight + .5
-          plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, gpar(),
-                           ybase, side="top", main=style@yaxis@main,
-                           baselineCol=style@color[1], maxHeight=maxHeight)
-          if(length(track@dat2)>0) {
-            plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, gpar(),
-                             ybase, side="bottom", main=style@yaxis@main,
-                             baselineCol=style@color[2], maxHeight=maxHeight)
+            maxHeight <- max(c(getMaxHeight(track@dat), getMaxHeight(track@dat2)), na.rm = TRUE)
+            if(length(track@dat2)>0) maxHeight + .5
+            plotLollipopData(track@dat, xlim, chr, style@yaxis@draw, gpar(),
+                             ybase, side="top", main=style@yaxis@main,
+                             baselineCol=style@color[1], maxHeight=maxHeight)
+            if(length(track@dat2)>0) {
+              plotLollipopData(track@dat2, xlim, chr, style@yaxis@draw, gpar(),
+                               ybase, side="bottom", main=style@yaxis@main,
+                               baselineCol=style@color[2], maxHeight=maxHeight)
+            }
+          }else{##interactionData
+            ##plot yaxis
+            drawYaxis(yscale, style@yaxis, curViewStyle)
+            pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                  height=1, 
+                                  width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                  clip="on",
+                                  just=c(0,0), 
+                                  xscale=xscale, 
+                                  yscale=yscale))
+            ##grid.clip()
+            ##for dat interaction: dat, dat2, pair.
+            if(length(track@dat)==length(track@dat2)){
+              plotInteractionDataTrack(track@dat, track@dat2, chr, strand, xlim, style@color[1], yscale=yscale)
+            }
           }
         }
     }else{##track@type=="transcript" or "gene"

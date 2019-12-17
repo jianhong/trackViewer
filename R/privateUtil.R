@@ -132,26 +132,44 @@ filterTracks <- function(tl, chrom, from, to, st){
                 }
             }
         }else{
-          if(tl[[i]]@type=="lollipopData"){
+          if(tl[[i]]@type=="interactionData"){## dat, dat2 are paired
             dat <- tl[[i]]@dat
+            dat2 <- tl[[i]]@dat2
+            keep <- ((end(dat)>=from & start(dat)<=to) |
+                       (end(dat2)>=from & start(dat2)<=to)) & 
+              seqnames(dat)==chrom & seqnames(dat2)==chrom
+            ## remove duplicates
+            idx1 <- paste(as.character(seqnames(dat)), start(dat), end(dat),
+                          as.character(seqnames(dat2)), start(dat2), end(dat2))
+            idx2 <- paste(as.character(seqnames(dat2)), start(dat2), end(dat2),
+                          as.character(seqnames(dat)), start(dat), end(dat))
+            idx <- ifelse(start(dat)<start(dat2), idx1, idx2)
+            keep <- keep & (!duplicated(idx))
+            
+            tl[[i]]@dat <- dat[keep]
+            tl[[i]]@dat2 <- dat2[keep]
           }else{
-            dat <- range(tl[[i]]@dat)
-          }
+            if(tl[[i]]@type=="lollipopData"){
+              dat <- tl[[i]]@dat
+            }else{
+              dat <- range(tl[[i]]@dat)
+            }
             dat <- dat[end(dat)>=from &
-                           start(dat)<=to &
-                           seqnames(dat)==chrom]
+                         start(dat)<=to &
+                         seqnames(dat)==chrom]
             dat2 <- tl[[i]]@dat2
             if(length(dat2)>0){
-                dat2 <- dat2[end(dat2)>=from &
-                                 start(dat2)<=to &
-                                 seqnames(dat2)==chrom]
+              dat2 <- dat2[end(dat2)>=from &
+                             start(dat2)<=to &
+                             seqnames(dat2)==chrom]
             }
             if(tl[[i]]@type=="lollipopData"){
               tl[[i]]@dat <- dat
               tl[[i]]@dat2 <- dat2
             }
             if(length(dat)==0 && length(dat2)==0)
-                tl[[i]]@style@height <- 0
+              tl[[i]]@style@height <- 0
+          }
         }
     }
     tl
@@ -173,7 +191,12 @@ getYlim <- function(tl, op){
                 }
                 ylim <- range(c(0, ylim))
             }else{
+              if(.ele@type == "interactionData"){
+                ## max interaction height
+                ylim <- c(0, 1)
+              }else{
                 ylim <- c(0, 0)
+              }
             }            
         }
         ylim

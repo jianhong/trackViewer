@@ -4,8 +4,17 @@
 \alias{viewGene}
 \title{plot tracks based on gene name}
 \usage{
-viewGene(symbol, filenames, format, txdb, org, upstream = 1000,
-  downstream = 1000, anchor = c("gene", "TSS"), plot = FALSE)
+viewGene(
+  symbol,
+  filenames,
+  format,
+  txdb,
+  org,
+  upstream = 1000,
+  downstream = 1000,
+  anchor = c("gene", "TSS"),
+  plot = FALSE
+)
 }
 \arguments{
 \item{symbol}{Gene symbol}

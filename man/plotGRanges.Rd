@@ -4,8 +4,13 @@
 \alias{plotGRanges}
 \title{plot GRanges data}
 \usage{
-plotGRanges(..., range = GRanges(), viewerStyle = trackViewerStyle(),
-  autoOptimizeStyle = FALSE, newpage = TRUE)
+plotGRanges(
+  ...,
+  range = GRanges(),
+  viewerStyle = trackViewerStyle(),
+  autoOptimizeStyle = FALSE,
+  newpage = TRUE
+)
 }
 \arguments{
 \item{\dots}{one or more objects of \code{\link[GenomicRanges:GRanges-class]{GRanges}}}

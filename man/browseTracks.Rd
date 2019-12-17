@@ -4,8 +4,14 @@
 \alias{browseTracks}
 \title{browse tracks}
 \usage{
-browseTracks(trackList, gr = GRanges(), ignore.strand = TRUE,
-  width = NULL, height = NULL, ...)
+browseTracks(
+  trackList,
+  gr = GRanges(),
+  ignore.strand = TRUE,
+  width = NULL,
+  height = NULL,
+  ...
+)
 }
 \arguments{
 \item{trackList}{an object of \code{\link{trackList}}}
