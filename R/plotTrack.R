@@ -242,7 +242,8 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
             ##grid.clip()
             ##for dat interaction: dat, dat2, pair.
             if(length(track@dat)==length(track@dat2)){
-              plotInteractionDataTrack(track@dat, track@dat2, chr, strand, xlim, style@color[1], yscale=yscale)
+              plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
+                                       breaks=style@breaks, NAcolor=style@NAcolor)
             }
           }
         }

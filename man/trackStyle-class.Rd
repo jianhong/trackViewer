@@ -65,9 +65,14 @@ setTrackXscaleParam(track, attr="position", value=list(x=122929675, y=4, label=5
 
 \describe{
 \item{\code{tracktype}}{\code{"character"} track type, could be peak or cluster. 
-Default is "peak". "cluster" is not supported yet.
-#' @slot color \code{"character"} track color. If the track has dat and dat2 slot,
+Default is "peak". "cluster" is not supported yet.}
+
+\item{\code{color}}{\code{"character"} track color. If the track has dat and dat2 slot,
 it should have two values.}
+
+\item{\code{NAcolor}}{\code{"character"} NA color for interactionData.}
+
+\item{\code{breaks}}{\code{"numeric"} breaks for color keys of interactionData.}
 
 \item{\code{height}}{\code{"numeric"} track height. It should be a value between 0 and 1}
 

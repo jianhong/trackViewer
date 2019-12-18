@@ -152,8 +152,10 @@ setClass("yaxisStyle",
 #' @aliases trackStyle
 #' @slot tracktype \code{"character"} track type, could be peak or cluster. 
 #' Default is "peak". "cluster" is not supported yet.
-#' #' @slot color \code{"character"} track color. If the track has dat and dat2 slot,
+#' @slot color \code{"character"} track color. If the track has dat and dat2 slot,
 #' it should have two values.
+#' @slot NAcolor \code{"character"} NA color for interactionData.
+#' @slot breaks \code{"numeric"} breaks for color keys of interactionData.
 #' @slot height \code{"numeric"} track height. It should be a value between 0 and 1
 #' @slot marginTop \code{"numeric"} track top margin
 #' @slot marginBottom \code{"numeric"} track bottom margin
@@ -175,6 +177,8 @@ setClass("yaxisStyle",
 setClass("trackStyle",
          representation(tracktype="character",
                         color="character",
+                        NAcolor="character",
+                        breaks="numeric",
                         height="numeric",
                         marginTop="numeric",
                         marginBottom="numeric",
@@ -189,6 +193,8 @@ setClass("trackStyle",
              marginTop=0,
              marginBottom=0.05,
              color=c("black","black"),
+             NAcolor="white",
+             breaks=0,
              tracktype="peak",
              ylabpos="left",
              ylablas=0,
