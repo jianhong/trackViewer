@@ -52,7 +52,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
   for(i in seq_along(.dat)){
     if(irx[i] && iry[i]){
       grid.polygon(x=c(xa[i], xb[i], xc[i], xd[i]), 
-                   y=unit(c(ya[i], yb[i], yc[i], yd[i]), "npc"), 
+                   y=c(ya[i], yb[i], yc[i], yd[i]), 
                    default.units="native",
                    gp = gpar(fill=mc[i], col = NA))
     }
