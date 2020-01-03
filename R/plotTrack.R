@@ -112,7 +112,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                       operator, wavyLine, smooth=FALSE){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
-    
+    xscale.orderd <- sort(xlim)
     if(curViewStyle@flip){ 
         xscale <- rev(xlim)
     }else{
@@ -129,32 +129,30 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp1
     ##put ylab
-    if(track@type %in% c("transcript", "gene")){
-      rang <- range(track@dat)
-      check_curr_strand <- unique(as.character(strand(rang)))
-      if(length(check_curr_strand)>1){
-        check_curr_strand <- names(sort(table(check_curr_strand), decreasing = TRUE))[1]
-        strand(rang) <- check_curr_strand
-        rang <- range(rang)
-      }
-      if(check_curr_strand=="-"){
-        if(style@ylabpos=="upstream" && end(rang)[1]>xscale[2]){
-          style@ylabpos <- "bottomright"
-        }
-        if(style@ylabpos=="downstream" && start(rang)[1]<xscale[1]){
-          style@ylabpos <- "bottomleft"
-        }
-      }else{
-        if(style@ylabpos=="upstream" && start(rang)[1]<xscale[1]){
-          style@ylabpos <- "bottomleft"
-        }
-        if(style@ylabpos=="downstream" && end(rang)[1]>xscale[2]){
-          style@ylabpos <- "bottomright"
-        }
-      }
-    }
     if(track@type %in% c("transcript", "gene") && style@ylabpos %in% c("upstream", "downstream")){
-        if(length(findOverlaps(ranges(range(track@dat)), IRanges(xscale[1], xscale[2])))>0){
+          rang <- range(track@dat)
+          check_curr_strand <- unique(as.character(strand(rang)))
+          if(length(check_curr_strand)>1){
+            check_curr_strand <- names(sort(table(check_curr_strand), decreasing = TRUE))[1]
+            strand(rang) <- check_curr_strand
+            rang <- range(rang)
+          }
+          if(check_curr_strand=="-"){
+            if(style@ylabpos=="upstream" && end(rang)[1]>xscale.orderd[2]){
+              style@ylabpos <- "bottomright"
+            }
+            if(style@ylabpos=="downstream" && start(rang)[1]<xscale.orderd[1]){
+              style@ylabpos <- "bottomleft"
+            }
+          }else{
+            if(style@ylabpos=="upstream" && start(rang)[1]<xscale.orderd[1]){
+              style@ylabpos <- "bottomleft"
+            }
+            if(style@ylabpos=="downstream" && end(rang)[1]>xscale.orderd[2]){
+              style@ylabpos <- "bottomright"
+            }
+          }
+        if(length(findOverlaps(ranges(range(track@dat)), IRanges(xscale.orderd[1], xscale.orderd[2])))>0){
           putGeneYlab(curViewStyle, style, name, height, xscale,
                       range(track@dat), length(track@dat2)>0)
         } 
