@@ -4,14 +4,18 @@
 \alias{geneTrack}
 \title{track from TxDb}
 \usage{
-geneTrack(ids, txdb, type = c("gene", "transcript"))
+geneTrack(ids, txdb, symbols, type = c("gene", "transcript"), asList = TRUE)
 }
 \arguments{
 \item{ids}{Gene IDs. A vector of character. It should be keys in txdb.}
 
-\item{txdb}{An object of \code{\link[GenomicFeatures:TxDb-class]{TxDb}}}
+\item{txdb}{An object of \code{\link[GenomicFeatures:TxDb-class]{TxDb}}.}
+
+\item{symbols}{symbol of genes.}
 
 \item{type}{Output type of track, "gene" or "transcript".}
+
+\item{asList}{Output a list of tracks or not. Default TRUE.}
 }
 \value{
 An object of \link{track}
@@ -21,6 +25,9 @@ Generate a track object from TxDb by given gene ids
 }
 \examples{
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-geneTrack(c("3312", "3313"), TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+ids <- c("3312", "390259", "341056", "79827")
+symbols <- mget(ids, org.Hs.egSYMBOL)
+geneTrack(ids, TxDb.Hsapiens.UCSC.hg19.knownGene, symbols)
 
 }

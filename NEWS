@@ -1,3 +1,7 @@
+Changes in version 1.23.2
+
+    o plot multiple genes in one track.
+    
 Changes in version 1.23.1
 
     o add interactionData track.

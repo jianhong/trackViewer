@@ -1,56 +1,170 @@
-#' plot gene track
-#' @description different from transcript track, gene track is a container.
-#' It can contain multiple genes in same chromosome. The input should be
-#' a GRanges with strand information. The gene will not show difference between
-#' UTR and CDS region. It will be showed as connected exons with TSS arrow.
-#' Gene track will be plotted in multiple layers if needed. The algorithm is
-#' like this: 1) if there is no overlaps of different genes, one layer.
-#' 2) if there are overlaps, first arrage all the un-overlaped genes. for the
-#' overlaped genes, try to locate as much as possible gene in upper layer.
-#' then alocate the rest. If two layers can not handle, use three or more.
-#' Gene track may be a connection track for RNAseq/ChIPseq, etc (low) with lollipops.
-#' So, the extension line may be applied to Gene track.
-#' @param track a gene track
-#' @param gr the range to be plotted. GRanges object 
-#' @param txdb if track is not supplied, txdb will be used to extract the genes
-#' @param org org database
-#' @examples 
-#' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-#' library(org.Hs.eg.db)
-#' gr <- GRanges("chr11", IRanges(122800000, 123000000))
-#' plotGeneTrack(gr=gr, txdb=TxDb.Hsapiens.UCSC.hg19.knownGene, org=org.Hs.eg.db)
-
-# plotGeneTrack <- function(track, gr, txdb, org){
-#   if(missing(track)){
-#     if(missing(txdb) || missing(gr)){
-#       stop("txdb and gr is required if missing track")
-#     }
-#     stopifnot(is(txdb, "TxDb"))
-#     stopifnot(is(gr, "GRanges"))
-#     stopifnot(is(org, "OrgDb"))
-#     ## extract genes
-#     exons <- exons(txdb, columns=c("exon_id", "gene_id"))
-#     exons <- subsetByOverlaps(exons, gr, ignore.strand=FALSE)
-#     exons$gene_id <- sapply(exons$gene_id, `[`, 1)
-#     suppressMessages(
-#       exons$symbol <- mapIds(org, exons$gene_id, "SYMBOL", 
-#                            "ENTREZID", multiVals = "first"))
-#     exons <- split(exons, exons$symbol)
-#     exons <- lapply(exons, reduce)
-#   }else{
-#     stopifnot(is(track, "track"))
-#     if(track@type!="gene"){
-#       stop("track must be a gene track.")
-#     }
-#     if(missing(gr)){
-#       gr <- granges(track@dat)[1]
-#     }
-#     exons <- () ## change track into a GRangesList named by genenames
-#   }
-#   ## determin how many tracks should be plotted.
-#   genes <- unlist(GRangesList(lapply(exons, range)))
-#   ol <- findOverlaps(genes, drop.self=TRUE, drop.redundant=TRUE)
-#   if(length(ol)>0){
-#     
-#   }
-# }
+plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
+  if(length(track@dat$featureID)!=length(track@dat)){
+    return(plotGeneModel(track, xscale, chr, yaxis.gp))
+  }
+  
+  if(length(track@dat2)>0){
+    feature.height <- 
+      if(is.list(track@dat2$feature.height)) track@dat2$feature.height[[1]] else track@dat2$feature.height[1]
+    if(length(feature.height)==0) feature.height <- .5
+    unit <- feature.height/4
+    y <- feature.height/2
+  }else{
+    unit <- 0.25
+    y <- 0.5
+  }
+  
+  ## split transcripts by featureID, 
+  ## get the ranges of each transcripts
+  ## assign lines for all transcripts
+  ## plot center line for each featureID
+  ## plot exons by the feature type
+  ## plot direction at TSS
+  ## add gene name at TSS
+  vp <- viewport(xscale = xscale, y=y, height = unit*2)
+  pushViewport(vp)
+  trs <- split(track@dat, track@dat$featureID)
+  col <- track@style@color
+  rgs <- unlist(GRangesList(sapply(trs, range)))
+  if(length(trs)!=length(rgs)){
+    stop("some genes are splited into multiple regions, eg multple strand.")
+  }
+  strand <- as.character(strand(rgs))
+  dj <- disjoin(rgs, with.revmap=TRUE)
+  lineId <- data.frame(id=seq_along(rgs), line=0)
+  revmap <- dj$revmap
+  for(i in seq_along(revmap)){
+    revm <- sort(revmap[[i]])
+    if(lineId[revm[1], "line"]==0){
+      lineId[revm[1], "line"] <- 1
+    }
+    for(j in seq_along(revm)[-1]){
+      lineId[revm[j], "line"] <- lineId[revm[j-1], "line"] + 1
+    }
+  }
+  totalLines <- max(lineId$line)
+  ## check height of plot region
+  unity <- convertHeight(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE)
+  doLabels <- unity>=totalLines
+  eachLineHeight <- 1/totalLines
+  currLineBottom <- 1
+  for(i in seq.int(totalLines)){
+    vp <- viewport(y = currLineBottom - eachLineHeight/2, 
+                   height = eachLineHeight, xscale = xscale)
+    pushViewport(vp)
+    if(doLabels){
+      gene_y <- .75
+      gene_h <- .5
+    }else{
+      gene_y <- .5
+      gene_h <- 1
+    }
+    trs.sub <- trs[which(lineId$line==i)]
+    rgs.sub <- rgs[which(lineId$line==i)]
+    str.sub <- strand[which(lineId$line==i)]
+    for(j in seq_along(trs.sub)){
+      curr_trs <- trs.sub[[j]]
+      curr_rg <- rgs.sub[j]
+      curr_str <- str.sub[j]
+      str_neg <- curr_str=="-"
+      ## plot centr line
+      grid.lines(x=c(start(curr_rg), end(curr_rg)), 
+                 y=c(gene_y, gene_y), 
+                 gp = gpar(col=col),
+                 default.units = "native")
+      ## plot exons by the feature type
+      grid.rect(x=(start(curr_trs)+end(curr_trs))/2, y=gene_y, 
+                width =width(curr_trs), 
+                height=gene_h/ifelse(curr_trs$feature %in% c("CDS", "exon"), 2, 4), 
+                gp=gpar(col=NA, fill=col), 
+                default.units = "native")
+      ## plot direction at TSS
+      pushViewport(viewport(x=ifelse(!str_neg, start(curr_rg), end(curr_rg)),
+                            y=gene_y, 
+                            width = unit(max(min(gene_h/2, 2*width(curr_rg)/abs(diff(xscale))),
+                                             convertWidth(unit(4, "lines"),
+                                                          unitTo = "npc",
+                                                          valueOnly = TRUE)), "snpc"), 
+                            height = unit(gene_h/2, "snpc"),
+                            just = c(ifelse(!str_neg, 0, 1), 1),
+                            default.units = "native"))
+      if(!str_neg){
+        grid.lines(x=unit(c(0, 0, 1), "npc"),
+                   y=unit(c(1, 0, 0), "npc"),
+                   arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
+                   gp=gpar(col=col, fill=col))
+        ## add gene name at TSS
+        if(doLabels){
+          grid.text(label = names(curr_rg), x = 0, y = 0, hjust = 0, vjust=1.5,
+                    gp = gpar(track@style@ylabgp))
+        }
+      }else{
+        grid.lines(x=unit(c(1, 1, 0), "npc"),
+                   y=unit(c(1, 0, 0), "npc"),
+                   arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
+                   gp=gpar(col=col, fill=col))
+        ## add gene name at TSS
+        if(doLabels){
+          grid.text(label = names(curr_rg), x = 1, y = 0, hjust = 1, vjust=1.5,
+                    gp = gpar(track@style@ylabgp))
+        }
+      }
+      
+      popViewport()
+    }
+    popViewport()
+    currLineBottom <- currLineBottom - eachLineHeight
+  }
+  popViewport()
+  
+  if(length(track@dat2)>0){
+    track@dat2 <- orderedGR(track@dat2)
+    xscale.gr <- GRanges(seqnames = chr, ranges=IRanges(min(xscale), max(xscale)))
+    track@dat2 <- subsetByOverlaps(track@dat2, xscale.gr, ignore.strand=TRUE)
+    if(length(track@dat2)<1) return(invisible())
+    width(track@dat2) <- 1
+    TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")
+    type <- if(is.list(track@dat2$type)) track@dat2$type[[1]] else track@dat2$type[1]
+    if(length(type)==0) type <- "circle"
+    if(!type %in% TYPES) type <- "circle"
+    if(type=="pin"){ ## read the pin shape file
+      pinpath <- system.file("extdata", "map-pin-red.xml", package="trackViewer")
+      pin <- readPicture(pinpath)
+    }else{
+      pin <- NULL
+    }
+    cex <- if(is.list(track@dat2$cex)) track@dat2$cex[[1]] else track@dat2$cex[1]
+    if(length(cex)==0) cex <- 1
+    dashline.col <- if(is.list(track@dat2$dashline.col)) track@dat2$dashline.col[[1]] else track@dat2$dashline.col[1]
+    if(length(dashline.col)==0) dashline.col <- "gray80"
+    jitter <- if(is.list(track@dat2$jitter)) track@dat2$jitter[[1]] else track@dat2$jitter[1]
+    if(length(jitter)==0) jitter <- "node"
+    if(!jitter %in% c("node", "label")) jitter <- "node"
+    scoreMax0 <- scoreMax <- 
+      if(length(track@dat2$score)>0) ceiling(max(c(track@dat2$score, 1), na.rm=TRUE)) else 1
+    if(type=="pie.stack") scoreMax <- length(unique(track@dat2$stack.factor))
+    if(!type %in% c("pie", "pie.stack")){
+      if(scoreMax>10) {
+        track@dat2$score <- 10*track@dat2$score/scoreMax
+        scoreMax <- 10*scoreMax0/scoreMax
+      }else{
+        scoreMax <- scoreMax0
+      }
+      scoreType <- 
+        if(length(track@dat2$score)>0) all(floor(track@dat2$score)==track@dat2$score) else FALSE
+    }else{
+      scoreType <- FALSE
+    }
+    LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
+    LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+    ## GAP the gaps between any elements
+    GAP <- .2 * LINEH
+    ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+    plotLollipops(track@dat2, feature.height=y+unit, bottomHeight=0, baseline=y, 
+                  type=type, ranges=xscale.gr, yaxis=FALSE, yaxis.gp=yaxis.gp,
+                  scoreMax=scoreMax, scoreMax0=scoreMax0, scoreType=scoreType, 
+                  LINEW, cex, ratio.yx, GAP, pin, dashline.col,
+                  side="top", jitter=jitter)
+  }
+  return(invisible())
+}

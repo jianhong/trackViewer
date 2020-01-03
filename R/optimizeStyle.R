@@ -30,6 +30,8 @@ optFontSize1 <- function(height){
     fontHeight <- convertHeight(stringHeight("0123456789"), 
                                 unitTo="npc", valueOnly=TRUE)
     cex <- height/3/fontHeight
+    if(cex>2) cex <- log2(cex)
+    cex
 }
 
 #' Optimize the style of plot
@@ -102,6 +104,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     ##about ylab, direction, fontsize
     viewerStyle@autolas <- TRUE
     if(!is.null(theme)){
+      defaultGeneYlabPos <- "upstream"
         if(theme=="bw"){
             for(i in 1:length(trackList)){
                 if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
@@ -111,7 +114,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
                         list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
                              col="black")
                 }else{
-                    trackList[[i]]@style@ylabpos="upstream"
+                    trackList[[i]]@style@ylabpos=defaultGeneYlabPos
                     trackList[[i]]@style@ylabgp=
                         list(cex=optFontSize1(trackList[[i]]@style@height), 
                              col="black")
@@ -130,7 +133,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
                         list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
                              col=rep(palette(), ceiling(i/7))[i+1])
                 }else{
-                    trackList[[i]]@style@ylabpos="upstream"
+                  trackList[[i]]@style@ylabpos=defaultGeneYlabPos
                     trackList[[i]]@style@ylabgp=
                         list(cex=optFontSize1(trackList[[i]]@style@height), 
                              col=rep(palette(), ceiling(i/7))[i+1])
@@ -152,7 +155,7 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
               list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
                    col="black")
           }else{
-            trackList[[i]]@style@ylabpos="upstream"
+            trackList[[i]]@style@ylabpos=defaultGeneYlabPos
             trackList[[i]]@style@ylabgp=
               list(cex=optFontSize1(trackList[[i]]@style@height), 
                    col="black")

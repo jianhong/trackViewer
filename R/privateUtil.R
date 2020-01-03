@@ -256,8 +256,13 @@ drawXaxis <- function(xscale, style){
 }
 putGeneYlab <- function(curViewStyle, style, name, height, xscale, rang, withlollipop=FALSE){
     gap <- (xscale[2] - xscale[1])/100
+    strand <- unique(as.character(strand(rang)))
+    if(length(strand)>1){
+      strand <- names(sort(table(strand), decreasing = TRUE))[1]
+      strand(rang) <- strand
+      rang <- range(rang)
+    }
     just <- style@ylabpos=="upstream"
-    strand <- as.character(strand(rang))
     if(curViewStyle@flip){
         if(strand=="+"){
             x <- ifelse(just, start(rang) + gap, end(rang) - gap)

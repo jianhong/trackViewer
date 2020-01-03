@@ -118,7 +118,7 @@ The function **coverageGR** could be used to calculate the coverage after the da
 
 ```{r coverage}
 fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED",
-                    ranges=GRanges("chr11", IRanges(122929000, 122931000)))
+                    ranges=GRanges("chr11", IRanges(122830799, 123116707)))
 dat <- coverageGR(fox2$dat)
 ## We can split the data by strand into two different track channels
 ## Here, we set the dat2 slot to save the negative strand info. 
@@ -316,7 +316,7 @@ viewerStyle <- optSty$style
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
-```{r themeSafe,fig.cap='colorful theme',fig.width=8,fig.height=4}
+```{r themeSafe,fig.cap='safe theme',fig.width=8,fig.height=4}
 optSty <- optimizeStyle(trackList(repA, fox2, trs), theme="safe")
 trackList <- optSty$tracks
 viewerStyle <- optSty$style
@@ -343,6 +343,23 @@ For users who prefer to modify the look and feel of a figure interactively, they
 browseTracks(trackList, gr=gr)
 ```
 The videos at https://youtu.be/lSmeTu4WMlc and  https://youtu.be/lvF0tnJiHQI illustrate how to generate and modify an interactive plot. Please note that the interactive feature is only fully implemented in version 1.19.14 or later.  
+
+## Plot multiple genes in one track
+
+```{r plotgeneTrack,fig.cap='Plot multiple genes in one track',fig.width=6,fig.height=4}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+grW <- parse2GRanges("chr11:122,830,799-123,116,707")
+ids <- getGeneIDsFromTxDb(grW, TxDb.Hsapiens.UCSC.hg19.knownGene)
+symbols <- mget(ids, org.Hs.egSYMBOL)
+genes <- geneTrack(ids, TxDb.Hsapiens.UCSC.hg19.knownGene, 
+                   symbols, asList=FALSE)
+optSty <- optimizeStyle(trackList(repA, fox2, genes), theme="safe")
+trackListW <- optSty$tracks
+viewerStyleW <- optSty$style
+viewTracks(trackListW, gr=grW, viewerStyle=viewerStyleW)
+```
+
 
 # Operators
 If you are interested in drawing a combined track from two input tracks, e.g, adding or substractiong one from the other, then you can try one of the operators such as + and - as showing below.
@@ -967,6 +984,10 @@ Plot genomic interactions data as tracks.
 ```{r}
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
+head(gi)
+## hicexplorer:hicConvertFormat tool can be used to convert other formats into GInteractions
+## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat ginteractions -o mESC_rep.ginteractions --resolutions 5000
+## please note that metadata:score is used for plot.
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
