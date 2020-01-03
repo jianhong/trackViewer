@@ -62,6 +62,11 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
     trs.sub <- trs[which(lineId$line==i)]
     rgs.sub <- rgs[which(lineId$line==i)]
     str.sub <- strand[which(lineId$line==i)]
+    oid <- order(start(rgs.sub))
+    trs.sub <- trs.sub[oid]
+    rgs.sub <- rgs.sub[oid]
+    str.sub <- str.sub[oid]
+    stringStopPos <- c(0, 0)
     for(j in seq_along(trs.sub)){
       curr_trs <- trs.sub[[j]]
       curr_rg <- rgs.sub[j]
@@ -79,6 +84,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
                 gp=gpar(col=NA, fill=col), 
                 default.units = "native")
       ## plot direction at TSS
+      stringW <- convertWidth(stringWidth(names(curr_rg)), unitTo = "native", valueOnly = TRUE)
       pushViewport(viewport(x=ifelse(!str_neg, start(curr_rg), end(curr_rg)),
                             y=gene_y, 
                             width = unit(max(min(gene_h/2, 2*width(curr_rg)/abs(diff(xscale))),
@@ -90,27 +96,46 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
                             default.units = "native"))
       if(!str_neg){
         grid.lines(x=unit(c(0, 0, 1), "npc"),
-                   y=unit(c(1, 0, 0), "npc"),
+                   y=unit(c(.5, 0, 0), "npc"),
                    arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
                    gp=gpar(col=col, fill=col))
         ## add gene name at TSS
         if(doLabels){
-          grid.text(label = names(curr_rg), x = 0, y = 0, hjust = 0, vjust=1.5,
-                    gp = gpar(track@style@ylabgp))
+          if(start(curr_rg) >= stringStopPos[1]){
+            grid.text(label = names(curr_rg), x = 0, y = 0, hjust = 0, vjust=1.5,
+                      gp = gpar(track@style@ylabgp))
+            stringStopPos[1] <- start(curr_rg)+stringW
+          }else{
+            if(start(curr_rg) >= stringStopPos[2]){
+              grid.text(label = names(curr_rg), x = 0, y = 1, hjust = 0, vjust=-1,
+                        gp = gpar(track@style@ylabgp))
+              stringStopPos[2] <- start(curr_rg)+stringW
+            }
+          }
         }
       }else{
         grid.lines(x=unit(c(1, 1, 0), "npc"),
-                   y=unit(c(1, 0, 0), "npc"),
+                   y=unit(c(.5, 0, 0), "npc"),
                    arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
                    gp=gpar(col=col, fill=col))
         ## add gene name at TSS
         if(doLabels){
-          grid.text(label = names(curr_rg), x = 1, y = 0, hjust = 1, vjust=1.5,
-                    gp = gpar(track@style@ylabgp))
+          if(end(curr_rg)-stringW >= stringStopPos[1]){
+            grid.text(label = names(curr_rg), x = 1, y = 0, hjust = 1, vjust=1.5,
+                      gp = gpar(track@style@ylabgp))
+            stringStopPos[1] <- end(curr_rg)
+          }else{
+            if(end(curr_rg)-stringW >= stringStopPos[2]){
+              grid.text(label = names(curr_rg), x = 1, y = 1, hjust = 1, vjust=-1,
+                        gp = gpar(track@style@ylabgp))
+              stringStopPos[2] <- end(curr_rg)
+            }
+          }
         }
       }
-      
       popViewport()
+      
+        
     }
     popViewport()
     currLineBottom <- currLineBottom - eachLineHeight
