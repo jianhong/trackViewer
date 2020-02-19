@@ -88,7 +88,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
       pushViewport(viewport(x=ifelse(!str_neg, start(curr_rg), end(curr_rg)),
                             y=gene_y, 
                             width = unit(max(min(gene_h/2, 2*width(curr_rg)/abs(diff(xscale))),
-                                             convertWidth(unit(4, "lines"),
+                                             convertWidth(unit(8, "lines"),
                                                           unitTo = "npc",
                                                           valueOnly = TRUE)), "snpc"), 
                             height = unit(gene_h/2, "snpc"),

@@ -712,7 +712,7 @@ Following code will show how to use [EBI Proteins REST API](https://www.ebi.ac.u
 
 ```{r ProteinsAPI, fig.width=6, fig.height=3}
 library(httr) # load library to get data from REST API
-APIurl <- "www.ebi.ac.uk/proteins/api/" # base URL of the API
+APIurl <- "https://www.ebi.ac.uk/proteins/api/" # base URL of the API
 taxid <- "9606" # human tax ID
 gene <- "TP53" # target gene
 orgDB <- "org.Hs.eg.db" # org database to get the uniprot accession id
@@ -728,10 +728,10 @@ tryCatch({ ## in case the internet connection does not work
                        "features?offset=0&size=-1&reviewed=true",
                        "&types=DNA_BIND%2CMOTIF%2CDOMAIN",
                        "&taxid=", taxid,
-                       "&accession=", paste(accession, collapse = ",")
+                       "&accession=", paste(accession, collapse = "%2C")
   )
   response <- GET(featureURL)
-  stop_for_status(response)
+  message_for_status(response)
   content <- content(response)
   
   content <- content[[1]]
@@ -752,7 +752,7 @@ tryCatch({ ## in case the internet connection does not work
                          "&taxid=", taxid,
                          "&accession=", acc)
   response <- GET(variationURL)
-  stop_for_status(response)
+  message_for_status(response)
   content <- content(response)
   content <- content[[1]]
   keep <- sapply(content$features, function(.ele) length(.ele$evidences)>2 && # filter the data by at least 2 evidences
