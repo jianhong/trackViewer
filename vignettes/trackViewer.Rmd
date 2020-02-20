@@ -731,50 +731,55 @@ tryCatch({ ## in case the internet connection does not work
                        "&accession=", paste(accession, collapse = "%2C")
   )
   response <- GET(featureURL)
-  message_for_status(response)
-  content <- content(response)
-  
-  content <- content[[1]]
-  acc <- content$accession
-  sequence <- content$sequence
-  gr <- GRanges(chr, IRanges(1, nchar(sequence)))
-  domains <- do.call(rbind, content$features)
-  domains <- GRanges(chr, IRanges(as.numeric(domains[, "begin"]),
-                                   as.numeric(domains[, "end"]),
-                                   names = domains[, "description"]))
-  names(domains)[1] <- "DNA_BIND" ## this is hard coding.
-  domains$fill <- 1+seq_along(domains)
-  domains$height <- 0.04
-  ## GET variations. This part can be replaced by user-defined data.
-  variationURL <- paste0(APIurl,
-                         "variation?offset=0&size=-1",
-                         "&sourcetype=uniprot&dbtype=dbSNP",
-                         "&taxid=", taxid,
-                         "&accession=", acc)
-  response <- GET(variationURL)
-  message_for_status(response)
-  content <- content(response)
-  content <- content[[1]]
-  keep <- sapply(content$features, function(.ele) length(.ele$evidences)>2 && # filter the data by at least 2 evidences
-                   !grepl("Unclassified", .ele$clinicalSignificances)) # filter the data by classified clinical significances.
-  nkeep <- c("wildType", "alternativeSequence", "begin", "end",
-             "somaticStatus", "consequenceType", "score")
-  content$features <- lapply(content$features[keep], function(.ele){
-    .ele$score <- length(.ele$evidences)
-    unlist(.ele[nkeep]) 
-  })
-  variation <- do.call(rbind, content$features)
-  variation <- 
-    GRanges(chr, 
-            IRanges(as.numeric(variation[, "begin"]),
-                    width = 1,
-                    names = paste0(variation[, "wildType"],
-                                   variation[, "begin"],
-                                   variation[, "alternativeSequence"])),
-            score = as.numeric(variation[, "score"]),
-            color = as.numeric(factor(variation[, "consequenceType"]))+1)
-  variation$label.parameter.gp <- gpar(cex=.5)
-  lolliplot(variation, domains, ranges = gr, ylab = "# evidences", yaxis = FALSE)
+  if(!http_error(response)){
+    content <- content(response)
+    content <- content[[1]]
+    acc <- content$accession
+    sequence <- content$sequence
+    gr <- GRanges(chr, IRanges(1, nchar(sequence)))
+    domains <- do.call(rbind, content$features)
+    domains <- GRanges(chr, IRanges(as.numeric(domains[, "begin"]),
+                                     as.numeric(domains[, "end"]),
+                                     names = domains[, "description"]))
+    names(domains)[1] <- "DNA_BIND" ## this is hard coding.
+    domains$fill <- 1+seq_along(domains)
+    domains$height <- 0.04
+    ## GET variations. This part can be replaced by user-defined data.
+    variationURL <- paste0(APIurl,
+                           "variation?offset=0&size=-1",
+                           "&sourcetype=uniprot&dbtype=dbSNP",
+                           "&taxid=", taxid,
+                           "&accession=", acc)
+    response <- GET(variationURL)
+    if(!http_error(response)){
+      content <- content(response)
+      content <- content[[1]]
+      keep <- sapply(content$features, function(.ele) length(.ele$evidences)>2 && # filter the data by at least 2 evidences
+                       !grepl("Unclassified", .ele$clinicalSignificances)) # filter the data by classified clinical significances.
+      nkeep <- c("wildType", "alternativeSequence", "begin", "end",
+                 "somaticStatus", "consequenceType", "score")
+      content$features <- lapply(content$features[keep], function(.ele){
+        .ele$score <- length(.ele$evidences)
+        unlist(.ele[nkeep]) 
+      })
+      variation <- do.call(rbind, content$features)
+      variation <- 
+        GRanges(chr, 
+                IRanges(as.numeric(variation[, "begin"]),
+                        width = 1,
+                        names = paste0(variation[, "wildType"],
+                                       variation[, "begin"],
+                                       variation[, "alternativeSequence"])),
+                score = as.numeric(variation[, "score"]),
+                color = as.numeric(factor(variation[, "consequenceType"]))+1)
+      variation$label.parameter.gp <- gpar(cex=.5)
+      lolliplot(variation, domains, ranges = gr, ylab = "# evidences", yaxis = FALSE)
+    }else{
+      message("Can not get variations. error code: ", http_status(response))
+    }
+  }else{
+    message("Can not get features. error code: ", http_status(response))
+  }
 },error=function(e){
   message(e)
 })
