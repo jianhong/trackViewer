@@ -4,8 +4,13 @@
 \alias{plotIdeo}
 \title{plot ideogram}
 \usage{
-plotIdeo(ideo, chrom = seqlevels(ideo)[1], colorSheme = gieStain(),
-  gp = gpar(fill = NA), ...)
+plotIdeo(
+  ideo,
+  chrom = seqlevels(ideo)[1],
+  colorSheme = gieStain(),
+  gp = gpar(fill = NA),
+  ...
+)
 }
 \arguments{
 \item{ideo}{output of \link{loadIdeogram}.}

@@ -4,8 +4,7 @@
 \alias{addGuideLine}
 \title{Add guide lines to the tracks}
 \usage{
-addGuideLine(guideLine, col = "gray", lty = "dashed", lwd = 1,
-  vp = NULL)
+addGuideLine(guideLine, col = "gray", lty = "dashed", lwd = 1, vp = NULL)
 }
 \arguments{
 \item{guideLine}{The genomic coordinates to draw the lines}

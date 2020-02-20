@@ -4,10 +4,20 @@
 \alias{viewTracks}
 \title{plot the tracks}
 \usage{
-viewTracks(trackList, chromosome, start, end, strand, gr = GRanges(),
-  ignore.strand = TRUE, viewerStyle = trackViewerStyle(),
-  autoOptimizeStyle = FALSE, newpage = TRUE, operator = NULL,
-  smooth = FALSE)
+viewTracks(
+  trackList,
+  chromosome,
+  start,
+  end,
+  strand,
+  gr = GRanges(),
+  ignore.strand = TRUE,
+  viewerStyle = trackViewerStyle(),
+  autoOptimizeStyle = FALSE,
+  newpage = TRUE,
+  operator = NULL,
+  smooth = FALSE
+)
 }
 \arguments{
 \item{trackList}{an object of \code{\link{trackList}}}

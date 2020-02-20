@@ -4,8 +4,13 @@
 \alias{importScore}
 \title{Reading data from a BED or WIG file}
 \usage{
-importScore(file, file2, format = c("BED", "bedGraph", "WIG", "BigWig"),
-  ranges = GRanges(), ignore.strand = TRUE)
+importScore(
+  file,
+  file2,
+  format = c("BED", "bedGraph", "WIG", "BigWig"),
+  ranges = GRanges(),
+  ignore.strand = TRUE
+)
 }
 \arguments{
 \item{file}{The path to the file to read.}

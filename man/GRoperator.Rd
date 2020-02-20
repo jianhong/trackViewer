@@ -4,8 +4,13 @@
 \alias{GRoperator}
 \title{GRanges operator}
 \usage{
-GRoperator(A, B, col = "score", operator = c("+", "-", "*", "/", "^",
-  "\%\%"), ignore.strand = TRUE)
+GRoperator(
+  A,
+  B,
+  col = "score",
+  operator = c("+", "-", "*", "/", "^", "\%\%"),
+  ignore.strand = TRUE
+)
 }
 \arguments{
 \item{A}{an object of GRanges}
