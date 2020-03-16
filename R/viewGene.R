@@ -40,7 +40,7 @@ viewGene <- function(symbol, filenames, format, txdb, org,
   if(anchor=="TSS"){
     gr <- promoters(gr, upstream = upstream, downstream = downstream)
   }else{
-    if(as.character(strand(gr))=="-"){
+    if(as.character(strand(gr))[1]=="-"){
       tmp <- upstream
       upstream <- downstream
       downstream <- upstream

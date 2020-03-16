@@ -11,6 +11,7 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex, ypos, plotYaxis, height
     radius <- sapply(sg, function(.ele) floor(width(range(.ele))/2) * ratio.Yy *ratio.yx)
     radius <- radius[order(as.numeric(names(radius)))]
     
+    stopifnot(length(plotYaxis)==1)
     if(plotYaxis){
       sg.scores <- sapply(sg, function(.ele) heightMethod(.ele$score))
     }else{

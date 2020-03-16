@@ -46,7 +46,7 @@ plotOneIdeo <-
   if(is(parameterList$xlab, "list")){
     do.call(grid.text, args = parameterList$xlab)
   }else{
-    if(parameterList$xlab!=""){
+    if(parameterList$xlab[1]!=""){
       grid.text(label=parameterList$xlab, y=unit(1.5, "lines"))
     }
   }

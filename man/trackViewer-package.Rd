@@ -36,3 +36,12 @@ addArrowMark(list(x=unit(.5, "npc"),
                   y=unit(.39, "npc")),
              col="blue")
 }
+\author{
+\strong{Maintainer}: Jianhong Ou \email{jianhong.ou@duke.edu} (\href{https://orcid.org/0000-0002-8652-2488}{ORCID})
+
+Authors:
+\itemize{
+  \item Julie Lihua Zhu \email{Julie.Zhu@umassmed.edu}
+}
+
+}

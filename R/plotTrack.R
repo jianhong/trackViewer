@@ -1,6 +1,7 @@
 xysmooth <- function(x2, y2, smooth=5){
   if(is.logical(smooth)) smooth=5
-  if(smooth>=length(x2)){
+  if(smooth[1]>=length(x2) ||
+     smooth[1]<1){
     return(list(x=x2, y=y2))
   }
   ord <- order(x2)

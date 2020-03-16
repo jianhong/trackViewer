@@ -248,10 +248,18 @@ setClass("track", representation(dat="GRanges",
                                  style="trackStyle",
                                  name="character"),
          validity=function(object){
-             if(!object@type %in% c("data", "gene", "transcript", "lollipopData", "interactionData"))
-                 return("type must be 'data', 'transcript', 'gene', 'lollipopData', 'interactionData'")
+             if(!object@type %in% 
+                c("data", "gene", "transcript",
+                  "lollipopData", "interactionData"))
+                 return("type must be 'data', 'transcript', 'gene',
+                        'lollipopData', 'interactionData'")
              if(object@type=="data"){
-                 if(!object@format %in% c("BED", "bedGraph", "WIG", "BigWig", "BAM"))
+                 if(!length(object@format)==1){
+                   return("format must be one of \"BED\", 
+                            \"bedGraph\", \"WIG\", \"BigWig\"")
+                 }
+                 if(!object@format %in% 
+                    c("BED", "bedGraph", "WIG", "BigWig", "BAM"))
                      return("format must be one of \"BED\", 
                             \"bedGraph\", \"WIG\", \"BigWig\"")
                  if(is.null(object@dat$score))

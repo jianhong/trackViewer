@@ -17,6 +17,8 @@
 getLocation <- function(symbol, txdb, org){
   stopifnot(is(symbol, "character"))
   stopifnot(is(txdb, "TxDb"))
+  stopifnot(is.character(org))
+  stopifnot(length(org)==1)
   if(!grepl("^org.*.db", org)){
     stop("Org package name is required.")
   }

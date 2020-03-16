@@ -17,7 +17,8 @@
 #' symbols <- mget(ids, org.Hs.egSYMBOL)
 #' geneTrack(ids, TxDb.Hsapiens.UCSC.hg19.knownGene, symbols)
 #' 
-geneTrack <- function(ids, txdb, symbols, type=c("gene", "transcript"), asList=TRUE){
+geneTrack <- function(ids, txdb, symbols, 
+                      type=c("gene", "transcript"), asList=TRUE){
   stopifnot(is(txdb, "TxDb"))
   stopifnot(is(ids, "character"))
   stopifnot(is(asList, "logical"))

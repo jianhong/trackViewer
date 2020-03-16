@@ -40,7 +40,7 @@ importData <-
     ranges <- reduce(ranges)
     formats <- c("BAM", "BED", "bedGraph", "WIG", "BigWig")
     if(is.na(format[1])){
-        format <- sapply(files, file_ext) ## need tools package
+        format <- vapply(files, file_ext, FUN.VALUE = "BAM") ## need tools package
     }
     format <- rep(format, length(files))[1:length(files)]
     format <- formats[match(tolower(format), tolower(formats))]

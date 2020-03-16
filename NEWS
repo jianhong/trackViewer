@@ -1,3 +1,7 @@
+Changes in version 1.23.4
+
+    o fix a issue of "EXPR must be a length 1 vector".
+    
 Changes in version 1.23.3
 
     o fix a issue of vignette when visit ebi proteins api.

@@ -50,7 +50,9 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     stop("trackList is required.")
   }
   if(!is(trackList, "trackList") && 
-     !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
+     !(is.list(trackList) && 
+        all(vapply(trackList, function(.ele) is(.ele, "track"), 
+                   FUN.VALUE = TRUE)))){
     stop("trackList must be an object of \"trackList\"
          (See ?trackList) or a list of track")
   }

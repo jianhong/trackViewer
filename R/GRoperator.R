@@ -55,6 +55,8 @@ GRoperator <- function(A, B, col="score",
     if(any(countOverlaps(A)>1) || any(countOverlaps(B)>1)){
         stop("A or B has overlaps.")
     }
+    if(length(A)<1) return(B)
+    if(length(B)<1) return(A)
     argA <- deparse(substitute(A))
     argB <- deparse(substitute(B))
     if(!is.function(operator)){

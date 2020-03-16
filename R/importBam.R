@@ -20,6 +20,7 @@ importBam <- function(file, file2, ranges=GRanges(), pairs=FALSE){
     if(!is(ranges, "GRanges"))
         stop("ranges must be an object of GRanges.")
     param <- ScanBamParam(which=ranges)
+    stopifnot(length(pairs)==1)
     if(pairs){
         bam <- readGAlignmentPairs(file, param=param)
     }else{

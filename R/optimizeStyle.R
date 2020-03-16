@@ -1,4 +1,5 @@
 optFontSize <- function(axis, viewerStyle, height){
+  stopifnot(length(axis)==1)
     if(axis=="x"){
         if(viewerStyle@xlas %in% c(0, 1)){
             fontHeight <- convertHeight(stringHeight("0123456789"), 
@@ -56,11 +57,14 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     if(missing(trackList))
         stop("trackList must be an object of 'trackList'")
     if(!is(trackList, "trackList") && 
-       !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
+       !(is.list(trackList) && 
+         all(vapply(trackList, function(.ele) is(.ele, "track"), 
+                    FUN.VALUE = TRUE)))){
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
     }
-    if(trackList[[length(trackList)]]@type %in% c("data", "interactionData") && viewerStyle@margin[3] < .02)
+    if(trackList[[length(trackList)]]@type %in% c("data", "interactionData") && 
+       viewerStyle@margin[3] < .02)
         viewerStyle@margin[3] <- .02
     ##put x-axis?
     dataTracksIdx <- sapply(trackList, function(.ele) .ele@type=="data")
