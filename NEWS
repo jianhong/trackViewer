@@ -1,5 +1,9 @@
 Changes in version 1.23.5
 
+    o remove import plot from graphics.
+    
+Changes in version 1.23.5
+
     o replace class function by is function.
     
 Changes in version 1.23.4

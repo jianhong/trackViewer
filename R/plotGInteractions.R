@@ -70,8 +70,8 @@ plotGInteractions <- function(gi, range, feature.gr, ...){
   ylim <- c(ylim[1]-diff(ylim)/10, ylim[2]+diff(ylim)/10)
   opar <- par(mar=rep(0, 4)+.1)
   on.exit(par(opar))
-  plot.default(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n", 
-               xaxs="i", yaxs="i", xlim=xlim, ylim=ylim, frame.plot=FALSE)
+  plot(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n", 
+       xaxs="i", yaxs="i", xlim=xlim, ylim=ylim, frame.plot=FALSE)
   init.angle <- 180*atan(diff(nodeY)/diff(nodeX))/pi + ifelse(diff(nodeX) > 0, 90, -90)
   init.angle <- c(init.angle, 0)
   nodeShape <- list()
