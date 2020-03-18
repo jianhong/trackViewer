@@ -1,18 +1,27 @@
 convertHeight2NPCnum <- function(.ele){
-    switch(class(.ele),
-           "unit"=convertHeight(.ele, unitTo="npc", valueOnly=TRUE),
-           "list"={
-               .ele <- sapply(.ele, function(.e){
-                   if(is(.e, "unit")){
-                       .e <- convertHeight(.e, unitTo="npc", valueOnly=TRUE)
-                   }
-                   .e[1]
-               })
-               unlist(.ele)
-           },
-           "numeric"=.ele,
-           "integer"=.ele,
-           .ele)
+  if(is(.ele, "unit")){
+    return(convertHeight(.ele, unitTo="npc", valueOnly=TRUE))
+  }else{
+    if(is.list(.ele)){
+      .ele <- sapply(.ele, function(.e){
+        if(is(.e, "unit")){
+          .e <- convertHeight(.e, unitTo="npc", valueOnly=TRUE)
+        }
+        .e[1]
+      })
+      return(unlist(.ele))
+    }else{
+      if(is.numeric(.ele)){
+        return(.ele)
+      }else{
+        if(is.integer(.ele)){
+          return(.ele)
+        }else{
+          return(.ele)
+        }
+      }
+    }
+  }
 }
 plotFeatures <- function(feature.splited, LINEH, bottomHeight){
     feature.height <- 0

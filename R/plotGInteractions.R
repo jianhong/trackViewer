@@ -13,7 +13,7 @@
 #' @importFrom Rgraphviz layoutGraph renderGraph
 #' @importFrom plotrix arctext
 #' @importFrom stats plogis
-#' @importFrom graphics curve lines par plot.default points segments strheight text arrows
+#' @importFrom graphics curve lines par points segments strheight text arrows
 #' @export
 #' @examples
 #' library(InteractionSet) 

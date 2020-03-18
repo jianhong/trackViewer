@@ -11,8 +11,8 @@ ideogramPlot(
   horiz = TRUE,
   parameterList = list(vp = plotViewport(margins = c(0.1, 4.1, 0.3, 0.1)), ideoHeight =
     unit(1/(1 + length(dataList)), "npc"), vgap = unit(0.3, "lines"), ylabs = "auto",
-    ylabsRot = ifelse(horiz, 0, 90), ylabsPos = unit(2.5, "lines"), xaxis = FALSE, yaxis =
-    FALSE, xlab = "", types = "barplot", heights = NULL, dataColumn = "score", gps =
+    ylabsRot = ifelse(horiz, 0, 90), ylabsPos = unit(2.5, "lines"), xaxis = FALSE, yaxis
+    = FALSE, xlab = "", types = "barplot", heights = NULL, dataColumn = "score", gps =
     gpar(col = "black", fill = "gray")),
   colorSheme = gieStain(),
   gp = gpar(fill = NA, lwd = 2),

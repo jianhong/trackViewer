@@ -1,3 +1,7 @@
+Changes in version 1.23.5
+
+    o replace class function by is function.
+    
 Changes in version 1.23.4
 
     o fix a issue of "EXPR must be a length 1 vector".
