@@ -247,7 +247,10 @@ grid.lollipop <- function (x1=.5, y1=.5,
 }
 
 jitterLables <- function(coor, xscale, lineW, weight=1.2){
-    if(weight==1.2) stopifnot(order(coor)==1:length(coor))
+    if(weight==1.2) {
+      stopifnot("Please sort your inputs by start position"= 
+                  order(coor)==1:length(coor))
+    }
     if(weight<0.5) return(coor)
     stopifnot(length(xscale)==2)
     pos <- convertX(unit(coor, "native"), "npc", valueOnly=TRUE)
