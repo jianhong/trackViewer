@@ -11,7 +11,11 @@ grid.pie <- function (x=.5, y=.5,
         percent <- 1
     }
     percent <- c(0, cumsum(percent)/sum(percent))
-    percent[is.na(percent)] <- 0
+    if(any(is.na(percent))){
+      warning("There are events with NA number after calculating the percentage.",
+              "Please make sure all the events must contain at least one values greater than 0")
+      percent[is.na(percent)] <- 0
+    }
     dx <- diff(percent)
     nx <- length(dx)
     if (is.null(col)) 
