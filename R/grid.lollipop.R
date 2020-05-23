@@ -11,6 +11,7 @@ grid.pie <- function (x=.5, y=.5,
         percent <- 1
     }
     percent <- c(0, cumsum(percent)/sum(percent))
+    percent[is.na(percent)] <- 0
     dx <- diff(percent)
     nx <- length(dx)
     if (is.null(col)) 

@@ -1,3 +1,7 @@
+Changes in version 1.24.1
+
+    o fix the bug if the percentage is NA value for pie lollipop plot.
+    
 Changes in version 1.23.5
 
     o replace class function by is function.
