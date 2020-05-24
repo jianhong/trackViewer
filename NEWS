@@ -1,3 +1,7 @@
+Changes in version 1.25.1
+
+    o Provide more clearly warning or error message if the input is not sorted or contain NA values.
+    
 Changes in version 1.23.5
 
     o replace class function by is function.
