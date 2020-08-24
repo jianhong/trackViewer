@@ -1,3 +1,7 @@
+Changes in version 1.25.2
+
+    o Fix the issue if there is interrupt of the internet connection to generate vignette.
+    
 Changes in version 1.25.1
 
     o Provide more clearly warning or error message if the input is not sorted or contain NA values.

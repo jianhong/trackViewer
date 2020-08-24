@@ -782,6 +782,10 @@ tryCatch({ ## in case the internet connection does not work
   }
 },error=function(e){
   message(e)
+},waring=function(w){
+  message(w)
+},interrupt=function(i){
+  message(i)
 })
 ```
 
