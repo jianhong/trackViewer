@@ -1,3 +1,7 @@
+Changes in version 1.25.3
+
+    o Fix the issue in AddArrowMark that grid changed the unit id.
+    
 Changes in version 1.25.2
 
     o Fix the issue if there is interrupt of the internet connection to generate vignette.
