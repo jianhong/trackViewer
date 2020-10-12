@@ -877,6 +877,17 @@ lolliplot(methy, features, ranges=gr, type="pin",
           rescale = rescale, xaxis = xaxis)
 ```
 
+## Split the lollipop plot into multiLayers
+In the above examples, people may be misled when the x-axis is ignored.
+It will be better to plot the data into multiple layers. This can be done by
+setting parameter `ranges` into a `GRangesList` object.
+
+```{r fig.width=6,fig.height=7.5}
+grSplited <- tile(gr, n=2)
+lolliplot(methy, features, ranges=grSplited, type="pin")
+```
+
+
 # Dandelion Plot
 Sometimes, there are as many as hundreds of SNPs invoved in one gene. Dandelion plot can be used to depict such dense SNPs. Please note that the height of the dandelion indicates the desity of the SNPs.
 ```{r fig.width=4.5,fig.height=3}
@@ -909,6 +920,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ## More dandelions
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
+
 Users can also specity the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
 
 ```{r fig.width=4,fig.height=4}
