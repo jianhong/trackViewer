@@ -1,5 +1,9 @@
 Changes in version 1.25.4
 
+    o remove http_status from documentation.
+    
+Changes in version 1.25.4
+
     o add function to split the lollipop plot into multiLayers.
 
 Changes in version 1.25.3

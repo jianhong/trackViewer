@@ -775,14 +775,14 @@ tryCatch({ ## in case the internet connection does not work
       variation$label.parameter.gp <- gpar(cex=.5)
       lolliplot(variation, domains, ranges = gr, ylab = "# evidences", yaxis = FALSE)
     }else{
-      message("Can not get variations. error code: ", http_status(response))
+      message("Can not get variations. http error")
     }
   }else{
-    message("Can not get features. error code: ", http_status(response))
+    message("Can not get features. http error")
   }
 },error=function(e){
   message(e)
-},waring=function(w){
+},warning=function(w){
   message(w)
 },interrupt=function(i){
   message(i)
