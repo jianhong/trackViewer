@@ -309,6 +309,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           if(length(SNPs$score)>0) ceiling(max(c(SNPs$score, 1), na.rm=TRUE)) else 1
         if(type=="pie.stack") scoreMax <- length(unique(SNPs$stack.factor))
         if(!type %in% c("pie", "pie.stack")){
+          scoreType <- 
+            if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
           if(length(yaxis)>1 && is.numeric(yaxis)){
             if(length(names(yaxis))!=length(yaxis)){
               names(yaxis) <- yaxis
@@ -318,11 +320,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           if(scoreMax>10) {
             SNPs$score <- 10*SNPs$score/scoreMax
             scoreMax <- 10*scoreMax0/scoreMax
+            scoreType <- FALSE
           }else{
             scoreMax <- scoreMax0
           }
-          scoreType <- 
-            if(length(SNPs$score)>0) all(floor(SNPs$score)==SNPs$score) else FALSE
         }else{
           scoreType <- FALSE
         }
