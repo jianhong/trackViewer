@@ -1,3 +1,7 @@
+Changes in version 1.26.2
+
+    o Fix the bug for pie plot of dandelion.plot when introduce label.parameters.
+    
 Changes in version 1.26.1
 
     o fix the bug that if all scores are greater than 10 and all scores are integer.

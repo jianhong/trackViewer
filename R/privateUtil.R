@@ -742,3 +742,26 @@ grid.star <- function(x = 0.5, y = 0.5, r = 0.5,
                          unit(r*cos(omega)+y, "npc"), 
                          gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
 }
+
+cleanDataMcols <- function(this.dat.mcols, type){
+  this.dat.mcols <- 
+    this.dat.mcols[, 
+                   !colnames(this.dat.mcols) %in% 
+                     c("color", "fill", "lwd", "id", 
+                       "cex", "dashline.col", 
+                       "id.col", "stack.factor", "SNPsideID",
+                       "shape", "alpha"), 
+                   drop=FALSE]
+  if(type!="pie.stack"){
+    this.dat.mcols <- 
+      this.dat.mcols[, !colnames(this.dat.mcols) %in% 
+                       c("stack.factor.order", 
+                         "stack.factor.first"), 
+                     drop=FALSE]
+  }
+  this.dat.mcols <- 
+    this.dat.mcols[, !grepl("^label.parameter",
+                            colnames(this.dat.mcols)), 
+                   drop=FALSE]
+  return(this.dat.mcols)
+}
