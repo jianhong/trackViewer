@@ -202,25 +202,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
               if(length(this.dat$dashline.col)>0) this.dat$dashline.col[[1]][1] else dashline.col
             if(length(names(this.dat))<1) this.dashline.col <- NA
             this.dat.mcols <- mcols(this.dat)
-            this.dat.mcols <- 
-                this.dat.mcols[, 
-                               !colnames(this.dat.mcols) %in% 
-                                   c("color", "fill", "lwd", "id", 
-                                     "cex", "dashline.col", 
-                                     "id.col", "stack.factor", "SNPsideID",
-                                     "shape", "alpha"), 
-                               drop=FALSE]
-            if(type!="pie.stack"){
-                this.dat.mcols <- 
-                    this.dat.mcols[, !colnames(this.dat.mcols) %in% 
-                                       c("stack.factor.order", 
-                                         "stack.factor.first"), 
-                                   drop=FALSE]
-            }
-            this.dat.mcols <- 
-                this.dat.mcols[, !grepl("^label.parameter",
-                                        colnames(this.dat.mcols)), 
-                               drop=FALSE]
+            this.dat.mcols <- cleanDataMcols(this.dat.mcols, type)
 
             grid.lollipop(x1=convertX(unit(start(this.dat), "native"), "npc", 
                                       valueOnly=TRUE),  

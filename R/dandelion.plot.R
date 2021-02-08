@@ -307,7 +307,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
             id <- if(is.character(this.dat$label)) this.dat$label else NA
             id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
             this.dat.mcols <- mcols(this.dat)
-            this.dat.mcols <- this.dat.mcols[, !colnames(this.dat.mcols) %in% c("color", "fill", "lwd", "id", "id.col", "cex"), drop=FALSE]
+            this.dat.mcols <- cleanDataMcols(this.dat.mcols, type)
             grid.dandelion(x0=(start(this.dat)-start(ranges[[i]]))/width(ranges[[i]]), 
                            y0=baseline,
                            x1=(start(this.dat)-start(ranges[[i]]))/width(ranges[[i]]),
