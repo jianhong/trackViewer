@@ -9,6 +9,7 @@
 \alias{show,track-method}
 \alias{$,track-method}
 \alias{$<-,track-method}
+\alias{`$<-`,track-method}
 \alias{setTrackStyleParam}
 \alias{setTrackStyleParam,track,character-method}
 \alias{setTrackStyleParam,track,character,ANY-method}

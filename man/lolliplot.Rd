@@ -21,6 +21,7 @@ lolliplot(
   dashline.col = "gray80",
   jitter = c("node", "label"),
   rescale = FALSE,
+  label_on_feature = FALSE,
   ...
 )
 }
@@ -63,8 +64,13 @@ points if it has names.}
 
 \item{jitter}{jitter the position of nodes or labels.}
 
-\item{rescale}{logical(1) or a dataframe with rescale from and to. Recalse the x-axis or not.
-if dataframe is used, colnames must be from.start, from.end, to.start, to.end.}
+\item{rescale}{logical(1) or a dataframe with rescale from and to. 
+Rescalse the x-axis or not.
+if dataframe is used, colnames must be from.start, from.end,
+ to.start, to.end.}
+
+\item{label_on_feature}{Labels of the feature directly on them. 
+Default FALSE.}
 
 \item{...}{not used.}
 }

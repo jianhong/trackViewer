@@ -51,7 +51,7 @@ locateScale <- function(x, y, maxY, scale){
     START <- TRUE
     y <- y[order(x)]
     x <- x[order(x)]
-    for(i in 1:length(x)){
+    for(i in seq_along(x)){
         if(y[i]>threshold){
             if(START){
                 START <- FALSE
@@ -106,7 +106,7 @@ disjoinGRs <- function(gr=GRanges(), FUN=sum){
 }
 
 filterTracks <- function(tl, chrom, from, to, st){
-    for(i in 1:length(tl)){
+    for(i in seq_along(tl)){
         if(tl[[i]]@type=="data"){
             if(tl[[i]]@format=="WIG") {
                 tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
@@ -592,7 +592,8 @@ setFeatureLayerID <- function(feature, range){
 }
 
 ## bottomblank, the transcripts legend height
-plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp){
+plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_feature=FALSE){
+  if(label_on_feature) return(0)
   if(length(xaxis)>1 || as.logical(xaxis[1])){
     xaxisSpace <- 2
     if(is.numeric(xaxis.gp$cex)) xaxisSpace <- 2*xaxis.gp$cex

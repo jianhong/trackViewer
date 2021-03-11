@@ -335,7 +335,7 @@ setMethod("$", "track", function(x, name) slot(x, name))
 #' Method $<-
 #' @rdname trackStyle-class
 #' @exportMethod $<-
-#' @aliases $<-,track-method
+#' @aliases `$<-`,track-method
 setReplaceMethod("$", "track", 
                  function(x, name, value){
                      slot(x, name, check = TRUE) <- value

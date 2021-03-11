@@ -1,3 +1,7 @@
+Changes in version 1.27.3
+
+    o Update documentation.
+
 Changes in version 1.27.2
 
     o Fix the bug for pie plot of dandelion.plot when introduce label.parameters.

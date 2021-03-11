@@ -1,7 +1,8 @@
 #' dandelion.plots
 #' @description Plot variants and somatic mutations
 #' @param SNP.gr A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
-#' \link[GenomicRanges:GRangesList-class]{GRangesList}. All the width of GRanges must be 1.
+#' \link[GenomicRanges:GRangesList-class]{GRangesList}. 
+#' All the width of GRanges must be 1.
 #' @param features A object of \link[GenomicRanges:GRanges-class]{GRanges} or
 #' \link[GenomicRanges:GRangesList-class]{GRangesList}.
 #' @param ranges A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
@@ -18,12 +19,16 @@
 #' @param legend If it is a list with named color vectors, a legend will be added.
 #' @param cex cex will control the size of circle.
 #' @param maxgaps maxgaps between the stem of dandelions. 
-#' It is calculated by the width of plot region devided by maxgaps. 
-#' If a GRanges object is set, the dandelions stem will be clusted in each genomic range.
-#' @param heightMethod A function used to determine the height of stem of dandelion. eg. Mean. Default is length.
+#' It is calculated by the width of plot region divided by maxgaps. 
+#' If a GRanges object is set, the dandelions stem will be clustered
+#' in each genomic range.
+#' @param heightMethod A function used to determine the height of stem of 
+#' dandelion. eg. Mean. Default is length.
+#' @param label_on_feature Labels of the feature directly on them. 
+#' Default FALSE.
 #' @param ... not used.
 #' @details In SNP.gr and features, metadata of the GRanges object will be used to 
-#' control thecolor, fill, border, height, data source of pie if the type is pie.
+#' control the color, fill, border, height, data source of pie if the type is pie.
 #' @return NULL
 #' @import GenomicRanges
 #' @import grid
@@ -47,7 +52,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                       newpage=TRUE, ylab=TRUE, ylab.gp=gpar(col="black"),
                       xaxis=TRUE, xaxis.gp=gpar(col="black"), 
                       yaxis=FALSE, yaxis.gp=gpar(col="black"), 
-                      legend=NULL, cex=1, maxgaps=1/50, heightMethod=NULL, ...){
+                      legend=NULL, cex=1, maxgaps=1/50, heightMethod=NULL, 
+                      label_on_feature=FALSE, ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList")))
     stopifnot(inherits(features, c("GRanges", "GRangesList")))
     type <- match.arg(type)
@@ -169,7 +175,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         ## bottomblank, the transcripts legend height
         bottomblank <- plotFeatureLegend(feature, as.numeric(convertY(unit(1, "line"), "npc")), 
-                                         ranges[[i]], xaxis, xaxis.gp)
+                                         ranges[[i]], xaxis, xaxis.gp, label_on_feature)
         
         pushViewport(viewport(x=LINEW + .5, y= bottomblank/2 + .5, 
                               width= 1 - 7*LINEW,
@@ -189,7 +195,8 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         ##plot features
         bottomHeight <- 0
-        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight)
+        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight,
+                                       label_on_feature)
         
         SNPs <- SNP.gr[[i]]
         if(length(SNPs)>0){

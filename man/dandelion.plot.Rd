@@ -20,12 +20,14 @@ dandelion.plot(
   cex = 1,
   maxgaps = 1/50,
   heightMethod = NULL,
+  label_on_feature = FALSE,
   ...
 )
 }
 \arguments{
 \item{SNP.gr}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or 
-\link[GenomicRanges:GRangesList-class]{GRangesList}. All the width of GRanges must be 1.}
+\link[GenomicRanges:GRangesList-class]{GRangesList}. 
+All the width of GRanges must be 1.}
 
 \item{features}{A object of \link[GenomicRanges:GRanges-class]{GRanges} or
 \link[GenomicRanges:GRangesList-class]{GRangesList}.}
@@ -52,10 +54,15 @@ used to as labels to be placed at the tick points if it has names.}
 \item{cex}{cex will control the size of circle.}
 
 \item{maxgaps}{maxgaps between the stem of dandelions. 
-It is calculated by the width of plot region devided by maxgaps. 
-If a GRanges object is set, the dandelions stem will be clusted in each genomic range.}
+It is calculated by the width of plot region divided by maxgaps. 
+If a GRanges object is set, the dandelions stem will be clustered
+in each genomic range.}
 
-\item{heightMethod}{A function used to determine the height of stem of dandelion. eg. Mean. Default is length.}
+\item{heightMethod}{A function used to determine the height of stem of 
+dandelion. eg. Mean. Default is length.}
+
+\item{label_on_feature}{Labels of the feature directly on them. 
+Default FALSE.}
 
 \item{...}{not used.}
 }
@@ -64,7 +71,7 @@ Plot variants and somatic mutations
 }
 \details{
 In SNP.gr and features, metadata of the GRanges object will be used to 
-control thecolor, fill, border, height, data source of pie if the type is pie.
+control the color, fill, border, height, data source of pie if the type is pie.
 }
 \examples{
 SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)

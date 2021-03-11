@@ -29,6 +29,8 @@
 #' Rescalse the x-axis or not.
 #' if dataframe is used, colnames must be from.start, from.end,
 #'  to.start, to.end.
+#' @param label_on_feature Labels of the feature directly on them. 
+#' Default FALSE.
 #' @param ... not used.
 #' @return NULL
 #' @details 
@@ -75,7 +77,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       legend=NULL, cex=1, 
                       dashline.col="gray80", 
                       jitter=c("node", "label"), 
-                      rescale=FALSE, ...){
+                      rescale=FALSE, 
+                      label_on_feature=FALSE,
+                      ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
     stopifnot(inherits(features, c("GRanges", "GRangesList", "list")))
     jitter <- match.arg(jitter)
@@ -299,7 +303,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         ## bottomblank, the transcripts legend height
         bottomblank <- plotFeatureLegend(feature, as.numeric(convertY(unit(1, "line"), "npc")),
-                                         ranges[[i]], xaxis, xaxis.gp)
+                                         ranges[[i]], xaxis, xaxis.gp, label_on_feature)
         
         ## get the max score and scoreType
         if(length(SNPs$score)>0){
@@ -390,7 +394,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 .0001)) + 0.2 * LINEH
         
         ##plot features
-        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight)
+        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight, label_on_feature)
         
         if(length(SNPs.bottom)>0){
           plotLollipops(SNPs.bottom, feature.height, bottomHeight, baselineN, 
