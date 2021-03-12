@@ -107,7 +107,7 @@ disjoinGRs <- function(gr=GRanges(), FUN=sum){
 
 filterTracks <- function(tl, chrom, from, to, st){
     for(i in seq_along(tl)){
-        if(tl[[i]]@type=="data"){
+        if(tl[[i]]@type %in% c("data", "scRNAseq")){
             if(tl[[i]]@format=="WIG") {
                 tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
             }
@@ -179,7 +179,7 @@ getYlim <- function(tl, op){
     yscales <- lapply(tl, function(.ele){
         ylim <- .ele@style@ylim
         if(length(ylim)!=2){
-            if(.ele@type %in% c("data", "lollipopData")){
+            if(.ele@type %in% c("data", "lollipopData", "scRNAseq")){
                 if(length(.ele@dat)>0){
                     ylim <- unique(round(range(.ele@dat$score)))
                 }else{

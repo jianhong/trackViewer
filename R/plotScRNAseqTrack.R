@@ -1,17 +1,28 @@
-plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="white"){
-  names(.dat) <- NULL
-  mcols(.dat) <- mcols(.dat)[, "score"]
-  colnames(mcols(.dat)) <- "score"
-  if(missing(yscale)) yscale <- c(0, 1)
+plotScRNAseqTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="white"){
+  if(length(names(.dat))<1){## no cell barcodes
+    return()
+  }
   if(length(.dat)<1){
     return()
   }
+  ## remove unused mcols
+  mcols(.dat) <- mcols(.dat)[, "score"] 
+  colnames(mcols(.dat)) <- "score"
+  ## split the data by cell barcode
+  .dat <- split(.dat, names(.dat))
+  ## resort the data by signals
+  .dat <- .dat[order(vapply(.dat, FUN=function(.ele){
+    mean(.ele$score, na.rm = TRUE)
+  }, FUN.VALUE = 0.0), decreasing = TRUE)]
+  id <- rep(seq_along(.dat), lengths(.dat))
+  .dat <- unlist(GRangesList(.dat), use.names = FALSE)
+  .dat$id <- id
+  ## convert GRanges to matrix or plot it line by line?
+  if(missing(yscale)) yscale <- c(0, 1)
   ## plot rect at position
-  ## x = (center1 + center2)/2
-  ## y = unit((x-scale[1]+1)/((scale[2] - scale[1] + 1)/2), "npc")
-  ## width = width(x1)
-  ## height = uint(width(x2)/(scale[2] - scale[1] + 1), "npc")
-  ## rot = 45 degree
+  ## x = c(start, start, end, end)
+  ## heightPerCell <- diff(yscale)/(numberOfCell+1)
+  ## y = c(i-.5, i+.5, i+.5, i-.5)*heightPerCell # i is the cell order
   ## color = colorRampPalette(color)(100)
   if(length(breaks)<3){
     rg <- range(.dat$score[!is.na(.dat$score)])
@@ -36,27 +47,15 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
   mc <- cut(.dat$score, breaks = breaks, labels = crp)
   mc <- as.character(mc)
   mc[is.na(mc)] <- NAcolor
-  inRange <- function(x, scale){
-    x>=scale[1] & x<=scale[2]
-  }
-  ym <- (scale[2]-scale[1] + 1)/2
-  xa <- (end(.dat) + start(.dat2))/2
-  xb <- (start(.dat) + start(.dat2))/2
-  xc <- (start(.dat) + end(.dat2))/2
-  xd <- (end(.dat) + end(.dat2))/2
-  ya <- (xa-end(.dat)+1)/ym
-  yb <- (xb-start(.dat)+1)/ym
-  yc <- (xc-start(.dat)+1)/ym
-  yd <- (xd-end(.dat)+1)/ym
-  irx <- inRange(xa, scale) | inRange(xb, scale) | inRange(xc, scale) | inRange(xd, scale)
-  iry <- inRange(ya, yscale) | inRange(yb, yscale) | inRange(yc, yscale) | inRange(yd, yscale)
+  
+  yh <- diff(yscale)/max(.dat$id)
+  
   for(i in seq_along(.dat)){
-    if(irx[i] && iry[i]){
-      grid.polygon(x=c(xa[i], xb[i], xc[i], xd[i]), 
-                   y=c(ya[i], yb[i], yc[i], yd[i]), 
+      grid.polygon(x=c(start(.dat)[i], start(.dat)[i], 
+                       end(.dat)[i], end(.dat)[i]), 
+                   y=c(i-.5, i+.5, i+.5, i-.5)*yh, 
                    default.units="native",
-                   gp = gpar(fill=mc[i], col = NA))
-    }
+                   gp = gpar(fill=mc[i], col = mc[i]))
   }
   # legend
   vp <- viewport(x = 1 - convertWidth(unit(5, "char"), "npc", valueOnly = TRUE), 

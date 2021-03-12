@@ -271,25 +271,30 @@ browseTracks <- function(trackList,
             if(length(style$color)==1){
               style$color <- rep(style$color, 2)
             }
-          }else{##gene
-            dat$textlabel <- names(.ele$dat)
-            names(dat) <- NULL
-            if(length(dat$featureLayerID)==0){
-              dat$featureLayerID <- 1
-            }
-            if(length(dat$fill)==0){
-              dat$fill <- style$color[1]
+          }else{
+            if(.ele$type=="scRNAseq"){
+              stop("Not supported.")
             }else{
-              dat$fill <- col2Hex(dat$fill)
+              ##gene
+              dat$textlabel <- names(.ele$dat)
+              names(dat) <- NULL
+              if(length(dat$featureLayerID)==0){
+                dat$featureLayerID <- 1
+              }
+              if(length(dat$fill)==0){
+                dat$fill <- style$color[1]
+              }else{
+                dat$fill <- col2Hex(dat$fill)
+              }
+              dat <- as.list(as.data.frame(dat))
+              dat$seqnames <- chromosome
+              if(length(.ele$dat2)==0){
+                dat2 <- ZERO
+              }else{
+                dat2 <- getLolliplotData(.ele$dat2)
+              }
+              ylim <- c(0, 1)
             }
-            dat <- as.list(as.data.frame(dat))
-            dat$seqnames <- chromosome
-            if(length(.ele$dat2)==0){
-              dat2 <- ZERO
-            }else{
-              dat2 <- getLolliplotData(.ele$dat2)
-            }
-            ylim <- c(0, 1)
           }
         }
         list(dat=dat,

@@ -186,7 +186,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp2
     xy <- list()
-    if(track@type %in% c("data", "lollipopData", "interactionData")){
+    if(track@type %in% c("data", "scRNAseq", "lollipopData", "interactionData")){
         if(track@type=="data") {
           ##plot yaxis
           drawYaxis(yscale, style@yaxis, curViewStyle)
@@ -270,21 +270,36 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                ybase, side="bottom", main=style@yaxis@main,
                                baselineCol=style@color[2], maxHeight=maxHeight)
             }
-          }else{##interactionData
-            ##plot yaxis
-            drawYaxis(yscale, style@yaxis, curViewStyle)
-            pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
-                                  height=1, 
-                                  width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
-                                  clip="on",
-                                  just=c(0,0), 
-                                  xscale=xscale, 
-                                  yscale=yscale))
-            ##grid.clip()
-            ##for dat interaction: dat, dat2, pair.
-            if(length(track@dat)==length(track@dat2)){
-              plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
-                                       breaks=style@breaks, NAcolor=style@NAcolor)
+          }else{
+            if(track@type=="scRNAseq"){
+              ##plot yaxis
+              drawYaxis(yscale, style@yaxis, curViewStyle)
+              pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                    height=1, 
+                                    width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                    clip="on",
+                                    just=c(0,0), 
+                                    xscale=xscale, 
+                                    yscale=yscale))
+              ##grid.clip()
+              plotScRNAseqTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
+                                breaks=style@breaks, NAcolor=style@NAcolor)
+            }else{##interactionData
+              ##plot yaxis
+              drawYaxis(yscale, style@yaxis, curViewStyle)
+              pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
+                                    height=1, 
+                                    width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
+                                    clip="on",
+                                    just=c(0,0), 
+                                    xscale=xscale, 
+                                    yscale=yscale))
+              ##grid.clip()
+              ##for dat interaction: dat, dat2, pair.
+              if(length(track@dat)==length(track@dat2)){
+                plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
+                                         breaks=style@breaks, NAcolor=style@NAcolor)
+              }
             }
           }
         }

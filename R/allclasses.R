@@ -225,7 +225,7 @@ setClass("trackStyle",
 #' the scores of a given track. It should contain score metadata. When dat2
 #' and dat is paired, dat will be drawn as positive value where dat2 will be 
 #' drawn as negative value (-1 * score)
-#' @slot type The type of track. It could be 'data', 'gene', 'transcript', 'lollipopData' or 'interactionData'.
+#' @slot type The type of track. It could be 'data', 'gene', 'transcript', 'scRNAseq', 'lollipopData' or 'interactionData'.
 #' @slot format The format of the input. It could be "BED", "bedGraph",
 #' "WIG", "BigWig" or "BAM"
 #' @slot style Object of class \code{\link{trackStyle}}
@@ -249,11 +249,11 @@ setClass("track", representation(dat="GRanges",
                                  name="character"),
          validity=function(object){
              if(!object@type %in% 
-                c("data", "gene", "transcript",
+                c("data", "gene", "transcript", "scRNAseq",
                   "lollipopData", "interactionData"))
-                 return("type must be 'data', 'transcript', 'gene',
+                 return("type must be 'data', 'transcript', 'gene', 'scRNAseq',
                         'lollipopData', 'interactionData'")
-             if(object@type=="data"){
+             if(object@type %in% c("data", "scRNAseq")){
                  if(!length(object@format)==1){
                    return("format must be one of \"BED\", 
                             \"bedGraph\", \"WIG\", \"BigWig\"")
@@ -335,7 +335,7 @@ setMethod("$", "track", function(x, name) slot(x, name))
 #' Method $<-
 #' @rdname trackStyle-class
 #' @exportMethod $<-
-#' @aliases `$<-`,track-method
+#' @aliases $<-,track-method
 setReplaceMethod("$", "track", 
                  function(x, name, value){
                      slot(x, name, check = TRUE) <- value

@@ -9,7 +9,6 @@
 \alias{show,track-method}
 \alias{$,track-method}
 \alias{$<-,track-method}
-\alias{`$<-`,track-method}
 \alias{setTrackStyleParam}
 \alias{setTrackStyleParam,track,character-method}
 \alias{setTrackStyleParam,track,character,ANY-method}
@@ -107,7 +106,7 @@ the scores of a given track. It should contain score metadata. When dat2
 and dat is paired, dat will be drawn as positive value where dat2 will be 
 drawn as negative value (-1 * score)}
 
-\item{\code{type}}{The type of track. It could be 'data', 'gene', 'transcript', 'lollipopData' or 'interactionData'.}
+\item{\code{type}}{The type of track. It could be 'data', 'gene', 'transcript', 'scRNAseq', 'lollipopData' or 'interactionData'.}
 
 \item{\code{format}}{The format of the input. It could be "BED", "bedGraph",
 "WIG", "BigWig" or "BAM"}
