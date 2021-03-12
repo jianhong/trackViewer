@@ -64,20 +64,22 @@ resampleData <- function(.dat, scale, step=1000){
     .ele <- c(.ele, .rg)
     coverage(.ele, weight = .ele$score)
   })
-  .vw <- mapply(.cvg, .rgs, FUN=function(x, y) Views(x, start=y))
-  .max <- lapply(.vw, viewMaxs)
-  .dat2 <- mapply(.rgs, .max, FUN=function(x, y){
-      x$score <- y[[as.character(seqnames(x))[1]]]
-      x[x$score!=0]
+  .dat2 <- mapply(.cvg, .rgs, FUN=function(x, y){
+    x <- x[[as.character(seqnames(y))[1]]]
+    .vw <- Views(x, start=ranges(y))
+    y$score <- viewMaxs(.vw)
+    y[y$score!=0]
   })
   names(.dat2) <- c("+", "-", "*")
   .dat2 <- .dat2[as.character(unique(strand(.dat)))]
   .dat2 <- unlist(GRangesList(.dat2))
-  .dat3 <- c(.dat[.idx], .dat2)
-  .dat1 <- reduce(.dat3)
-  .ol <- findOverlaps(.dat1, .dat3)
+  .dat3 <- c(.dat2, .dat[.idx])
+  .dat1 <- disjoin(.dat3)
+  .ol <- findOverlaps(.dat1, .dat2)
   .dat1$score <- 0
-  .dat1[queryHits(.ol)]$score <- .dat3[subjectHits(.ol)]$score
+  .dat1[queryHits(.ol)]$score <- .dat2[subjectHits(.ol)]$score
+  .ol <- findOverlaps(.dat1, .dat[.idx])
+  .dat1[queryHits(.ol)]$score <- .dat[.idx][subjectHits(.ol)]$score
   .dat <- orderedGR(.dat1)
   .dat
 }
