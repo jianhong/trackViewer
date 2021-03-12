@@ -132,7 +132,7 @@ importScRNAseqScore <- function(object, files, samplenames, ...,
   })
   ## split the cvg by the idents
   cvg <- lapply(cvg, function(.ele){
-    .ele$ident <- Idents(object)[names(.ele)]
+    .ele$ident <- object@active.ident[names(.ele)] #Idents
     split(.ele, .ele$ident)
   })
   ## switch list

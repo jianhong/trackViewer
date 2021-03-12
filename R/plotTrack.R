@@ -67,8 +67,10 @@ resampleData <- function(.dat, scale, step=1000){
   .vw <- mapply(.cvg, .rgs, FUN=function(x, y) Views(x, start=y))
   .max <- lapply(.vw, viewMaxs)
   .dat2 <- mapply(.rgs, .max, FUN=function(x, y){
-    x$score <- y[[1]]
-    x[x$score!=0]
+    if(length(x)>0){
+      x$score <- y[[1]]
+      x[x$score!=0]
+    }
   })
   names(.dat2) <- c("+", "-", "*")
   .dat2 <- .dat2[as.character(unique(strand(.dat)))]
