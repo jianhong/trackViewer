@@ -1,6 +1,11 @@
+Changes in version 1.27.4
+
+    o change the re-sample method for viewTracks
+    
 Changes in version 1.27.3
 
     o Update documentation.
+    o add label_on_feature for lolliplot
 
 Changes in version 1.27.2
 
