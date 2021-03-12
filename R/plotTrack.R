@@ -89,7 +89,7 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
     if(length(.dat)>0){##subset if length .dat > 1000
         trackViewerCache <- list(step=1000)
         if(length(.dat)>trackViewerCache$step){## resample the points
-          .dat <- resampleData(.dat, scale, trackViewerCashe$step)
+          .dat <- resampleData(.dat, scale, trackViewerCache$step)
         }
         .dat <- c(.dat, GRanges(seqnames=chr, 
                                 IRanges(start=scale, end=scale), 
