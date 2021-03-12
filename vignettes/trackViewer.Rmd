@@ -546,15 +546,6 @@ lolliplot(sample.gr.rot, features, legend=legend)
 ```
 
 If you want to change the text in the ylab, please try to set the labels in the ylab.
-Please note that **lolliplot** does not support any parameters to set the title and xlab. If you want to 
-add the title and xlab, please try to add them by [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
-```{r lolliplot.xlab.ylab.title, fig.width=6, fig.height=5.2}
-lolliplot(sample.gr.rot, features, legend=legend, ylab="y label here")
-grid.text("label of x-axis here", x=.5, y=.01, just="bottom")
-grid.text("title here", x=.5, y=.98, just="top", 
-          gp=gpar(cex=1.5, fontface="bold"))
-```
-
 
 Users can control the labels one by one by setting label.parameter.gp. 
 Please note that for each label, the label.parameter.gp must be a list.
@@ -568,6 +559,21 @@ sample.gr$label.parameter.gp <- sample(list(label.parameter.gp.blue,
                                             label.parameter.gp.red),
                                        length(sample.gr), replace = TRUE)
 lolliplot(sample.gr, features)
+```
+
+User can write the labels of the features directly on them and not in the 
+legend by set the parameter label_on_feature to `TRUE`.
+```{r lolliplot.labels.on.feature, fig.width=6, fig.height=5}
+lolliplot(sample.gr, features, label_on_feature=TRUE)
+```
+
+Please note that **lolliplot** does not support any parameters to set the title and xlab. If you want to 
+add the title and xlab, please try to add them by [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
+```{r lolliplot.xlab.ylab.title, fig.width=6, fig.height=5.2}
+lolliplot(sample.gr.rot, features, legend=legend, ylab="y label here")
+grid.text("label of x-axis here", x=.5, y=.01, just="bottom")
+grid.text("title here", x=.5, y=.98, just="top", 
+          gp=gpar(cex=1.5, fontface="bold"))
 ```
 
 
@@ -775,13 +781,17 @@ tryCatch({ ## in case the internet connection does not work
       variation$label.parameter.gp <- gpar(cex=.5)
       lolliplot(variation, domains, ranges = gr, ylab = "# evidences", yaxis = FALSE)
     }else{
-      message("Can not get variations. error code: ", http_status(response))
+      message("Can not get variations. http error")
     }
   }else{
-    message("Can not get features. error code: ", http_status(response))
+    message("Can not get features. http error")
   }
 },error=function(e){
   message(e)
+},warning=function(w){
+  message(w)
+},interrupt=function(i){
+  message(i)
 })
 ```
 
@@ -873,6 +883,17 @@ lolliplot(methy, features, ranges=gr, type="pin",
           rescale = rescale, xaxis = xaxis)
 ```
 
+## Split the lollipop plot into multiLayers
+In the above examples, people may be misled when the x-axis is ignored.
+It will be better to plot the data into multiple layers. This can be done by
+setting parameter `ranges` into a `GRangesList` object.
+
+```{r fig.width=6,fig.height=7.5}
+grSplited <- tile(gr, n=2)
+lolliplot(methy, features, ranges=grSplited, type="pin")
+```
+
+
 # Dandelion Plot
 Sometimes, there are as many as hundreds of SNPs invoved in one gene. Dandelion plot can be used to depict such dense SNPs. Please note that the height of the dandelion indicates the desity of the SNPs.
 ```{r fig.width=4.5,fig.height=3}
@@ -905,6 +926,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 ## More dandelions
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
+
 Users can also specity the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
 
 ```{r fig.width=4,fig.height=4}
@@ -991,7 +1013,8 @@ library(InteractionSet)
 gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
 head(gi)
 ## hicexplorer:hicConvertFormat tool can be used to convert other formats into GInteractions
-## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat ginteractions -o mESC_rep.ginteractions --resolutions 5000
+## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat cool -o mESC_rep.cool
+##     hicConvertFormat -m mESC_rep.cool --inputFormat cool --outputFormat ginteractions -o mESC_rep.ginteractions
 ## please note that metadata:score is used for plot.
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)

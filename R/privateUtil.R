@@ -51,7 +51,7 @@ locateScale <- function(x, y, maxY, scale){
     START <- TRUE
     y <- y[order(x)]
     x <- x[order(x)]
-    for(i in 1:length(x)){
+    for(i in seq_along(x)){
         if(y[i]>threshold){
             if(START){
                 START <- FALSE
@@ -106,7 +106,7 @@ disjoinGRs <- function(gr=GRanges(), FUN=sum){
 }
 
 filterTracks <- function(tl, chrom, from, to, st){
-    for(i in 1:length(tl)){
+    for(i in seq_along(tl)){
         if(tl[[i]]@type=="data"){
             if(tl[[i]]@format=="WIG") {
                 tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
@@ -528,18 +528,31 @@ handleLegend <- function(legend, len, dat){
 ## if !missing(ranges) set ranges as feature ranges
 handleRanges <- function(ranges, SNP.gr, features, len){
   if(length(ranges)>0){
-    stopifnot(class(ranges)=="GRanges")
-    ranges <- rep(ranges, length(SNP.gr))[1:length(SNP.gr)]
-    stopifnot(length(ranges)==length(SNP.gr))
+    stopifnot(inherits(ranges, c("GRanges", "GRangesList")))
+    if(is(ranges, "GRanges")){
+      if(length(ranges)==1){
+        ranges <- split(rep(ranges, len)[seq.int(len)],
+                        seq.int(len))
+      }else{
+        ranges <- split(rep(ranges, len),
+                        rep(seq.int(len), each=len))[seq.int(len)]
+      }
+    }else{## GRangesList
+      if(length(ranges)!=len){
+        ranges <- rep(ranges, seq.int(len))[seq.int(len)]
+      }
+    }
+    stopifnot(length(ranges)==len)
   }else{
     if(class(features)=="GRanges"){
-      ranges <- range(features)[rep(1, len)]
+      ranges <- split(range(features, ignore.strand=TRUE)[rep(1, len)],
+                      seq.int(len))
     }else{
       if(length(features)!=len){
         stop("if both SNP.gr and features is GRangesList,",
              " the lengthes of them should be identical.")
       }
-      ranges <- unlist(GRangesList(lapply(features, range)))
+      ranges <- GRangesList(lapply(features, range, ignore.strand=TRUE))
     }
   }
   return(ranges)
@@ -548,31 +561,39 @@ handleRanges <- function(ranges, SNP.gr, features, len){
 ##cut all SNP.gr by the range
 cutSNP <- function(SNP.gr, ranges, len){
   if(is(ranges, "GRanges")){
-    for(i in len){
+    for(i in seq.int(len)){
       range <- ranges[i]
       stopifnot(all(width(SNP.gr[[i]])==1))
-      ol <- findOverlaps(SNP.gr[[i]], range)
-      SNP.gr[[i]] <- SNP.gr[[i]][queryHits(ol)]
+      SNP.gr[[i]] <- subsetByOverlaps(SNP.gr[[i]], range, ignore.strand=FALSE)
+    }
+  }else{
+    if(is(ranges, "GRangesList")){
+      for(i in seq.int(len)){
+        range <- ranges[[i]]
+        stopifnot(all(width(SNP.gr[[i]])==1))
+        SNP.gr[[i]] <- subsetByOverlaps(SNP.gr[[i]], range, ignore.strand=FALSE)
+      }
     }
   }
   return(SNP.gr)
 }
 
 ## multiple transcripts in one gene could be separated by featureLayerID
-setFeatureLayerID <- function(feature, ranges, i){
-  feature <- feature[end(feature)>=start(ranges[i]) & 
-                       start(feature)<=end(ranges[i])]
+setFeatureLayerID <- function(feature, range){
+  feature <- feature[end(feature)>=start(range) & 
+                       start(feature)<=end(range)]
   if(length(feature$featureLayerID)!=length(feature)){
     feature$featureLayerID <- rep("1", length(feature))
     feature$featureLayerID <- as.character(feature$featureLayerID)
-    start(feature)[start(feature)<start(ranges[i])] <- start(ranges[i])
-    end(feature)[end(feature)>end(ranges[i])] <- end(ranges[i])
+    start(feature)[start(feature)<start(range)] <- start(range)
+    end(feature)[end(feature)>end(range)] <- end(range)
   }
   return(feature)
 }
 
 ## bottomblank, the transcripts legend height
-plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis, xaxis.gp){
+plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_feature=FALSE){
+  if(label_on_feature) return(0)
   if(length(xaxis)>1 || as.logical(xaxis[1])){
     xaxisSpace <- 2
     if(is.numeric(xaxis.gp$cex)) xaxisSpace <- 2*xaxis.gp$cex
@@ -588,7 +609,7 @@ plotFeatureLegend <- function(feature, LINEH, ranges, i, xaxis, xaxis.gp){
     pushViewport(viewport(x=.5, y=featureLegendSpace*LINEH/2, 
                           width=1,
                           height=featureLegendSpace*LINEH,
-                          xscale=c(start(ranges[i]), end(ranges[i]))))
+                          xscale=c(start(range), end(range))))
     color <- if(length(unlist(feature.s$color))==length(feature.s)) 
       unlist(feature.s$color) else "black"
     fill <- if(length(unlist(feature.s$fill))==length(feature.s)) 
@@ -721,4 +742,27 @@ grid.star <- function(x = 0.5, y = 0.5, r = 0.5,
   invisible(grid.polygon(unit(r*sin(omega)/ratio.yx+x,"npc"), 
                          unit(r*cos(omega)+y, "npc"), 
                          gp=gpar(col = col, fill = fill, lwd=lwd, alpha=alpha)))
+}
+
+cleanDataMcols <- function(this.dat.mcols, type){
+  this.dat.mcols <- 
+    this.dat.mcols[, 
+                   !colnames(this.dat.mcols) %in% 
+                     c("color", "fill", "lwd", "id", 
+                       "cex", "dashline.col", 
+                       "id.col", "stack.factor", "SNPsideID",
+                       "shape", "alpha"), 
+                   drop=FALSE]
+  if(type!="pie.stack"){
+    this.dat.mcols <- 
+      this.dat.mcols[, !colnames(this.dat.mcols) %in% 
+                       c("stack.factor.order", 
+                         "stack.factor.first"), 
+                     drop=FALSE]
+  }
+  this.dat.mcols <- 
+    this.dat.mcols[, !grepl("^label.parameter",
+                            colnames(this.dat.mcols)), 
+                   drop=FALSE]
+  return(this.dat.mcols)
 }

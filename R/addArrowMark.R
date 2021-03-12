@@ -55,6 +55,10 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
     }
     len <- length(x)
     lastTrackViewer <- getOption("LastTrackViewer")
+    lastTrackViewerXscale <- c(0, 1)
+    if(length(lastTrackViewer)>0) {
+        lastTrackViewerXscale <- sort(lastTrackViewer$xscale)
+    }
     if(all(inherits(y, c("numeric", "integer")))){
         if(all(floor(y)==y &ceiling(y)==y)){
             xy <- lastTrackViewer$xy
@@ -101,7 +105,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
                         yi <- unit(y[i], "native")
                     #}
                 #}
-                 if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native"){
+                 if(length(lastTrackViewer)>0 && findInterval(as.numeric(xi), lastTrackViewerXscale)){
                      curViewStyle <- lastTrackViewer$viewerStyle
                      yvp <- list(vp1=viewport(x=0, y=yHeights[y[i]], 
                                               height=diff(yHeights)[y[i]],
@@ -135,7 +139,7 @@ addArrowMark <- function(pos=grid.locator(), label=NULL, angle=15,
         if(!is.null(vp)){
             pushViewport(vp)
             popv <- FALSE
-            if(length(lastTrackViewer)>0 && attributes(xi)$unit=="native" && 
+            if(length(lastTrackViewer)>0 && findInterval(as.numeric(xi), lastTrackViewerXscale) && 
                (inherits(y[i], c("numeric", "integer"))) & findInterval(y[i], c(0, 1))!=1){
                 pushViewport(yvp$vp1)
                 pushViewport(yvp$vp2)

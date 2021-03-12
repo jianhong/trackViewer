@@ -11,6 +11,11 @@ grid.pie <- function (x=.5, y=.5,
         percent <- 1
     }
     percent <- c(0, cumsum(percent)/sum(percent))
+    if(any(is.na(percent))){
+      warning("There are events with NA number after calculating the percentage.",
+              "Please make sure all the events must contain at least one values greater than 0")
+      percent[is.na(percent)] <- 0
+    }
     dx <- diff(percent)
     nx <- length(dx)
     if (is.null(col)) 
@@ -246,7 +251,10 @@ grid.lollipop <- function (x1=.5, y1=.5,
 }
 
 jitterLables <- function(coor, xscale, lineW, weight=1.2){
-    if(weight==1.2) stopifnot(order(coor)==1:length(coor))
+    if(weight==1.2) {
+      stopifnot("Please sort your inputs by start position"= 
+                  order(coor)==1:length(coor))
+    }
     if(weight<0.5) return(coor)
     stopifnot(length(xscale)==2)
     pos <- convertX(unit(coor, "native"), "npc", valueOnly=TRUE)

@@ -20,6 +20,7 @@
 #' @importFrom grDevices as.raster col2rgb colorRampPalette palette
 #' @importFrom scales rescale
 #' @importFrom stats ksmooth
+#' @importFrom IRanges viewMaxs Views
 #' @export
 #' @seealso See Also as \code{\link{addGuideLine}}, \code{\link{addArrowMark}}
 #' @examples 

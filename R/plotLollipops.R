@@ -23,9 +23,10 @@ convertHeight2NPCnum <- function(.ele){
     }
   }
 }
-plotFeatures <- function(feature.splited, LINEH, bottomHeight){
+plotFeatures <- function(feature.splited, LINEH, bottomHeight, 
+                         label_on_feature=FALSE){
     feature.height <- 0
-    for(n in 1:length(feature.splited)){
+    for(n in seq_along(feature.splited)){
         this.feature.height <- 
             max(c(feature.splited[[n]]$height/2, 
                   .0001)) + 0.2 * LINEH
@@ -33,7 +34,7 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
         ##baseline
         grid.lines(x=c(0, 1), y=c(bottomHeight+feature.height, 
                                   bottomHeight+feature.height))
-        for(m in 1:length(feature.splited[[n]])){
+        for(m in seq_along(feature.splited[[n]])){
             this.dat <- feature.splited[[n]][m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else 
                 this.dat$color
@@ -52,6 +53,17 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight){
                       height=this.feature.height.m,
                       just="left", gp=gpar(col=color, fill=fill, lwd=lwd), 
                       default.units = "native")
+            if(label_on_feature & !is.na(names(this.dat)[1])){
+              grid.text(x=(start(this.dat)+end(this.dat))/2, 
+                        y=bottomHeight+feature.height,
+                        just = "centre",
+                        label = names(this.dat)[1],
+                        gp= gpar(list(cex=this.cex * 
+                                        this.feature.height.m/
+                                        this.feature.height,
+                                      color=color)), 
+                        default.units = "native")
+            }
         }
         feature.height <- feature.height + this.feature.height
     }
@@ -91,14 +103,14 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         ## condense the SNPs
         stack.factors <- unique(as.character(SNPs$stack.factor))
         stack.factors <- sort(stack.factors)
-        stack.factors.order <- 1:length(stack.factors)
+        stack.factors.order <- seq_along(stack.factors)
         names(stack.factors.order) <- stack.factors
         SNPs <- SNPs[order(as.character(seqnames(SNPs)), start(SNPs), 
                            as.character(SNPs$stack.factor))]
         SNPs$stack.factor.order <- stack.factors.order[SNPs$stack.factor]
         SNPs$stack.factor.first <- !duplicated(SNPs)
         SNPs.condense <- SNPs
-        SNPs.condense$oid <- 1:length(SNPs)
+        SNPs.condense$oid <- seq_along(SNPs)
         SNPs.condense$factor <- paste(as.character(seqnames(SNPs)), start(SNPs), end(SNPs))
         SNPs.condense <- split(SNPs.condense, SNPs.condense$factor)
         SNPs.condense <- lapply(SNPs.condense, function(.ele){
@@ -185,7 +197,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             SNPs$shape <- NULL
           }
         }
-        for(m in 1:length(SNPs)){
+        for(m in seq_along(SNPs)){
             this.dat <- SNPs[m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else this.dat$color
             border <- 
@@ -202,25 +214,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
               if(length(this.dat$dashline.col)>0) this.dat$dashline.col[[1]][1] else dashline.col
             if(length(names(this.dat))<1) this.dashline.col <- NA
             this.dat.mcols <- mcols(this.dat)
-            this.dat.mcols <- 
-                this.dat.mcols[, 
-                               !colnames(this.dat.mcols) %in% 
-                                   c("color", "fill", "lwd", "id", 
-                                     "cex", "dashline.col", 
-                                     "id.col", "stack.factor", "SNPsideID",
-                                     "shape", "alpha"), 
-                               drop=FALSE]
-            if(type!="pie.stack"){
-                this.dat.mcols <- 
-                    this.dat.mcols[, !colnames(this.dat.mcols) %in% 
-                                       c("stack.factor.order", 
-                                         "stack.factor.first"), 
-                                   drop=FALSE]
-            }
-            this.dat.mcols <- 
-                this.dat.mcols[, !grepl("^label.parameter",
-                                        colnames(this.dat.mcols)), 
-                               drop=FALSE]
+            this.dat.mcols <- cleanDataMcols(this.dat.mcols, type)
 
             grid.lollipop(x1=convertX(unit(start(this.dat), "native"), "npc", 
                                       valueOnly=TRUE),  
@@ -308,7 +302,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
               ## add guide lines
               rased.height <- 4*GAP*cex
               guide.height <- 2.5*GAP*cex
-              for(i in 1:length(SNPs)){
+              for(i in seq_along(SNPs)){
                 this.dashline.col <- 
                   if(length(SNPs[i]$dashline.col)>0) 
                     SNPs[i]$dashline.col[[1]][1] else 

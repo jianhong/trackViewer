@@ -29,6 +29,58 @@ xysmooth <- function(x2, y2, smooth=5){
   y[id] <- 0
   list(x=x, y=y)
 }
+resampleData_old <- function(.dat, scale, step=1000){
+  .rd <- reduce(.dat)
+  if(length(.rd)==length(.dat)){
+    return(.dat)
+  }
+  .width <- which(width(.dat) > diff(scale)[1]/50)
+  .idx <- sample(1:length(.dat), step)
+  .idx <- unique(c(.idx, .width))
+  .idx <- .idx[order(.idx)]
+  .dat1 <- .dat[-.idx]
+  .datM <- reduce(.dat1, with.revmap=TRUE)
+  .map <- .datM$revmap
+  .gp <- rep(1:length(.map), sapply(.map, length))
+  .datM$score <- floor(sapply(split(.dat1$score[unlist(.map)], 
+                                    .gp), mean))
+  .datM$revmap <- NULL
+  .dat <- c(.dat[.idx], .datM)
+  .dat <- orderedGR(.dat)
+  .dat
+}
+resampleData <- function(.dat, scale, step=1000){
+  .idx <- which(width(.dat) > diff(scale)[1]/50)
+  ## resample the range
+  .dat2 <- .dat
+  strand(.dat2) <- "*"
+  .rg <- range(.dat2)
+  .rgs <- c(.rg, .rg, .rg)
+  strand(.rgs) <- c("+", "-", "*")
+  .rgs <- tile(.rgs, n = step)
+  .rg$score <- 0
+  .dats <- split(.dat, strand(.dat))
+  .cvg <- lapply(.dats, function(.ele){
+    .ele <- c(.ele, .rg)
+    coverage(.ele, weight = .ele$score)
+  })
+  .vw <- mapply(.cvg, .rgs, FUN=function(x, y) Views(x, start=y))
+  .max <- lapply(.vw, viewMaxs)
+  .dat2 <- mapply(.rgs, .max, FUN=function(x, y){
+    x$score <- y[[1]]
+    x[x$score!=0]
+  })
+  names(.dat2) <- c("+", "-", "*")
+  .dat2 <- .dat2[as.character(unique(strand(.dat)))]
+  .dat2 <- unlist(GRangesList(.dat2))
+  .dat3 <- c(.dat[.idx], .dat2)
+  .dat1 <- reduce(.dat3)
+  .ol <- findOverlaps(.dat1, .dat3)
+  .dat1$score <- 0
+  .dat1[queryHits(.ol)]$score <- .dat3[subjectHits(.ol)]$score
+  .dat <- orderedGR(.dat1)
+  .dat
+}
 plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE){
     names(.dat) <- NULL
     mcols(.dat) <- mcols(.dat)[, "score"]
@@ -36,20 +88,8 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
     if(missing(yscale)) yscale <- c(0, 1)
     if(length(.dat)>0){##subset if length .dat > 1000
         trackViewerCache <- list(step=1000)
-        if(length(.dat)>trackViewerCache$step){
-            .width <- which(width(.dat) > diff(scale)[1]/50)
-            .idx <- sample(1:length(.dat), trackViewerCache$step)
-            .idx <- unique(c(.idx, .width))
-            .idx <- .idx[order(.idx)]
-            .dat1 <- .dat[-.idx]
-            .datM <- reduce(.dat1, with.revmap=TRUE)
-            .map <- .datM$revmap
-            .gp <- rep(1:length(.map), sapply(.map, length))
-            .datM$score <- floor(sapply(split(.dat1$score[unlist(.map)], 
-                                              .gp), mean))
-            .datM$revmap <- NULL
-            .dat <- c(.dat[.idx], .datM)
-            .dat <- orderedGR(.dat)
+        if(length(.dat)>trackViewerCache$step){## resample the points
+          .dat <- resampleData(.dat, scale, trackViewerCache$step)
         }
         .dat <- c(.dat, GRanges(seqnames=chr, 
                                 IRanges(start=scale, end=scale), 
