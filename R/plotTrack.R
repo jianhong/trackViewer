@@ -284,7 +284,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                     xscale=xscale, 
                                     yscale=yscale))
               ##grid.clip()
-              plotScRNAseqTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
+              plotScSeqTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
                                 breaks=style@breaks, NAcolor=style@NAcolor)
             }else{##interactionData
               ##plot yaxis

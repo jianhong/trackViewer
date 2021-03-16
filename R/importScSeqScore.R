@@ -15,13 +15,12 @@
 #' @param flag An integer(2) vector used to filter reads based on their 
 #' 'flag' entry. 
 #' @importFrom GenomeInfoDb seqlevelsStyle
-#' @export
 #' @examples 
 #' gene <- "Cd8a"
 #' 
 #' 
 
-importScRNAseqScore <- function(object, files, samplenames, ...,
+importScSeqScore <- function(object, files, samplenames, ...,
                          txdb, gene, id, idents, gr, color,
                          withCoverageTrack=TRUE,
                          flag=scanBamFlag(isSecondaryAlignment = FALSE,

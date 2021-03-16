@@ -1,3 +1,7 @@
+Changes in version 1.27.5
+
+    o add importGInteraction
+    
 Changes in version 1.27.4
 
     o change the re-sample method for viewTracks

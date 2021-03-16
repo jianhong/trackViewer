@@ -1,4 +1,4 @@
-plotScRNAseqTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="white"){
+plotScSeqTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="white"){
   if(length(names(.dat))<1){## no cell barcodes
     return()
   }

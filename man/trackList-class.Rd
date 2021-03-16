@@ -4,11 +4,18 @@
 \name{trackList-class}
 \alias{trackList-class}
 \alias{trackList}
+\alias{seqlevelsStyle<-,trackList-method}
 \title{List of tracks}
 \usage{
+\S4method{seqlevelsStyle}{trackList}(x) <- value
+
 trackList(..., heightDist = NA)
 }
 \arguments{
+\item{x}{trackList object.}
+
+\item{value}{values to be assigned.}
+
 \item{\dots}{Each tracks in ... becomes an element in the new 
 trackList, in the same order. This is analogous to the list constructor, except
 every argument in ... must be derived from \code{\link{track}}.}

@@ -6,6 +6,9 @@
 \alias{trackStyle}
 \alias{track-class}
 \alias{track}
+\alias{seqlevels,track-method}
+\alias{seqlevelsStyle,track-method}
+\alias{seqlevelsStyle<-,track-method}
 \alias{show,track-method}
 \alias{$,track-method}
 \alias{$<-,track-method}
@@ -20,6 +23,12 @@
 \alias{setTrackYaxisParam,track,character,ANY-method}
 \title{Class \code{"trackStyle"}}
 \usage{
+\S4method{seqlevels}{track}(x)
+
+\S4method{seqlevelsStyle}{track}(x)
+
+\S4method{seqlevelsStyle}{track}(x) <- value
+
 \S4method{show}{track}(object)
 
 \S4method{$}{track}(x, name)
@@ -39,13 +48,13 @@ setTrackYaxisParam(ts, attr, value)
 \S4method{setTrackYaxisParam}{track,character}(ts, attr, value)
 }
 \arguments{
-\item{object}{an object of trackStyle.}
-
 \item{x}{an object of trackStyle}
 
-\item{name}{slot name of trackStyle}
-
 \item{value}{values to be assigned.}
+
+\item{object}{an object of trackStyle.}
+
+\item{name}{slot name of trackStyle}
 
 \item{ts}{An object of \code{track}.}
 

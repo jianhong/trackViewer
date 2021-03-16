@@ -311,6 +311,29 @@ setClass("track", representation(dat="GRanges",
              return(TRUE)
          })
 
+#' Method seqlevels
+#' @rdname trackStyle-class
+#' @exportMethod seqlevels
+#' @aliases seqlevels,track-method
+setMethod("seqlevels", "track", 
+          function(x){ seqlevels(x@dat) })
+#' Method seqlevelsStyle
+#' @rdname trackStyle-class
+#' @exportMethod seqlevelsStyle
+#' @aliases seqlevelsStyle,track-method
+setMethod("seqlevelsStyle", "track", 
+          function(x){ seqlevelsStyle(x@dat) })
+#' Method seqlevelsStyle<-
+#' @rdname trackStyle-class
+#' @exportMethod seqlevelsStyle<-
+#' @aliases seqlevelsStyle<-,track-method
+setReplaceMethod("seqlevelsStyle", "track", 
+          function(x, value){ 
+              seqlevelsStyle(x@dat) <- value
+              seqlevelsStyle(x@dat2) <- value
+              return(x)
+})
+
 #' @rdname trackStyle-class
 #' @param object an object of trackStyle.
 #' @exportMethod show
@@ -441,6 +464,21 @@ setClass("trackList", contains="list", representation(names="vector"),
                  return("class of elements should be track")
              return(TRUE)
          })
+
+#' Method seqlevelsStyle<-
+#' @rdname trackList-class
+#' @param x trackList object.
+#' @param value values to be assigned.
+#' @exportMethod seqlevelsStyle<-
+#' @aliases seqlevelsStyle<-,trackList-method
+setReplaceMethod("seqlevelsStyle", "trackList", 
+                 function(x, value){
+                     for(i in seq_along(x)){
+                         seqlevelsStyle(x[[i]]) <- value
+                     }
+                     x
+                 })
+
 
 #' @rdname trackList-class
 #' @param \dots Each tracks in ... becomes an element in the new 
