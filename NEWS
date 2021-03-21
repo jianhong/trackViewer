@@ -1,3 +1,7 @@
+Changes in version 1.27.6
+
+    o add support for .hic and .cool for importGInteraction
+    
 Changes in version 1.27.5
 
     o add importGInteraction

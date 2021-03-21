@@ -9,6 +9,10 @@
 #' gi2track(gi)
 gi2track <- function(gi){
   stopifnot(is(gi, "GInteractions"))
+  if(length(gi)==0){
+    return(new("track", dat=GRanges(), dat2=GRanges(),
+               type="interactionData", format="BED"))
+  }
   a <- first(gi)
   if(length(gi$score)==length(a)){
     a$score <- gi$score

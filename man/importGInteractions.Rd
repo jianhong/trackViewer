@@ -8,7 +8,12 @@ importGInteractions(
   file,
   format = c("ginteractions", "hic", "cool", "validPairs"),
   ranges = GRanges(),
-  ignore.strand = TRUE
+  ignore.strand = TRUE,
+  out = c("track", "GInteractions"),
+  resolution = 1e+05,
+  unit = c("BP", "FRAG"),
+  normalization = c("NONE", "VC", "VC_SORT", "KR", "balanced"),
+  ...
 )
 }
 \arguments{
@@ -20,12 +25,23 @@ importGInteractions(
 the range to be imported}
 
 \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
+
+\item{out}{output format. Default is track. Possible values: track, GInteractions.}
+
+\item{resolution}{Resolutions for the interaction data.}
+
+\item{unit}{BP (base pair) or FRAG (fragment) (.hic file only).}
+
+\item{normalization}{Type of normalization, NONE, VC, VC_SORT or KR for .hic and
+NONE, balanced for .cool.}
+
+\item{...}{NOT used.}
 }
 \value{
 a \code{\link{track}} object
 }
 \description{
-Read a \code{\link{track}} object from a ginteractions, hic, cool, or validPairs file
+Read a \code{\link{track}} object from a ginteractions, hic, mcool, or validPairs file
 }
 \examples{
 #import a ginteractions file
@@ -35,14 +51,17 @@ Read a \code{\link{track}} object from a ginteractions, hic, cool, or validPairs
 #                   ranges=GRanges("chr7", IRanges(127471197, 127474697)))
 
 ##import a hic file
-#hic <- system.file("extdata", "test.hic", package = "trackViewer",
-#                       mustWork=TRUE)
-#dat <- importGInteractions(file=hic, format="hic")
+hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
+                       mustWork=TRUE)
+dat <- importGInteractions(file=hic, format="hic", 
+                           ranges=GRanges("22", IRanges(1500000, 100000000)))
 
 ##import a cool file
-#cool <- system.file("extdata", "test.cool", package = "trackViewer",
-#                       mustWork=TRUE)
-#dat <- importGInteractions(file=cool, format="cool")
+cool <- system.file("extdata", "test.mcool", package = "trackViewer",
+                     mustWork=TRUE)
+dat <- importGInteractions(file=cool, format="cool",
+                           resolution = 2,
+                           ranges=GRanges("chr1", IRanges(10, 28)))
 
 ##import a validPairs file
 #validPairs <- system.file("extdata", "test.validPairs", package = "trackViewer",

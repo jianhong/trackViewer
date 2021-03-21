@@ -1013,13 +1013,42 @@ library(InteractionSet)
 gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
 head(gi)
 ## hicexplorer:hicConvertFormat tool can be used to convert other formats into GInteractions
-## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat cool -o mESC_rep.cool
-##     hicConvertFormat -m mESC_rep.cool --inputFormat cool --outputFormat ginteractions -o mESC_rep.ginteractions
+## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat cool -o mESC_rep.mcool
+##     hicConvertFormat -m mESC_rep.mcool::resolutions/10000 --inputFormat cool --outputFormat ginteractions -o mESC_rep.ginteractions --resolutions 10000
 ## please note that metadata:score is used for plot.
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
 viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+```
+
+To import interactions data from ".hic" (reference to 
+the script of [hic-straw](https://github.com/aidenlab/straw) and the
+[documentation](https://www.cell.com/cms/10.1016/j.cels.2016.07.002/attachment/ce39448c-9a11-4b4e-a03f-45882b7b1d9d/mmc2.xlsx)). 
+The function `importGInteractions` (trackViewer version>=1.27.6) can be used to
+import data from `.hic` format file.
+
+```{r}
+hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
+                    mustWork=TRUE)
+importGInteractions(file=hic, format="hic",
+                    ranges=GRanges("22", IRanges(50000000, 100000000)),
+                    out = "GInteractions")
+```
+
+Another widely used genomic interaction data format is `.cool` files and the
+[cooler index](ftp://cooler.csail.mit.edu/coolers) contains analyzed HiC data
+for hg19 and mm9 from many different sources. Those files can be used as data
+resources for visualizations and annotations 
+(see [ChIPpeakAnno::findEnhancers](https://rdrr.io/bioc/ChIPpeakAnno/man/findEnhancers.html)).
+The `importGInteractions` function can also be used to import data from `.cool` format (trackViewer version>=1.27.6).
+```{r}
+cool <- system.file("extdata", "test.mcool", package = "trackViewer",
+                     mustWork=TRUE)
+importGInteractions(file=cool, format="cool",
+                    resolution = 2,
+                    ranges=GRanges("chr1", IRanges(10, 28)),
+                    out = "GInteractions")
 ```
 
 
