@@ -1,3 +1,7 @@
+Changes in version 1.27.7
+
+    o figure out the error in dyn.load trackViewer.so 
+    
 Changes in version 1.27.6
 
     o add support for .hic and .cool for importGInteraction
