@@ -494,7 +494,7 @@ int inflate(char *compr, int comprLen, std::string& uncompr){
     
     // add data to uncompr
     have = CHUNK - strm.avail_out;
-    for(int i=0; i<have; i++){
+    for(unsigned i=0; i<have; i++){
       uncompr += out[i];
     }
   }while(strm.avail_out == 0);
@@ -516,7 +516,7 @@ public:
       std::string uncompr;
       ifile.read(compr, blockSize);
       int decompression_result = inflate(compr, blockSize, uncompr);
-      if(decompression_result!=F_OK){
+      if(decompression_result!=Z_OK){
         stop("Something wrong when inflate the .hic file.");
       }
       std::istringstream ifs(uncompr);

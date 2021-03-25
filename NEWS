@@ -1,3 +1,7 @@
+Changes in version 1.27.8
+
+    o fix the typo in hic.cpp 
+    
 Changes in version 1.27.7
 
     o figure out the error in dyn.load trackViewer.so 
