@@ -1,3 +1,7 @@
+Changes in version 1.27.9
+
+    o plot back to back Interaction Data Track
+
 Changes in version 1.27.8
 
     o fix the typo in hic.cpp 

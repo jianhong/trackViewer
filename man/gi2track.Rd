@@ -4,10 +4,12 @@
 \alias{gi2track}
 \title{convert GInteractions to track object}
 \usage{
-gi2track(gi)
+gi2track(gi, gi2)
 }
 \arguments{
 \item{gi}{an object of GInteractions}
+
+\item{gi2}{an object of GInteractions}
 }
 \value{
 an track object

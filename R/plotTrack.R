@@ -188,7 +188,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           width=1, 
                           just=c(0,0))) ## vp2
     xy <- list()
-    if(track@type %in% c("data", "scRNAseq", "lollipopData", "interactionData")){
+    if(track@type %in% c("data", "scSeq", "lollipopData", "interactionData")){
         if(track@type=="data") {
           ##plot yaxis
           drawYaxis(yscale, style@yaxis, curViewStyle)
@@ -273,7 +273,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                baselineCol=style@color[2], maxHeight=maxHeight)
             }
           }else{
-            if(track@type=="scRNAseq"){
+            if(track@type=="scSeq"){
               ##plot yaxis
               drawYaxis(yscale, style@yaxis, curViewStyle)
               pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
@@ -297,11 +297,8 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                     xscale=xscale, 
                                     yscale=yscale))
               ##grid.clip()
-              ##for dat interaction: dat, dat2, pair.
-              if(length(track@dat)==length(track@dat2)){
-                plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
-                                         breaks=style@breaks, NAcolor=style@NAcolor)
-              }
+              plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
+                                       breaks=style@breaks, NAcolor=style@NAcolor)
             }
           }
         }

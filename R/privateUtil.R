@@ -107,7 +107,7 @@ disjoinGRs <- function(gr=GRanges(), FUN=sum){
 
 filterTracks <- function(tl, chrom, from, to, st){
     for(i in seq_along(tl)){
-        if(tl[[i]]@type %in% c("data", "scRNAseq")){
+        if(tl[[i]]@type %in% c("data", "scSeq")){
             if(tl[[i]]@format=="WIG") {
                 tl[[i]] <- parseWIG(tl[[i]], chrom, from, to)
             }
@@ -132,22 +132,41 @@ filterTracks <- function(tl, chrom, from, to, st){
                 }
             }
         }else{
-          if(tl[[i]]@type=="interactionData"){## dat, dat2 are paired
-            dat <- tl[[i]]@dat
-            dat2 <- tl[[i]]@dat2
-            keep <- ((end(dat)>=from & start(dat)<=to) |
-                       (end(dat2)>=from & start(dat2)<=to)) & 
-              seqnames(dat)==chrom & seqnames(dat2)==chrom
-            ## remove duplicates
-            idx1 <- paste(as.character(seqnames(dat)), start(dat), end(dat),
-                          as.character(seqnames(dat2)), start(dat2), end(dat2))
-            idx2 <- paste(as.character(seqnames(dat2)), start(dat2), end(dat2),
-                          as.character(seqnames(dat)), start(dat), end(dat))
-            idx <- ifelse(start(dat)<start(dat2), idx1, idx2)
-            keep <- keep & (!duplicated(idx))
-            
-            tl[[i]]@dat <- dat[keep]
-            tl[[i]]@dat2 <- dat2[keep]
+          if(tl[[i]]@type=="interactionData"){
+            ## dat, dat2 are paired, or with target
+            getKeep <- function(dat, dat2){
+              keep <- ((end(dat)>=from & start(dat)<=to) |
+                         (end(dat2)>=from & start(dat2)<=to)) & 
+                seqnames(dat)==chrom & seqnames(dat2)==chrom
+              ## remove duplicates
+              idx1 <- paste(as.character(seqnames(dat)), start(dat), end(dat),
+                            as.character(seqnames(dat2)), start(dat2), end(dat2))
+              idx2 <- paste(as.character(seqnames(dat2)), start(dat2), end(dat2),
+                            as.character(seqnames(dat)), start(dat), end(dat))
+              idx <- ifelse(start(dat)<start(dat2), idx1, idx2)
+              keep <- keep & (!duplicated(idx))
+            }
+            .dat <- tl[[i]]@dat
+            .dat2 <- tl[[i]]@dat2
+            .dat1target <- NULL
+            .dat2target <- NULL
+            if(length(.dat$target)==length(.dat) && is(.dat$target, "GRanges")){
+              .dat1target <- .dat$target
+              if(length(.dat2)!=0){
+                if(length(.dat2$target)==length(.dat2) && is(.dat2$target, "GRanges")){
+                  names(.dat2) <- NULL
+                  .dat2target <- .dat2$target
+                }
+              }
+            }else{
+              .dat1target <- .dat2
+            }
+            keep2 <- keep1 <- getKeep(.dat, .dat1target)
+            tl[[i]]@dat <- tl[[i]]@dat[keep1]
+            if(length(.dat2target)){
+              keep2 <- getKeep(.dat2, .dat2target)
+            }
+            tl[[i]]@dat2 <- tl[[i]]@dat2[keep2]
           }else{
             if(tl[[i]]@type=="lollipopData"){
               dat <- tl[[i]]@dat
@@ -179,7 +198,7 @@ getYlim <- function(tl, op){
     yscales <- lapply(tl, function(.ele){
         ylim <- .ele@style@ylim
         if(length(ylim)!=2){
-            if(.ele@type %in% c("data", "lollipopData", "scRNAseq")){
+            if(.ele@type %in% c("data", "lollipopData", "scSeq")){
                 if(length(.ele@dat)>0){
                     ylim <- unique(round(range(.ele@dat$score)))
                 }else{

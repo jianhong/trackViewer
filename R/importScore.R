@@ -248,6 +248,7 @@ importScore <- function(file, file2,
         if(format=="WIG"){
             res <- NULL
             con <- file(file, open="r")
+            on.exit(close(con))
             lastWigInfo <- NULL
             while(length(buf <- readLines(con, n=1000000, warn=FALSE))>0){
                 buf <- FUN(buf, lastWigInfo)
@@ -258,7 +259,6 @@ importScore <- function(file, file2,
                     suppressWarnings(res <- c(res, buf$gr))
                 }
             }
-            close(con)
         }else{
             s <- file.info(file)$size
             if(s<100000000){
@@ -269,6 +269,7 @@ importScore <- function(file, file2,
                 message("file is too huge. Please consider to use bedtools or bedops to subset the data.")
                 res <- NULL
                 con <- file(file, open="r")
+                on.exit(close(con))
                 while(length(buf <- readLines(con, n=1000000, warn=FALSE))>0){
                     buf <- FUN(buf)
                     if(length(res)<1) {
@@ -277,7 +278,6 @@ importScore <- function(file, file2,
                         suppressWarnings(res <- c(res, buf))
                     }
                 }
-                close(con)
             }
         }
         res <- unique(res)

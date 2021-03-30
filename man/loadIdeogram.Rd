@@ -24,7 +24,7 @@ Download ideogram table from UCSC
 }
 \examples{
 \dontrun{
-head(loadIdeogram("hg38"))
+head(loadIdeogram("hg38", chrom = "chr1"))
 }
 
 

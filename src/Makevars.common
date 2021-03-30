@@ -1,0 +1,3 @@
+PKG_OBJECTS = \
+  RcppExports.o hic.o
+  

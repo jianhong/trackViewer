@@ -272,7 +272,7 @@ browseTracks <- function(trackList,
               style$color <- rep(style$color, 2)
             }
           }else{
-            if(.ele$type=="scRNAseq"){
+            if(.ele$type=="scSeq"){
               stop("Not supported.")
             }else{
               ##gene

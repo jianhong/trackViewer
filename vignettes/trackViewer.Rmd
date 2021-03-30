@@ -814,7 +814,11 @@ mutation.frequency$color <-
     ifelse(grepl("^rs", names(mutation.frequency)), "lightcyan", "lavender")
 ## Plot Global Allele Frequency based on AC/AN
 mutation.frequency$score <- mutation.frequency$AF*100
-seqlevelsStyle(mutation.frequency) <- "UCSC" 
+seqlevelsStyle(mutation.frequency) <- "UCSC"
+if(!grepl("chr", seqlevels(mutation.frequency)[1])){
+  seqlevels(mutation.frequency) <- 
+    paste0("chr", seqlevels(mutation.frequency))
+}
 }
 seqlevelsStyle(gr) <- "UCSC" 
 trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
@@ -834,8 +838,11 @@ lolliplot(mutation.frequency, features, ranges=gr)
 ```{r methylation, eval=FALSE, echo=TRUE}
 library(rtracklayer)
 session <- browserSession()
-query <- ucscTableQuery(session, track="HAIB Methyl RRBS", 
-                        range=GRangesForUCSCGenome("hg19", seqnames(gr), ranges(gr)))
+query <- ucscTableQuery(session, 
+                        table="wgEncodeHaibMethylRrbs", 
+                        range=GRangesForUCSCGenome("hg19", 
+                                                   seqnames(gr),
+                                                   ranges(gr)))
 tableName(query) <- tableNames(query)[1]
 methy <- track(query)
 methy <- GRanges(methy)
@@ -927,7 +934,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
 
-Users can also specity the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
+Users can also specify the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
 
 ```{r fig.width=4,fig.height=4}
 maxgaps <- tile(gr, n = 10)[[1]]
@@ -935,7 +942,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=maxgaps)
 ```
 
 ## Add y-axis (yaxis)
-Set yaxis to TRUE to add y-axis, and set heightMethod=mean to use the mean score as the height.
+Set yaxis to TRUE to add y-axis, and set `heightMethod`=`mean` to use the mean score as the height.
 ```{r fig.width=4.5,fig.height=3}
 dandelion.plot(methy, features, ranges=gr, type="pie", 
                maxgaps=1/100, yaxis = TRUE, heightMethod = mean,
@@ -988,7 +995,7 @@ addGuideLine(122929538, vp=vp)
 
 Plot ideograms with a list of chromosomes and a genome.
 ```{r eval=FALSE}
-ideo <- loadIdeogram("hg38")
+ideo <- loadIdeogram("hg38", chrom=c("chr1", "chr3", "chr4", 'chr21', "chr22"))
 ```
 ```{r echo=FALSE, results="hide"}
 path <- system.file("extdata", "ideo.hg38.rds", package = "trackViewer")
@@ -996,7 +1003,7 @@ ideo <- readRDS(path)
 ```
 ```{r}
 dataList <- ideo
-dataList$score <- as.numeric(dataList$gieStain)
+dataList$score <- as.numeric(as.factor(dataList$gieStain))
 dataList <- dataList[dataList$gieStain!="gneg"]
 dataList <- GRangesList(dataList)
 ideogramPlot(ideo, dataList, 
@@ -1020,6 +1027,19 @@ range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
 viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+## view the interaction data back to back.
+## Please make sure the data are normalized.
+gi2 <- gi
+set.seed(123)
+gi2$score <- gi$score + rnorm(length(gi), sd = sd(gi$score))
+back2back <- gi2track(gi, gi2)
+## change the color
+setTrackStyleParam(back2back, "breaks", 
+                   c(seq(from=0, to=50, by=10), 200))
+setTrackStyleParam(back2back, "color",
+                   c("lightblue", "yellow", "red"))
+viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
+           gr=range, autoOptimizeStyle = TRUE)
 ```
 
 To import interactions data from ".hic" (reference to 

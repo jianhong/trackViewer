@@ -12,7 +12,7 @@
 #' @seealso See Also as \code{\link{ideogramPlot}}
 #' @examples 
 #' \dontrun{
-#' head(loadIdeogram("hg38"))
+#' head(loadIdeogram("hg38", chrom = "chr1"))
 #' }
 #' 
 #' 
@@ -21,12 +21,12 @@ loadIdeogram <- function(genome, chrom = NULL, ranges = NULL, ...){
   session <- browserSession()
   genome(session) <- genome
   ideo <- getTable(ucscTableQuery(session, 
-                          "cytoBandIdeo", 
-                          range))
+                          table="cytoBandIdeo", 
+                          range = range))
   ideo <- ideo[ideo$name!="", , drop=FALSE]
   ideo$chrom <- as.character(ideo$chrom)
   ideo <- ideo[ideo$chrom %in% seqlevels(range), , drop=FALSE]
-  gr <- GRanges(ideo)
+  gr <- GenomicRanges::trim(GRanges(ideo))
   suppressWarnings(seqinfo(gr) <- seqinfo(range)[seqlevels(gr)])
   gr
 }

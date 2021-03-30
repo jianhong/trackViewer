@@ -225,7 +225,7 @@ setClass("trackStyle",
 #' the scores of a given track. It should contain score metadata. When dat2
 #' and dat is paired, dat will be drawn as positive value where dat2 will be 
 #' drawn as negative value (-1 * score)
-#' @slot type The type of track. It could be 'data', 'gene', 'transcript', 'scRNAseq', 'lollipopData' or 'interactionData'.
+#' @slot type The type of track. It could be 'data', 'gene', 'transcript', 'scSeq', 'lollipopData' or 'interactionData'.
 #' @slot format The format of the input. It could be "BED", "bedGraph",
 #' "WIG", "BigWig" or "BAM"
 #' @slot style Object of class \code{\link{trackStyle}}
@@ -249,11 +249,11 @@ setClass("track", representation(dat="GRanges",
                                  name="character"),
          validity=function(object){
              if(!object@type %in% 
-                c("data", "gene", "transcript", "scRNAseq",
+                c("data", "gene", "transcript", "scSeq",
                   "lollipopData", "interactionData"))
-                 return("type must be 'data', 'transcript', 'gene', 'scRNAseq',
+                 return("type must be 'data', 'transcript', 'gene', 'scSeq',
                         'lollipopData', 'interactionData'")
-             if(object@type %in% c("data", "scRNAseq")){
+             if(object@type %in% c("data", "scSeq")){
                  if(!length(object@format)==1){
                    return("format must be one of \"BED\", 
                             \"bedGraph\", \"WIG\", \"BigWig\"")
@@ -293,8 +293,19 @@ setClass("track", representation(dat="GRanges",
                  if(object@type=="interactionData"){
                    if(is.null(object@dat$score))
                      return("dat should contain score metadata.")
-                   if(length(object@dat2)!=length(object@dat))
-                     return("dat2 should be same length of dat.")
+                   if(length(object@dat2)!=length(object@dat)){
+                       if(length(object@dat$target)!=length(object@dat)){
+                           return("dat2 should be same length of dat.") 
+                       }else{
+                           if(length(object@dat2)>0){
+                               if(length(object@dat2$target)!=
+                                  length(object@dat2)){
+                                   return(paste("dat2 does not contain target",
+                                                "metadata."))
+                               }
+                           }
+                       }
+                   }
                  }else{
                    if(is.null(mcols(object@dat)$feature))
                      return("The metadata of dat must contain colnumn 'feature'") 
@@ -382,7 +393,7 @@ setMethod("setTrackStyleParam",
           function(ts, attr, value){
               if(!attr %in% c("tracktype", "color", "height", "marginTop", 
                               "marginBottom", "ylim", "ylabpos", "ylablas",
-                              "ylabgp"))
+                              "ylabgp", "breaks", "NAcolor"))
                   stop("attr must be a slot name (except xscale and yaxis) of trackStyle.
                        try setTrackXscaleParam for xscale slot and 
                        setTrackYaxisParam for yaxis.")
