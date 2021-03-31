@@ -716,7 +716,7 @@ lolliplot(list(A=sample.gr, B=sample2.gr),
 
 Following code will show how to use [EBI Proteins REST API](https://www.ebi.ac.uk/proteins/api/doc/) to get annotations of protein domains.
 
-```{r ProteinsAPI, fig.width=6, fig.height=3}
+```{r ProteinsAPI, fig.width=6, fig.height=3, eval=FALSE, echo=TRUE}
 library(httr) # load library to get data from REST API
 APIurl <- "https://www.ebi.ac.uk/proteins/api/" # base URL of the API
 taxid <- "9606" # human tax ID
