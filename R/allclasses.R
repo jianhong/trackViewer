@@ -151,7 +151,8 @@ setClass("yaxisStyle",
 #' @rdname trackStyle-class
 #' @aliases trackStyle
 #' @slot tracktype \code{"character"} track type, could be peak or cluster. 
-#' Default is "peak". "cluster" is not supported yet.
+#' Default is "peak". "cluster" is not supported yet. For interaction data,
+#' it could be "heatmap" or "link".
 #' @slot color \code{"character"} track color. If the track has dat and dat2 slot,
 #' it should have two values.
 #' @slot NAcolor \code{"character"} NA color for interactionData.
@@ -209,8 +210,8 @@ setClass("trackStyle",
                         'abovebaseline' or 'underbaseline'.")
              if(!(object@ylablas %in% 0:3))
                 return("ylas should be numeric in {0,1,2,3}. See ?par")
-             if(!object@tracktype %in% c("peak", "cluster"))
-                 return("tracktype must be on of peak or cluster")
+             if(!object@tracktype %in% c("peak", "cluster", "heatmap", "link"))
+                 return("tracktype must be on of peak, cluster, heatmap or link")
              return(TRUE)
          }
 )

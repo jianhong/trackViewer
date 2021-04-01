@@ -1,4 +1,5 @@
-plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="white"){
+plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
+                                     NAcolor="white", style="heatmap"){
   names(.dat) <- NULL
   ## if there is target metadata
   .dat1target <- NULL
@@ -9,15 +10,15 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
       if(length(.dat2$target)==length(.dat2) && is(.dat2$target, "GRanges")){
         names(.dat2) <- NULL
         .dat2target <- .dat2$target
-        mcols(.dat2) <- mcols(.dat2)[, "score"]
-        colnames(mcols(.dat2)) <- "score"
+        #mcols(.dat2) <- mcols(.dat2)[, "score"]
+        #colnames(mcols(.dat2)) <- "score"
       }
     }
   }else{
     .dat1target <- .dat2
   }
-  mcols(.dat) <- mcols(.dat)[, "score"]
-  colnames(mcols(.dat)) <- "score"
+  #mcols(.dat) <- mcols(.dat)[, "score"]
+  #colnames(mcols(.dat)) <- "score"
   if(missing(yscale)) yscale <- c(0, 1)
   if(length(.dat)<1){
     return()
@@ -64,7 +65,6 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
     mc[is.na(mc)] <- NAcolor
     mc
   }
-  
   plotInteractionHeatmap <- function(anchor1, anchor2){
     xa <- (end(anchor1) + start(anchor2))/2
     xb <- (start(anchor1) + start(anchor2))/2
@@ -86,6 +86,47 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
       }
     }
   }
+  
+  getBezierPoints <- function(x1, x2, y1, y2){
+    center <- c(x1+y2)/2
+    h <- center/ym
+    x1 <- convertX(unit(x1, "native"), unitTo = "npc")
+    x2 <- convertX(unit(x2, "native"), unitTo = "npc")
+    y1 <- convertX(unit(y1, "native"), unitTo = "npc")
+    y2 <- convertX(unit(y2, "native"), unitTo = "npc")
+    bg1 <- bezierGrob(c(x2, x2, y1, y1),
+                      c(x2, h, h, x2),
+                      default.units = "npc")
+    trace1 <- bezierPoints(bg1)
+    bg2 <- bezierGrob(c(x1, x1, y2, y2),
+                      c(x1, h, h, y1),
+                      default.units = "npc")
+    trace2 <- bezierPoints(bg2)
+    return(list(x = c(trace2$x[1], trace1$x, rev(trace2$x)),
+                y = c(trace2$y[1], trace1$y, rev(trace2$y))))
+  }
+  grid.link <- function(x1, x2, y1, y2, ...){
+    pts <- getBezierPoints(x1, x2, y1, y2)
+    grid.polygon(x=pts$x,
+                 y=pts$y,
+                 ...)
+  }
+  plotInteractioLink <- function(anchor1, anchor2){
+    mc <- getMC(anchor1$score)
+    for(i in seq_along(anchor1)){
+      grid.link(x1=start(anchor1)[i],
+                x2=end(anchor1)[i],
+                y1=start(anchor2)[i],
+                y2=end(anchor2)[i],
+                default.units="native",
+                gp = gpar(fill=mc[i], col = NA))
+    }
+  }
+  FUN = switch (tolower(style),
+    'heatmap' = plotInteractionHeatmap,
+    'link' = plotInteractioLink,
+    plotInteractionHeatmap
+  )
   if(length(.dat2target)){## two interaction heatmap, back to back
     ## top triangle
     pushViewport(viewport(x=0, y=.5, 
@@ -96,7 +137,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
                           just=c(0,0), 
                           xscale=scale, 
                           yscale=yscale))
-    plotInteractionHeatmap(.dat, .dat1target)
+    FUN(.dat, .dat1target)
     popViewport()
     ## bottom triangle
     pushViewport(viewport(x=0, y=0, 
@@ -107,10 +148,10 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks, 
                           just=c(0,0), 
                           xscale=scale, 
                           yscale=rev(yscale)))
-    plotInteractionHeatmap(.dat2, .dat2target)
+    FUN(.dat2, .dat2target)
     popViewport()
   }else{
-    plotInteractionHeatmap(.dat, .dat1target)
+    FUN(.dat, .dat1target)
   }
   # legend
   vp <- viewport(x = 1 - convertWidth(unit(5, "char"), "npc", valueOnly = TRUE), 

@@ -46,7 +46,7 @@ the heatmap or the interaction links.
 
 # Plot chromatin interactions data
 
-Plot chromatin interactions heatmap as tracks.
+Plot chromatin interactions tracks as heatmap.
 
 ```{r}
 library(InteractionSet)
@@ -59,7 +59,8 @@ head(gi)
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
-viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+viewTracks(trackList(ctcf, tr, heightDist = c(1, 3)), 
+           gr=range, autoOptimizeStyle = TRUE)
 ## view the interaction data back to back.
 ## Please make sure the data are normalized.
 gi2 <- gi
@@ -74,6 +75,14 @@ setTrackStyleParam(back2back, "color",
 viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
            gr=range, autoOptimizeStyle = TRUE)
 ```
+
+Plot chromatin interactions track as links.
+
+```{r}
+#setTrackStyleParam(tr, "tracktype", "link")
+#viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+```
+
 
 To import interactions data from ".hic" (reference to 
 the script of [hic-straw](https://github.com/aidenlab/straw) and the

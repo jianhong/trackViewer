@@ -297,8 +297,11 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                     xscale=xscale, 
                                     yscale=yscale))
               ##grid.clip()
-              plotInteractionDataTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
-                                       breaks=style@breaks, NAcolor=style@NAcolor)
+              plotInteractionDataTrack(track@dat, track@dat2, xlim,
+                                       style@color, yscale=yscale, 
+                                       breaks=style@breaks, 
+                                       NAcolor=style@NAcolor,
+                                       style=style@tracktype)
             }
           }
         }

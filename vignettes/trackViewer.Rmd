@@ -297,8 +297,8 @@ ideo <- loadIdeogram("hg38", chrom=c("chr1", "chr3", "chr4", 'chr21', "chr22"))
 path <- system.file("extdata", "ideo.hg38.rds", package = "trackViewer")
 ideo <- readRDS(path)
 ```
-```{r}
-dataList <- ideo
+```{r, eval=FALSE}
+dataList <- trim(ideo)
 dataList$score <- as.numeric(as.factor(dataList$gieStain))
 dataList <- dataList[dataList$gieStain!="gneg"]
 dataList <- GRangesList(dataList)
