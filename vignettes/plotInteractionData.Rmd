@@ -7,7 +7,7 @@ abstract: >
   Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 vignette: >
-  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteIndexEntry{trackViewer Vignette: plot interaction data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -21,20 +21,32 @@ output:
 
 ```{r, echo=FALSE, results="hide", warning=FALSE}
 suppressPackageStartupMessages({
-    library(trackViewer)
-    library(rtracklayer)
-    library(Gviz)
-    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-    library(org.Hs.eg.db)
-    library(VariantAnnotation)
-  library(httr)
+  library(trackViewer)
+  library(rtracklayer)
+  library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+  library(org.Hs.eg.db)
+  library(InteractionSet)
 })
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
-# Plot genomic interactions data
+# Introduction
 
-Plot genomic interactions data as tracks.
+The chromatin interactions is involved in precise quantitative and spatiotemporal
+control of gene expression. The development of high-throughput experimental 
+techniques, such as HiC-seq, HiCAR-seq, and InTAC-seq, for analyzing both the 
+higher-order structure of chromatin and the interactions between protein and
+their nearby and remote regulatory elements has been developed to reveal how
+gene expression is controlled in genome-wide.
+
+The interaction data will be saved in the format of paired genome coordinates
+with the interaction score. The popular format are `.validPairs`, `.hic`, and
+`.cool`. The `trackViewer` package can be used to handle those data to plot
+the heatmap or the interaction links.
+
+# Plot chromatin interactions data
+
+Plot chromatin interactions heatmap as tracks.
 
 ```{r}
 library(InteractionSet)
@@ -103,33 +115,13 @@ library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
 range <- GRanges("chr2", IRanges(234500000, 235000000))
-feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+feature.gr <- suppressMessages(genes(TxDb.Hsapiens.UCSC.hg19.knownGene))
 feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
 feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("promoter", "enhancer", "gene"), 
                           length(feature.gr), replace=TRUE, 
                           prob=c(0.1, 0.2, 0.7))
 plotGInteractions(gi, range, feature.gr)
-```
-
-# Ideogram Plot
-
-Plot ideograms with a list of chromosomes and a genome.
-```{r eval=FALSE}
-ideo <- loadIdeogram("hg38", chrom=c("chr1", "chr3", "chr4", 'chr21', "chr22"))
-```
-```{r echo=FALSE, results="hide"}
-path <- system.file("extdata", "ideo.hg38.rds", package = "trackViewer")
-ideo <- readRDS(path)
-```
-```{r}
-dataList <- ideo
-dataList$score <- as.numeric(as.factor(dataList$gieStain))
-dataList <- dataList[dataList$gieStain!="gneg"]
-dataList <- GRangesList(dataList)
-ideogramPlot(ideo, dataList, 
-            layout=list("chr1", c("chr3", "chr22"), 
-                        c("chr4", "chr21")))
 ```
 
 # Session Info

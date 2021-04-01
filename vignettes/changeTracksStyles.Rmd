@@ -7,7 +7,7 @@ abstract: >
   Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 vignette: >
-  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteIndexEntry{trackViewer Vignette: change the track styles}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -107,6 +107,15 @@ for(i in 1:2){
 ## Adjust the limit of y-axis
 setTrackStyleParam(trackList[[1]], "ylim", c(0, 25))
 setTrackStyleParam(trackList[[2]], "ylim", c(-25, 0))
+viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+```
+
+The function `setTrackYaxisParam` can be sued to adjust the track color/size/etc of y-axis and the y-axis labels.
+
+```{r viewTracksYaxisCol,fig.cap='plot data with adjusted track color',fig.width=8,fig.height=3}
+## change the 
+setTrackYaxisParam(trackList[[1]], "gp", list(cex=.8, col="green"))
+setTrackYaxisParam(trackList[[2]], "gp", list(cex=.8, col="blue"))
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 

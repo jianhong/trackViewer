@@ -7,7 +7,7 @@ abstract: >
   Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 vignette: >
-  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteIndexEntry{trackViewer Vignette: dandelionPlot}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -63,7 +63,7 @@ dandelion.plot(methy, features, ranges=gr, type="fan")
 ```
 ```{r fig.width=4.5,fig.height=4}
 methy$color <- rep(list(c(3, 5)), length(methy))
-methy$score2 <- methy$score2/m
+methy$score2 <- (max(methy$score) - methy$score)/m
 legends <- list(list(labels=c("s1", "s2"), fill=c(3, 5)))
 dandelion.plot(methy, features, ranges=gr, type="pie", legend=legends)
 ```

@@ -7,7 +7,7 @@ abstract: >
   Visualize mapped reads along with annotation as track layers for NGS dataset 
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 vignette: >
-  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteIndexEntry{trackViewer Vignette: lollipopPlot}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
