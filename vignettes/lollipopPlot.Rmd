@@ -1,0 +1,598 @@
+---
+title: "trackViewer Vignette: lollipopPlot"
+author: "Jianhong Ou, Lihua Julie Zhu"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('trackViewer')`"
+abstract: >
+  Visualize mapped reads along with annotation as track layers for NGS dataset 
+  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
+vignette: >
+  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    fig_caption: true
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+    library(trackViewer)
+    library(rtracklayer)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(org.Hs.eg.db)
+    library(VariantAnnotation)
+  library(httr)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+# Lolliplot
+Lolliplot is for the visualization of the methylation/variant/mutation data. 
+```{r lolliplot1, fig.width=6, fig.height=3}
+library(trackViewer)
+SNP <- c(10, 12, 1400, 1402)
+sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
+features <- GRanges("chr1", IRanges(c(1, 501, 1001), 
+                                    width=c(120, 400, 405),
+                                    names=paste0("block", 1:3)))
+lolliplot(sample.gr, features)
+## More SNPs
+SNP <- c(10, 100, 105, 108, 400, 410, 420, 600, 700, 805, 840, 1400, 1402)
+sample.gr <- GRanges("chr1", IRanges(SNP, width=1, names=paste0("snp", SNP)))
+lolliplot(sample.gr, features)
+## Define the range
+lolliplot(sample.gr, features, ranges = GRanges("chr1", IRanges(104, 109)))
+```
+
+## Change the lolliplot color
+### Change the color of the features.
+```{r lolliplot2, fig.width=6, fig.height=3}
+features$fill <- c("#FF8833", "#51C6E6", "#DFA32D")
+lolliplot(sample.gr, features)
+```
+
+### Change the color of the lollipop.
+```{r lolliplot3, fig.width=6, fig.height=3}
+sample.gr$color <- sample.int(6, length(SNP), replace=TRUE)
+sample.gr$border <- sample(c("gray80", "gray30"), length(SNP), replace=TRUE)
+lolliplot(sample.gr, features)
+```
+
+### Change the opacity of the lollipop.
+```{r lolliplotOpacity, fig.width=6, fig.height=3}
+sample.gr$alpha <- sample(100:255, length(SNP), replace = TRUE)/255
+lolliplot(sample.gr, features)
+```
+
+
+## Add the index labels in the node
+```{r lolliplot.index, fig.width=6, fig.height=3}
+sample.gr$label <- as.character(1:length(sample.gr))
+sample.gr$label.col <- ifelse(sample.gr$alpha>0.5, "white", "black")
+lolliplot(sample.gr, features)
+```
+
+## Change the height of the features
+```{r lolliplot4, fig.width=6, fig.height=3}
+features$height <- c(0.02, 0.05, 0.08)
+lolliplot(sample.gr, features)
+## Specifying the height and its unit
+features$height <- list(unit(1/16, "inches"), 
+                     unit(3, "mm"), 
+                     unit(12, "points"))
+lolliplot(sample.gr, features)
+```
+
+## Plot multiple transcripts in the features
+The metadata 'featureLayerID' are used for drawing features in different layers.
+```{r lolliplot.mul.features, fig.width=6, fig.height=3}
+features.mul <- rep(features, 2)
+features.mul$height[4:6] <- list(unit(1/8, "inches"),
+                                 unit(0.5, "lines"),
+                                 unit(.2, "char"))
+features.mul$fill <- c("#FF8833", "#F9712A", "#DFA32D", 
+                       "#51C6E6", "#009DDA", "#4B9CDF")
+end(features.mul)[5] <- end(features.mul[5])+50
+features.mul$featureLayerID <- 
+    paste("tx", rep(1:2, each=length(features)), sep="_")
+names(features.mul) <- 
+    paste(features.mul$featureLayerID, 
+          rep(1:length(features), 2), sep="_")
+lolliplot(sample.gr, features.mul)
+## One name per transcript
+names(features.mul) <- features.mul$featureLayerID
+lolliplot(sample.gr, features.mul)
+```
+
+## Change the height of a lollipop plot
+```{r lolliplot4.1, fig.width=6, fig.height=3.5}
+#Note: the score value is an integer less than 10
+sample.gr$score <- sample.int(5, length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features)
+##Remove y-axis
+lolliplot(sample.gr, features, yaxis=FALSE)
+```
+```{r lolliplot4.2, fig.width=6, fig.height=4.5}
+#Try a score value greater than 10
+sample.gr$score <- sample.int(20, length(sample.gr), replace=TRUE)
+lolliplot(sample.gr, features)
+#Try a float numeric score
+sample.gr$score <- runif(length(sample.gr))*10
+lolliplot(sample.gr, features)
+# Score should not be smaller than 1
+# remove the alpha for following samples
+sample.gr$alpha <- NULL
+```
+
+## Customize the x-axis label position
+```{r lolliplot.xaxis, fig.width=6, fig.height=4.5}
+xaxis <- c(1, 200, 400, 701, 1000, 1200, 1402) ## define the position
+lolliplot(sample.gr, features, xaxis=xaxis)
+names(xaxis) <- xaxis # define the labels
+names(xaxis)[4] <- "center" 
+lolliplot(sample.gr, features, xaxis=xaxis)
+```
+
+## Customize the y-axis label position
+```{r lolliplot.yaxis, fig.width=6, fig.height=4.5}
+yaxis <- c(0, 5) ## define the position
+lolliplot(sample.gr, features, yaxis=yaxis)
+yaxis <- c(0, 5, 10, 15)
+names(yaxis) <- yaxis # define the labels
+names(yaxis)[3] <- "y-axis" 
+lolliplot(sample.gr, features, yaxis=yaxis)
+```
+
+## Jitter the label
+```{r lolliplot.jitter, fig.width=6, fig.height=4.5}
+sample.gr$dashline.col <- sample.gr$color
+lolliplot(sample.gr, features, jitter="label")
+```
+
+## Add a legend
+```{r lolliplot.legend, fig.width=6, fig.height=5}
+legend <- 1:6 ## legend fill color
+names(legend) <- paste0("legend", letters[1:6]) ## legend labels
+lolliplot(sample.gr, features, legend=legend)
+## use list to define more attributes. see ?grid::gpar to get more details.
+legend <- list(labels=paste0("legend", LETTERS[1:6]), 
+               col=palette()[6:1], 
+               fill=palette()[legend])
+lolliplot(sample.gr, features, legend=legend)
+## if you have multiple tracks, please try to set the legend by list.
+## see more examples in the section [Plot multiple samples](#plot-multiple-samples)
+legend <- list(legend)
+lolliplot(sample.gr, features, legend=legend)
+
+# from version 1.21.8, users can also try to set legend 
+# as a column name in the metadata of GRanges.
+sample.gr.newlegend <- sample.gr
+sample.gr.newlegend$legend <- LETTERS[sample.gr$color]
+lolliplot(sample.gr.newlegend, features, legend="legend")
+```
+
+## Control the labels
+
+Users can control the paramters of labels by naming the metadata start as label.parameter  such as label.parameter.rot or 
+label.parameter.gp. The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
+
+```{r lolliplot.labels.control, fig.width=6, fig.height=5}
+sample.gr.rot <- sample.gr
+sample.gr.rot$label.parameter.rot <- 45
+lolliplot(sample.gr.rot, features, legend=legend)
+sample.gr.rot$label.parameter.rot <- 60
+sample.gr.rot$label.parameter.gp <- gpar(col="brown")
+lolliplot(sample.gr.rot, features, legend=legend)
+```
+
+If you want to change the text in the ylab, please try to set the labels in the ylab.
+
+Users can control the labels one by one by setting label.parameter.gp. 
+Please note that for each label, the label.parameter.gp must be a list.
+
+```{r lolliplot.labels.ctl.one.by.one, fig.width=6, fig.height=5}
+label.parameter.gp.brown <- gpar(col="brown")
+label.parameter.gp.blue <- gpar(col="blue")
+label.parameter.gp.red <- gpar(col="red")
+sample.gr$label.parameter.gp <- sample(list(label.parameter.gp.blue,
+                                            label.parameter.gp.brown,
+                                            label.parameter.gp.red),
+                                       length(sample.gr), replace = TRUE)
+lolliplot(sample.gr, features)
+```
+
+User can write the labels of the features directly on them and not in the 
+legend by set the parameter label_on_feature to `TRUE`.
+```{r lolliplot.labels.on.feature, fig.width=6, fig.height=5}
+lolliplot(sample.gr, features, label_on_feature=TRUE)
+```
+
+Please note that **lolliplot** does not support any parameters to set the title and xlab. If you want to 
+add the title and xlab, please try to add them by [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
+```{r lolliplot.xlab.ylab.title, fig.width=6, fig.height=5.2}
+lolliplot(sample.gr.rot, features, legend=legend, ylab="y label here")
+grid.text("label of x-axis here", x=.5, y=.01, just="bottom")
+grid.text("title here", x=.5, y=.98, just="top", 
+          gp=gpar(cex=1.5, fontface="bold"))
+```
+
+
+## Change the lolliplot type
+
+### Change the shape for "circle" plot
+
+```{r lolliplotShape, fig.width=6, fig.height=4.5}
+## shape must be "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"
+available.shapes <- c("circle", "square", "diamond", 
+                      "triangle_point_up", "triangle_point_down")
+sample.gr$shape <- sample(available.shapes, size = length(sample.gr), replace = TRUE)
+sample.gr$legend <- paste0("legend", as.numeric(factor(sample.gr$shape)))
+lolliplot(sample.gr, features, type="circle", legend = "legend")
+```
+
+### Google pin
+```{r lolliplot5, fig.width=6, fig.height=4.5}
+lolliplot(sample.gr, features, type="pin")
+sample.gr$color <- lapply(sample.gr$color, function(.ele) c(.ele, sample.int(6, 1)))
+sample.gr$border <- sample.int(6, length(SNP), replace=TRUE)
+lolliplot(sample.gr, features, type="pin")
+```
+
+### Flag
+
+```{r lolliplotFlag, fig.width=6, fig.height=4}
+sample.gr.flag <- sample.gr
+sample.gr.flag$label <- names(sample.gr) ## move the names to metadata:label
+names(sample.gr.flag) <- NULL
+lolliplot(sample.gr.flag, features, 
+          ranges=GRanges("chr1", IRanges(0, 1600)), ## use ranges to leave more space on the right margin.
+          type="flag")
+## change the flag rotation angle
+sample.gr.flag$label.rot <- 15
+sample.gr.flag$label.rot[c(2, 5)] <- c(60, -15)
+sample.gr.flag$label[7] <- "I have a long name"
+lolliplot(sample.gr.flag, features, 
+          ranges=GRanges("chr1", IRanges(0, 1600)), 
+          type="flag")
+```
+
+### Pie plot
+```{r lolliplot6, fig.width=6, fig.height=3}
+sample.gr$score <- NULL ## must be removed, because pie will consider all the numeric columns except column "color", "fill", "alpha", "shape", "lwd", "id" and "id.col".
+sample.gr$label <- NULL
+sample.gr$label.col <- NULL
+x <- sample.int(100, length(SNP))
+sample.gr$value1 <- x
+sample.gr$value2 <- 100 - x
+## the length of the color should be no less than that of value1 or value2
+sample.gr$color <- rep(list(c("#87CEFA", '#98CE31')), length(SNP))
+sample.gr$border <- "gray30"
+lolliplot(sample.gr, features, type="pie")
+```
+
+
+## Plot multiple samples
+### Multiple layers
+```{r lolliplot7, fig.width=6, fig.height=5.5}
+SNP2 <- sample(4000:8000, 30)
+x2 <- sample.int(100, length(SNP2), replace=TRUE)
+sample2.gr <- GRanges("chr3", IRanges(SNP2, width=1, names=paste0("snp", SNP2)), 
+             value1=x2, value2=100-x2)
+sample2.gr$color <- rep(list(c('#DB7575', '#FFD700')), length(SNP2))
+sample2.gr$border <- "gray30"
+
+features2 <- GRanges("chr3", IRanges(c(5001, 5801, 7001), 
+                                    width=c(500, 500, 405),
+                                    names=paste0("block", 4:6)),
+                    fill=c("orange", "gray30", "lightblue"),
+                    height=unit(c(0.5, 0.3, 0.8), "cm"))
+legends <- list(list(labels=c("WT", "MUT"), fill=c("#87CEFA", '#98CE31')), 
+                list(labels=c("WT", "MUT"), fill=c('#DB7575', '#FFD700')))
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features, y=features2), 
+          type="pie", legend=legends)
+```
+
+Different layouts are also possible.
+```{r lolliplot.multiple.type, fig.width=6, fig.height=7.5}
+sample2.gr$score <- sample2.gr$value1 ## The circle layout needs the score column 
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features, y=features2), 
+          type=c("pie", "circle"), legend=legends)
+```
+
+### pie.stack layout
+```{r lolliplot.pie.stack, fig.width=6, fig.height=5}
+rand.id <- sample.int(length(sample.gr), 3*length(sample.gr), replace=TRUE)
+rand.id <- sort(rand.id)
+sample.gr.mul.patient <- sample.gr[rand.id]
+## pie.stack require metadata "stack.factor", and the metadata can not be 
+## stack.factor.order or stack.factor.first
+len.max <- max(table(rand.id))
+stack.factors <- paste0("patient", formatC(1:len.max, 
+                                           width=nchar(as.character(len.max)), 
+                                           flag="0"))
+sample.gr.mul.patient$stack.factor <- 
+    unlist(lapply(table(rand.id), sample, x=stack.factors))
+sample.gr.mul.patient$value1 <- 
+    sample.int(100, length(sample.gr.mul.patient), replace=TRUE)
+sample.gr.mul.patient$value2 <- 100 - sample.gr.mul.patient$value1
+patient.color.set <- as.list(as.data.frame(rbind(rainbow(length(stack.factors)), 
+                                                 "#FFFFFFFF"), 
+                                           stringsAsFactors=FALSE))
+names(patient.color.set) <- stack.factors
+sample.gr.mul.patient$color <- 
+    patient.color.set[sample.gr.mul.patient$stack.factor]
+legend <- list(labels=stack.factors, col="gray80", 
+               fill=sapply(patient.color.set, `[`, 1))
+lolliplot(sample.gr.mul.patient, features, type="pie.stack", 
+          legend=legend, dashline.col="gray")
+```
+
+### Caterpillar layout
+
+Metadata SNPsideID is used to trigger caterpillar layout.
+SNPsideID must be 'top' or 'bottom'.
+
+```{r lolliplot.caterpillar, fig.width=6, fig.height=4}
+sample.gr$SNPsideID <- sample(c("top", "bottom"), 
+                               length(sample.gr),
+                               replace=TRUE)
+lolliplot(sample.gr, features, type="pie", 
+          legend=legends[[1]])
+```
+```{r lolliplot.caterpillar2, fig.width=6, fig.height=12}
+## Two layers
+sample2.gr$SNPsideID <- "top"
+idx <- sample.int(length(sample2.gr), 15)
+sample2.gr$SNPsideID[idx] <- "bottom"
+sample2.gr$color[idx] <- '#FFD700'
+lolliplot(list(A=sample.gr, B=sample2.gr), 
+          list(x=features.mul, y=features2), 
+          type=c("pie", "circle"), legend=legends)
+```
+
+## EMBL-EBI Proteins API
+
+Following code will show how to use [EBI Proteins REST API](https://www.ebi.ac.uk/proteins/api/doc/) to get annotations of protein domains.
+
+```{r ProteinsAPI, fig.width=6, fig.height=3, eval=FALSE, echo=TRUE}
+library(httr) # load library to get data from REST API
+APIurl <- "https://www.ebi.ac.uk/proteins/api/" # base URL of the API
+taxid <- "9606" # human tax ID
+gene <- "TP53" # target gene
+orgDB <- "org.Hs.eg.db" # org database to get the uniprot accession id
+eid <- mget("TP53", get(sub(".db", "SYMBOL2EG", orgDB)))[[1]]
+chr <- mget(eid, get(sub(".db", "CHR", orgDB)))[[1]]
+accession <- unlist(lapply(eid, function(.ele){
+  mget(.ele, get(sub(".db", "UNIPROT", orgDB)))
+}))
+stopifnot(length(accession)<=20) # max number of accession is 20
+
+tryCatch({ ## in case the internet connection does not work
+  featureURL <- paste0(APIurl, 
+                       "features?offset=0&size=-1&reviewed=true",
+                       "&types=DNA_BIND%2CMOTIF%2CDOMAIN",
+                       "&taxid=", taxid,
+                       "&accession=", paste(accession, collapse = "%2C")
+  )
+  response <- GET(featureURL)
+  if(!http_error(response)){
+    content <- content(response)
+    content <- content[[1]]
+    acc <- content$accession
+    sequence <- content$sequence
+    gr <- GRanges(chr, IRanges(1, nchar(sequence)))
+    domains <- do.call(rbind, content$features)
+    domains <- GRanges(chr, IRanges(as.numeric(domains[, "begin"]),
+                                     as.numeric(domains[, "end"]),
+                                     names = domains[, "description"]))
+    names(domains)[1] <- "DNA_BIND" ## this is hard coding.
+    domains$fill <- 1+seq_along(domains)
+    domains$height <- 0.04
+    ## GET variations. This part can be replaced by user-defined data.
+    variationURL <- paste0(APIurl,
+                           "variation?offset=0&size=-1",
+                           "&sourcetype=uniprot&dbtype=dbSNP",
+                           "&taxid=", taxid,
+                           "&accession=", acc)
+    response <- GET(variationURL)
+    if(!http_error(response)){
+      content <- content(response)
+      content <- content[[1]]
+      keep <- sapply(content$features, function(.ele) length(.ele$evidences)>2 && # filter the data by at least 2 evidences
+                       !grepl("Unclassified", .ele$clinicalSignificances)) # filter the data by classified clinical significances.
+      nkeep <- c("wildType", "alternativeSequence", "begin", "end",
+                 "somaticStatus", "consequenceType", "score")
+      content$features <- lapply(content$features[keep], function(.ele){
+        .ele$score <- length(.ele$evidences)
+        unlist(.ele[nkeep]) 
+      })
+      variation <- do.call(rbind, content$features)
+      variation <- 
+        GRanges(chr, 
+                IRanges(as.numeric(variation[, "begin"]),
+                        width = 1,
+                        names = paste0(variation[, "wildType"],
+                                       variation[, "begin"],
+                                       variation[, "alternativeSequence"])),
+                score = as.numeric(variation[, "score"]),
+                color = as.numeric(factor(variation[, "consequenceType"]))+1)
+      variation$label.parameter.gp <- gpar(cex=.5)
+      lolliplot(variation, domains, ranges = gr, ylab = "# evidences", yaxis = FALSE)
+    }else{
+      message("Can not get variations. http error")
+    }
+  }else{
+    message("Can not get features. http error")
+  }
+},error=function(e){
+  message(e)
+},warning=function(w){
+  message(w)
+},interrupt=function(i){
+  message(i)
+})
+```
+
+
+## Variant Call Format (VCF) data
+```{r VCF, fig.width=6, fig.height=5}
+library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+gr <- GRanges("22", IRanges(50968014, 50970514, names="TYMP"))
+if(.Platform$OS.type!="windows"){# This line is for avoiding error from VariantAnnotation in the windows platform, which will be removed when VariantAnnotation's issue gets fixed.
+tab <- TabixFile(fl)
+vcf <- readVcf(fl, "hg19", param=gr)
+mutation.frequency <- rowRanges(vcf)
+mcols(mutation.frequency) <- cbind(mcols(mutation.frequency), 
+                                   VariantAnnotation::info(vcf))
+mutation.frequency$border <- "gray30"
+mutation.frequency$color <- 
+    ifelse(grepl("^rs", names(mutation.frequency)), "lightcyan", "lavender")
+## Plot Global Allele Frequency based on AC/AN
+mutation.frequency$score <- mutation.frequency$AF*100
+seqlevelsStyle(mutation.frequency) <- "UCSC"
+if(!grepl("chr", seqlevels(mutation.frequency)[1])){
+  seqlevels(mutation.frequency) <- 
+    paste0("chr", seqlevels(mutation.frequency))
+}
+}
+seqlevelsStyle(gr) <- "UCSC" 
+trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
+                         org.Hs.eg.db,
+                         gr=gr)
+features <- c(range(trs[[1]]$dat), range(trs[[5]]$dat))
+names(features) <- c(trs[[1]]$name, trs[[5]]$name)
+features$fill <- c("lightblue", "mistyrose")
+features$height <- c(.02, .04)
+if(.Platform$OS.type!="windows"){
+lolliplot(mutation.frequency, features, ranges=gr)
+}
+```
+
+
+## Methylation data
+```{r methylation, eval=FALSE, echo=TRUE}
+library(rtracklayer)
+session <- browserSession()
+query <- ucscTableQuery(session, 
+                        table="wgEncodeHaibMethylRrbs", 
+                        range=GRangesForUCSCGenome("hg19", 
+                                                   seqnames(gr),
+                                                   ranges(gr)))
+tableName(query) <- tableNames(query)[1]
+methy <- track(query)
+methy <- GRanges(methy)
+```
+```{r methylation.hide, echo=FALSE}
+methy <- import(system.file("extdata", "methy.bed", package="trackViewer"), "BED")
+```
+```{r fig.width=6,fig.height=4}
+lolliplot(methy, features, ranges=gr, type="pin")
+```
+
+## Change the node size
+In the above example, some of the nodes overlap each other. To change the node size, cex prameter could be used.
+```{r fig.width=6,fig.height=2.5}
+methy$lwd <- .5
+lolliplot(methy, features, ranges=gr, type="pin", cex=.5)
+lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
+methy$score2 <- max(methy$score) - methy$score
+lolliplot(methy, features, ranges=gr, type="pie", cex=.5)
+## We can change it one by one
+methy$cex <- runif(length(methy))
+lolliplot(methy, features, ranges=gr, type="pin")
+lolliplot(methy, features, ranges=gr, type="circle")
+```
+
+## Change the scale of the x-axis (xscale)
+In the above examples, some of the nodes are moved too far from the original coordinates.
+To rescale, the x-axis could be reset as below.
+```{r fig.width=6,fig.height=2.5}
+methy$cex <- 1
+lolliplot(methy, features, ranges=gr, rescale = TRUE)
+## by set percentage for features and non-features segments
+xaxis <- c(50968014, 50968514, 50968710, 50968838, 50970514)
+rescale <- c(.3, .4, .3)
+lolliplot(methy, features, ranges=gr, type="pin",
+          rescale = rescale, xaxis = xaxis)
+## by set data.frame to rescale
+rescale <- data.frame(
+  from.start = c(50968014, 50968515, 50968838), 
+  from.end   = c(50968514, 50968837, 50970514),
+  to.start   = c(50968014, 50968838, 50969501), 
+  to.end     = c(50968837, 50969500, 50970514)
+)
+lolliplot(methy, features, ranges=gr, type="pin",
+          rescale = rescale, xaxis = xaxis)
+```
+
+## Split the lollipop plot into multiLayers
+In the above examples, people may be misled when the x-axis is ignored.
+It will be better to plot the data into multiple layers. This can be done by
+setting parameter `ranges` into a `GRangesList` object.
+
+```{r fig.width=6,fig.height=7.5}
+grSplited <- tile(gr, n=2)
+lolliplot(methy, features, ranges=grSplited, type="pin")
+```
+
+# Plot the lollipop plot with the coverage and annotation tracks
+```{r fig.width=8,fig.height=4}
+gene <- geneTrack(get("HSPA8", org.Hs.egSYMBOL2EG), TxDb.Hsapiens.UCSC.hg19.knownGene)[[1]]
+SNPs <- GRanges("chr11", IRanges(sample(122929275:122930122, size = 20), width = 1), strand="-")
+SNPs$score <- sample.int(5, length(SNPs), replace = TRUE)
+SNPs$color <- sample.int(6, length(SNPs), replace=TRUE)
+SNPs$border <- "gray80"
+SNPs$feature.height = .1
+SNPs$cex <- .5
+gene$dat2 <- SNPs
+extdata <- system.file("extdata", package="trackViewer",
+                       mustWork=TRUE)
+repA <- importScore(file.path(extdata, "cpsf160.repA_-.wig"),
+                    file.path(extdata, "cpsf160.repA_+.wig"),
+                    format="WIG")
+fox2 <- importScore(file.path(extdata, "fox2.bed"), format="BED",
+                    ranges=GRanges("chr11", IRanges(122830799, 123116707)))
+optSty <- optimizeStyle(trackList(repA, fox2, gene), theme="col")
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+gr <- GRanges("chr11", IRanges(122929275, 122930122))
+setTrackStyleParam(trackList[[3]], "ylabgp", list(cex=.8))
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+## lollipopData track
+SNPs2 <- GRanges("chr11", IRanges(sample(122929275:122930122, size = 30), width = 1), strand="-")
+SNPs2 <- c(SNPs2, promoters(gene$dat, upstream = 0, downstream = 1))
+SNPs2$score <- sample.int(3, length(SNPs2), replace = TRUE)
+SNPs2$color <- sample.int(6, length(SNPs2), replace=TRUE)
+SNPs2$border <- "gray30"
+SNPs2$feature.height = .1
+SNPs2$cex <- .5
+SNPs$cex <- .5
+lollipopData <- new("track", dat=SNPs, dat2=SNPs2, type="lollipopData")
+gene <- geneTrack(get("HSPA8", org.Hs.egSYMBOL2EG), TxDb.Hsapiens.UCSC.hg19.knownGene)[[1]]
+optSty <- optimizeStyle(trackList(repA, lollipopData, gene, heightDist = c(3, 3, 1)), theme="col")
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+gr <- GRanges("chr11", IRanges(122929275, 122930122))
+setTrackStyleParam(trackList[[2]], "ylabgp", list(cex=.8))
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
+addGuideLine(122929538, vp=vp)
+```
+
+# Web application of **trackViewer**
+We created a web application of **trackViewer** (available in 1.19.14 or later) by leveraging the R package **Shiny**. The web application of trackViewer and sample data are available at  https://github.com/jianhong/trackViewer.documentation/tree/master/trackViewerShinyApp. Here is a demo on how to to use the web application at https://www.nature.com/articles/s41592-019-0430-y#Sec2 Supplementary Video 5.
+
+# Session Info
+```{r sessionInfo, results='asis'}
+sessionInfo()
+```
+

@@ -1,3 +1,7 @@
+Changes in version 1.27.10
+
+    o split the vignette to multiple files.
+    
 Changes in version 1.27.9
 
     o plot back to back Interaction Data Track

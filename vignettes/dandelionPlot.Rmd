@@ -1,0 +1,106 @@
+---
+title: "trackViewer Vignette: dandelionPlot"
+author: "Jianhong Ou, Lihua Julie Zhu"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('trackViewer')`"
+abstract: >
+  Visualize mapped reads along with annotation as track layers for NGS dataset 
+  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
+vignette: >
+  %\VignetteIndexEntry{trackViewer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    fig_caption: true
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+    library(trackViewer)
+    library(rtracklayer)
+    library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+    library(org.Hs.eg.db)
+    library(VariantAnnotation)
+  library(httr)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+
+# Dandelion Plot
+Sometimes, there are as many as hundreds of SNPs invoved in one gene. Dandelion plot can be used to depict such dense SNPs. Please note that the height of the dandelion indicates the desity of the SNPs.
+```{r fig.width=4.5,fig.height=3}
+library(trackViewer)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+library(rtracklayer)
+methy <- import(system.file("extdata", "methy.bed", package="trackViewer"), "BED")
+gr <- GRanges("chr22", IRanges(50968014, 50970514, names="TYMP"))
+trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
+                         org.Hs.eg.db,
+                         gr=gr)
+features <- c(range(trs[[1]]$dat), range(trs[[5]]$dat))
+names(features) <- c(trs[[1]]$name, trs[[5]]$name)
+features$fill <- c("lightblue", "mistyrose")
+features$height <- c(.02, .04)
+dandelion.plot(methy, features, ranges=gr, type="pin")
+```
+
+## Change the type of Dandelion plot
+There are one more type for dandelion plot, i.e., type "fan". The area of the fan indicates the percentage of methylation or rate of mutation.
+```{r fig.width=4.5,fig.height=3}
+methy$color <- 3
+methy$border <- "gray"
+## Score info is required and the score must be a number in [0, 1]
+m <- max(methy$score)
+methy$score <- methy$score/m
+dandelion.plot(methy, features, ranges=gr, type="fan")
+```
+```{r fig.width=4.5,fig.height=4}
+methy$color <- rep(list(c(3, 5)), length(methy))
+methy$score2 <- methy$score2/m
+legends <- list(list(labels=c("s1", "s2"), fill=c(3, 5)))
+dandelion.plot(methy, features, ranges=gr, type="pie", legend=legends)
+```
+
+## Change the number of dandelions
+```{r fig.width=4.5,fig.height=3.5}
+## Less dandelions
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
+```
+```{r fig.width=4.5,fig.height=4}
+## More dandelions
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
+```
+
+Users can also specify the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
+
+```{r fig.width=4,fig.height=4}
+maxgaps <- tile(gr, n = 10)[[1]]
+dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=maxgaps)
+```
+
+## Add y-axis (yaxis)
+Set yaxis to TRUE to add y-axis, and set `heightMethod`=`mean` to use the mean score as the height.
+```{r fig.width=4.5,fig.height=3}
+dandelion.plot(methy, features, ranges=gr, type="pie", 
+               maxgaps=1/100, yaxis = TRUE, heightMethod = mean,
+               ylab='mean of methy scores')
+```
+```{r fig.width=4.5,fig.height=3}
+yaxis = c(0, 0.5, 1)
+dandelion.plot(methy, features, ranges=gr, type="pie", 
+               maxgaps=1/100, yaxis = yaxis, heightMethod = mean,
+               ylab='mean of methy scores')
+```
+
+# Session Info
+```{r sessionInfo, results='asis'}
+sessionInfo()
+```
+
