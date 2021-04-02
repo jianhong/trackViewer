@@ -87,39 +87,56 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     }
   }
   
-  getBezierPoints <- function(x1, x2, y1, y2){
-    center <- c(x1+y2)/2
-    h <- center/ym
-    x1 <- convertX(unit(x1, "native"), unitTo = "npc")
-    x2 <- convertX(unit(x2, "native"), unitTo = "npc")
-    y1 <- convertX(unit(y1, "native"), unitTo = "npc")
-    y2 <- convertX(unit(y2, "native"), unitTo = "npc")
+  getBezierPoints <- function(x1, x2, y1, y2, h){
+    convX <- function(x){
+      (x-scale[1])/diff(scale)
+    }
+    reveX <- function(x){
+      x*diff(scale)+scale[1]
+    }
+    convY <- function(y){
+      h*(y-min(y, na.rm=TRUE))/diff(range(y, na.rm=TRUE))
+    }
+    x1 <- convX(x1)
+    x2 <- convX(x2)
+    y1 <- convX(y1)
+    y2 <- convX(y2)
     bg1 <- bezierGrob(c(x2, x2, y1, y1),
-                      c(x2, h, h, x2),
+                      c(0, h, h, 0),
                       default.units = "npc")
     trace1 <- bezierPoints(bg1)
     bg2 <- bezierGrob(c(x1, x1, y2, y2),
-                      c(x1, h, h, y1),
+                      c(0, h, h, 0),
                       default.units = "npc")
     trace2 <- bezierPoints(bg2)
-    return(list(x = c(trace2$x[1], trace1$x, rev(trace2$x)),
-                y = c(trace2$y[1], trace1$y, rev(trace2$y))))
+    return(list(x = reveX(c(convertX(trace2$x[1], unitTo = "npc", valueOnly = TRUE),
+                            convertX(trace1$x, unitTo = "npc", valueOnly = TRUE),
+                            convertX(rev(trace2$x), unitTo = "npc", valueOnly = TRUE))),
+                y = convY(c(trace2$y[1], trace1$y, rev(trace2$y)))))
   }
-  grid.link <- function(x1, x2, y1, y2, ...){
-    pts <- getBezierPoints(x1, x2, y1, y2)
+  grid.link <- function(x1, x2, y1, y2, h, ...){
+    pts <- getBezierPoints(x1, x2, y1, y2, h)
     grid.polygon(x=pts$x,
                  y=pts$y,
                  ...)
   }
   plotInteractioLink <- function(anchor1, anchor2){
     mc <- getMC(anchor1$score)
+    hs <- sqrt(anchor1$score/
+                max(anchor1$score[!is.infinite(anchor1$score)], 
+                    na.rm = TRUE))
+    irx <- inRange(start(anchor1), scale) | inRange(end(anchor1), scale) |
+      inRange(start(anchor2), scale) | inRange(end(anchor2), scale)
     for(i in seq_along(anchor1)){
-      grid.link(x1=start(anchor1)[i],
-                x2=end(anchor1)[i],
-                y1=start(anchor2)[i],
-                y2=end(anchor2)[i],
-                default.units="native",
-                gp = gpar(fill=mc[i], col = NA))
+      if(irx[i]){
+        grid.link(x1=start(anchor1)[i],
+                  x2=end(anchor1)[i],
+                  y1=start(anchor2)[i],
+                  y2=end(anchor2)[i],
+                  h = hs[i],
+                  default.units="native",
+                  gp = gpar(fill=mc[i], col = NA, alpha=hs[i]))
+      }
     }
   }
   FUN = switch (tolower(style),

@@ -74,7 +74,8 @@ setTrackXscaleParam(track, attr="position", value=list(x=122929675, y=4, label=5
 
 \describe{
 \item{\code{tracktype}}{\code{"character"} track type, could be peak or cluster. 
-Default is "peak". "cluster" is not supported yet.}
+Default is "peak". "cluster" is not supported yet. For interaction data,
+it could be "heatmap" or "link".}
 
 \item{\code{color}}{\code{"character"} track color. If the track has dat and dat2 slot,
 it should have two values.}

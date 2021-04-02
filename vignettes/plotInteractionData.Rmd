@@ -79,8 +79,12 @@ viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
 Plot chromatin interactions track as links.
 
 ```{r}
-#setTrackStyleParam(tr, "tracktype", "link")
-#viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+setTrackStyleParam(tr, "tracktype", "link")
+## filter the links to simulate the real data
+keep <- distance(tr$dat, tr$dat2) > 5e5 & tr$dat$score>20
+tr$dat <- tr$dat[keep]
+tr$dat2 <- tr$dat2[keep]
+viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
 ```
 
 
