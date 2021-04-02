@@ -51,7 +51,7 @@ jobs:
 
       - name: Build pkgdown
         run: |
-           PATH=$PATH:$HOME/bin/ Rscript -e 'BiocManager::install(c("knitr", "rmarkdown", "pkgdown")); pkgdown::build_site(".")'
+           PATH=$PATH:$HOME/bin/ Rscript -e 'BiocManager::install(c("knitr", "rmarkdown", "pkgdown")); pkgdown::build_site(".", new_process=TRUE, install=TRUE)'
       # deploy needs rsync? Seems so.
       - name: Install deploy dependencies
         run: |
