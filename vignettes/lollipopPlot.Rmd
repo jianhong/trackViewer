@@ -4,8 +4,7 @@ author: "Jianhong Ou, Lihua Julie Zhu"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('trackViewer')`"
 abstract: >
-  Visualize mapped reads along with annotation as track layers for NGS dataset 
-  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
+  Visualize methylation or mutation sites along with annotation as track layers.
 vignette: >
   %\VignetteIndexEntry{trackViewer Vignette: lollipopPlot}
   %\VignetteEngine{knitr::rmarkdown}
@@ -590,8 +589,6 @@ vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 addGuideLine(122929538, vp=vp)
 ```
 
-# Web application of **trackViewer**
-We created a web application of **trackViewer** (available in 1.19.14 or later) by leveraging the R package **Shiny**. The web application of trackViewer and sample data are available at  https://github.com/jianhong/trackViewer.documentation/tree/master/trackViewerShinyApp. Here is a demo on how to to use the web application at https://www.nature.com/articles/s41592-019-0430-y#Sec2 Supplementary Video 5.
 
 # Session Info
 ```{r sessionInfo, results='asis'}

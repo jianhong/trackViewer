@@ -4,8 +4,8 @@ author: "Jianhong Ou, Lihua Julie Zhu"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('trackViewer')`"
 abstract: >
-  Visualize mapped reads along with annotation as track layers for NGS dataset 
-  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
+  Visualize high dense methylation or mutation data
+  along with annotation as track layers via Dandelion Plot.
 vignette: >
   %\VignetteIndexEntry{trackViewer Vignette: dandelionPlot}
   %\VignetteEngine{knitr::rmarkdown}

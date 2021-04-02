@@ -4,8 +4,9 @@ author: "Jianhong Ou, Lihua Julie Zhu"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('trackViewer')`"
 abstract: >
-  Visualize mapped reads along with annotation as track layers for NGS dataset 
-  such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
+  Visualize chromatin interactions along with annotation as track layers.
+  The interactions can be compared by back to back heatmaps. 
+  The interactions can be plot as heatmap and links.
 vignette: >
   %\VignetteIndexEntry{trackViewer Vignette: plot interaction data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -80,6 +81,10 @@ Plot chromatin interactions track as links.
 
 ```{r}
 setTrackStyleParam(tr, "tracktype", "link")
+setTrackStyleParam(tr, "breaks", 
+                   c(seq(from=0, to=50, by=10), 200))
+setTrackStyleParam(tr, "color",
+                   c("lightblue", "yellow", "red"))
 ## filter the links to simulate the real data
 keep <- distance(tr$dat, tr$dat2) > 5e5 & tr$dat$score>20
 tr$dat <- tr$dat[keep]
