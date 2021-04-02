@@ -23,9 +23,7 @@ output:
 ```{r, echo=FALSE, results="hide", warning=FALSE}
 suppressPackageStartupMessages({
   library(trackViewer)
-  library(rtracklayer)
   library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-  library(org.Hs.eg.db)
   library(InteractionSet)
 })
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
@@ -50,6 +48,7 @@ the heatmap or the interaction links.
 Plot chromatin interactions tracks as heatmap.
 
 ```{r}
+library(trackViewer)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
 head(gi)
@@ -99,7 +98,7 @@ the script of [hic-straw](https://github.com/aidenlab/straw) and the
 The function `importGInteractions` (trackViewer version>=1.27.6) can be used to
 import data from `.hic` format file.
 
-```{r}
+```{r eval=FALSE}
 hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
                     mustWork=TRUE)
 importGInteractions(file=hic, format="hic",
