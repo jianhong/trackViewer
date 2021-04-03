@@ -28,47 +28,47 @@ std::string readString(std::ifstream& ifile){
 }
 int readInt(std::ifstream& ifile){
   int i;
-  ifile.read(reinterpret_cast<char *>(&i), 4);
+  ifile.read(reinterpret_cast<char *>(&i), sizeof(int));
   return(i);
 }
 long readLong(std::ifstream& ifile){
   long i;
-  ifile.read(reinterpret_cast<char *>(&i), 8);
+  ifile.read(reinterpret_cast<char *>(&i), sizeof(long));
   return(i);
 }
 float readFloat(std::ifstream& ifile){
   float i;
-  ifile.read(reinterpret_cast<char *>(&i), 4);
+  ifile.read(reinterpret_cast<char *>(&i), sizeof(float));
   return(i);
 }
 double readDouble(std::ifstream& ifile){
   double i;
-  ifile.read(reinterpret_cast<char *>(&i), 8);
+  ifile.read(reinterpret_cast<char *>(&i), sizeof(double));
   return(i);
 }
 int getInt(std::istringstream& ifile){
   int i;
-  ifile.read(reinterpret_cast<char*>(&i), 4);
+  ifile.read(reinterpret_cast<char*>(&i), sizeof(int));
   return(i);
 }
 short getShort(std::istringstream& ifile){
   short i;
-  ifile.read(reinterpret_cast<char*>(&i), 2);
+  ifile.read(reinterpret_cast<char*>(&i), sizeof(short));
   return(i);
 }
 long getLong(std::istringstream& ifile){
   long i;
-  ifile.read(reinterpret_cast<char*>(&i), 8);
+  ifile.read(reinterpret_cast<char*>(&i), sizeof(long));
   return(i);
 }
 float getFloat(std::istringstream& ifile){
   float i;
-  ifile.read(reinterpret_cast<char*>(&i), 4);
+  ifile.read(reinterpret_cast<char*>(&i), sizeof(float));
   return(i);
 }
 Byte getByte(std::istringstream& ifile){
   Byte i;
-  ifile.read(reinterpret_cast<char*>(&i), 1);
+  ifile.read(reinterpret_cast<char*>(&i), sizeof(Byte));
   return(i);
 }
 
@@ -88,14 +88,23 @@ public:
 
 class doubleValues {
 public: 
-  int nValues;
+  long nValues;
   double* values;
   
   void read(std::ifstream& ifile){
-    nValues = readInt(ifile);
-    values = new double[nValues];
-    for(int i=0; i<nValues; i++){
-      values[i] = readDouble(ifile);
+    
+    if(version>8){
+      nValues = readLong(ifile);
+      values = new double[nValues];
+      for(long i=0; i<nValues; i++){
+        values[i] = (double) readFloat(ifile);
+      }
+    }else{
+      nValues = (long) readInt(ifile);
+      values = new double[nValues];
+      for(long i=0; i<nValues; i++){
+        values[i] = readDouble(ifile);
+      }
     }
   }
 };
@@ -109,7 +118,12 @@ public:
     nValues = readInt(ifile);
     for(int i=0; i<nValues; i++){
       int index = readInt(ifile);
-      double val = readDouble(ifile);
+      double val;
+      if(version > 8){
+        val = (double) readFloat(ifile);
+      }else{
+        val = readDouble(ifile);
+      }
       values.insert( std::pair<int, double>(index, val));
     }
   }
@@ -287,8 +301,8 @@ public:
   intDoubleValues chrScaleFactors;
   
   void read(std::ifstream& ifile){
-    binSize = readInt(ifile);
     unit = readString(ifile);
+    binSize = readInt(ifile);
     expectedValues.read(ifile);
     chrScaleFactors.read(ifile);
   }
@@ -318,8 +332,8 @@ public:
   
   void read(std::ifstream& ifile){
     type= readString(ifile);
-    binSize = readInt(ifile);
     unit= readString(ifile);
+    binSize = readInt(ifile);
     expectedValues.read(ifile);
     chrNormalizationFactors.read(ifile);
   }
@@ -724,11 +738,11 @@ public:
 };
 
 std::vector<cellData> getByCoor(std::string seq1, int start1, int end1, 
-                           std::string seq2, int start2, int end2,
-                           int binSize, std::string normalization, std::string unit,
-                           HicFileHead& hicHead,
-                           HicFileFoot& hicFoot, 
-                           std::ifstream& hicfile){
+                                std::string seq2, int start2, int end2,
+                                int binSize, std::string normalization, std::string unit,
+                                HicFileHead& hicHead,
+                                HicFileFoot& hicFoot, 
+                                std::ifstream& hicfile){
   int chr1 = hicHead.chromosomeIndex.find(seq1);
   int chr2 = hicHead.chromosomeIndex.find(seq2);
   //chr1 must no greater than chr2
@@ -904,11 +918,11 @@ DataFrame getContactRecords(CharacterVector hicfilename,
   HicFileFoot hicFoot;
   hicFoot.read(hicfile);
   std::vector<cellData> rec = getByCoor(seq1, start_pos1, end_pos1, 
-                                   seq2, start_pos2, end_pos2,
-                                   bin_size, norm, type,
-                                   hicHead,
-                                   hicFoot, 
-                                   hicfile);
+                                        seq2, start_pos2, end_pos2,
+                                        bin_size, norm, type,
+                                        hicHead,
+                                        hicFoot, 
+                                        hicfile);
   if(debug){
     for(std::vector<cellData>::iterator it=rec.begin(); it!=rec.end(); ++it){
       it->print();
@@ -935,8 +949,10 @@ DataFrame getContactRecords(CharacterVector hicfilename,
     b2.push_back((it->binY+1)*bin_size);
     score.push_back(it->value);
   }
-  return(DataFrame::create(Named("seq1")=seqn1, Named("start1")=a1, Named("end1")=b1,
-                           Named("seq2")=seqn2, Named("start2")=a2, Named("end1")=b2,
+  return(DataFrame::create(Named("seq1")=seqn1, Named("start1")=a1,
+                           Named("end1")=b1,
+                           Named("seq2")=seqn2, Named("start2")=a2,
+                           Named("end1")=b2,
                            Named("score")=score));
 }
 
