@@ -98,7 +98,7 @@ the script of [hic-straw](https://github.com/aidenlab/straw) and the
 The function `importGInteractions` (trackViewer version>=1.27.6) can be used to
 import data from `.hic` format file.
 
-```{r eval=FALSE}
+```{r}
 hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
                     mustWork=TRUE)
 importGInteractions(file=hic, format="hic",
@@ -112,7 +112,7 @@ for hg19 and mm9 from many different sources. Those files can be used as data
 resources for visualizations and annotations 
 (see [ChIPpeakAnno::findEnhancers](https://rdrr.io/bioc/ChIPpeakAnno/man/findEnhancers.html)).
 The `importGInteractions` function can also be used to import data from `.cool` format (trackViewer version>=1.27.6).
-```{r}
+```{r eval=FALSE}
 cool <- system.file("extdata", "test.mcool", package = "trackViewer",
                      mustWork=TRUE)
 importGInteractions(file=cool, format="cool",
