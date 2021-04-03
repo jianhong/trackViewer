@@ -146,7 +146,7 @@ setTrackStyleParam(trackListN[[4]], "ylabpos", "downstream")
 ## set cex to avoid automatic adjust
 setTrackStyleParam(trackListN[[3]], "ylabgp", list(cex=.6))
 setTrackStyleParam(trackListN[[4]], "ylabgp", list(cex=.6))
-gr1 <- range(unlist(GRangesList(sapply(trs, function(.ele) .ele$dat))))
+gr1 <- range(unname(unlist(GRangesList(sapply(trs, function(.ele) .ele$dat)))))
 start(gr1) <- start(gr1) - 2000
 end(gr1) <- end(gr1) + 2000
 viewTracks(trackListN, gr=gr1, viewerStyle=viewerStyle)

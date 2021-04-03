@@ -92,7 +92,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     }
     SNP.gr.name <- deparse(substitute(SNP.gr))
     if(is(SNP.gr, "GRanges")){
-        SNP.gr <- GRangesList(SNP.gr)
+        SNP.gr <- list(SNP.gr)
         if(length(SNP.gr.name)==length(SNP.gr)) {
           names(SNP.gr) <- SNP.gr.name
         }
@@ -113,7 +113,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
       stopifnot("features must be a GRanges or GRangesList object"=
                   is(features, "GRanges"))
       #features.name <- deparse(substitute(features))
-      features <- GRangesList(features)[seq.int(len)]
+      features <- list(features)[seq.int(len)]
     }
     
     
