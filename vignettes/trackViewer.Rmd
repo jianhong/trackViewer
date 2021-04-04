@@ -36,6 +36,8 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 
 There are two packages available in Bioconductor for visualizing genomic data: **rtracklayer** and **Gviz**. **rtracklayer** provides an interface to genome browsers and associated annotation tracks. **Gviz** can be used to plot coverage and annotation tracks. **TrackViewer** is a lightweight visualization tool for generating interactive figures for publication. Not only can **trackViewer** be used to visualize coverage and annotation tracks, but it can also be employed to generate lollipop/dandelion plots that depict dense methylation/mutation/variant data to facilitate an integrative analysis of these multi-omics data. It leverages **Gviz** and **rtracklayer**, is easy to use, and has a low memory and cpu consumption. In addition, we implemented a web application of **trackViewer** leveraging **Shiny** package. The web application of **trackViewer** is available at https://github.com/jianhong/trackViewer.documentation/tree/master/trackViewerShinyApp.
 
+* [Change the styles of the track plot](changeTracksStyles.html)
+
 * [Plot methylation/mutation/variant data by lollipop plot](lollipopPlot.html)
 
 * [Plot high dense methylation/mutation/variant data by dandelion plot](dandelionPlot.html)
