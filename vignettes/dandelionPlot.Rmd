@@ -78,7 +78,7 @@ dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/10)
 dandelion.plot(methy, features, ranges=gr, type="circle", maxgaps=1/100)
 ```
 
-Users can also specify the maximum distance between neighboring dandelions by settimg the maxgaps as a GRanges object.
+Users can also specify the maximum distance between neighboring dandelions by setting the maxgaps as a GRanges object.
 
 ```{r fig.width=4,fig.height=4}
 maxgaps <- tile(gr, n = 10)[[1]]

@@ -59,8 +59,8 @@ head(gi)
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
-viewTracks(trackList(ctcf, tr, heightDist = c(1, 3)), 
-           gr=range, autoOptimizeStyle = TRUE)
+#viewTracks(trackList(ctcf, tr, heightDist = c(1, 3)), 
+#           gr=range, autoOptimizeStyle = TRUE)
 ## view the interaction data back to back.
 ## Please make sure the data are normalized.
 gi2 <- gi
@@ -78,7 +78,7 @@ viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
 
 Plot chromatin interactions track as links.
 
-```{r}
+```{r, fig.width=6, fig.height=3}
 setTrackStyleParam(tr, "tracktype", "link")
 setTrackStyleParam(tr, "breaks", 
                    c(seq(from=0, to=50, by=10), 200))
@@ -88,7 +88,7 @@ setTrackStyleParam(tr, "color",
 keep <- distance(tr$dat, tr$dat2) > 5e5 & tr$dat$score>20
 tr$dat <- tr$dat[keep]
 tr$dat2 <- tr$dat2[keep]
-viewTracks(trackList(ctcf, tr), gr=range, autoOptimizeStyle = TRUE)
+viewTracks(trackList(tr), gr=range, autoOptimizeStyle = TRUE)
 ```
 
 

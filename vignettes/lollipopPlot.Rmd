@@ -57,15 +57,10 @@ features$fill <- c("#FF8833", "#51C6E6", "#DFA32D")
 lolliplot(sample.gr, features)
 ```
 
-### Change the color of the lollipop.
+### Change the color and opacity of the lollipop.
 ```{r lolliplot3, fig.width=6, fig.height=3}
 sample.gr$color <- sample.int(6, length(SNP), replace=TRUE)
 sample.gr$border <- sample(c("gray80", "gray30"), length(SNP), replace=TRUE)
-lolliplot(sample.gr, features)
-```
-
-### Change the opacity of the lollipop.
-```{r lolliplotOpacity, fig.width=6, fig.height=3}
 sample.gr$alpha <- sample(100:255, length(SNP), replace = TRUE)/255
 lolliplot(sample.gr, features)
 ```
@@ -83,9 +78,9 @@ lolliplot(sample.gr, features)
 features$height <- c(0.02, 0.05, 0.08)
 lolliplot(sample.gr, features)
 ## Specifying the height and its unit
-features$height <- list(unit(1/16, "inches"), 
-                     unit(3, "mm"), 
-                     unit(12, "points"))
+features$height <- list(unit(1/16, "inches"),
+                        unit(3, "mm"),
+                        unit(12, "points"))
 lolliplot(sample.gr, features)
 ```
 
@@ -141,9 +136,9 @@ lolliplot(sample.gr, features, xaxis=xaxis)
 
 ## Customize the y-axis label position
 ```{r lolliplot.yaxis, fig.width=6, fig.height=4.5}
-yaxis <- c(0, 5) ## define the position
-lolliplot(sample.gr, features, yaxis=yaxis)
-yaxis <- c(0, 5, 10, 15)
+#yaxis <- c(0, 5) ## define the position
+#lolliplot(sample.gr, features, yaxis=yaxis)
+yaxis <- c(0, 5, 10, 15) ## define the position
 names(yaxis) <- yaxis # define the labels
 names(yaxis)[3] <- "y-axis" 
 lolliplot(sample.gr, features, yaxis=yaxis)
@@ -179,7 +174,7 @@ lolliplot(sample.gr.newlegend, features, legend="legend")
 
 ## Control the labels
 
-Users can control the paramters of labels by naming the metadata start as label.parameter  such as label.parameter.rot or 
+Users can control the parameters of labels by naming the metadata start as label.parameter  such as label.parameter.rot or 
 label.parameter.gp. The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
 
 ```{r lolliplot.labels.control, fig.width=6, fig.height=5}
@@ -250,15 +245,15 @@ lolliplot(sample.gr, features, type="pin")
 sample.gr.flag <- sample.gr
 sample.gr.flag$label <- names(sample.gr) ## move the names to metadata:label
 names(sample.gr.flag) <- NULL
-lolliplot(sample.gr.flag, features, 
-          ranges=GRanges("chr1", IRanges(0, 1600)), ## use ranges to leave more space on the right margin.
-          type="flag")
+#lolliplot(sample.gr.flag, features, 
+#          ranges=GRanges("chr1", IRanges(0, 1600)), ## use ranges to leave more space on the right margin.
+#          type="flag")
 ## change the flag rotation angle
 sample.gr.flag$label.rot <- 15
 sample.gr.flag$label.rot[c(2, 5)] <- c(60, -15)
 sample.gr.flag$label[7] <- "I have a long name"
 lolliplot(sample.gr.flag, features, 
-          ranges=GRanges("chr1", IRanges(0, 1600)), 
+          ranges=GRanges("chr1", IRanges(0, 1600)),## use ranges to leave more space on the right margin. 
           type="flag")
 ```
 
@@ -269,7 +264,7 @@ sample.gr$label <- NULL
 sample.gr$label.col <- NULL
 x <- sample.int(100, length(SNP))
 sample.gr$value1 <- x
-sample.gr$value2 <- 100 - x
+sample.gr$value2 <- 100 - x # for pie plot, 2 value columns are required.
 ## the length of the color should be no less than that of value1 or value2
 sample.gr$color <- rep(list(c("#87CEFA", '#98CE31')), length(SNP))
 sample.gr$border <- "gray30"
@@ -505,13 +500,13 @@ In the above example, some of the nodes overlap each other. To change the node s
 ```{r fig.width=6,fig.height=2.5}
 methy$lwd <- .5
 lolliplot(methy, features, ranges=gr, type="pin", cex=.5)
-lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
+#lolliplot(methy, features, ranges=gr, type="circle", cex=.5)
 methy$score2 <- max(methy$score) - methy$score
 lolliplot(methy, features, ranges=gr, type="pie", cex=.5)
 ## We can change it one by one
 methy$cex <- runif(length(methy))
 lolliplot(methy, features, ranges=gr, type="pin")
-lolliplot(methy, features, ranges=gr, type="circle")
+#lolliplot(methy, features, ranges=gr, type="circle")
 ```
 
 ## Change the scale of the x-axis (xscale)
@@ -541,7 +536,7 @@ In the above examples, people may be misled when the x-axis is ignored.
 It will be better to plot the data into multiple layers. This can be done by
 setting parameter `ranges` into a `GRangesList` object.
 
-```{r fig.width=6,fig.height=7.5}
+```{r fig.width=9,fig.height=6}
 grSplited <- tile(gr, n=2)
 lolliplot(methy, features, ranges=grSplited, type="pin")
 ```
