@@ -67,7 +67,7 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex, ypos, plotYaxis, height
         }
         .ele
     }, sg, sg.scores)
-    sg <- unlist(GRangesList(sg))
+    sg <- unlist(GRangesList(unname(sg)))
     sg <- sg[order(sg$idx)]
     sg$yyscaleMax <- yyscaleMax
     sg
