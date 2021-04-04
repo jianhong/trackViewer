@@ -54,7 +54,7 @@ resampleData <- function(.dat, scale, step=1000){
   ## resample the range
   .dat2 <- .dat
   strand(.dat2) <- "*"
-  .rg <- range(.dat2)
+  .rg <- range(unname(.dat2))
   .rgs <- c(.rg, .rg, .rg)
   strand(.rgs) <- c("+", "-", "*")
   .rgs <- tile(.rgs, n = step)
@@ -173,9 +173,9 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                           just=c(0,0))) ## vp1
     ##put ylab
     if(track@type %in% c("transcript", "gene") && style@ylabpos %in% c("upstream", "downstream")){
-        if(length(findOverlaps(ranges(range(track@dat)), IRanges(xscale.orderd[1], xscale.orderd[2])))>0){
+        if(length(findOverlaps(ranges(range(unname(track@dat))), IRanges(xscale.orderd[1], xscale.orderd[2])))>0){
           putGeneYlab(curViewStyle, style, name, height, xscale,
-                      range(track@dat), length(track@dat2)>0)
+                      range(unname(track@dat)), length(track@dat2)>0)
         }
     }else{
         if(style@ylabpos=="upstream") style@ylabpos <- "left"

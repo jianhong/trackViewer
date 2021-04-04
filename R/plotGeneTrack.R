@@ -25,7 +25,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
   pushViewport(vp)
   trs <- split(track@dat, track@dat$featureID)
   col <- track@style@color
-  rgs <- unlist(GRangesList(sapply(trs, range)))
+  rgs <- unlist(GRangesList(sapply(trs, function(.ele)range(unname(.ele)))))
   if(length(trs)!=length(rgs)){
     stop("some genes are splited into multiple regions, eg multple strand.")
   }

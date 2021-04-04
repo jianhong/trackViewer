@@ -171,7 +171,7 @@ filterTracks <- function(tl, chrom, from, to, st){
             if(tl[[i]]@type=="lollipopData"){
               dat <- tl[[i]]@dat
             }else{
-              dat <- range(tl[[i]]@dat)
+              dat <- range(unname(tl[[i]]@dat))
             }
             dat <- dat[end(dat)>=from &
                          start(dat)<=to &
@@ -547,7 +547,7 @@ handleLegend <- function(legend, len, dat){
 ## if !missing(ranges) set ranges as feature ranges
 handleRanges <- function(ranges, SNP.gr, features, len){
   if(length(ranges)>0){
-    stopifnot(inherits(ranges, c("GRanges", "GRangesList")))
+    stopifnot(inherits(ranges, c("GRanges", "GRangesList", "list")))
     if(is(ranges, "GRanges")){
       if(length(ranges)==1){
         ranges <- split(rep(ranges, len)[seq.int(len)],
@@ -587,7 +587,7 @@ cutSNP <- function(SNP.gr, ranges, len){
       SNP.gr[[i]] <- subsetByOverlaps(SNP.gr[[i]], range, ignore.strand=FALSE)
     }
   }else{
-    if(is(ranges, "GRangesList")){
+    if(inherits(ranges, c("GRangesList", "list"))){
       for(i in seq.int(len)){
         range <- ranges[[i]]
         stopifnot(all(width(SNP.gr[[i]])==1))
