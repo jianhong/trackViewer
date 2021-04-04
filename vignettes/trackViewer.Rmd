@@ -42,7 +42,7 @@ There are two packages available in Bioconductor for visualizing genomic data: *
 
 * [Plot high dense methylation/mutation/variant data by dandelion plot](dandelionPlot.html)
 
-* [Plot genomic interaction data (HiC, cooler, etc) by viewTracks](dandelionPlot.html)
+* [Plot genomic interaction data (HiC, cooler, etc) by viewTracks](plotInteractionData.html)
 
 ```{r plotComp,echo=TRUE,fig.keep='none'}
 library(Gviz)
