@@ -564,14 +564,15 @@ handleRanges <- function(ranges, SNP.gr, features, len){
     stopifnot(length(ranges)==len)
   }else{
     if(class(features)=="GRanges"){
-      ranges <- split(range(features, ignore.strand=TRUE)[rep(1, len)],
+      ranges <- split(range(unname(features), ignore.strand=TRUE)[rep(1, len)],
                       seq.int(len))
     }else{
       if(length(features)!=len){
         stop("if both SNP.gr and features is GRangesList,",
              " the lengthes of them should be identical.")
       }
-      ranges <- GRangesList(lapply(features, range, ignore.strand=TRUE))
+      ranges <- GRangesList(lapply(features, function(.ele){
+        range(unname(.ele), ignore.strand=TRUE)}))
     }
   }
   return(ranges)
