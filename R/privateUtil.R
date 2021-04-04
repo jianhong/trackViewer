@@ -484,7 +484,7 @@ handleLegend <- function(legend, len, dat){
             legend <- rep(legend, length(dat))[seq_along(dat)]
           }
         }else{
-          dat <- GRangesList(dat)
+          dat <- list(dat)
           legend <- legend[1]
         }
         para <- c("shape", "color", "border", "alpha")
