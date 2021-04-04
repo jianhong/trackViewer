@@ -1,0 +1,11 @@
+pandoc: 2.11.4
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  changeTracksStyles: changeTracksStyles.html
+  dandelionPlot: dandelionPlot.html
+  lollipopPlot: lollipopPlot.html
+  plotInteractionData: plotInteractionData.html
+  trackViewer: trackViewer.html
+last_built: 2021-04-04T13:53Z
+
