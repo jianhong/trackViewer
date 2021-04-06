@@ -1,19 +1,22 @@
 on:
   push:
-    branches: [master]
+    branches: [main, staging]
   pull_request:
-    branches: [master]
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
     container: bioconductor/bioconductor_docker:devel
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          ref: 'main'
       
       - name: Query dependencies
         run: |
           install.packages('remotes')
+          dir.create(".github")
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
         
@@ -51,7 +54,7 @@ jobs:
 
       - name: Build pkgdown
         run: |
-           PATH=$PATH:$HOME/bin/ Rscript -e 'BiocManager::install(c("knitr", "rmarkdown", "pkgdown")); pkgdown::build_site(".", new_process=TRUE, install=TRUE)'
+           PATH=$PATH:$HOME/bin/ Rscript -e 'BiocManager::install(c("knitr", "rmarkdown", "pkgdown")); pkgdown::build_site(".")'
       # deploy needs rsync? Seems so.
       - name: Install deploy dependencies
         run: |
