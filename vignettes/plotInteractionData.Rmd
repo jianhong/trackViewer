@@ -72,6 +72,8 @@ setTrackStyleParam(back2back, "breaks",
                    c(seq(from=0, to=50, by=10), 200))
 setTrackStyleParam(back2back, "color",
                    c("lightblue", "yellow", "red"))
+## chang the lim of y-axis (by default, [0, 1])
+setTrackStyleParam(back2back, "ylim", c(0, .5))
 viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
            gr=range, autoOptimizeStyle = TRUE)
 ```

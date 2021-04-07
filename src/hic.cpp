@@ -15,15 +15,8 @@ long bodyPosition;
 int version;
 
 std::string readString(std::ifstream& ifile){
-  char s;
-  char* out = new char[1024];
-  ifile.read(&s, sizeof(s));
-  int count=0;
-  while(s != '\0'){
-    out[count++]= s;
-    ifile.read(&s, sizeof(s));
-  }
-  std::string str(out, count);
+  std::string str;
+  std::getline(ifile, str, '\0');
   return(str);
 }
 int readInt(std::ifstream& ifile){
@@ -73,9 +66,19 @@ Byte getByte(std::istringstream& ifile){
 }
 
 class intValues {
-public: 
+public:
   int nValues;
   int* values;
+  
+  intValues(){
+    nValues = 0;
+  }
+  
+  ~intValues(){
+    if(nValues>0){
+      delete [] values;
+    }
+  }
   
   void read(std::ifstream& ifile){
     nValues = readInt(ifile);
@@ -84,12 +87,30 @@ public:
       values[i] = readInt(ifile);
     }
   }
+  
+  void printValues(){
+    Rcout << "nValues " << nValues << std::endl;
+    
+    for(int i=0; i<nValues; i++){
+      Rcout << i << ":\t" << values[i] << std::endl;
+    }
+  }
 };
 
 class doubleValues {
-public: 
+public:
   long nValues;
   double* values;
+  
+  doubleValues(){
+    nValues = 0;
+  }
+  
+  ~doubleValues(){
+    if(nValues>0){
+      delete [] values;
+    }
+  }
   
   void read(std::ifstream& ifile){
     
@@ -107,15 +128,25 @@ public:
       }
     }
   }
+  
+  void printValues(){
+    Rcout << "nValues " << nValues << std::endl;
+    
+    for(long i=0; i<nValues; i++){
+      Rcout << i << ":\t" << values[i] << std::endl;
+    }
+  }
 };
 
 class intDoubleValues {
 public:
-  int nValues;
   std::map<int, double> values;
   
+  ~intDoubleValues(){
+    values.clear();
+  }
   void read(std::ifstream& ifile){
-    nValues = readInt(ifile);
+    int nValues = readInt(ifile);
     for(int i=0; i<nValues; i++){
       int index = readInt(ifile);
       double val;
@@ -129,7 +160,7 @@ public:
   }
   
   void printValues(){
-    Rcout << "nValues " << nValues << std::endl;
+    Rcout << "nValues " << values.size() << std::endl;
     
     for(std::map<int, double>::iterator it=values.begin();
         it!=values.end(); ++it){
@@ -156,6 +187,16 @@ class chromosomes{
 public:
   int nChrs;
   chromosome* chromosomeIndexMap;
+  
+  chromosomes(){
+    nChrs = 0;
+  }
+  
+  ~chromosomes(){
+    if(nChrs>0){
+      delete [] chromosomeIndexMap;
+    }
+  }
   
   void printChrIndexMap(){
     for(int i=0; i<nChrs; i++){
@@ -213,10 +254,16 @@ public:
       ifile.seekg(0, std::ios::beg);
       if(length>0){
         magic = readString(ifile);
+        if(magic!="HIC"){
+          stop("HiC magic string is missing. Please double check the input.");
+        }
         if(debug) {
           Rcout << "magic '" << magic << "'" << ifile.tellg() << std::endl;
         }
         version = readInt(ifile);
+        if(version<6){
+          stop("Version less than 6 is not supported!");
+        }
         if(debug) {
           Rcout << "version " << version << "\t" << ifile.tellg() << std::endl;
         }
@@ -227,6 +274,10 @@ public:
         genomeId = readString(ifile);
         if(debug) {
           Rcout << "genomeId " << genomeId << "\t" << ifile.tellg() << std::endl;
+        }
+        if(version > 8){
+          long nviPosition = readLong(ifile);
+          long nviLength = readLong(ifile);
         }
         nAttributes = readInt(ifile);
         if(debug) {
@@ -258,6 +309,8 @@ public:
           Rcout << "nSites " << sites.nValues << "\t" << ifile.tellg() << std::endl;
         }
         bodyPosition = ifile.tellg();
+      }else{
+        Rcout << "No data in the file." << std::endl;
       }
     }
   }
@@ -269,11 +322,14 @@ struct mIdx{
 };
 class entry{
 public:
-  int nEntries;
   std::map<std::string, mIdx> masterIndex;
   
+  ~entry(){
+    masterIndex.clear();
+  }
+  
   void read(std::ifstream& ifile){
-    nEntries = readInt(ifile);
+    int nEntries = readInt(ifile);
     for(int i=0; i<nEntries; i++){
       std::string key = readString(ifile);
       mIdx idx;
@@ -284,7 +340,7 @@ public:
   }
   
   void printEntries(){
-    Rcout << "nEntries " << nEntries << std::endl;
+    Rcout << "nEntries " << masterIndex.size() << std::endl;
     
     for(std::map<std::string, mIdx>::iterator it=masterIndex.begin();
         it!=masterIndex.end(); ++it){
@@ -313,6 +369,16 @@ public:
   int nExpectedValueVectors;
   expectedValues* expValues;
   
+  expectedValueVectors(){
+    nExpectedValueVectors = 0;
+  }
+  
+  ~expectedValueVectors(){
+    if(nExpectedValueVectors > 0){
+      delete [] expValues;
+    }
+  }
+  
   void read(std::ifstream& ifile){
     nExpectedValueVectors = readInt(ifile);
     expValues = new expectedValues[nExpectedValueVectors];
@@ -335,7 +401,7 @@ public:
     unit= readString(ifile);
     binSize = readInt(ifile);
     expectedValues.read(ifile);
-    chrNormalizationFactors.read(ifile);
+    chrNormalizationFactors.read(ifile);//TODO, normalize expectedValues by this factor
   }
 };
 
@@ -343,6 +409,16 @@ class normExpectedValueVectors{
 public:
   int nNormExpectedValueVectors;
   normExpectedValueVector* normExpValVecs;
+  
+  normExpectedValueVectors(){
+    nNormExpectedValueVectors = 0;
+  }
+  
+  ~normExpectedValueVectors(){
+    if(nNormExpectedValueVectors > 0){
+      delete [] normExpValVecs;
+    }
+  }
   
   void read(std::ifstream& ifile){
     nNormExpectedValueVectors = readInt(ifile);
@@ -389,9 +465,19 @@ public:
   long nNormVectors;
   normVectorEntry* normVecs;
   
+  normVectorEntries(){
+    nNormVectors = 0;
+  }
+  
+  ~normVectorEntries(){
+    if(nNormVectors > 0){
+      delete [] normVecs;
+    }
+  }
+  
   void read(std::ifstream& ifile){
     if(ifile.is_open()){
-      nNormVectors = version<9?(long)readInt(ifile):readLong(ifile);
+      nNormVectors = (long) readInt(ifile);//version<9?(long)readInt(ifile):readLong(ifile);
       normVecs = new normVectorEntry[nNormVectors];
       for(int i=0; i<nNormVectors; i++){
         normVecs[i].read(ifile);
@@ -442,7 +528,7 @@ public:
     if(debug){
       entries.printEntries();
     }
-    expValVecs.read(ifile);
+    expValVecs.read(ifile);//for observed expect value, not provided yet.
     if(debug){
       Rcout << "nExpectedValueVectors = " << expValVecs.nExpectedValueVectors << std::endl;
     }
@@ -521,6 +607,15 @@ class cellDatas{
 public:
   int cellCount;
   cellData* cells;
+  
+  cellDatas(){
+    cellCount = 0;
+  }
+  ~cellDatas(){
+    if(cellCount>0){
+      delete [] cells;
+    }
+  }
   
   void read(std::ifstream& ifile, long blockPosition, int blockSize){
     if(ifile.is_open()){
@@ -635,6 +730,16 @@ public:
   int blockCount;
   blockIndex* blockIdx;
   
+  blockIndexs(){
+    blockCount = 0;
+  }
+  
+  ~blockIndexs(){
+    if(blockCount>0){
+      delete[] blockIdx;
+    }
+  }
+  
   void read(std::ifstream& ifile){
     blockCount = readInt(ifile);
     blockIdx = new blockIndex[blockCount];
@@ -689,6 +794,16 @@ class resolutions{
 public:
   int nResolutions;
   resolution* res;
+  
+  resolutions(){
+    nResolutions = 0;
+  }
+  
+  ~resolutions(){
+    if(nResolutions>0){
+      delete[] res;
+    }
+  }
   
   void read(std::ifstream& ifile){
     nResolutions = readInt(ifile);
