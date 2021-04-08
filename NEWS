@@ -1,3 +1,7 @@
+Changes in version 1.27.13
+
+    o Fix the size by number when read from file.
+    
 Changes in version 1.27.12
 
     o add decontructor to hic.cpp.

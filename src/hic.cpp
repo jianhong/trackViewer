@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 #include <map>
 #include <zlib.h>
@@ -21,47 +22,47 @@ std::string readString(std::ifstream& ifile){
 }
 int readInt(std::ifstream& ifile){
   int i;
-  ifile.read(reinterpret_cast<char *>(&i), sizeof(int));
+  ifile.read(reinterpret_cast<char *>(&i), 4);
   return(i);
 }
 long readLong(std::ifstream& ifile){
   long i;
-  ifile.read(reinterpret_cast<char *>(&i), sizeof(long));
+  ifile.read(reinterpret_cast<char *>(&i), 8);
   return(i);
 }
 float readFloat(std::ifstream& ifile){
   float i;
-  ifile.read(reinterpret_cast<char *>(&i), sizeof(float));
+  ifile.read(reinterpret_cast<char *>(&i), 4);
   return(i);
 }
 double readDouble(std::ifstream& ifile){
   double i;
-  ifile.read(reinterpret_cast<char *>(&i), sizeof(double));
+  ifile.read(reinterpret_cast<char *>(&i), 8);
   return(i);
 }
 int getInt(std::istringstream& ifile){
   int i;
-  ifile.read(reinterpret_cast<char*>(&i), sizeof(int));
+  ifile.read(reinterpret_cast<char*>(&i), 4);
   return(i);
 }
 short getShort(std::istringstream& ifile){
   short i;
-  ifile.read(reinterpret_cast<char*>(&i), sizeof(short));
+  ifile.read(reinterpret_cast<char*>(&i), 2);
   return(i);
 }
 long getLong(std::istringstream& ifile){
   long i;
-  ifile.read(reinterpret_cast<char*>(&i), sizeof(long));
+  ifile.read(reinterpret_cast<char*>(&i), 8);
   return(i);
 }
 float getFloat(std::istringstream& ifile){
   float i;
-  ifile.read(reinterpret_cast<char*>(&i), sizeof(float));
+  ifile.read(reinterpret_cast<char*>(&i), 4);
   return(i);
 }
 Byte getByte(std::istringstream& ifile){
   Byte i;
-  ifile.read(reinterpret_cast<char*>(&i), sizeof(Byte));
+  ifile.read(reinterpret_cast<char*>(&i), 1);
   return(i);
 }
 
