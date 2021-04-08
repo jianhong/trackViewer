@@ -654,16 +654,6 @@ public:
   int blockCount;
   blockIndex* blockIdx;
   
-  blockIndexs(){
-    blockCount = 0;
-  }
-  
-  ~blockIndexs(){
-    if(blockCount>0){
-      delete[] blockIdx;
-    }
-  }
-  
   void read(std::ifstream& ifile){
     blockCount = readInt(ifile);
     blockIdx = new blockIndex[blockCount];
@@ -718,16 +708,6 @@ class resolutions{
 public:
   int nResolutions;
   resolution* res;
-  
-  resolutions(){
-    nResolutions = 0;
-  }
-  
-  ~resolutions(){
-    if(nResolutions>0){
-      delete[] res;
-    }
-  }
   
   void read(std::ifstream& ifile){
     nResolutions = readInt(ifile);
