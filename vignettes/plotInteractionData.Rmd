@@ -100,7 +100,7 @@ the script of [hic-straw](https://github.com/aidenlab/straw) and the
 The function `importGInteractions` (trackViewer version>=1.27.6) can be used to
 import data from `.hic` format file.
 
-```{r inportHic}
+```{r inportHic, eval=FALSE}
 hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
                     mustWork=TRUE)
 importGInteractions(file=hic, format="hic",
