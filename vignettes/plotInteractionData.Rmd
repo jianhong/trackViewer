@@ -47,7 +47,7 @@ the heatmap or the interaction links.
 
 Plot chromatin interactions tracks as heatmap.
 
-```{r}
+```{r plotback2back}
 library(trackViewer)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
@@ -80,7 +80,7 @@ viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
 
 Plot chromatin interactions track as links.
 
-```{r, fig.width=6, fig.height=3}
+```{r plotLinks, fig.width=6, fig.height=3}
 setTrackStyleParam(tr, "tracktype", "link")
 setTrackStyleParam(tr, "breaks", 
                    c(seq(from=0, to=50, by=10), 200))
@@ -100,7 +100,7 @@ the script of [hic-straw](https://github.com/aidenlab/straw) and the
 The function `importGInteractions` (trackViewer version>=1.27.6) can be used to
 import data from `.hic` format file.
 
-```{r}
+```{r inportHic}
 hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
                     mustWork=TRUE)
 importGInteractions(file=hic, format="hic",
@@ -114,7 +114,7 @@ for hg19 and mm9 from many different sources. Those files can be used as data
 resources for visualizations and annotations 
 (see [ChIPpeakAnno::findEnhancers](https://rdrr.io/bioc/ChIPpeakAnno/man/findEnhancers.html)).
 The `importGInteractions` function can also be used to import data from `.cool` format (trackViewer version>=1.27.6).
-```{r eval=FALSE}
+```{r importCool, eval=FALSE}
 cool <- system.file("extdata", "test.mcool", package = "trackViewer",
                      mustWork=TRUE)
 importGInteractions(file=cool, format="cool",
@@ -129,7 +129,7 @@ the edges indicates the interactions. The size of the nodes are relative to the 
 The features could be the enhancers, promoters or genes. The enhancer and promoter are shown as
 points with symbol 11 and 13.
 
-```{r}
+```{r plotGInteractions}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))

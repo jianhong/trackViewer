@@ -70,16 +70,6 @@ public:
   int nValues;
   int* values;
   
-  intValues(){
-    nValues = 0;
-  }
-  
-  ~intValues(){
-    if(nValues>0){
-      delete [] values;
-    }
-  }
-  
   void read(std::ifstream& ifile){
     nValues = readInt(ifile);
     values = new int[nValues];
@@ -101,16 +91,6 @@ class doubleValues {
 public:
   long nValues;
   double* values;
-  
-  doubleValues(){
-    nValues = 0;
-  }
-  
-  ~doubleValues(){
-    if(nValues>0){
-      delete [] values;
-    }
-  }
   
   void read(std::ifstream& ifile){
     
@@ -142,9 +122,6 @@ class intDoubleValues {
 public:
   std::map<int, double> values;
   
-  ~intDoubleValues(){
-    values.clear();
-  }
   void read(std::ifstream& ifile){
     int nValues = readInt(ifile);
     for(int i=0; i<nValues; i++){
@@ -187,16 +164,6 @@ class chromosomes{
 public:
   int nChrs;
   chromosome* chromosomeIndexMap;
-  
-  chromosomes(){
-    nChrs = 0;
-  }
-  
-  ~chromosomes(){
-    if(nChrs>0){
-      delete [] chromosomeIndexMap;
-    }
-  }
   
   void printChrIndexMap(){
     for(int i=0; i<nChrs; i++){
@@ -324,10 +291,6 @@ class entry{
 public:
   std::map<std::string, mIdx> masterIndex;
   
-  ~entry(){
-    masterIndex.clear();
-  }
-  
   void read(std::ifstream& ifile){
     int nEntries = readInt(ifile);
     for(int i=0; i<nEntries; i++){
@@ -369,16 +332,6 @@ public:
   int nExpectedValueVectors;
   expectedValues* expValues;
   
-  expectedValueVectors(){
-    nExpectedValueVectors = 0;
-  }
-  
-  ~expectedValueVectors(){
-    if(nExpectedValueVectors > 0){
-      delete [] expValues;
-    }
-  }
-  
   void read(std::ifstream& ifile){
     nExpectedValueVectors = readInt(ifile);
     expValues = new expectedValues[nExpectedValueVectors];
@@ -409,16 +362,6 @@ class normExpectedValueVectors{
 public:
   int nNormExpectedValueVectors;
   normExpectedValueVector* normExpValVecs;
-  
-  normExpectedValueVectors(){
-    nNormExpectedValueVectors = 0;
-  }
-  
-  ~normExpectedValueVectors(){
-    if(nNormExpectedValueVectors > 0){
-      delete [] normExpValVecs;
-    }
-  }
   
   void read(std::ifstream& ifile){
     nNormExpectedValueVectors = readInt(ifile);
@@ -464,16 +407,6 @@ class normVectorEntries{//normalization vector arrays
 public:
   long nNormVectors;
   normVectorEntry* normVecs;
-  
-  normVectorEntries(){
-    nNormVectors = 0;
-  }
-  
-  ~normVectorEntries(){
-    if(nNormVectors > 0){
-      delete [] normVecs;
-    }
-  }
   
   void read(std::ifstream& ifile){
     if(ifile.is_open()){
@@ -607,15 +540,6 @@ class cellDatas{
 public:
   int cellCount;
   cellData* cells;
-  
-  cellDatas(){
-    cellCount = 0;
-  }
-  ~cellDatas(){
-    if(cellCount>0){
-      delete [] cells;
-    }
-  }
   
   void read(std::ifstream& ifile, long blockPosition, int blockSize){
     if(ifile.is_open()){
