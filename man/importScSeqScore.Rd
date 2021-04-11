@@ -51,7 +51,12 @@ or \link[GenomicAlignments]{readGAlignments}}
 Plot single cell RNAseq data as heatmap track for Seurat object.
 }
 \examples{
-gene <- "Cd8a"
-
+\dontrun{
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+test_file <- "https://github.com/10XGenomics/subset-bam/raw/master/test/test.bam"
+trs <- importScSeqScore(files=test_file, 
+                        txdb=TxDb.Hsapiens.UCSC.hg19.knownGene,
+                        id="653635", gene = "WASH7P")
+}
 
 }

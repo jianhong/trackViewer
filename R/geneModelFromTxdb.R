@@ -33,10 +33,10 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
                               chrom, start, end, 
                               strand=c("*", "+", "-"), 
                               txdump=NULL){
-    if(missing(txdb)||missing(orgDb))
-        stop("txdb and orgDb are required!")
+    if(missing(txdb))
+        stop("txdb is required!")
     stopifnot(is(txdb, "TxDb"))
-    stopifnot(is(orgDb, "OrgDb"))
+    if(!missing(orgDb)) stopifnot(is(orgDb, "OrgDb"))
     strand <- match.arg(strand)
     if(missing(gr)){
         if(missing(chrom)||missing(start)||missing(end)){
@@ -78,13 +78,15 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
         exons <- GeneRegionTrack(txdb, chromosome=chrom,
                                  start=start(r), end=end(r), strand=strand)##time comsuming
         exons <- exons@range
-        if(all(exons$symbol==exons$transcript) && "SYMBOL" %in% columns(orgDb)){
-          suppressMessages(symbol <- tryCatch(mapIds(x=orgDb, keys=exons$gene, 
-                                                     column="SYMBOL", keytype="ENTREZID",
-                                                     multiVals="first"), 
-                                              error=function(e) NA))
-            if(!is.na(symbol[1]) && length(symbol)==length(exons)){
-                exons$symbol <- symbol
+        if(!missing(orgDb)){
+            if(all(exons$symbol==exons$transcript) && "SYMBOL" %in% columns(orgDb)){
+              suppressMessages(symbol <- tryCatch(mapIds(x=orgDb, keys=exons$gene, 
+                                                         column="SYMBOL", keytype="ENTREZID",
+                                                         multiVals="first"), 
+                                                  error=function(e) NA))
+                if(!is.na(symbol[1]) && length(symbol)==length(exons)){
+                    exons$symbol <- symbol
+                }
             }
         }
         trs <- split(exons, as.character(exons$transcript))

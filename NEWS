@@ -1,3 +1,7 @@
+Changes in version 1.27.14
+
+    o update importScSeqScore.
+    
 Changes in version 1.27.13
 
     o Fix the size by number when read from file.

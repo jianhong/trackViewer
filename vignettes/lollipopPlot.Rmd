@@ -536,7 +536,7 @@ In the above examples, people may be misled when the x-axis is ignored.
 It will be better to plot the data into multiple layers. This can be done by
 setting parameter `ranges` into a `GRangesList` object.
 
-```{r fig.width=9,fig.height=6}
+```{r fig.width=9,fig.height=8}
 grSplited <- tile(gr, n=2)
 lolliplot(methy, features, ranges=grSplited, type="pin")
 ```

@@ -374,7 +374,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                     type=type,
                                     scoreMax=scoreMax,
                                     level="data&labels")
-          bottomHeight <- bottomHeight/len
+          #bottomHeight <- bottomHeight/len
           vp <- viewport(y=bottomHeight, just="bottom",
                          xscale=c(start(ranges[[i]]), end(ranges[[i]])))
           pushViewport(vp)
