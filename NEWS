@@ -1,5 +1,6 @@
 Changes in version 1.27.14
 
+    o Add rmarkdown into Suggests
     o update importScSeqScore.
     
 Changes in version 1.27.13
