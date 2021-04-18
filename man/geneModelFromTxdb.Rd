@@ -34,7 +34,7 @@ geneModelFromTxdb(
 to make the db again with no loss of information.}
 }
 \value{
-An object of \code{\link{track}}
+Generate a list of \code{\link{track}} from a TxDb object.
 }
 \description{
 Generate an object of \code{\link{track}} for 

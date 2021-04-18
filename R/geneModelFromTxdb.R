@@ -16,7 +16,7 @@
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom BiocGenerics strand
 #' @importFrom AnnotationDbi mapIds columns
-#' @return An object of \code{\link{track}}
+#' @return Generate a list of \code{\link{track}} from a TxDb object.
 #' @export
 #' @seealso See Also as \code{\link{importScore}}, \code{\link{importBam}}, 
 #' \code{\link{viewTracks}}

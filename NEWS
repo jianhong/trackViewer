@@ -1,3 +1,7 @@
+Changes in version 1.27.15
+
+    o Update documentation of geneModelFromTxdb
+    
 Changes in version 1.27.14
 
     o Add rmarkdown into Suggests
