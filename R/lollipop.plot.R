@@ -28,7 +28,7 @@
 #' @param rescale logical(1) or a dataframe with rescale from and to. 
 #' Rescalse the x-axis or not.
 #' if dataframe is used, colnames must be from.start, from.end,
-#'  to.start, to.end.
+#'  to.start, to.end. And the from scale must cover the whole plot region.
 #' @param label_on_feature Labels of the feature directly on them. 
 #' Default FALSE.
 #' @param ... not used.
@@ -244,6 +244,26 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         }
         if(is.data.frame(rescale)){
           if(all(c("from.start", "from.end", "to.start", "to.end") %in% colnames(rescale))){
+            ## check the from coverage the whole region.
+            checkflank <- function(x){
+              to <- IRanges(x$to.start, x$to.end)
+              xol <- findOverlaps(to, drop.self=TRUE, 
+                                  drop.redundant=TRUE,minoverlap=2L)
+              if(length(xol)>1){
+                stop("There is overlaps of the rescale region for 'to' columns.")
+              }
+              x <- IRanges(x$from.start, x$from.end)
+              xol <- findOverlaps(x, drop.self=TRUE, 
+                                  drop.redundant=TRUE,minoverlap=2L)
+              if(length(xol)>1){
+                stop("There is overlaps of the rescale region for 'from' columns.")
+              }
+              xgap <- gaps(x, start=min(start(x)), end=max(end(x)))
+              if(length(xgap)>0){
+                stop("There is gaps of the rescale region for 'from' columns.")
+              }
+            }
+            checkflank(rescale)
             rescale.gr <- function(x){
               if(is(x, "GRanges")){
                 x.start <- start(x)

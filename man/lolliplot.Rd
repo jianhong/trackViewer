@@ -67,7 +67,7 @@ points if it has names.}
 \item{rescale}{logical(1) or a dataframe with rescale from and to. 
 Rescalse the x-axis or not.
 if dataframe is used, colnames must be from.start, from.end,
- to.start, to.end.}
+ to.start, to.end. And the from scale must cover the whole plot region.}
 
 \item{label_on_feature}{Labels of the feature directly on them. 
 Default FALSE.}

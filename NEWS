@@ -1,3 +1,7 @@
+Changes in version 1.29.1
+
+    o Update documentation lolliplot for rescale parameter.
+    
 Changes in version 1.27.15
 
     o Update documentation of geneModelFromTxdb
