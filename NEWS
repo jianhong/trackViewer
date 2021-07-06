@@ -1,4 +1,8 @@
-Changes in version 1.27.15
+Changes in version 1.28.1
+
+    o Fix the yaxis when user supplied yaxis is greater than max scores
+    
+hanges in version 1.27.15
 
     o Update documentation of geneModelFromTxdb
     
