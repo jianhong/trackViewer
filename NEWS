@@ -1,3 +1,7 @@
+Changes in version 1.29.2
+
+    o Fix the yaxis when user supplied yaxis is greater than max scores.
+    
 Changes in version 1.29.1
 
     o Update documentation lolliplot for rescale parameter.
