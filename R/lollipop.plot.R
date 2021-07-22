@@ -268,6 +268,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                   if(grepl("^exon_\\d+$", rescale[1], ignore.case = TRUE)){
                     ratio.to.full.range <- 
                       as.numeric(sub("^exon_(\\d+)$", "\\1", rescale[1], ignore.case = TRUE))
+                    ratio.to.full.range <- ratio.to.full.range/(100-ratio.to.full.range)
                   }
                   width.full.range <- sum(width(feature.rd)[feature.rd$type=="exon"])
                   rescale <- width(feature.rd)
@@ -278,6 +279,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                   if(grepl("^intron_\\d+$", rescale[1], ignore.case = TRUE)){
                     ratio.to.full.range <- 
                       as.numeric(sub("^intron_(\\d+)$", "\\1", rescale[1], ignore.case = TRUE))
+                    ratio.to.full.range <- ratio.to.full.range/(100-ratio.to.full.range)
                   }
                   width.full.range <- sum(width(feature.rd)[feature.rd$type=="intron"])
                   rescale <- width(feature.rd)
