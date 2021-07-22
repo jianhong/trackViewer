@@ -364,8 +364,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             feature <- rescale.gr(feature)
             SNPs <- rescale.gr(SNPs)
             if(is.logical(xaxis)[1]){
-              xaxis <- c(rescale$to.start[1], rescale$to.end)
-              names(xaxis) <- c(rescale$from.start[1], rescale$from.end)
+              if(xaxis[1]){
+                xaxis <- c(rescale$to.start[1], rescale$to.end)
+                names(xaxis) <- c(rescale$from.start[1], rescale$from.end)
+              }
             }else{
               xaxis.names <- names(xaxis)
               if(length(xaxis.names)!=length(xaxis)){
