@@ -1,4 +1,9 @@
-Changes in version 1.29.2
+Changes in version 1.29.4
+
+    o Fix the issue for auto-rescale lolliplot by emphasizing exon region 
+    when there are continues exons.
+    
+Changes in version 1.29.3
 
     o Add the possibility to lolliplot to emphasize exon or intron region.
     

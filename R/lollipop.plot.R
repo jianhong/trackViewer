@@ -251,7 +251,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             if(is.character(rescale)){
               if(grepl("exon|intron", rescale[1], ignore.case = TRUE)){
                 ## reset the scale for exons and introns
-                feature.rd <- disjoin(c(feature, ranges[[i]]), ignore.strand=TRUE)
+                feature.rd <- disjoin(c(reduce(feature), ranges[[i]]), ignore.strand=TRUE)
                 feature.rd <- subsetByOverlaps(feature.rd, ranges[[1]], ignore.strand=TRUE)
                 feature.segment.exon <- subsetByOverlaps(feature.rd, feature, ignore.strand=TRUE)
                 feature.segment.intron <- subsetByOverlaps(feature.rd, feature, invert=TRUE, ignore.strand=TRUE)
