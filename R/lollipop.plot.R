@@ -25,10 +25,17 @@
 #' @param cex cex will control the size of circle.
 #' @param dashline.col color for the dashed line.
 #' @param jitter jitter the position of nodes or labels.
-#' @param rescale logical(1) or a dataframe with rescale from and to. 
+#' @param rescale logical(1), character(1), numeric vector,
+#'   or a dataframe with rescale from and to. 
 #' Rescalse the x-axis or not.
 #' if dataframe is used, colnames must be from.start, from.end,
 #'  to.start, to.end. And the from scale must cover the whole plot region.
+#' The rescale parameter can be set as "exon" or "intron" to 
+#' emphasize "exon" or "intron" region. The "exon" or "intron"
+#' can be followed with an integer e.g. "exon_80", or "intron_99".
+#' The integer indicates the total percentage of "exon" or "intron" region.
+#' Here "exon" indicates all regions in features. 
+#' And "intron" indicates all flank regions of the features.
 #' @param label_on_feature Labels of the feature directly on them. 
 #' Default FALSE.
 #' @param ... not used.
@@ -225,7 +232,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
               feature.segment.points[feature.segment.points>=start(ranges[[i]]) &
                                        feature.segment.points<=end(ranges[[i]])]
             rescale <- rescale/sum(rescale, na.rm = TRUE)
-            rescale <- rescale[!is.na(rescale)]
+            rescale[is.na(rescale)] <- 0.01
             if(length(rescale)==length(feature.segment.points)-1){
               rescale.ir <- IRanges(feature.segment.points[-length(feature.segment.points)]+1, 
                                     feature.segment.points[-1])
@@ -239,6 +246,61 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                     to.end=feature.segment.points[1] + rescale.ir.new.width)
             }else{
               stop("The length of rescale is not as same as the number of segments (including features and non-features).")
+            }
+          }else{
+            if(is.character(rescale)){
+              if(grepl("exon|intron", rescale[1], ignore.case = TRUE)){
+                ## reset the scale for exons and introns
+                feature.rd <- disjoin(c(feature, ranges[[i]]), ignore.strand=TRUE)
+                feature.rd <- subsetByOverlaps(feature.rd, ranges[[1]], ignore.strand=TRUE)
+                feature.segment.exon <- subsetByOverlaps(feature.rd, feature, ignore.strand=TRUE)
+                feature.segment.intron <- subsetByOverlaps(feature.rd, feature, invert=TRUE, ignore.strand=TRUE)
+                feature.segment.exon$type <- rep("exon", length(feature.segment.exon))
+                feature.segment.intron$type <- rep("intron", length(feature.segment.intron))
+                feature.rd <- sort(c(feature.segment.exon, feature.segment.intron))
+                feature.segment.points <- sort(unique(c(start(feature.segment.exon), end(feature.segment.exon))))
+                ## filter the points by viewer port.
+                feature.segment.points <- 
+                  feature.segment.points[feature.segment.points>=start(ranges[[i]]) &
+                                           feature.segment.points<=end(ranges[[i]])]
+                ratio.to.full.range <- 9
+                if(grepl("exon", rescale[1], ignore.case = TRUE)){#set intron width to 1/10
+                  if(grepl("^exon_\\d+$", rescale[1], ignore.case = TRUE)){
+                    ratio.to.full.range <- 
+                      as.numeric(sub("^exon_(\\d+)$", "\\1", rescale[1], ignore.case = TRUE))
+                  }
+                  width.full.range <- sum(width(feature.rd)[feature.rd$type=="exon"])
+                  rescale <- width(feature.rd)
+                  rescale[feature.rd$type=="intron"] <- 
+                    rep(ceiling(width.full.range/ratio.to.full.range/sum(feature.rd$type=="intron")),
+                        length(rescale[feature.rd$type=="intron"]))
+                }else{#set exon width to 1/10
+                  if(grepl("^intron_\\d+$", rescale[1], ignore.case = TRUE)){
+                    ratio.to.full.range <- 
+                      as.numeric(sub("^intron_(\\d+)$", "\\1", rescale[1], ignore.case = TRUE))
+                  }
+                  width.full.range <- sum(width(feature.rd)[feature.rd$type=="intron"])
+                  rescale <- width(feature.rd)
+                  rescale[feature.rd$type=="exon"] <- 
+                    rep(ceiling(width.full.range/ratio.to.full.range/sum(feature.rd$type=="exon")),
+                        length(rescale[feature.rd$type=="exon"]))
+                }
+                rescale <- rescale/sum(rescale)
+                if(length(rescale)==length(feature.segment.points)-1){
+                  rescale.ir <- IRanges(feature.segment.points[-length(feature.segment.points)]+1, 
+                                        feature.segment.points[-1])
+                  start(rescale.ir)[1] <- start(rescale.ir)[1]-1
+                  rescale.ir.width <- sum(width(rescale.ir))
+                  rescale.ir.new.width <- cumsum(round(rescale.ir.width*rescale, digits = 0))
+                  rescale <- data.frame(from.start=start(rescale.ir), 
+                                        from.end=end(rescale.ir),
+                                        to.start=feature.segment.points[1] + 
+                                          c(0, rescale.ir.new.width[-length(rescale.ir.new.width)]),
+                                        to.end=feature.segment.points[1] + rescale.ir.new.width)
+                }else{
+                  stop("Something wrong with the auto-scale setting. Please report the bug to https://github.com/jianhong/trackViewer/issues")
+                }
+              }
             }
           }
         }

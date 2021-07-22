@@ -64,10 +64,17 @@ points if it has names.}
 
 \item{jitter}{jitter the position of nodes or labels.}
 
-\item{rescale}{logical(1) or a dataframe with rescale from and to. 
+\item{rescale}{logical(1), character(1), numeric vector,
+  or a dataframe with rescale from and to. 
 Rescalse the x-axis or not.
 if dataframe is used, colnames must be from.start, from.end,
- to.start, to.end. And the from scale must cover the whole plot region.}
+ to.start, to.end. And the from scale must cover the whole plot region.
+The rescale parameter can be set as "exon" or "intron" to 
+emphasize "exon" or "intron" region. The "exon" or "intron"
+can be followed with an integer e.g. "exon_80", or "intron_99".
+The integer indicates the total percentage of "exon" or "intron" region.
+Here "exon" indicates all regions in features. 
+And "intron" indicates all flank regions of the features.}
 
 \item{label_on_feature}{Labels of the feature directly on them. 
 Default FALSE.}

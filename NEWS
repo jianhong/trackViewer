@@ -1,5 +1,9 @@
 Changes in version 1.29.2
 
+    o Add the possibility to lolliplot to emphasize exon or intron region.
+    
+Changes in version 1.29.2
+
     o Fix the yaxis when user supplied yaxis is greater than max scores.
     
 Changes in version 1.29.1

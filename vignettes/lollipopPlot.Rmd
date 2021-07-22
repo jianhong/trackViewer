@@ -531,6 +531,17 @@ lolliplot(methy, features, ranges=gr, type="pin",
           rescale = rescale, xaxis = xaxis)
 ```
 
+Rescale the region to emphasize exons region only or introns region only.
+Here "exon" indicates all regions in features.
+
+```{r fig.width=6,fig.height=2.5}
+lolliplot(methy, features, ranges=gr, rescale = "exon")
+# exon region occupy 99% of the plot region.
+lolliplot(methy, features, ranges=gr, rescale = "exon_99")
+lolliplot(methy, features, ranges=gr, rescale = "intron")
+```
+
+
 ## Split the lollipop plot into multiLayers
 In the above examples, people may be misled when the x-axis is ignored.
 It will be better to plot the data into multiple layers. This can be done by
