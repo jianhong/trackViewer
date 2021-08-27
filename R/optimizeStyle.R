@@ -109,67 +109,38 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     viewerStyle@autolas <- TRUE
     if(!is.null(theme)){
       defaultGeneYlabPos <- "upstream"
-        if(theme=="bw"){
-            for(i in 1:length(trackList)){
-                if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
-                    trackList[[i]]@style@ylabpos="bottomleft"
-                    trackList[[i]]@style@marginBottom=.2
-                    trackList[[i]]@style@ylabgp=
-                        list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
-                             col="black")
-                }else{
-                    trackList[[i]]@style@ylabpos=defaultGeneYlabPos
-                    trackList[[i]]@style@ylabgp=
-                        list(cex=optFontSize1(trackList[[i]]@style@height), 
-                             col="black")
-                }
-                trackList[[i]]@style@color=c("black", "black")
-                trackList[[i]]@style@yaxis@main=FALSE
-            }
-            if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
-        }
-        if(theme=="col"){
-            for(i in 1:length(trackList)){
-                if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
-                    trackList[[i]]@style@ylabpos="bottomleft"
-                    trackList[[i]]@style@marginBottom=.2
-                    trackList[[i]]@style@ylabgp=
-                        list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
-                             col=rep(palette(), ceiling(i/7))[i+1])
-                }else{
-                  trackList[[i]]@style@ylabpos=defaultGeneYlabPos
-                    trackList[[i]]@style@ylabgp=
-                        list(cex=optFontSize1(trackList[[i]]@style@height), 
-                             col=rep(palette(), ceiling(i/7))[i+1])
-                }
-                trackList[[i]]@style@color=
-                    rep(rep(palette(), ceiling(i/7))[i+1], 2)
-                trackList[[i]]@style@yaxis@main=FALSE
-            }
-            if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
-        }
-      if(theme=="safe"){
-        safeColors <- c("#000000", "#D55E00", "#009E73", "#0072B2",
-                        "#56B4E9", "#CC79A7", "#E69F00", "#BEBEBE")
-        for(i in 1:length(trackList)){
-          if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
-            trackList[[i]]@style@ylabpos="bottomleft"
-            trackList[[i]]@style@marginBottom=.2
+      colors <- switch(theme,
+                       "bw"  = rep("black",length(trackList)+1),
+                       "col" = rep(palette(), length(trackList)),
+                       "safe"= rep(c("#000000", "#D55E00", "#009E73",
+                                     "#0072B2", "#56B4E9", "#CC79A7",
+                                     "#E69F00", "#BEBEBE"),
+                                   length(trackList)),
+                       rep("black",length(trackList)+1))
+      for(i in seq_along(trackList)){
+        if(trackList[[i]]@type %in% c("data", "lollipopData", "interactionData")){
+          trackList[[i]]@style@ylabpos="bottomleft"
+          trackList[[i]]@style@marginBottom=.2
+          trackList[[i]]@style@ylabgp=
+            list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
+                 col=ifelse(theme=="col", colors[i+1], "black"))
+        }else{
+          trackList[[i]]@style@ylabpos=defaultGeneYlabPos
+          if(trackList[[i]]@type=="gene"){
             trackList[[i]]@style@ylabgp=
               list(cex=optFontSize1(.4*trackList[[i]]@style@height), 
-                   col="black")
+                   col=colors[i+1])
           }else{
-            trackList[[i]]@style@ylabpos=defaultGeneYlabPos
             trackList[[i]]@style@ylabgp=
               list(cex=optFontSize1(trackList[[i]]@style@height), 
-                   col="black")
+                   col=colors[i+1])
           }
-          trackList[[i]]@style@color=
-            rep(rep(safeColors, ceiling(i/7))[i+1], 2)
-          trackList[[i]]@style@yaxis@main=FALSE
         }
-        if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
+        trackList[[i]]@style@color=
+          rep(colors[i+1], 2)
+        trackList[[i]]@style@yaxis@main=FALSE
       }
+      if(viewerStyle@margin[4] < .05) viewerStyle@margin[4] <- .05
     }
     return(list(tracks=trackList, style=viewerStyle))
     }

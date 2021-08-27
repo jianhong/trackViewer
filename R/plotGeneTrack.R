@@ -48,6 +48,15 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
   doLabels <- unity>=totalLines
   eachLineHeight <- 1/totalLines
   currLineBottom <- 1
+  unitx <- convertWidth(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE)
+  arr_size <- min(.5, unitx/length(trs)) #determin arrow size by width/#events
+  if(!any(c("fontsize", "cex") %in% names(track@style@ylabgp))){
+    if(doLabels){
+      track@style@ylabgp$cex <- optFontSize1(.2*y)
+    }else{
+      track@style@ylabgp$cex <- arr_size
+    }
+  }
   for(i in seq.int(totalLines)){
     vp <- viewport(y = currLineBottom - eachLineHeight/2, 
                    height = eachLineHeight, xscale = xscale)
@@ -97,39 +106,71 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
       if(!str_neg){
         grid.lines(x=unit(c(0, 0, 1), "npc"),
                    y=unit(c(.5, 0, 0), "npc"),
-                   arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
+                   arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
                    gp=gpar(col=col, fill=col))
         ## add gene name at TSS
         if(doLabels){
           if(start(curr_rg) >= stringStopPos[1]){
             grid.text(label = names(curr_rg), x = 0, y = 0, hjust = 0, vjust=1.5,
-                      gp = gpar(track@style@ylabgp))
+                      gp = do.call(gpar, track@style@ylabgp))
             stringStopPos[1] <- start(curr_rg)+stringW
           }else{
             if(start(curr_rg) >= stringStopPos[2]){
               grid.text(label = names(curr_rg), x = 0, y = 1, hjust = 0, vjust=-1,
-                        gp = gpar(track@style@ylabgp))
+                        gp = do.call(gpar, track@style@ylabgp))
               stringStopPos[2] <- start(curr_rg)+stringW
             }
+          }
+        }else{#dynamic label
+          if(i %in% c(1, totalLines)){
+            if(start(curr_rg) >= stringStopPos[1] &&
+               end(curr_rg) >= stringStopPos[1] + stringW){
+              if(i==1){#top
+                grid.text(label = names(curr_rg), x = 0, y = 1,
+                          hjust = 0, vjust=-1.5,
+                          gp = do.call(gpar, track@style@ylabgp))
+              }else{
+                grid.text(label = names(curr_rg), x = 0, y = 0,
+                          hjust = 0, vjust=1.5,
+                          gp = do.call(gpar, track@style@ylabgp))
+              }
+            }
+            stringStopPos[1] <- end(curr_rg)
           }
         }
       }else{
         grid.lines(x=unit(c(1, 1, 0), "npc"),
                    y=unit(c(.5, 0, 0), "npc"),
-                   arrow = arrow(type="closed", angle = 15, length = unit(.5, "lines")),
+                   arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
                    gp=gpar(col=col, fill=col))
         ## add gene name at TSS
         if(doLabels){
           if(end(curr_rg)-stringW >= stringStopPos[1]){
             grid.text(label = names(curr_rg), x = 1, y = 0, hjust = 1, vjust=1.5,
-                      gp = gpar(track@style@ylabgp))
+                      gp = do.call(gpar, track@style@ylabgp))
             stringStopPos[1] <- end(curr_rg)
           }else{
             if(end(curr_rg)-stringW >= stringStopPos[2]){
               grid.text(label = names(curr_rg), x = 1, y = 1, hjust = 1, vjust=-1,
-                        gp = gpar(track@style@ylabgp))
+                        gp = do.call(gpar, track@style@ylabgp))
               stringStopPos[2] <- end(curr_rg)
             }
+          }
+        }else{#dynamic label
+          if(i %in% c(1, totalLines)){
+            if(start(curr_rg) >= stringStopPos[1] &&
+               end(curr_rg) >= stringStopPos[1] + stringW){
+              if(i==1){#bottom
+                grid.text(label = names(curr_rg), x = 1, y = 1,
+                          hjust = 1, vjust=-1.5,
+                          gp = do.call(gpar, track@style@ylabgp))
+              }else{
+                grid.text(label = names(curr_rg), x = 1, y = 0,
+                          hjust = 1, vjust=1.5,
+                          gp = do.call(gpar, track@style@ylabgp))
+              }
+            }
+            stringStopPos[1] <- end(curr_rg)
           }
         }
       }
