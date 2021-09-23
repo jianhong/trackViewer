@@ -1,3 +1,8 @@
+k_smooth <- function(x, y, bandwidth){
+  fit <- ksmooth(x, y, kernel="normal", bandwidth = 2*bandwidth,
+                 n.points=length(x), x.points = x)
+  fit$y
+}
 xysmooth <- function(x2, y2, smooth=5){
   if(is.logical(smooth)) smooth=5
   if(smooth[1]>=length(x2) ||
@@ -7,27 +12,7 @@ xysmooth <- function(x2, y2, smooth=5){
   ord <- order(x2)
   x2 <- x2[ord]
   y2 <- y2[ord]
-  x <- min(x2):max(x2)
-  k <- ksmooth(x2, y2, n.points = length(x), x.points = x, bandwidth = 1)
-  y <- k$y
-  y.num <- which(!is.na(y))
-  y[is.na(y)] <- unlist(mapply(function(from, to, length.out){
-    s <- seq(from, to, length.out = length.out)
-    s[-c(1, length(s))]
-    }, y[y.num[-length(y.num)]], y[y.num[-1]], diff(y.num)+1, SIMPLIFY = FALSE))
-  k <- ksmooth(x, y, n.points = length(x), x.points = x, bandwidth = smooth)
-  id <- which(x %in% x2)
-  x <- k$x[id]
-  y <- k$y[id]
-  id <- which(y2==0)
-  id1 <- which(diff(id)==1)
-  id1 <- sort(unique(c(id1, id1+1)))
-  id <- id[id1]
-  id1 <- which(diff(x[id])>(diff(range(x))+1)/100) ## resolution set to 100
-  id1 <- sort(unique(c(id1, id1+1)))
-  id <- id[id1]
-  y[id] <- 0
-  list(x=x, y=y)
+  list(x=x2, y=k_smooth(x2, y2, smooth))
 }
 resampleData_old <- function(.dat, scale, step=1000){
   .rd <- reduce(.dat)
@@ -126,12 +111,6 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
             y <- as.numeric(rep(.dat[,"score"], each=2))
             x2 <- c(min(x), x, max(x))
             y2 <- c(0, y, 0)
-            ## do smooth
-            if(smooth){
-              xy.smoothed <-xysmooth(x2, y2, smooth)
-              x2 <- xy.smoothed$x
-              y2 <- xy.smoothed$y
-            }
             grid.polygon(x2, y2, default.units="native", 
                          gp=gpar(col=NA, fill=color))
             yscale <- range(yscale)
@@ -146,6 +125,14 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
             }
             xt <- c(xt, x)
             yt <- c(yt, y)
+            ## do smooth curve
+            if(smooth[1]){
+              xy.smoothed <-xysmooth(x2, y2, smooth[1])
+              x2 <- xy.smoothed$x
+              y2 <- xy.smoothed$y
+            }
+            grid.lines(x2, y2, default.units="native", 
+                       gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
         }
     }
     return(list(x=xt, y=yt))

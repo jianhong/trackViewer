@@ -12,8 +12,9 @@
 #' @param newpage should be draw on a new page?
 #' @param operator operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
 #' and so on.
-#' @param smooth logical(1) or numeric(1). Smooth the curve or not. If it is numeric, eg n,
+#' @param smooth logical(1) or numeric(). Plot smooth curve or not. If it is numeric, eg n,
 #' mean of nearby n points will be used for plot.
+#' If it is numeric, the second number will be the color. Default coloer is 2 (red).
 #' @return An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}
 #' @import GenomicRanges
 #' @import grid
