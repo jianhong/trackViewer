@@ -130,9 +130,9 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
               xy.smoothed <-xysmooth(x2, y2, smooth[1])
               x2 <- xy.smoothed$x
               y2 <- xy.smoothed$y
+              grid.lines(x2, y2, default.units="native", 
+                         gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
             }
-            grid.lines(x2, y2, default.units="native", 
-                       gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
         }
     }
     return(list(x=xt, y=yt))
