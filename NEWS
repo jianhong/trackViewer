@@ -1,3 +1,7 @@
+Changes in version 1.29.7
+
+    o Fix the bug 'breaks' are not unique
+    
 Changes in version 1.29.6
 
     o Add smooth curve to the tracks.

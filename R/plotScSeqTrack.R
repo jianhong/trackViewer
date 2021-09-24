@@ -30,6 +30,9 @@ plotScSeqTrack <- function(.dat, .dat2, scale, color, yscale, breaks, NAcolor="w
       return()
     }
     rg <- rg + c(-1, 1)*diff(rg)/1000
+    if(rg[1]==rg[2] && rg[1]==0){
+      rg[2] <- 1
+    }
     breaks <- seq(min(0, rg[1]), rg[2], length.out = 101)
   }
   
