@@ -972,7 +972,7 @@ DataFrame getContactRecords(CharacterVector hicfilename,
   return(DataFrame::create(Named("seq1")=seqn1, Named("start1")=a1,
                            Named("end1")=b1,
                            Named("seq2")=seqn2, Named("start2")=a2,
-                           Named("end1")=b2,
+                           Named("end2")=b2,
                            Named("score")=score));
 }
 
