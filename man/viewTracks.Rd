@@ -43,8 +43,9 @@ viewTracks(
 \item{operator}{operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
 and so on.}
 
-\item{smooth}{logical(1) or numeric(1). Smooth the curve or not. If it is numeric, eg n,
-mean of nearby n points will be used for plot.}
+\item{smooth}{logical(1) or numeric(). Plot smooth curve or not. If it is numeric, eg n,
+mean of nearby n points will be used for plot.
+If it is numeric, the second number will be the color. Default coloer is 2 (red).}
 }
 \value{
 An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}

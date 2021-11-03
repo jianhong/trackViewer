@@ -93,15 +93,19 @@ optimizeStyle <- function(trackList, viewerStyle=trackViewerStyle(), theme=NULL)
     ##put y-axis?
     if(all(!(sapply(trackList, function(.ele) .ele@style@yaxis@label)))){
         for(i in 1:length(trackList)){
-            if(trackList[[i]]@type %in% c("data")){
+            if(trackList[[i]]@type %in% c("data", "interactionData")){
                 trackList[[i]]@style@yaxis@label <- TRUE
                 trackList[[i]]@style@yaxis@gp <- 
                     c(trackList[[i]]@style@yaxis@gp, 
                       cex=optFontSize("y", viewerStyle))
                 trackList[[i]]@style@marginTop <- .1
             }
-          if(trackList[[i]]@type %in% c("lollipopData", "interactionData")){
+          if(trackList[[i]]@type %in% c("lollipopData")){
             trackList[[i]]@style@yaxis@draw <- FALSE
+          }
+          if(trackList[[i]]@type %in% c("interactionData")){
+            trackList[[i]]@style@yaxis@main <- FALSE
+            viewerStyle@margin[4] <- .05
           }
         }
     }

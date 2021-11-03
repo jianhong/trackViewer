@@ -211,6 +211,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
             }
             drawXscale(style@xscale)
           }
+          popViewport()## for data
         }else{
           if(track@type=="lollipopData"){
             pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
@@ -259,6 +260,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                ybase, side="bottom", main=style@yaxis@main,
                                baselineCol=style@color[2], maxHeight=maxHeight)
             }
+            popViewport()## for data
           }else{
             if(track@type=="scSeq"){
               ##plot yaxis
@@ -273,9 +275,8 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
               ##grid.clip()
               plotScSeqTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
                                 breaks=style@breaks, NAcolor=style@NAcolor)
+              popViewport()## for data
             }else{##interactionData
-              ##plot yaxis
-              drawYaxis(yscale, style@yaxis, curViewStyle)
               pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                                     height=1, 
                                     width=1-curViewStyle@margin[2]-curViewStyle@margin[4], 
@@ -284,11 +285,14 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                     xscale=xscale, 
                                     yscale=yscale))
               ##grid.clip()
-              plotInteractionDataTrack(track@dat, track@dat2, xlim,
-                                       style@color, yscale=yscale, 
-                                       breaks=style@breaks, 
-                                       NAcolor=style@NAcolor,
-                                       style=style@tracktype)
+              heatlegends <- plotInteractionDataTrack(track@dat, track@dat2, xlim,
+                                                      style@color, yscale=yscale, 
+                                                      breaks=style@breaks, 
+                                                      NAcolor=style@NAcolor,
+                                                      style=style@tracktype)
+              popViewport()## for data
+              ##plot yaxis
+              drawYaxis(yscale, style@yaxis, curViewStyle, heatlegends)
             }
           }
         }
@@ -301,6 +305,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               just=c(0,0), 
                               xscale=xscale))
         plotGeneTrack(track, xlim, chr)
+        popViewport()## for data
       }else{##others
         pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                               height=1, 
@@ -309,9 +314,9 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                               just=c(0,0), 
                               xscale=xscale))
         plotGeneModel(track, xlim, chr) ### currently do the same thing as transcript.
+        popViewport()## for data
       }
     }
-    popViewport()## for data
     
     ## plot wavy line
     if(wavyLine){

@@ -113,8 +113,8 @@ importGInteractions <- function(file,
         if(length(df)==0){
             return(GInteractions())
         }
-        anchor1 <- GRanges(df$seq1, IRanges(df$start1, df$end1))
-        anchor2 <- GRanges(df$seq2, IRanges(df$start2, df$end2))
+        anchor1 <- GRanges(df$seq1, IRanges(df$start1+1, df$end1))
+        anchor2 <- GRanges(df$seq2, IRanges(df$start2+1, df$end2))
         gi <- GInteractions(anchor1=anchor1, anchor2=anchor2, 
                             score=df$score)
     }

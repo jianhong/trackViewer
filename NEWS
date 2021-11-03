@@ -1,3 +1,7 @@
+Changes in version 1.31.1
+
+    o Move the heatmap legend to yaxis.
+    
 Changes in version 1.29.8
 
     o Fix the a typo in read hic data.

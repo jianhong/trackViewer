@@ -173,7 +173,8 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
   }else{
     FUN(.dat, .dat1target)
   }
-  # legend
+  # legend in y axis
+  return(list(crp=crp, breaks=breaks))
   vp <- viewport(x = 1 - convertWidth(unit(5, "char"), "npc", valueOnly = TRUE), 
                  y= 1 - convertHeight(unit(1, "char"), "npc", valueOnly = TRUE), 
                  width = convertWidth(unit(5, "char"), "npc", valueOnly = TRUE),
