@@ -96,7 +96,7 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
             .dat <- condenceGRs(.dat) ## can not handle +/- strands in the same track
             .dat$type <- "D"
             .gap <- gaps(.dat) ## insert 0
-            .gap <- .gap[start(.gap)>=scale[1] & end(.gap)<=scale[2]]
+            .gap <- .gap[start(.gap)>=scale[1]-1 & end(.gap)<=scale[2]+1]
             if(length(.gap)>0){
                 mcols(.gap)$score <- 0
                 .gap$type <- "G"
@@ -109,8 +109,8 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
             .dat[.dat$type=="G", "end"] <- .dat[.dat$type=="G", "end"] + .5
             x <- as.numeric(t(.dat[,c("start", "end")]))
             y <- as.numeric(rep(.dat[,"score"], each=2))
-            x2 <- c(min(x), x, max(x))
-            y2 <- c(0, y, 0)
+            x2 <- c(0, min(x), x, max(x), max(x)+.5)
+            y2 <- c(0, 0, y, 0, 0)
             grid.polygon(x2, y2, default.units="native", 
                          gp=gpar(col=NA, fill=color))
             yscale <- range(yscale)
