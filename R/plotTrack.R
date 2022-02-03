@@ -93,45 +93,51 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
     for(i in 1:length(.data)){
         if(length(.data[[i]])>0){
             .dat <- .data[[i]]
-            .dat <- condenceGRs(.dat) ## can not handle +/- strands in the same track
-            .dat$type <- "D"
-            .gap <- gaps(.dat) ## insert 0
-            .gap <- .gap[start(.gap)>=scale[1]-1 & end(.gap)<=scale[2]+1]
-            if(length(.gap)>0){
+            ## trim from back to see where is the last number that !=0
+            id0 <- which(.dat$score!=0)
+            if(length(id0)>0){
+              .data_range <- range(.dat)
+              .dat <- .dat[seq.int(id0[length(id0)]), ]
+              .dat <- condenceGRs(.dat) ## can not handle +/- strands in the same track
+              .dat$type <- "D"
+              .gap <- gaps(.dat) ## insert 0
+              .gap <- .gap[start(.gap)>=scale[1]-1 & end(.gap)<=scale[2]+1]
+              if(length(.gap)>0){
                 mcols(.gap)$score <- 0
                 .gap$type <- "G"
                 .dat <- c(.dat, .gap)
-            }
-            .dat <- orderedGR(.dat)
-            .dat <- as.data.frame(.dat)
-            ##expand the gap by 1
-            .dat[.dat$type=="G", "start"] <- .dat[.dat$type=="G", "start"] - .5
-            .dat[.dat$type=="G", "end"] <- .dat[.dat$type=="G", "end"] + .5
-            x <- as.numeric(t(.dat[,c("start", "end")]))
-            y <- as.numeric(rep(.dat[,"score"], each=2))
-            x2 <- c(0, min(x), x, max(x), max(x)+.5)
-            y2 <- c(0, 0, y, 0, 0)
-            grid.polygon(x2, y2, default.units="native", 
-                         gp=gpar(col=NA, fill=color))
-            yscale <- range(yscale)
-            if(yscale[1]<=0 && yscale[2]>=0){
-              grid.lines(x=scale, y=0, default.units="native",
-                       gp=gpar(col=color))
-            }else{
-              dy <- abs(yscale - 0)
-              dy <- yscale[order(dy)][1]
-              grid.lines(x=scale, y=dy, default.units="native",
-                         gp=gpar(col="red"))
-            }
-            xt <- c(xt, x)
-            yt <- c(yt, y)
-            ## do smooth curve
-            if(smooth[1]){
-              xy.smoothed <-xysmooth(x2, y2, smooth[1])
-              x2 <- xy.smoothed$x
-              y2 <- xy.smoothed$y
-              grid.lines(x2, y2, default.units="native", 
-                         gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
+              }
+              .dat <- orderedGR(.dat)
+              .dat <- as.data.frame(.dat)
+              ##expand the gap by 1
+              .dat[.dat$type=="G", "start"] <- .dat[.dat$type=="G", "start"] - .5
+              .dat[.dat$type=="G", "end"] <- .dat[.dat$type=="G", "end"] + .5
+              x <- as.numeric(t(.dat[,c("start", "end")]))
+              y <- as.numeric(rep(.dat[,"score"], each=2))
+              x2 <- c(start(.data_range), x, max(x)+.5, end(.data_range))
+              y2 <- c(0, y, 0, 0)
+              grid.polygon(x2, y2, default.units="native", 
+                           gp=gpar(col=NA, fill=color))
+              yscale <- range(yscale)
+              if(yscale[1]<=0 && yscale[2]>=0){
+                grid.lines(x=scale, y=0, default.units="native",
+                           gp=gpar(col=color))
+              }else{
+                dy <- abs(yscale - 0)
+                dy <- yscale[order(dy)][1]
+                grid.lines(x=scale, y=dy, default.units="native",
+                           gp=gpar(col="red"))
+              }
+              xt <- c(xt, x)
+              yt <- c(yt, y)
+              ## do smooth curve
+              if(smooth[1]){
+                xy.smoothed <-xysmooth(x2, y2, smooth[1])
+                x2 <- xy.smoothed$x
+                y2 <- xy.smoothed$y
+                grid.lines(x2, y2, default.units="native", 
+                           gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
+              }
             }
         }
     }

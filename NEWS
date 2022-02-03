@@ -1,3 +1,7 @@
+Changes in version 1.31.2
+
+    o Handle the issue with long tail.
+    
 Changes in version 1.31.1
 
     o Move the heatmap legend to yaxis.
