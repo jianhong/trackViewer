@@ -138,6 +138,13 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
                 grid.lines(x2, y2, default.units="native", 
                            gp=gpar(col=ifelse(length(smooth)>1, smooth[2], "red")))
               }
+            }else{
+              .dat <- orderedGR(.dat)
+              .dat <- as.data.frame(.dat)
+              x <- as.numeric(t(.dat[,c("start", "end")]))
+              y <- as.numeric(rep(.dat[,"score"], each=2))
+              xt <- c(xt, x)
+              yt <- c(yt, y)
             }
         }
     }
