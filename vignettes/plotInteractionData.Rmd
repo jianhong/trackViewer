@@ -103,9 +103,11 @@ import data from `.hic` format file.
 ```{r inportHic}
 hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
                     mustWork=TRUE)
+if(.Platform$OS.type!="windows"){
 importGInteractions(file=hic, format="hic",
                     ranges=GRanges("22", IRanges(50000000, 100000000)),
                     out = "GInteractions")
+}
 ```
 
 Another widely used genomic interaction data format is `.cool` files and the
