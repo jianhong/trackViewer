@@ -29,10 +29,12 @@
 #' #                   ranges=GRanges("chr7", IRanges(127471197, 127474697)))
 #' 
 #' ##import a hic file
+#' if(.Platform$OS.type!="windows"){
 #' hic <- system.file("extdata", "test_chr22.hic", package = "trackViewer",
 #'                        mustWork=TRUE)
 #' dat <- importGInteractions(file=hic, format="hic", 
 #'                            ranges=GRanges("22", IRanges(1500000, 100000000)))
+#' }
 #' 
 #' ##import a cool file
 #' cool <- system.file("extdata", "test.mcool", package = "trackViewer",
