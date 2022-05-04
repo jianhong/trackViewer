@@ -39,7 +39,6 @@ convertNum2HumanNum <- function(x){
 }
 
 locateScale <- function(x, y, maxY, scale){
-    if(length(x)==0) return(c(start=NA, end=NA))
     suffix <- c(1, 1000, 1000000, 1000000000)
     names(suffix) <- c("bp", "K", "M", "G")
     rg <- scale[[3]]
@@ -49,6 +48,8 @@ locateScale <- function(x, y, maxY, scale){
     start <- c()
     end <- c()
     START <- TRUE
+    defaultOut <- c(start=mean(rg)-scale, end=mean(rg)+scale)
+    if(length(x)==0) return(defaultOut)
     y <- y[order(x)]
     x <- x[order(x)]
     for(i in seq_along(x)){
@@ -73,7 +74,7 @@ locateScale <- function(x, y, maxY, scale){
     ir <- IRanges(start=c(x[1],start, x[length(x)])-scale.10, 
                   end=c(x[1], end, x[length(x)])+scale.10)
     ir <- gaps(ir)
-    if(length(ir)==0) return(c(start=NA, end=NA))
+    if(length(ir)==0) return(defaultOut)
     ir <- ir[order(width(ir), decreasing=TRUE)]
     mid <- sum(c(start(ir)[1], end(ir)[1]))/2
     return(c(start=mid-scale, end=mid+scale))
