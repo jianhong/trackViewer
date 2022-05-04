@@ -1,3 +1,7 @@
+Changes in version 1.32.1
+
+    o Fix the issue when locateScale return NA.
+
 Changes in version 1.31.4
 
     o Fix the issue in windows 2022.
