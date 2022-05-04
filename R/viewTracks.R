@@ -10,8 +10,10 @@
 #' @param viewerStyle an object of \code{\link{trackViewerStyle}}
 #' @param autoOptimizeStyle should use \code{\link{optimizeStyle}} to optimize style
 #' @param newpage should be draw on a new page?
-#' @param operator operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
-#' and so on.
+#' @param operator operator, could be +, -, *, /, ^, \%\%, and NA. "-" means dat - dat2, 
+#' and so on. NA means do not apply any operator.
+#' Note: if multiple operator is supplied, please make sure the length of operator keep
+#' same as the length of trackList.
 #' @param smooth logical(1) or numeric(). Plot smooth curve or not. If it is numeric, eg n,
 #' mean of nearby n points will be used for plot.
 #' If it is numeric, the second number will be the color. Default coloer is 2 (red).
@@ -43,8 +45,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
                        newpage=TRUE, operator=NULL, smooth=FALSE){
   if(!is.null(operator)){
-    if(!operator %in% c("+", "-", "*", "/", "^", "%%")){
-      stop('operator must be one of "+", "-", "*", "/", "^", "%%"')
+    if(!all(operator %in% c("+", "-", "*", "/", "^", "%%", NA))){
+      stop('operator must be one of "+", "-", "*", "/", "^", "%%", NA')
     }
   }
   stopifnot(is.numeric(smooth)||is.logical(smooth))
@@ -228,18 +230,22 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
   if(!is.null(operator)){
     ##change dat as operator(dat, dat2)
     ##dat2 no change
-    trackList <- lapply(trackList, function(.ele){
+    operator <- rep(operator, length(trackList))[seq_along(trackList)]
+    trackList <- mapply(trackList, operator, FUN=function(.ele, .operator){
       if(.ele@type=="data" && 
          length(.ele@dat2)>0 &&
-         length(.ele@dat)>0){
+         length(.ele@dat)>0 &&
+         !is.na(.operator)){
         .ele@dat <- GRoperator(.ele@dat, 
                                .ele@dat2, 
                                col="score", 
-                               operator=operator)
-        if(operator!="+") .ele@dat2 <- GRanges()
+                               operator=.operator)
+        if(.operator !="+") .ele@dat2 <- GRanges()
       }
       .ele
-    })
+    }, SIMPLIFY = FALSE)
+  }else{
+    operator <- rep(NA, length(trackList))
   }
   
   if(newpage) grid.newpage()
@@ -276,7 +282,7 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
     xy[[i]] <- plotTrack(names(trackList)[i], trackList[[i]], 
                          viewerStyle, ht,
                          yscales[[i]], yHeights[i], xscale,
-                         chromosome, strand, operator, wavyLine,
+                         chromosome, strand, operator[i], wavyLine,
                          smooth=smooth)
     ht <- ht + yHeights[i]
     if(length(trackList[[i]]@style@marginBottom)>0){

@@ -40,8 +40,10 @@ viewTracks(
 
 \item{newpage}{should be draw on a new page?}
 
-\item{operator}{operator, could be +, -, *, /, ^, \%\%. "-" means dat - dat2, 
-and so on.}
+\item{operator}{operator, could be +, -, *, /, ^, \%\%, and NA. "-" means dat - dat2, 
+and so on. NA means do not apply any operator.
+Note: if multiple operator is supplied, please make sure the length of operator keep
+same as the length of trackList.}
 
 \item{smooth}{logical(1) or numeric(). Plot smooth curve or not. If it is numeric, eg n,
 mean of nearby n points will be used for plot.

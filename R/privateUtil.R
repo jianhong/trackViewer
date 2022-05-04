@@ -195,8 +195,12 @@ filterTracks <- function(tl, chrom, from, to, st){
     tl
 }
 
+is_null_na <- function(.ele){
+  if(is.null(.ele)) return(TRUE)
+  is.na(.ele)
+}
 getYlim <- function(tl, op){
-    yscales <- lapply(tl, function(.ele){
+    yscales <- mapply(tl, op, FUN=function(.ele, .op){
         ylim <- .ele@style@ylim
         if(length(ylim)!=2){
             if(.ele@type %in% c("data", "lollipopData", "scSeq")){
@@ -205,7 +209,7 @@ getYlim <- function(tl, op){
                 }else{
                     ylim <- c(0, 0)
                 }
-                if(length(.ele@dat2)>0 && is.null(op)){
+                if(length(.ele@dat2)>0 && is_null_na(.op)[1]){
                     ylim2 <- unique(round(range(.ele@dat2$score)))
                     ylim <- c(ylim, -1*ylim2)
                 }
@@ -220,7 +224,7 @@ getYlim <- function(tl, op){
             }            
         }
         ylim
-    })
+    }, SIMPLIFY = FALSE)
     
     yscaleR <- range(unlist(yscales))
     if(diff(yscaleR)==0) yscaleR <- c(0, 1)
@@ -247,7 +251,7 @@ getYheight <- function(tl){
     })
     noY <- yHeights == -1
     yHeightsT <- sum(yHeights[!noY])
-    if(yHeightsT>1)
+    if(yHeightsT>1.001)
         stop("total heights of data tracks is greater than 1.")
     if(length(yHeights[noY]) > 0){
         yHeights[noY] <- 
@@ -574,7 +578,7 @@ handleRanges <- function(ranges, SNP.gr, features, len){
     }
     stopifnot(length(ranges)==len)
   }else{
-    if(class(features)=="GRanges"){
+    if(is(features, "GRanges")){
       ranges <- split(range(unname(features), ignore.strand=TRUE)[rep(1, len)],
                       seq.int(len))
     }else{

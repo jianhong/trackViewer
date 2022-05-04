@@ -205,7 +205,9 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
           xy2 <- list(x=numeric(length=0L), y=numeric(length=0L))
           ##for dat2
           if(length(track@dat2)>0){
-            if(is.null(operator)) track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
+            if(is_null_na(operator)[1]){
+              track@dat2$score <- -1 * track@dat2$score ##convert to negtive value
+            }
             xy2 <- plotDataTrack(track@dat2, chr, strand, xlim, style@color[2], yscale=yscale, smooth=smooth)
           }
           xy <- list(x=c(xy1$x, xy2$x), y=c(xy1$y, xy2$y))

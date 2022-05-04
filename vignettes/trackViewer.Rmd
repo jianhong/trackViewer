@@ -210,7 +210,7 @@ newtrack <- repA
 newtrack <- parseWIG(newtrack, "chr11", 122929275, 122930122)
 newtrack$dat2 <- newtrack$dat
 newtrack$dat <- fox2$dat2
-setTrackStyleParam(newtrack, "color", c("blue", "red"))
+setTrackStyleParam(newtrack, "color", c("#4A95E0", "#CF5D6D"))
 viewTracks(trackList(newtrack, trs), 
            gr=gr, viewerStyle=viewerStyle, operator="+")
 ```
@@ -219,9 +219,15 @@ viewTracks(trackList(newtrack, trs),
 viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle, operator="-")
 ```
 
+Multiple operators are acceptable.
+
+```{r viewTracksOperator3,fig.cap='show data with multiple operators', fig.width=8,fig.height=5}
+viewTracks(trackList(newtrack, newtrack, newtrack, trs), gr=gr, viewerStyle=viewerStyle, operator=c(NA, "-", "+"))
+```
+
 Alternatively, you can try **GRoperator** before viewing tracks.
 
-```{r viewTracksOperator3,fig.cap='show data with operator "-"',fig.width=8,fig.height=4}
+```{r viewTracksOperator4,fig.cap='show data with operator "-"',fig.width=8,fig.height=4}
 newtrack$dat <- GRoperator(newtrack$dat, newtrack$dat2, col="score", operator="-")
 newtrack$dat2 <- GRanges()
 viewTracks(trackList(newtrack, trs), gr=gr, viewerStyle=viewerStyle)
