@@ -574,7 +574,7 @@ handleRanges <- function(ranges, SNP.gr, features, len){
     }
     stopifnot(length(ranges)==len)
   }else{
-    if(class(features)=="GRanges"){
+    if(is(features, "GRanges")){
       ranges <- split(range(unname(features), ignore.strand=TRUE)[rep(1, len)],
                       seq.int(len))
     }else{
