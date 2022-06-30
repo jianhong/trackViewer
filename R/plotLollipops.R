@@ -260,11 +260,16 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             labels.check.overlap <- FALSE
             labels.default.units <- "native"
             labels.gp <- gpar(cex=cex)
+            labels.pfm <- NULL
+            labels.font <- "Helvetica-Bold"
+            labels.fontface <- "bold"
+            labels.ic.scale <- TRUE
             
             ## change the parameter by use definations.
             for(label.parameter in c("x", "y", "just", "hjust", "vjust",
                                      "rot", "check.overlap", "default.units",
-                                     "gp")){
+                                     "gp", "pfm", "font",
+                                     "fontface", "ic.scale")){
                 label.para <- paste0("label.parameter.", label.parameter)
                 if(label.para %in% colnames(mcols(SNPs))){
                     assign(paste0("labels.", label.parameter), 
@@ -323,15 +328,55 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
               ## add this height
               this.height <- this.height + rased.height + guide.height
             }
-            grid.text(x=labels.x, y=this.height + feature.height, 
-                      label = labels.text,  
-                      just = labels.just, 
-                      hjust = labels.hjust,
-                      vjust = labels.vjust,
-                      rot=labels.rot,
-                      check.overlap = labels.check.overlap,
-                      default.units = labels.default.units,
-                      gp=labels.gp)
+            if(length(labels.pfm)>0){
+              if(!requireNamespace("motifStack", quietly = TRUE)){
+                stop("When plot motifs as labels,",
+                     " the Bioconductor package 'motifStack' is required!")
+              }
+              for(idx in seq_along(labels.pfm)){
+                if(!is.null(labels.pfm[[idx]])){
+                  this_cex <- ifelse(length(cex)==length(labels.pfm),
+                                     cex[[idx]], cex[1])
+                  this_just <- ifelse(length(labels.just)==length(labels.pfm),
+                                      labels.just[[idx]], labels.just[1])
+                  this_rot <- ifelse(length(labels.rot)==length(labels.pfm),
+                                     labels.rot[[idx]], labels.rot[1])
+                  this_font <- ifelse(length(labels.font)==length(labels.pfm),
+                                      labels.font[[idx]], labels.font[1])
+                  this_fontface <- ifelse(length(labels.fontface)==length(labels.pfm),
+                                          labels.fontface[[idx]], labels.fontface[1])
+                  this_ic.scale <- ifelse(length(labels.ic.scale)==length(labels.pfm),
+                                          labels.ic.scale[[idx]], labels.ic.scale[1])
+                  pushViewport(viewport(x=labels.x[[idx]],
+                                        y=this.height + feature.height,  
+                                        just = this_just,
+                                        width =  convertWidth(
+                                          stringWidth(paste(rep("A",
+                                                                ncol(labels.pfm[[idx]]@mat)),
+                                                            collapse = "")), 
+                                                     unitTo="npc",
+                                                     valueOnly=FALSE),
+                                        height = LINEW * this_cex,
+                                        angle = this_rot,
+                                        default.units = labels.default.units))
+                  plotMotifLogoA(pfm = labels.pfm[[idx]],
+                                 font=this_font,
+                                 fontface = this_fontface,
+                                 ic.scale = this_ic.scale)
+                  popViewport()
+                }
+              }
+            }else{
+              grid.text(x=labels.x, y=this.height + feature.height, 
+                        label = labels.text,  
+                        just = labels.just, 
+                        hjust = labels.hjust,
+                        vjust = labels.vjust,
+                        rot=labels.rot,
+                        check.overlap = labels.check.overlap,
+                        default.units = labels.default.units,
+                        gp=labels.gp)
+            }
         }
     }
     popViewport()

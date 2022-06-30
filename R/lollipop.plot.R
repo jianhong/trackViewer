@@ -46,7 +46,8 @@
 #' And also the controls for labels by name the metadata start as 
 #' label.parameter.<properties> 
 #' such as label.parameter.rot, label.parameter.gp. The parameter is used for 
-#' \link[grid]{grid.text}. The metadata 'featureLayerID' for features are used 
+#' \link[grid]{grid.text}.or \link[motifStack]{plotMotifLogoA}.
+#' The metadata 'featureLayerID' for features are used 
 #' for drawing features in different layers. The metadata 'SNPsideID' for SNP.gr
 #' are used for determining the side of lollipops. And the 'SNPsideID' could only
 #' be 'top' or 'bottom'.

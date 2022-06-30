@@ -217,6 +217,19 @@ grid.text("title here", x=.5, y=.98, just="top",
           gp=gpar(cex=1.5, fontface="bold"))
 ```
 
+Start from version `1.33.3`, **lolliplot** can also plot motifs as labels.
+To the parameters are controlled by the parameters of labels by naming
+the metadata start as label.parameter such as label.parameter.pfm or 
+label.parameter.font. The parameter is used for [plotMotifLogoA](https://www.rdocumentation.org/packages/motifStack/topics/plotMotifLogoA).
+
+```{r lolliplot.motiflogo, fig.width=6, fig.height=5.2}
+library(motifStack)
+pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+sample.gr.rot$label.parameter.pfm <- pcms[sample(seq_along(pcms),
+                                                 length(sample.gr.rot),
+                                                 replace = TRUE)]
+lolliplot(sample.gr.rot, features, legend=legend)
+```
 
 ## Change the lolliplot type
 
