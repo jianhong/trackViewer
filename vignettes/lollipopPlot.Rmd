@@ -218,7 +218,7 @@ grid.text("title here", x=.5, y=.98, just="top",
 ```
 
 Start from version `1.33.3`, **lolliplot** can also plot motifs as labels.
-To the parameters are controlled by the parameters of labels by naming
+The parameters are controlled by the parameters of labels by naming
 the metadata start as label.parameter such as label.parameter.pfm or 
 label.parameter.font. The parameter is used for [plotMotifLogoA](https://www.rdocumentation.org/packages/motifStack/topics/plotMotifLogoA).
 
