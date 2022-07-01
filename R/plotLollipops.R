@@ -359,7 +359,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                         height = LINEW * this_cex,
                                         angle = this_rot,
                                         default.units = labels.default.units))
-                  plotMotifLogoA(pfm = labels.pfm[[idx]],
+                  motifStack::plotMotifLogoA(pfm = labels.pfm[[idx]],
                                  font=this_font,
                                  fontface = this_fontface,
                                  ic.scale = this_ic.scale)
