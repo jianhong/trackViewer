@@ -1,4 +1,8 @@
-Changes in version 1.33.2
+Changes in version 1.33.4
+
+    o Fix a issue for plot tracks by insert 0 to the first signals.
+    
+Changes in version 1.33.3
 
     o Add support for motif logo for lollipop plot.
     
