@@ -11,7 +11,7 @@ checkCoolFile <- function(coolfile){
   stopifnot(length(coolfile)==1)
   stopifnot(is.character(coolfile) || is(coolfile, "H5IdComponent"))
   if(is.character(coolfile)){
-    coolfile <- H5Fopen(coolfile)
+    coolfile <- H5Fopen(coolfile, flags="H5F_ACC_RDONLY")
   }
   return(coolfile)
 }

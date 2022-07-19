@@ -275,7 +275,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                ybase, side="bottom", main=style@yaxis@main,
                                baselineCol=style@color[2], maxHeight=maxHeight)
             }
-            popViewport()## for data
+            popViewport()## for lollipopData
           }else{
             if(track@type=="scSeq"){
               ##plot yaxis
@@ -290,7 +290,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
               ##grid.clip()
               plotScSeqTrack(track@dat, track@dat2, xlim, style@color, yscale=yscale, 
                                 breaks=style@breaks, NAcolor=style@NAcolor)
-              popViewport()## for data
+              popViewport()## for scSeq
             }else{##interactionData
               pushViewport(viewport(x=curViewStyle@margin[2], y=0, 
                                     height=1, 
@@ -305,7 +305,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
                                                       breaks=style@breaks, 
                                                       NAcolor=style@NAcolor,
                                                       style=style@tracktype)
-              popViewport()## for data
+              popViewport()## for interactionData
               ##plot yaxis
               drawYaxis(yscale, style@yaxis, curViewStyle, heatlegends)
             }
