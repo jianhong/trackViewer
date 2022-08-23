@@ -26,6 +26,7 @@ HTMLWidgets.widget({
     			 .attr("id", "importjsonfilename")
     			 .style("opacity", 0)
     			 .attr("accept", ".json");
+    var msgbox = d3.select(el).append("p");
     return {
       renderValue: function(x) {
         //export functions
@@ -124,6 +125,11 @@ HTMLWidgets.widget({
         	.on("click", function(){
         		document.getElementById("importjsonfilename").click();
         	});
+        	
+        function message(msga, k, msgb){
+          k0 = trackNames().length - k;
+          msgbox.text("R pseudocode: "+msga + k0 + msgb);
+        }
         
         //set canvas size
         svg.attr("width", width)
@@ -188,6 +194,7 @@ HTMLWidgets.widget({
          var changeTrackName = function(k, txt){
             if(x.name.indexOf(txt) != -1){
                 console.log("used name " + txt);
+                message("names(trackList)[[", k, "]] <- '" + txt + "'");
                 return;
             }
             var xkeys = d3.keys(x);
@@ -574,6 +581,7 @@ HTMLWidgets.widget({
                 	}else{
 						if(/dataYlabel_/.exec(self.cls)){
                 			x.rotate[trackNames()[self.k]]=self.angle;
+                			message("setTrackStyleParam(viewerStyle, 'autolas', FALSE); setTrackStyleParam(trackList[[", self.k, "]], 'ylablas', 0/1/2/3)");
                 		}
                 		if(/trackLayerLabel/.exec(self.cls)){
                 			x.rotate[safeNames()[self.k]+"_"+self.ref]=self.angle;
@@ -655,7 +663,7 @@ HTMLWidgets.widget({
 												x.tracklist[trackNames()[tmpstatus.k]].ylim[tmpstatus.datatrack]=Number(tmpstatus.text);
 											}
 											if(/dataYlabel_/.exec(tmpstatus.cls)){
-												changeTrackName(tmpstatus.k, tmpstatus.text)
+												changeTrackName(tmpstatus.k, tmpstatus.text);
 											}
 											if(/Mlabel/.exec(tmpstatus.cls)){
 												  x.markers[tmpstatus.id].ref = [xscale().invert(tmpstatus.x-margin.left), tmpstatus.y];
@@ -681,9 +689,10 @@ HTMLWidgets.widget({
 								if(/yaxis_/.exec(self.cls)){
 									x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
 									if(Math.abs(old-self.text)>2) plotregion.renew();
+                	message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c(0, "+self.text+"))");
 								}
 								if(/dataYlabel_/.exec(self.cls)){
-									changeTrackName(self.k, self.text)
+									changeTrackName(self.k, self.text);
 								}
 								if(/Mlabel/.exec(self.cls)){
 									  x.markers[self.id].text = txt;  
@@ -749,6 +758,7 @@ HTMLWidgets.widget({
 									if(/yaxis_/.exec(self.cls)){
 										x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
 										if(Math.abs(old-self.text)>2) plotregion.renew();
+                	  message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c(0, "+self.text+"))");
 									}
 									if(/dataYlabel_/.exec(self.cls)){
 										changeTrackName(self.k, self.text)
@@ -1715,9 +1725,11 @@ HTMLWidgets.widget({
             	switch(picked){
             		case 0: //data track dat
             			x.tracklist[trackNames()[currentId]].style.color[0] = col;
+            			message("setTrackStyleParam(trackList[[", currentId, "]], 'color', c('"+col+"', color2))");
             			break;
             		case 1: //data track dat2
             			x.tracklist[trackNames()[currentId]].style.color[1] = col;
+            			message("setTrackStyleParam(trackList[[", currentId, "]], 'color', c(color1, '"+col+"'))");
             			break;
             		case 2: //track baseline
             			//x.tracklist[trackNames()[currentId]].style.color = col;
@@ -1727,6 +1739,7 @@ HTMLWidgets.widget({
             					x.tracklist[trackNames()[currentId]].dat.fill[i] = col;
             				}
             			}
+            			message("setTrackStyleParam(trackList[[", currentId, "]], 'color', c('"+col+"', color2))");
             			break;
             		case 3: //label or lines
             			var tmpstatus = {k:currentId,v:x.color[trackNames()[currentId]]};
@@ -1738,6 +1751,7 @@ HTMLWidgets.widget({
             				redo:function(){}
             			});
             			x.color[trackNames()[currentId]] = col;
+            			message("setTrackStyleParam(trackList[[", currentId, "]], 'ylabgp', list(col='"+col+"'))");
             			break;
             		case 4: //lollipop nodes
             			var poskey = Number(target.attr("poskey"));
@@ -2051,6 +2065,7 @@ HTMLWidgets.widget({
 					  	for(var i=0; i<trackNames().length; i++){
 						   x.height[trackNames()[i]] = x.height[trackNames()[i]]/totalH;
 					    }
+					    message("setTrackStyleParam(trackList[[", i, "]], 'height', value)");
 					  	plotregion.renew();
 					  }
 					}, 
@@ -2096,6 +2111,7 @@ HTMLWidgets.widget({
 					  	for(var i=0; i<trackNames().length; i++){
 						   x.height[trackNames()[i]] = x.height[trackNames()[i]]/totalH;
 					    }
+					    message("setTrackStyleParam(trackList[[", i, "]], 'height', value)");
 					  	plotregion.renew();
 					  }
 					},
@@ -2115,6 +2131,7 @@ HTMLWidgets.widget({
 										redo:function(){}
 									  });
 					  	x.tracklist[eventLayer].style.yaxis.main = !x.tracklist[eventLayer].style.yaxis.main;
+					    message("setTrackYaxisParam(trackList[[", eventLayer, "]], 'main', TRUE/FALSE)");
 					  	plotregion.renew();
 					  }
 					},
@@ -4282,6 +4299,7 @@ HTMLWidgets.widget({
                     		x.tracklist[trackNames()[k]].style.color[0] = col;
                     		obj.attr("fill", col);
                     		d3.select(".dataBaseline"+safeNames()[k]).attr("stroke", col);
+            			      message("setTrackStyleParam(trackList[[", k, "]], 'color', c('"+col+"', color2))");
                     	};
                     	ColorPicker(this, picked);
                     });
@@ -4318,6 +4336,7 @@ HTMLWidgets.widget({
 							});
                     		x.tracklist[trackNames()[k]].style.color[1] = col;
                     		obj.attr("fill", col);
+            			      message("setTrackStyleParam(trackList[[", k, "]], 'color', c(color1, '"+col+"'))");
                     	};
                     	ColorPicker(this, picked);
                     });
@@ -4563,6 +4582,7 @@ HTMLWidgets.widget({
 												   x.height[trackNames()[i]] = x.height[trackNames()[i]]*ratio;
 											   }
 										   }
+										   message("setTrackStyleParam(trackList[[", k, "]], 'height', "+x.height[trackNames()[k]]+")");
 										   plotregion.renew();
 									   }
 								   }));

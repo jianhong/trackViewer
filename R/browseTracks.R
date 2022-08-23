@@ -121,7 +121,7 @@ browseTracks <- function(trackList,
         stop("trackList is required.")
       }
     }
-    if(class(trackList)!="trackList" && 
+    if(!is(trackList, "trackList") && 
        !((is.list(trackList) && all(sapply(trackList, class)=="track")))){
         stop("trackList must be an object of \"trackList\"
              (See ?trackList) or a list of track")
@@ -170,7 +170,7 @@ browseTracks <- function(trackList,
         }
     }
     col2Hex <- function(x){
-        if(is(x, "AsIs")){
+        if(is(x, "AsIs") || is.list(x)){
           return(lapply(x, col2Hex))
         }
         rgb <- col2rgb(x)

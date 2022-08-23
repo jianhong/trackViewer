@@ -182,6 +182,8 @@ For users who prefer to modify the look and feel of a figure interactively, they
 ```{r browseTrack,fig.cap='interactive tracks',fig.width=6,fig.height=4}
 browseTracks(trackList, gr=gr)
 ```
+\
+\
 The videos at https://youtu.be/lSmeTu4WMlc and  https://youtu.be/lvF0tnJiHQI illustrate how to generate and modify an interactive plot. Please note that the interactive feature is only fully implemented in version 1.19.14 or later.  
 
 ## Plot multiple genes in one track
