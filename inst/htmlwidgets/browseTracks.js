@@ -131,7 +131,7 @@ HTMLWidgets.widget({
             k0 = trackNames().length - k;
             msgbox.text("R pseudocode: "+msga + k0 + msgb);
           }else{
-            msgbox.text(msga);
+            msgbox.text("R pseudocode: "+msga);
           }
         }
 

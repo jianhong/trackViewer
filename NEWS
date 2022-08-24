@@ -1,11 +1,11 @@
 Changes in version 1.33.7
 
-    o print the more psuedocode in browseTracks.
+    o print the more pseudocode in browseTracks.
 
 Changes in version 1.33.6
 
     o Fix the bug for 'invalid color name' in browseTracks
-    o print the psuedocode in browseTracks
+    o print the pseudocode in browseTracks
     
 Changes in version 1.33.5
 
