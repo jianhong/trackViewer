@@ -53,16 +53,18 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight,
                       height=this.feature.height.m,
                       just="left", gp=gpar(col=color, fill=fill, lwd=lwd), 
                       default.units = "native")
-            if(label_on_feature & !is.na(names(this.dat)[1])){
-              grid.text(x=(start(this.dat)+end(this.dat))/2, 
-                        y=bottomHeight+feature.height,
-                        just = "centre",
-                        label = names(this.dat)[1],
-                        gp= gpar(list(cex=this.cex * 
-                                        this.feature.height.m/
-                                        this.feature.height,
-                                      color=color)), 
-                        default.units = "native")
+            if(!is.null(names(this.dat))){
+              if(label_on_feature & !is.na(names(this.dat)[1])){
+                grid.text(x=(start(this.dat)+end(this.dat))/2, 
+                          y=bottomHeight+feature.height,
+                          just = "centre",
+                          label = names(this.dat)[1],
+                          gp= gpar(list(cex=this.cex * 
+                                          this.feature.height.m/
+                                          this.feature.height,
+                                        color=color)), 
+                          default.units = "native")
+              }
             }
         }
         feature.height <- feature.height + this.feature.height

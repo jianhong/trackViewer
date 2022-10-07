@@ -1,3 +1,7 @@
+Changes in version 1.33.8
+
+    o Fix a bug if there is no name for the freatures.
+    
 Changes in version 1.33.7
 
     o print the more pseudocode in browseTracks.
