@@ -5,11 +5,14 @@ on:
     branches: [master]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
     container: bioconductor/bioconductor_docker:devel
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: 'master'
       
@@ -22,7 +25,7 @@ jobs:
         
       - name: Cache R packages
         if: runner.os != 'Windows'
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: /usr/local/lib/R/site-library
           key: ${{ runner.os }}-r-1-${{ hashFiles('.github/depends.Rds') }}
@@ -33,12 +36,15 @@ jobs:
         if: runner.os == 'Linux'
         env:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
 
       - name: Install dependencies
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           options(repos = c(CRAN = "https://cran.r-project.org"))
           BiocManager::repositories()
@@ -53,6 +59,8 @@ jobs:
         shell: Rscript {0}
 
       - name: Build pkgdown
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
            PATH=$PATH:$HOME/bin/ Rscript -e 'BiocManager::install(c("knitr", "rmarkdown", "pkgdown")); pkgdown::build_site(".")'
       # deploy needs rsync? Seems so.
@@ -61,7 +69,7 @@ jobs:
           apt-get update
           apt-get -y install rsync
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@releases/v3
+        uses: JamesIves/github-pages-deploy-action@releases/v4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to.
