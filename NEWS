@@ -1,3 +1,7 @@
+Changes in version 1.35.1
+
+    o Add support for single resolution cooler file.
+    
 Changes in version 1.33.8
 
     o Fix a bug if there is no name for the freatures.

@@ -1,4 +1,4 @@
-test_coverageGR<-function(){
+test_hic<-function(){
   if(.Platform$OS.type!="windows"){
   hicfile <- system.file("extdata", "testBp.hic", package="trackViewer")
   contactRecords <- .Call("_trackViewer_getContactRecords",

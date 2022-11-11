@@ -15,6 +15,11 @@ checkCoolFile <- function(coolfile){
   }
   return(coolfile)
 }
+isMcool <- function(coolfile){
+  coolRootName <- coolfileRootName(coolfile)
+  return(!all(c("bins", "chroms", "indexes", "pixels") %in%
+           coolRootName))
+}
 
 coolfileRootName <- function(coolfile){
   coolfile <- checkCoolFile(coolfile)
@@ -23,15 +28,19 @@ coolfileRootName <- function(coolfile){
 
 coolfileGetByPath <- function(coolfile, resolution, subPath){
   coolfile <- checkCoolFile(coolfile)
-  available_res <- listResolutions(coolfile, "cool")
-  if(!resolution %in% available_res){
-    stop(paste("The given resolution is not available in file.",
-               "Available resolutions: ",
-               paste(available_res, collapse = ","), "."
-    ))
+  if(!isMcool(coolfile)){
+    res0 <- "coolfile"
+  }else{
+    available_res <- listResolutions(coolfile, "cool")
+    if(!resolution %in% available_res){
+      stop(paste("The given resolution is not available in file.",
+                 "Available resolutions: ",
+                 paste(available_res, collapse = ","), "."
+      ))
+    }
+    coolfileRootName <- coolfileRootName(coolfile)
+    res0 <- paste0("coolfile$", coolfileRootName, "$`", resolution, "`")
   }
-  coolfileRootName <- coolfileRootName(coolfile)
-  res0 <- paste0("coolfile$", coolfileRootName, "$`", resolution, "`")
   if(!missing(subPath)){
     subPath <- subPath[1]
     if(subPath!="" && !is.na(subPath)){
@@ -43,6 +52,12 @@ coolfileGetByPath <- function(coolfile, resolution, subPath){
 
 cooler_indexes <- function(coolfile, resolution){
   coolfileGetByPath(coolfile, resolution, "indexes")
+}
+
+coolfilePathName <- function(rootName, resolution, subPath){
+  stopifnot(is.character(subPath) && length(subPath)==1)
+  ifelse(subPath %in% rootName, subPath, 
+         paste(rootName, resolution, subPath, sep="/"))
 }
 
 cooler_bins <- function(coolfile, resolution, seqname){
@@ -59,7 +74,7 @@ cooler_bins <- function(coolfile, resolution, seqname){
                  indexes$chrom_offset[-1], 
                  names = seqs$name)
   ir0 <- ir1[seqname]
-  name <- paste(rootName, resolution, "bins", sep="/")
+  name <- coolfilePathName(rootName, resolution, 'bins')
   bins <- list()
   on.exit(h5closeAll())
   for(i in seq_along(ir0)){
@@ -104,7 +119,7 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges()){
   bins_index_1 <- bins_index_1[width(bins_index_1)>0]
   ir0 <- reduce(bins_index_1)
   rootName <- coolfileRootName(coolfile)
-  name <- paste(rootName, resolution, "pixels", sep="/")
+  name <- coolfilePathName(rootName, resolution, "pixels")
   pixels <- list()
   on.exit(h5closeAll())
   for(i in seq_along(ir0)){
