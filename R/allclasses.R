@@ -273,7 +273,7 @@ setClass("track", representation(dat="GRanges",
                      if(!inherits(object@dat$score, c("numeric", "integer")))
                          return("class of score metadata should be numeric")
                  }else{
-                     if(class(object@dat$score)!="CompressedCharacterList")
+                     if(!is(object@dat$score, "CompressedCharacterList"))
                          return("Please try ?imortScore for WIG files")
                  }
              }else{

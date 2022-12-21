@@ -799,5 +799,9 @@ cleanDataMcols <- function(this.dat.mcols, type){
     this.dat.mcols[, !grepl("^label.parameter",
                             colnames(this.dat.mcols)), 
                    drop=FALSE]
+  this.dat.mcols <- 
+    this.dat.mcols[, !grepl("^node.label",
+                            colnames(this.dat.mcols)), 
+                   drop=FALSE]
   return(this.dat.mcols)
 }

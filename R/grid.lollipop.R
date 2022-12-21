@@ -59,11 +59,10 @@ grid.lollipop <- function (x1=.5, y1=.5,
                            pin=NULL,
                            scoreMax,
                            scoreType,
-                           id=NA, id.col="black",
+                           id=NA,
                            cex=1, lwd=1,
                            dashline.col="gray80",
                            side=c("top", "bottom"),
-                           rot=15,
                            alpha=NULL,
                            shape=shape){
     side <- match.arg(side)
@@ -174,12 +173,13 @@ grid.lollipop <- function (x1=.5, y1=.5,
                           grid.circle1(x=x2, y=y0,
                                        r=radius*ratio.yx*cex, 
                                        gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)))
-                   if(!is.na(id)){
+                   if(!is.na(id$label)){
                        y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4
                        if(side) y0 <- 1 - y0
-                       grid.text(label=id, x=x2, 
-                                 y=y0,
-                                 just="centre", gp=gpar(col=id.col, cex=.75*cex))
+                       id$gp$cex <- .75*id$gp$cex
+                       id$x <- x2
+                       id$y <- y0
+                       do.call(grid.text, id)
                    }
                }
                },
@@ -215,31 +215,31 @@ grid.lollipop <- function (x1=.5, y1=.5,
                             y=y0,
                             width=2*radius*ratio.yx*cex,
                             height=3*radius*ratio.yx*cex+y4)
-               if(!is.na(id)){
+               if(!is.na(id$label)){
                    y0 <- y2+y3+(this.score-.25)*2*radius*ratio.yx+2*y4/3
-                   grid.text(label=id, x=x2, 
-                             y=y0,
-                             just="centre", gp=gpar(col=id.col, cex=.5*cex))
+                   id$gp$cex <- .5*id$gp$cex
+                   id$x <- x2
+                   id$y <- y0
+                   do.call(grid.text, id)
                }
                },
            flag={
-             if(is.na(id)){
-               id <- " "
+             if(is.na(id$label)){
+               id$label <- " "
              }
-             LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))*cex
+             this.cex <- id$gp$cex
+             LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))*this.cex
              y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4/2
              if(side) y0 <- 1 - y0
-             LINEW <- as.numeric(convertX(stringWidth(paste0("o", id, "u")), "npc"))*cex
-             LINEW <- LINEW * sign(cos(pi*rot/180))
-             LINEH0 <- LINEW*ratio.yx*tan(pi*rot/180)
+             LINEW <- as.numeric(convertX(stringWidth(paste0("o", id$label, "u")), "npc"))*this.cex
+             LINEW <- LINEW * sign(cos(pi*id$rot/180))
+             LINEH0 <- LINEW*ratio.yx*tan(pi*id$rot/180)
              grid.polygon(x=c(x2, x2+LINEW, x2+LINEW, x2),
                           y=c(y0, y0+LINEH0, y0+LINEH0+LINEH*1.25, y0+LINEH*1.25),
                           gp=gpar(fill=col, col=border, alpha=alpha))
-             grid.text(label=id, x=x2+LINEW*.5, 
-                       y=y0 + LINEH*.625+LINEH0*.5,
-                       hjust=.5, vjust=.5,
-                       gp=gpar(col=id.col, cex=cex),
-                       rot=rot)
+             id$x <- x2+LINEW*.5
+             id$y <- y0 + LINEH*.625+LINEH0*.5
+             do.call(grid.text, id)
            },
            grid.pie(x=x2, y=y2+y3+y4+radius*ratio.yx, 
                     radius = radius*cex, 

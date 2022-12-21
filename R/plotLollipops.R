@@ -72,6 +72,55 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight,
     feature.height
 }
 
+handleLabelParams <- function(SNPs, prefix="label.parameter.", cex=1,
+                              ...){
+  labels <- list(...)
+  ## change the parameter by use definations.
+  for(label.parameter in names(labels)){
+    label.para <- paste0(prefix, label.parameter)
+    if(label.para %in% colnames(mcols(SNPs))){
+      labels[[label.parameter]] <- mcols(SNPs)[, label.para]
+    }
+  }
+  for(label.parameter in c("col", "fill", "alpha", "lty", "lwd", "lex",
+                          "lineend", "linejoin", "linemitre",
+                          "fontsize", "cex", "fontfamily", "fontface",
+                          "lineheight", "font")){
+    label.para <- paste0(prefix, label.parameter)
+    if(label.para %in% colnames(mcols(SNPs))){
+      labels$gp[[label.parameter]] <- mcols(SNPs)[, label.para]
+    }
+  }
+  if(!"cex" %in% names(labels$gp)){
+    labels$gp$cex <- cex
+  }
+  mergeList <- function(.ele){
+    .ele <- do.call(list, .ele)
+    .n <- unique(unlist(lapply(.ele, names)))
+    .out <- list()
+    if(length(.n)>0){
+      for(.name in .n){
+        .out[[.name]] <- sapply(.ele, function(.e){
+          if(.name %in% names(.e)){
+            .e[[.name]][1]
+          }else{
+            NA
+          }
+        })
+      }
+    }else{
+      .n <- unique(names(.ele))
+      for(.name in .n){
+        .out[[.name]] <- unlist(.ele[names(.ele) %in% .name])
+      }
+    }
+    .out
+  }
+  labels$gp <- mergeList(labels$gp)
+  labels$gp[duplicated(names(labels$gp))] <- NULL
+  labels$gp <- do.call(gpar, labels$gp)
+  return(labels)
+}
 plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline, 
                           type, ranges, yaxis, yaxis.gp, scoreMax, scoreMax0, scoreType,
                           LINEW, cex, ratio.yx, GAP, pin, dashline.col,
@@ -139,7 +188,6 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         lab.pos <- reAdjustLabels(lab.pos, 
                                   lineW=LINEW*cex)
     }
-    
     if(length(SNPs)>0){
         yaxisat <- NULL
         yaxisLabel <- TRUE
@@ -207,14 +255,22 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             fill <- if(is.list(this.dat$fill)) this.dat$fill[[1]] else this.dat$fill
             alpha <- if(length(this.dat$alpha)>0) this.dat$alpha[[1]] else 1
             lwd <- if(is.list(this.dat$lwd)) this.dat$lwd[[1]] else this.dat$lwd
-            id <- if(is.character(this.dat$label)) this.dat$label else NA
-            id.col <- if(length(this.dat$label.col)>0) this.dat$label.col else "black"
             shape <- if(length(this.dat$shape)>0) this.dat$shape[[1]] else "circle"
             rot <- if(length(this.dat$label.rot)>0) this.dat$label.rot else 15
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
             this.dashline.col <- 
               if(length(this.dat$dashline.col)>0) this.dat$dashline.col[[1]][1] else dashline.col
             if(length(names(this.dat))<1) this.dashline.col <- NA
+            id <- 
+              handleLabelParams(this.dat, cex = this.cex, prefix = "node.label.",
+                                label = if(is.character(this.dat$label)) this.dat$label else
+                                  if(is.character(this.dat$node.label)) this.dat$node.label else NA,
+                                rot = if(length(this.dat$label.rot)>0) this.dat$label.rot else ifelse(type=="flag", 15, 0),
+                                gp = gpar(cex=this.cex,
+                                          col = if(length(this.dat$label.col)>0) this.dat$label.col else "black"),
+                                just = "centre",
+                                hjust = .5,
+                                vjust = .5)
             this.dat.mcols <- mcols(this.dat)
             this.dat.mcols <- cleanDataMcols(this.dat.mcols, type)
 
@@ -237,16 +293,15 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                           pin=pin,
                           scoreMax=scoreMax * LINEW * cex,
                           scoreType=scoreType,
-                          id=id, id.col=id.col,
+                          id=id,
                           cex=this.cex, lwd=lwd, dashline.col=this.dashline.col,
-                          side=side, rot=rot, alpha=alpha, shape=shape)
+                          side=side, alpha=alpha, shape=shape)
 
         }
         this.height <- getHeight(SNPs, 
                                  ratio.yx, LINEW, GAP, cex, type,
                                  scoreMax=scoreMax,
                                  level="data")
-        labels.rot <- 90
         if(length(names(SNPs))>0){
             if(type=="pie.stack"){
                 ## unique lab.pos and SNPs
@@ -254,57 +309,23 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 lab.pos <- lab.pos[idx]
                 SNPs <- SNPs[idx]
             }
-            labels.x <- lab.pos
-            labels.text <- names(SNPs)
-            labels.just <- ifelse(side=="top", "left", "right")
-            labels.hjust <- NULL
-            labels.vjust <- NULL
-            labels.check.overlap <- FALSE
-            labels.default.units <- "native"
-            labels.gp <- gpar(cex=cex)
-            labels.pfm <- NULL
-            labels.font <- "Helvetica-Bold"
-            labels.fontface <- "bold"
-            labels.ic.scale <- TRUE
+            this.label <- 
+              handleLabelParams(SNPs, cex = cex,
+                                prefix = "label.parameter.",
+                                x = lab.pos,
+                                text = names(SNPs),
+                                just = ifelse(side=="top", "left", "right"),
+                                hjust = NULL,
+                                vjust = NULL,
+                                rot = 90,
+                                lcheck.overlap = FALSE,
+                                default.units = "native",
+                                gp = gpar(cex=cex),
+                                pfm = NULL,
+                                font = "Helvetica-Bold",
+                                fontface = "bold",
+                                ic.scale = TRUE)
             
-            ## change the parameter by use definations.
-            for(label.parameter in c("x", "y", "just", "hjust", "vjust",
-                                     "rot", "check.overlap", "default.units",
-                                     "gp", "pfm", "font",
-                                     "fontface", "ic.scale")){
-                label.para <- paste0("label.parameter.", label.parameter)
-                if(label.para %in% colnames(mcols(SNPs))){
-                    assign(paste0("labels.", label.parameter), 
-                           mcols(SNPs)[, label.para])
-                }
-            }
-            if(!"cex" %in% names(labels.gp)){
-              labels.gp <- c(labels.gp, cex=cex)
-            }
-            mergeList <- function(.ele){
-              .n <- unique(unlist(lapply(.ele, names)))
-              .out <- list()
-              if(length(.n)>0){
-                for(.name in .n){
-                  .out[[.name]] <- sapply(.ele, function(.e){
-                    if(.name %in% names(.e)){
-                      .e[[.name]][1]
-                    }else{
-                      NA
-                    }
-                  })
-                }
-              }else{
-                .n <- unique(names(.ele))
-                for(.name in .n){
-                  .out[[.name]] <- unlist(.ele[names(.ele) %in% .name])
-                }
-              }
-              .out
-            }
-            labels.gp <- mergeList(labels.gp)
-            labels.gp[duplicated(names(labels.gp))] <- NULL
-            labels.gp <- do.call(gpar, labels.gp)
             if(jitter=="label"){
               ## add guide lines
               rased.height <- 4*GAP*cex
@@ -315,53 +336,53 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                     SNPs[i]$dashline.col[[1]][1] else 
                       dashline.col
                 if(length(names(SNPs[i]))<1) this.dashline.col <- NA
-                grid.lines(x=c(start(SNPs[i]), labels.x[i]), 
+                grid.lines(x=c(start(SNPs[i]), this.label$x[i]), 
                            y=c(this.height+feature.height-cex*LINEW, 
                                this.height+feature.height+rased.height),
-                           default.units = labels.default.units,
+                           default.units = this.label$default.units,
                            gp=gpar(col=this.dashline.col, lty=3))
-                grid.lines(x=c(labels.x[i], labels.x[i]),
+                grid.lines(x=c(this.label$x[i], this.label$x[i]),
                            y=c(this.height+rased.height+feature.height,
                                this.height+rased.height+
                                  guide.height+feature.height),
-                           default.units = labels.default.units,
+                           default.units = this.label$default.units,
                            gp=gpar(col=this.dashline.col, lty=3))
               }
               ## add this height
               this.height <- this.height + rased.height + guide.height
             }
-            if(length(labels.pfm)>0){
+            if(length(this.label$pfm)>0){
               if(!requireNamespace("motifStack", quietly = TRUE)){
                 stop("When plot motifs as labels,",
                      " the Bioconductor package 'motifStack' is required!")
               }
-              for(idx in seq_along(labels.pfm)){
-                if(!is.null(labels.pfm[[idx]])){
-                  this_cex <- ifelse(length(cex)==length(labels.pfm),
+              for(idx in seq_along(this.label$pfm)){
+                if(!is.null(this.label$pfm[[idx]])){
+                  this_cex <- ifelse(length(cex)==length(this.label$pfm),
                                      cex[[idx]], cex[1])
-                  this_just <- ifelse(length(labels.just)==length(labels.pfm),
-                                      labels.just[[idx]], labels.just[1])
-                  this_rot <- ifelse(length(labels.rot)==length(labels.pfm),
-                                     labels.rot[[idx]], labels.rot[1])
-                  this_font <- ifelse(length(labels.font)==length(labels.pfm),
-                                      labels.font[[idx]], labels.font[1])
-                  this_fontface <- ifelse(length(labels.fontface)==length(labels.pfm),
-                                          labels.fontface[[idx]], labels.fontface[1])
-                  this_ic.scale <- ifelse(length(labels.ic.scale)==length(labels.pfm),
-                                          labels.ic.scale[[idx]], labels.ic.scale[1])
-                  pushViewport(viewport(x=labels.x[[idx]],
+                  this_just <- ifelse(length(this.label$just)==length(this.label$pfm),
+                                      this.label$just[[idx]], this.label$just[1])
+                  this_rot <- ifelse(length(this.label$rot)==length(this.label$pfm),
+                                     this.label$rot[[idx]], this.label$rot[1])
+                  this_font <- ifelse(length(this.label$font)==length(this.label$pfm),
+                                      this.label$font[[idx]], this.label$font[1])
+                  this_fontface <- ifelse(length(this.label$fontface)==length(this.label$pfm),
+                                          this.label$fontface[[idx]], this.label$fontface[1])
+                  this_ic.scale <- ifelse(length(this.label$ic.scale)==length(this.label$pfm),
+                                          this.label$ic.scale[[idx]], this.label$ic.scale[1])
+                  pushViewport(viewport(x=this.label$x[[idx]],
                                         y=this.height + feature.height,  
                                         just = this_just,
                                         width =  convertWidth(
                                           stringWidth(paste(rep("A",
-                                                                ncol(labels.pfm[[idx]]@mat)),
+                                                                ncol(this.label$pfm[[idx]]@mat)),
                                                             collapse = "")), 
                                                      unitTo="npc",
                                                      valueOnly=FALSE),
                                         height = LINEW * this_cex,
                                         angle = this_rot,
-                                        default.units = labels.default.units))
-                  motifStack::plotMotifLogoA(pfm = labels.pfm[[idx]],
+                                        default.units = this.label$default.units))
+                  motifStack::plotMotifLogoA(pfm = this.label$pfm[[idx]],
                                  font=this_font,
                                  fontface = this_fontface,
                                  ic.scale = this_ic.scale)
@@ -369,15 +390,15 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 }
               }
             }else{
-              grid.text(x=labels.x, y=this.height + feature.height, 
-                        label = labels.text,  
-                        just = labels.just, 
-                        hjust = labels.hjust,
-                        vjust = labels.vjust,
-                        rot=labels.rot,
-                        check.overlap = labels.check.overlap,
-                        default.units = labels.default.units,
-                        gp=labels.gp)
+              grid.text(x=this.label$x, y=this.height + feature.height, 
+                        label = this.label$text,  
+                        just = this.label$just, 
+                        hjust = this.label$hjust,
+                        vjust = this.label$vjust,
+                        rot=this.label$rot,
+                        check.overlap = this.label$check.overlap,
+                        default.units = this.label$default.units,
+                        gp=this.label$gp)
             }
         }
     }

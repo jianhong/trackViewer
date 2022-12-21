@@ -44,7 +44,8 @@
 #' In SNP.gr and features, metadata of the GRanges object will be used to control the 
 #' color, fill, border, alpha, shape, height, cex, dashline.col, data source of pie if the type is pie. 
 #' And also the controls for labels by name the metadata start as 
-#' label.parameter.<properties> 
+#' label.parameter.<properties>, and for node labels by name the metadata start as
+#' node.label.<properties>,
 #' such as label.parameter.rot, label.parameter.gp. The parameter is used for 
 #' \link[grid]{grid.text}.or \link[motifStack]{plotMotifLogoA}.
 #' The metadata 'featureLayerID' for features are used 

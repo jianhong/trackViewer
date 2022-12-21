@@ -1,3 +1,7 @@
+Changes in version 1.35.2
+
+    o Add support for node label parameters.
+    
 Changes in version 1.35.1
 
     o Add support for single resolution cooler file.
