@@ -1,3 +1,7 @@
+Changes in version 1.35.3
+
+    o Add documentation for selected labels for mutations.
+    
 Changes in version 1.35.2
 
     o Add support for node label parameters.

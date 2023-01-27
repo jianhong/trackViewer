@@ -194,6 +194,9 @@ lolliplot(sample.gr.rot, features, legend=legend)
 sample.gr.rot$label.parameter.col <- sample.int(7,
                                                 length(sample.gr),
                                                 replace = TRUE)
+sample.gr.rot$label.parameter.col[[1]] <- gpar(col=NA) ## remove the first label
+sample.gr.rot$dashline.col <- "grey80"
+sample.gr.rot$dashline.col[1] <- NA ## remove the dashline for first label
 lolliplot(sample.gr.rot, features, legend=legend)
 ```
 
