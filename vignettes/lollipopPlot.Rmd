@@ -194,9 +194,8 @@ lolliplot(sample.gr.rot, features, legend=legend)
 sample.gr.rot$label.parameter.col <- sample.int(7,
                                                 length(sample.gr),
                                                 replace = TRUE)
-sample.gr.rot$label.parameter.col[[1]] <- gpar(col=NA) ## remove the first label
-sample.gr.rot$dashline.col <- "grey80"
-sample.gr.rot$dashline.col[1] <- NA ## remove the dashline for first label
+sample.gr.rot$label.parameter.draw <- TRUE
+sample.gr.rot$label.parameter.draw[[1]] <- FALSE ## remove the first label
 lolliplot(sample.gr.rot, features, legend=legend)
 ```
 
@@ -353,6 +352,12 @@ sample.gr.mul.patient$color <-
     patient.color.set[sample.gr.mul.patient$stack.factor]
 legend <- list(labels=stack.factors, col="gray80", 
                fill=sapply(patient.color.set, `[`, 1))
+## remove one mutation label
+sample.gr.mul.patient$label.parameter.draw <- TRUE
+sample.gr.mul.patient$label.parameter.draw[
+  names(sample.gr.mul.patient)==
+    sample(unique(names(sample.gr.mul.patient)), 1)] <-
+  FALSE
 lolliplot(sample.gr.mul.patient, features, type="pie.stack", 
           legend=legend, dashline.col="gray")
 ```

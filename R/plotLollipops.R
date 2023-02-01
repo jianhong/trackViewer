@@ -71,7 +71,14 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight,
     }
     feature.height
 }
-
+getDrawLabelParam <- function(SNPs){
+  label.parameter.draw <- rep(TRUE, length(SNPs))
+  if(length(SNPs$label.parameter.draw)==length(SNPs)){
+    label.parameter.draw <- vapply(SNPs$label.parameter.draw, `[`, i=1,
+                                   FUN.VALUE = logical(1L))
+  }
+  label.parameter.draw
+}
 handleLabelParams <- function(SNPs, prefix="label.parameter.", cex=1,
                               ...){
   labels <- list(...)
@@ -173,20 +180,34 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         })
         SNPs.condense <- unlist(GRangesList(SNPs.condense), use.names = FALSE)
         SNPs.condense <- sort(SNPs.condense)
-        lab.pos.condense <- jitterLables(start(SNPs.condense), 
+        lab.pos.condense <- start(SNPs.condense)
+        label.parameter.draw <- rep(TRUE, length(SNPs.condense))
+        if(length(SNPs$label.parameter.draw)==length(SNPs)){
+          label.parameter.draw <- 
+            SNPs$label.parameter.draw[vapply(SNPs.condense$oid, `[`, i=1,
+                                             FUN.VALUE = numeric(1L))]
+          label.parameter.draw <- vapply(label.parameter.draw, `[`, i=1,
+                                         FUN.VALUE = logical(1L))
+        }
+        lab.pos.condense[label.parameter.draw] <-
+          jitterLables(start(SNPs.condense)[label.parameter.draw], 
                                          xscale=c(start(ranges), end(ranges)), 
                                          lineW=LINEW*cex)
-        lab.pos.condense <- reAdjustLabels(lab.pos.condense, 
-                                           lineW=LINEW*cex)
+        lab.pos.condense[label.parameter.draw] <-
+          reAdjustLabels(lab.pos.condense[label.parameter.draw],
+                         lineW=LINEW*cex)
         condense.ids <- SNPs.condense$oid
         lab.pos <- rep(lab.pos.condense, elementNROWS(condense.ids))
         lab.pos <- lab.pos[order(unlist(condense.ids))]
     }else{
-        lab.pos <- jitterLables(start(SNPs), 
-                                xscale=c(start(ranges), end(ranges)), 
-                                lineW=LINEW*cex)
-        lab.pos <- reAdjustLabels(lab.pos, 
-                                  lineW=LINEW*cex)
+        lab.pos <- start(SNPs)
+        label.parameter.draw <- getDrawLabelParam(SNPs)
+        lab.pos[label.parameter.draw] <-
+          jitterLables(start(SNPs)[label.parameter.draw], 
+                       xscale=c(start(ranges), end(ranges)), 
+                       lineW=LINEW*cex)
+        lab.pos[label.parameter.draw] <-
+          reAdjustLabels(lab.pos[label.parameter.draw], lineW=LINEW*cex)
     }
     if(length(SNPs)>0){
         yaxisat <- NULL
@@ -302,6 +323,9 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                  ratio.yx, LINEW, GAP, cex, type,
                                  scoreMax=scoreMax,
                                  level="data")
+        labels.keep <- getDrawLabelParam(SNPs)
+        SNPs <- SNPs[labels.keep]
+        lab.pos <- lab.pos[labels.keep]
         if(length(names(SNPs))>0){
             if(type=="pie.stack"){
                 ## unique lab.pos and SNPs
@@ -325,7 +349,6 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                 font = "Helvetica-Bold",
                                 fontface = "bold",
                                 ic.scale = TRUE)
-            
             if(jitter=="label"){
               ## add guide lines
               rased.height <- 4*GAP*cex
