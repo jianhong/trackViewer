@@ -3,13 +3,17 @@
 #' @param file The path to the file to read.
 #' @param format The format of import file. Could be ginteractions, hic, cool or validPairs
 #' @param ranges An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
-#' the range to be imported
+#' the range to be imported. For .hic file, if the length of ranges is 2, 
+#' the first range will be used as anchor 1 and the second range will be used
+#' as anchor 2.
 #' @param ignore.strand ignore the strand or not when do filter. default TRUE
 #' @param out output format. Default is track. Possible values: track, GInteractions.
 #' @param resolution Resolutions for the interaction data.
 #' @param unit BP (base pair) or FRAG (fragment) (.hic file only). 
 #' @param normalization Type of normalization, NONE, VC, VC_SORT or KR for .hic and
 #' NONE, balanced for .cool.
+#' @param matrixType Type of matrix for .hic file. Available choices are "observed", "oe", and "expected".
+#' default is "observed".
 #' @param ... NOT used.
 #' @return a \code{\link{track}} object 
 #' @import GenomicRanges
@@ -19,8 +23,8 @@
 #' @importFrom rhdf5 H5Fopen h5ls h5read h5closeAll
 #' @useDynLib trackViewer
 #' @export
-#' @seealso See Also as \code{\link{importBam}}, \code{\link{track}}, 
-#' \code{\link{viewTracks}}
+#' @seealso See Also as \code{\link{listResolutions}}, \code{\link{listChromosomes}}, 
+#' \code{\link{readHicNormTypes}}
 #' @examples 
 #' #import a ginteractions file
 #' #gi <- system.file("extdata", "test.ginteractions.tsv", package="trackViewer",
@@ -55,7 +59,11 @@ importGInteractions <- function(file,
                         out=c("track", "GInteractions"),
                         resolution = 100000,
                         unit=c("BP", "FRAG"),
-                        normalization =c("NONE", "VC", "VC_SORT", "KR", "balanced"),
+                        normalization =c("NONE", "VC", "VC_SORT", "KR", 
+                                         "SCALE", "GW_KR", "GW_SCALE", "GW_VC",
+                                         "INTER_KR", "INTER_SCALE", "INTER_VC",
+                                         "balanced"),
+                        matrixType = c("observed", "oe", "expected"),
                         ...){
     if(missing(file))
         stop("file is required.")
@@ -63,6 +71,7 @@ importGInteractions <- function(file,
     format <- match.arg(format)
     out <- match.arg(out)
     unit <- match.arg(unit)
+    matrixType <- match.arg(matrixType)
     normalization <- match.arg(normalization)
     
     #    res <- GRanges(score=numeric(0))
@@ -101,24 +110,21 @@ importGInteractions <- function(file,
             start2 <- start(gr)[2]
             end2 <- end(gr)[2]
         }
-        df <- getContactRecords(
-            hicfilename = file,
-            qname1 = seq1,
-            start1 = start1,
-            end1 = end1,
-            qname2 = seq2,
-            start2 = start2,
-            end2 = end2,
-            binSize = resolution,
-            normalization = normalization,
-            unit = unit)
+        df <- straw(
+          norm = normalization,
+          fname = file,
+          chr1loc = paste(seq1, start1, end1, sep=":"),
+          chr2loc = paste(seq2, start2, end2, sep=":"),
+          unit = unit,
+          binsize = resolution,
+          matrix = matrixType)
         if(length(df)==0){
             return(GInteractions())
         }
-        anchor1 <- GRanges(df$seq1, IRanges(df$start1+1, df$end1))
-        anchor2 <- GRanges(df$seq2, IRanges(df$start2+1, df$end2))
+        anchor1 <- GRanges(seq1, IRanges(df$x+1, width = resolution))
+        anchor2 <- GRanges(seq2, IRanges(df$y+1, width = resolution))
         gi <- GInteractions(anchor1=anchor1, anchor2=anchor2, 
-                            score=df$score)
+                            score=df$counts)
     }
     readcool <- function(file){
         gi <- cooler_pixels(file, resolution, gr)

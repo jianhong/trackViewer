@@ -1,7 +1,17 @@
-include Makevars.common
-## Use the R HOME indirection to support installations of multiple R version
-PKG_LIBS = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "Rcpp:::LdFlags()") -lz
+VERSION=7.64.1
+PKG_LIBS= -L../windows/libcurl-$(VERSION)/lib${R_ARCH}${CRT} \
+	-lwinhttp -lcurl -lssh2 -lz -lssl -lcrypto -lgdi32 -lws2_32 -lcrypt32 -lwldap32
 
-all: $(SHLIB)
+PKG_CPPFLAGS= \
+	-I../windows/libcurl-$(VERSION)/include -DCURL_STATICLIB -DSTRICT_R_HEADERS
 
-clean: rm -f $(PKG_OBJECTS)
+all: clean winlibs
+
+clean:
+	rm -f $(SHLIB) $(OBJECTS)
+
+winlibs: clean
+	"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" "../tools/winlibs.R" $(VERSION)
+	echo '#include <curl/curl.h>' | $(CC) $(PKG_CPPFLAGS) -std=gnu99 -E -xc - | grep "^[ \t]*CURLOPT_.*," | sed s/,// > ../tools/option_table.txt
+
+.PHONY: all winlibs clean

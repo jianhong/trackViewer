@@ -4,14 +4,12 @@
 \alias{listResolutions}
 \title{List the available resolutions}
 \usage{
-listResolutions(file, format = c("hic", "cool"), unit = "BP")
+listResolutions(file, format = c("hic", "cool"))
 }
 \arguments{
 \item{file}{character(1). File name of .hic or .cool/.mcool/.scool}
 
 \item{format}{character(1). File format, "hic" or "cool".}
-
-\item{unit}{character(1). Resolution unit, "BP" or "FRAG". For hic file only.}
 }
 \description{
 List the resolutions available in the file.

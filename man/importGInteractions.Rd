@@ -12,7 +12,9 @@ importGInteractions(
   out = c("track", "GInteractions"),
   resolution = 1e+05,
   unit = c("BP", "FRAG"),
-  normalization = c("NONE", "VC", "VC_SORT", "KR", "balanced"),
+  normalization = c("NONE", "VC", "VC_SORT", "KR", "SCALE", "GW_KR", "GW_SCALE", "GW_VC",
+    "INTER_KR", "INTER_SCALE", "INTER_VC", "balanced"),
+  matrixType = c("observed", "oe", "expected"),
   ...
 )
 }
@@ -22,7 +24,9 @@ importGInteractions(
 \item{format}{The format of import file. Could be ginteractions, hic, cool or validPairs}
 
 \item{ranges}{An object of \code{\link[GenomicRanges:GRanges-class]{GRanges}} to indicate
-the range to be imported}
+the range to be imported. For .hic file, if the length of ranges is 2, 
+the first range will be used as anchor 1 and the second range will be used
+as anchor 2.}
 
 \item{ignore.strand}{ignore the strand or not when do filter. default TRUE}
 
@@ -34,6 +38,9 @@ the range to be imported}
 
 \item{normalization}{Type of normalization, NONE, VC, VC_SORT or KR for .hic and
 NONE, balanced for .cool.}
+
+\item{matrixType}{Type of matrix for .hic file. Available choices are "observed", "oe", and "expected".
+default is "observed".}
 
 \item{...}{NOT used.}
 }
@@ -72,6 +79,6 @@ dat <- importGInteractions(file=cool, format="cool",
 
 }
 \seealso{
-See Also as \code{\link{importBam}}, \code{\link{track}}, 
-\code{\link{viewTracks}}
+See Also as \code{\link{listResolutions}}, \code{\link{listChromosomes}}, 
+\code{\link{readHicNormTypes}}
 }

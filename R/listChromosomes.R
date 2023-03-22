@@ -13,7 +13,7 @@ listChromosomes <- function(file, format=c("hic", "cool")){
   format <- match.arg(format)
   guessFormat(file, format)
   if(format=="hic"){
-    .Call("_trackViewer_listChroms",
+    .Call("_trackViewer_readHicChroms",
           file, PACKAGE = "trackViewer")
   }else{
     coolfile <- checkCoolFile(file)

@@ -10,78 +10,62 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// listResolutions
-IntegerVector listResolutions(CharacterVector hicfilename, CharacterVector unit);
-RcppExport SEXP _trackViewer_listResolutions(SEXP hicfilenameSEXP, SEXP unitSEXP) {
+// straw
+Rcpp::DataFrame straw(std::string norm, std::string fname, std::string chr1loc, std::string chr2loc, const std::string& unit, int32_t binsize, std::string matrix);
+RcppExport SEXP _trackViewer_straw(SEXP normSEXP, SEXP fnameSEXP, SEXP chr1locSEXP, SEXP chr2locSEXP, SEXP unitSEXP, SEXP binsizeSEXP, SEXP matrixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type hicfilename(hicfilenameSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type unit(unitSEXP);
-    rcpp_result_gen = Rcpp::wrap(listResolutions(hicfilename, unit));
+    Rcpp::traits::input_parameter< std::string >::type norm(normSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fname(fnameSEXP);
+    Rcpp::traits::input_parameter< std::string >::type chr1loc(chr1locSEXP);
+    Rcpp::traits::input_parameter< std::string >::type chr2loc(chr2locSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type unit(unitSEXP);
+    Rcpp::traits::input_parameter< int32_t >::type binsize(binsizeSEXP);
+    Rcpp::traits::input_parameter< std::string >::type matrix(matrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(straw(norm, fname, chr1loc, chr2loc, unit, binsize, matrix));
     return rcpp_result_gen;
 END_RCPP
 }
-// listUnits
-CharacterVector listUnits(CharacterVector hicfilename);
-RcppExport SEXP _trackViewer_listUnits(SEXP hicfilenameSEXP) {
+// readHicChroms
+Rcpp::DataFrame readHicChroms(std::string fname);
+RcppExport SEXP _trackViewer_readHicChroms(SEXP fnameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type hicfilename(hicfilenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(listUnits(hicfilename));
+    Rcpp::traits::input_parameter< std::string >::type fname(fnameSEXP);
+    rcpp_result_gen = Rcpp::wrap(readHicChroms(fname));
     return rcpp_result_gen;
 END_RCPP
 }
-// listNormalizations
-CharacterVector listNormalizations(CharacterVector hicfilename);
-RcppExport SEXP _trackViewer_listNormalizations(SEXP hicfilenameSEXP) {
+// readHicBpResolutions
+Rcpp::NumericVector readHicBpResolutions(std::string fname);
+RcppExport SEXP _trackViewer_readHicBpResolutions(SEXP fnameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type hicfilename(hicfilenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(listNormalizations(hicfilename));
+    Rcpp::traits::input_parameter< std::string >::type fname(fnameSEXP);
+    rcpp_result_gen = Rcpp::wrap(readHicBpResolutions(fname));
     return rcpp_result_gen;
 END_RCPP
 }
-// listChroms
-CharacterVector listChroms(CharacterVector hicfilename);
-RcppExport SEXP _trackViewer_listChroms(SEXP hicfilenameSEXP) {
+// readHicNormTypes
+Rcpp::CharacterVector readHicNormTypes(std::string fname);
+RcppExport SEXP _trackViewer_readHicNormTypes(SEXP fnameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type hicfilename(hicfilenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(listChroms(hicfilename));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getContactRecords
-DataFrame getContactRecords(CharacterVector hicfilename, CharacterVector qname1, IntegerVector start1, IntegerVector end1, CharacterVector qname2, IntegerVector start2, IntegerVector end2, IntegerVector binSize, CharacterVector normalization, CharacterVector unit);
-RcppExport SEXP _trackViewer_getContactRecords(SEXP hicfilenameSEXP, SEXP qname1SEXP, SEXP start1SEXP, SEXP end1SEXP, SEXP qname2SEXP, SEXP start2SEXP, SEXP end2SEXP, SEXP binSizeSEXP, SEXP normalizationSEXP, SEXP unitSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type hicfilename(hicfilenameSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type qname1(qname1SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type start1(start1SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type end1(end1SEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type qname2(qname2SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type start2(start2SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type end2(end2SEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type binSize(binSizeSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type normalization(normalizationSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type unit(unitSEXP);
-    rcpp_result_gen = Rcpp::wrap(getContactRecords(hicfilename, qname1, start1, end1, qname2, start2, end2, binSize, normalization, unit));
+    Rcpp::traits::input_parameter< std::string >::type fname(fnameSEXP);
+    rcpp_result_gen = Rcpp::wrap(readHicNormTypes(fname));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_trackViewer_listResolutions", (DL_FUNC) &_trackViewer_listResolutions, 2},
-    {"_trackViewer_listUnits", (DL_FUNC) &_trackViewer_listUnits, 1},
-    {"_trackViewer_listNormalizations", (DL_FUNC) &_trackViewer_listNormalizations, 1},
-    {"_trackViewer_listChroms", (DL_FUNC) &_trackViewer_listChroms, 1},
-    {"_trackViewer_getContactRecords", (DL_FUNC) &_trackViewer_getContactRecords, 10},
+    {"_trackViewer_straw", (DL_FUNC) &_trackViewer_straw, 7},
+    {"_trackViewer_readHicChroms", (DL_FUNC) &_trackViewer_readHicChroms, 1},
+    {"_trackViewer_readHicBpResolutions", (DL_FUNC) &_trackViewer_readHicBpResolutions, 1},
+    {"_trackViewer_readHicNormTypes", (DL_FUNC) &_trackViewer_readHicNormTypes, 1},
     {NULL, NULL, 0}
 };
 

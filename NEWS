@@ -1,3 +1,7 @@
+Changes in version 1.35.5
+
+    o use straw for hic import.
+    
 Changes in version 1.35.4
 
     o handel label.parameter.draw for labels.
