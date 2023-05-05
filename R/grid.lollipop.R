@@ -16,6 +16,10 @@ grid.pie <- function (x=.5, y=.5,
               "Please make sure all the events must contain at least one values greater than 0")
       percent[is.na(percent)] <- 0
     }
+    if(any(percent<0)){
+      stop("There are events with number smaller than 0 which is not expected.",
+           "Please double check all the input values.")
+    }
     dx <- diff(percent)
     nx <- length(dx)
     if (is.null(col)) 

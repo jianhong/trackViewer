@@ -1,3 +1,7 @@
+Changes in version 1.37.1
+
+    o add stop message when there is negative values for grid.pie plot.
+    
 Changes in version 1.35.5
 
     o use straw for hic import.
