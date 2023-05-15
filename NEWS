@@ -1,3 +1,7 @@
+Changes in version 1.37.2
+
+    o remove the CXX_STD = CXX11 from straw Makevars.
+
 Changes in version 1.37.1
 
     o add stop message when there is negative values for grid.pie plot.
