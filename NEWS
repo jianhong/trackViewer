@@ -1,7 +1,11 @@
+Changes in version 1.36.2
+
+    o use strawr instead the straw source code.
+
 Changes in version 1.36.1
 
     o remove the CXX_STD = CXX11 from straw Makevars.
-    
+
 Changes in version 1.35.5
 
     o use straw for hic import.

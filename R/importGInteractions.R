@@ -18,10 +18,9 @@
 #' @return a \code{\link{track}} object 
 #' @import GenomicRanges
 #' @import IRanges
-#' @import Rcpp
 #' @importFrom InteractionSet GInteractions
 #' @importFrom rhdf5 H5Fopen h5ls h5read h5closeAll
-#' @useDynLib trackViewer
+#' @importFrom strawr straw readHicNormTypes
 #' @export
 #' @seealso See Also as \code{\link{listResolutions}}, \code{\link{listChromosomes}}, 
 #' \code{\link{readHicNormTypes}}
@@ -73,6 +72,13 @@ importGInteractions <- function(file,
     unit <- match.arg(unit)
     matrixType <- match.arg(matrixType)
     normalization <- match.arg(normalization)
+    if(format=="hic"){
+      if(!normalization %in% readHicNormTypes(fname=file)){
+        stop("normalization must be available at file. ",
+             "Available normalization are",
+             readHicNormTypes(fname=file))
+      }
+    }
     
     #    res <- GRanges(score=numeric(0))
     if(!is(ranges, "GRanges")) stop("ranges must be an object of GRanges.")

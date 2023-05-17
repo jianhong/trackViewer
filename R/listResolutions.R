@@ -3,6 +3,7 @@
 #' @param file character(1). File name of .hic or .cool/.mcool/.scool
 #' @param format character(1). File format, "hic" or "cool".
 #' @importFrom rhdf5 H5Fopen h5ls
+#' @importFrom strawr readHicBpResolutions
 #' @export
 #' @examples
 #' hicfile <- system.file("extdata", "test_chr22.hic", package="trackViewer")
@@ -13,8 +14,7 @@ listResolutions <- function(file, format=c("hic", "cool")){
   format <- match.arg(format)
   guessFormat(file, format)
   if(format=="hic"){
-    .Call("_trackViewer_readHicBpResolutions",
-          file, PACKAGE = "trackViewer")
+    readHicBpResolutions(fname=file)
   }else{
     coolfile <- checkCoolFile(file)
     coolfileRootName <- coolfileRootName(coolfile)
