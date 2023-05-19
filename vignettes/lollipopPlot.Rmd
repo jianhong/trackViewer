@@ -180,8 +180,10 @@ lolliplot(sample.gr.newlegend, features, legend="legend")
 
 ## Control the labels
 
-Users can control the parameters of labels by naming the metadata start as label.parameter  such as label.parameter.rot or 
-label.parameter.gp. The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
+Users can control the parameters of labels by naming the metadata start as 
+label.parameter  such as label.parameter.rot or label.parameter.gp.
+Note: label.parameter.label can be used to plot snp labels other than the names of inputs.
+The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
 
 ```{r lolliplot.labels.control, fig.width=6, fig.height=5}
 sample.gr.rot <- sample.gr
@@ -189,13 +191,20 @@ sample.gr.rot$label.parameter.rot <- 45
 lolliplot(sample.gr.rot, features, legend=legend)
 sample.gr.rot$label.parameter.rot <- 60
 sample.gr.rot$label.parameter.col <- "brown"
+## change the label text into user-defined names other than names of the sample.gr
+sample.gr.rot$label.parameter.label <- names(sample.gr)
+random_ids <- sample(seq_along(sample.gr), 5)
+sample.gr.rot$label.parameter.label[random_ids] <- 
+  paste("new label", random_ids)
+random_ids <- sample(seq_along(sample.gr), 2)
+sample.gr.rot$label.parameter.label[random_ids] <- NA ## remove some labels
 lolliplot(sample.gr.rot, features, legend=legend)
 ## try different colors
 sample.gr.rot$label.parameter.col <- sample.int(7,
                                                 length(sample.gr),
                                                 replace = TRUE)
 sample.gr.rot$label.parameter.draw <- TRUE
-sample.gr.rot$label.parameter.draw[[1]] <- FALSE ## remove the first label
+sample.gr.rot$label.parameter.draw[[1]] <- FALSE ## another method to remove the first label
 lolliplot(sample.gr.rot, features, legend=legend)
 ```
 

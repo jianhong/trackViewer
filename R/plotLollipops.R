@@ -281,7 +281,22 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
             this.cex <- if(length(this.dat$cex)>0) this.dat$cex[[1]][1] else 1
             this.dashline.col <- 
               if(length(this.dat$dashline.col)>0) this.dat$dashline.col[[1]][1] else dashline.col
+            ## control plot the dash line or not
             if(length(names(this.dat))<1) this.dashline.col <- NA
+            if(length(SNPs$label.parameter.label)==length(SNPs) && length(SNPs)>0){
+              if(this.dat$label.parameter.label[[1]]=="" ||
+                 is.na(this.dat$label.parameter.label[[1]])) this.dashline.col <- NA
+            }
+            if(length(SNPs$label.parameter.pfm)==length(SNPs) && length(SNPs)>0){
+              if(is.null(SNPs$label.parameter.pfm[[m]])){
+                this.dashline.col <- NA
+              }
+            }
+            if(length(SNPs$label.parameter.draw)==length(SNPs) && length(SNPs)>0){
+              if(!(SNPs$label.parameter.draw[[m]])){
+                this.dashline.col <- NA
+              }
+            }
             id <- 
               handleLabelParams(this.dat, cex = this.cex, prefix = "node.label.",
                                 label = if(is.character(this.dat$label)) this.dat$label else
@@ -337,7 +352,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
               handleLabelParams(SNPs, cex = cex,
                                 prefix = "label.parameter.",
                                 x = lab.pos,
-                                text = names(SNPs),
+                                label = names(SNPs),
                                 just = ifelse(side=="top", "left", "right"),
                                 hjust = NULL,
                                 vjust = NULL,
@@ -358,7 +373,22 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                   if(length(SNPs[i]$dashline.col)>0) 
                     SNPs[i]$dashline.col[[1]][1] else 
                       dashline.col
-                if(length(names(SNPs[i]))<1) this.dashline.col <- NA
+                if(length(this.label$label)<1 && length(this.label$pfm)<1){
+                  next
+                }
+                if(length(this.label$label)==length(SNPs) && length(SNPs)>0){
+                  if(is.na(this.label$label[i])){
+                    next
+                  }
+                  if(this.label$label[i]==""){
+                    next
+                  }
+                }
+                if(length(this.label$pfm)==length(SNPs) && length(SNPs)>0){
+                  if(is.null(this.label$pfm[[i]])){
+                    next
+                  }
+                }
                 grid.lines(x=c(start(SNPs[i]), this.label$x[i]), 
                            y=c(this.height+feature.height-cex*LINEW, 
                                this.height+feature.height+rased.height),
@@ -413,8 +443,9 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 }
               }
             }else{
+              this.label$label[is.na(this.label$label)] <- rep("", sum(is.na(this.label$label)))
               grid.text(x=this.label$x, y=this.height + feature.height, 
-                        label = this.label$text,  
+                        label = this.label$label,  
                         just = this.label$just, 
                         hjust = this.label$hjust,
                         vjust = this.label$vjust,

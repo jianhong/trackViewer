@@ -1,3 +1,11 @@
+Changes in version 1.37.4
+
+    o update the documentation for lollipopPlot for changes of the snp label.
+    
+Changes in version 1.37.3
+
+    o use strawr to replace the local C++ script.
+    
 Changes in version 1.37.2
 
     o remove the CXX_STD = CXX11 from straw Makevars.
