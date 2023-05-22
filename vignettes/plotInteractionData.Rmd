@@ -56,6 +56,8 @@ head(gi)
 ## eg: hicConvertFormat -m mESC_rep.hic --inputFormat hic --outputFormat cool -o mESC_rep.mcool
 ##     hicConvertFormat -m mESC_rep.mcool::resolutions/10000 --inputFormat cool --outputFormat ginteractions -o mESC_rep.ginteractions --resolutions 10000
 ## please note that metadata:score is used for plot.
+gi$border_color <- NA ## highlight some regions
+gi$border_color[sample(seq_along(gi), 20)] <- sample(1:7, 20, replace=TRUE)
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))

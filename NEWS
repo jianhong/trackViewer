@@ -1,3 +1,7 @@
+Changes in version 1.37.5
+
+    o add border_color for Interaction data.
+
 Changes in version 1.37.4
 
     o update the documentation for lollipopPlot for changes of the snp label.

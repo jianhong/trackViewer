@@ -80,12 +80,16 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     irx <- inRange(xa, scale) | inRange(xb, scale) | inRange(xc, scale) | inRange(xd, scale)
     iry <- inRange(ya, yscale) | inRange(yb, yscale) | inRange(yc, yscale) | inRange(yd, yscale)
     mc <- getMC(anchor1$score)
+    cols <- rep(NA, length(anchor1))
+    if(length(anchor1$border_color)==length(anchor1) && length(anchor1)>0){
+      cols <- anchor1$border_color
+    }
     for(i in seq_along(anchor1)){
       if(irx[i] && iry[i]){
         grid.polygon(x=c(xa[i], xb[i], xc[i], xd[i]), 
                      y=c(ya[i], yb[i], yc[i], yd[i]), 
                      default.units="native",
-                     gp = gpar(fill=mc[i], col = NA))
+                     gp = gpar(fill=mc[i], col = cols[i]))
       }
     }
   }

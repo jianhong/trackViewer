@@ -17,6 +17,9 @@ gi2track <- function(gi, gi2){
     }else{
       a$score <- 1
     }
+    if(length(.gi$border_color)==length(a)){
+      a$border_color <- .gi$border_color
+    }
     return(new("track", dat=a, dat2=second(.gi),
                type="interactionData", format="BED"))
   }
@@ -27,6 +30,9 @@ gi2track <- function(gi, gi2){
       a$score <- .gi$score
     }else{
       a$score <- 1
+    }
+    if(length(.gi$border_color)==length(a)){
+      a$border_color <- .gi$border_color
     }
     return(a)
   }
