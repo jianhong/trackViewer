@@ -1,3 +1,7 @@
+Changes in version 1.37.8
+
+    o change the filter condiction for tads annotation of Interaction data.
+    
 Changes in version 1.37.7
 
     o add tads annotation for Interaction data.

@@ -79,6 +79,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     yd <- (xd-end(anchor1)+1)/ym
     irx <- inRange(xa, scale) | inRange(xb, scale) | inRange(xc, scale) | inRange(xd, scale)
     iry <- inRange(ya, yscale) | inRange(yb, yscale) | inRange(yc, yscale) | inRange(yd, yscale)
+    xinr <- inRange(start(anchor1), scale) | inRange(end(anchor2), scale)
     mc <- getMC(anchor1$score)
     cols <- rep(NA, length(anchor1))
     if(length(anchor1$border_color)==length(anchor1) && length(anchor1)>0){
@@ -97,7 +98,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
       }
     }
     for(i in seq_along(anchor1)){
-      if(irx[i]){
+      if(xinr[i]){
         if(!is.na(tads[i])){
           tad_gp <- NA
           if(is.logical(tads[i])){
