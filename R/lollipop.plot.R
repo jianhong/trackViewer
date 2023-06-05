@@ -38,6 +38,9 @@
 #' And "intron" indicates all flank regions of the features.
 #' @param label_on_feature Labels of the feature directly on them. 
 #' Default FALSE.
+#' @param lollipop_style_switch_limit The cutoff value for lollipop style for the 'circle' type.
+#' If the max score is greater than this cutoff value, trackViewer will only plot one shape at
+#' the highest score. Otherwise trackViewer will draw the shapes like `Tanghulu`.
 #' @param ... not used.
 #' @return NULL
 #' @details 
@@ -88,6 +91,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       jitter=c("node", "label"), 
                       rescale=FALSE, 
                       label_on_feature=FALSE,
+                      lollipop_style_switch_limit=10,
                       ...){
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
     stopifnot(inherits(features, c("GRanges", "GRangesList", "list")))
@@ -410,7 +414,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             scoreMax0 <- max(yaxis, scoreMax0)
             scoreMax <- max(yaxis, scoreMax)
           }
-          if(scoreMax>10) {
+          if(scoreMax>lollipop_style_switch_limit) {
             SNPs$score <- 10*SNPs$score/scoreMax
             scoreMax <- 10*scoreMax0/scoreMax
             scoreType <- FALSE

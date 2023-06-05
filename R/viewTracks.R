@@ -17,6 +17,9 @@
 #' @param smooth logical(1) or numeric(). Plot smooth curve or not. If it is numeric, eg n,
 #' mean of nearby n points will be used for plot.
 #' If it is numeric, the second number will be the color. Default coloer is 2 (red).
+#' @param lollipop_style_switch_limit The cutoff value for lollipop style for the 'circle' type.
+#' If the max score is greater than this cutoff value, trackViewer will only plot one shape at
+#' the highest score. Otherwise trackViewer will draw the shapes like `Tanghulu`.
 #' @return An object of \code{\link[grid]{viewport}} for \code{\link{addGuideLine}}
 #' @import GenomicRanges
 #' @import grid
@@ -43,7 +46,8 @@
 viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                        ignore.strand=TRUE,
                        viewerStyle=trackViewerStyle(), autoOptimizeStyle=FALSE,
-                       newpage=TRUE, operator=NULL, smooth=FALSE){
+                       newpage=TRUE, operator=NULL, smooth=FALSE,
+                       lollipop_style_switch_limit=10){
   if(!is.null(operator)){
     if(!all(operator %in% c("+", "-", "*", "/", "^", "%%", NA))){
       stop('operator must be one of "+", "-", "*", "/", "^", "%%", NA')
@@ -283,7 +287,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                          viewerStyle, ht,
                          yscales[[i]], yHeights[i], xscale,
                          chromosome, strand, operator[i], wavyLine,
-                         smooth=smooth)
+                         smooth=smooth,
+                         lollipop_style_switch_limit=lollipop_style_switch_limit)
     ht <- ht + yHeights[i]
     if(length(trackList[[i]]@style@marginBottom)>0){
       yHeightBottom[i] <- trackList[[i]]@style@marginBottom

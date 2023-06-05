@@ -152,7 +152,8 @@ plotDataTrack <- function(.dat, chr, strand, scale, color, yscale, smooth=FALSE)
 }
 plotTrack <- function(name, track, curViewStyle, curYpos,
                       yscale, height, xlim, chr, strand,
-                      operator, wavyLine, smooth=FALSE){
+                      operator, wavyLine, smooth=FALSE,
+                      lollipop_style_switch_limit=10){
     style <- track@style
     yHeightBottom <- yHeightTop <- 0.01
     xscale.orderd <- sort(xlim)

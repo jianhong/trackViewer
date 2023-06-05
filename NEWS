@@ -1,3 +1,7 @@
+Changes in version 1.37.6
+
+    o add lollipop_style_switch_limit for lollipop plot.
+    
 Changes in version 1.37.5
 
     o add border_color for Interaction data.

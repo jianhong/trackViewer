@@ -22,6 +22,7 @@ lolliplot(
   jitter = c("node", "label"),
   rescale = FALSE,
   label_on_feature = FALSE,
+  lollipop_style_switch_limit = 10,
   ...
 )
 }
@@ -78,6 +79,10 @@ And "intron" indicates all flank regions of the features.}
 
 \item{label_on_feature}{Labels of the feature directly on them. 
 Default FALSE.}
+
+\item{lollipop_style_switch_limit}{The cutoff value for lollipop style for the 'circle' type.
+If the max score is greater than this cutoff value, trackViewer will only plot one shape at
+the highest score. Otherwise trackViewer will draw the shapes like `Tanghulu`.}
 
 \item{...}{not used.}
 }

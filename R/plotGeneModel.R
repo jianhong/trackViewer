@@ -1,5 +1,5 @@
 ##levels of feature "CDS"   "ncRNA" "utr3"  "utr5"
-plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar()){
+plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_switch_limit=10){
   if(length(track@dat2)>0){
     feature.height <- 
       if(is.list(track@dat2$feature.height)) track@dat2$feature.height[[1]] else track@dat2$feature.height[1]
@@ -119,7 +119,7 @@ plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar()){
         if(length(track@dat2$score)>0) ceiling(max(c(track@dat2$score, 1), na.rm=TRUE)) else 1
       if(type=="pie.stack") scoreMax <- length(unique(track@dat2$stack.factor))
       if(!type %in% c("pie", "pie.stack")){
-        if(scoreMax>10) {
+        if(scoreMax>lollipop_style_switch_limit) {
           track@dat2$score <- 10*track@dat2$score/scoreMax
           scoreMax <- 10*scoreMax0/scoreMax
         }else{

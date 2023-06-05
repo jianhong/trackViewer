@@ -1,6 +1,6 @@
-plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
+plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_switch_limit=10){
   if(length(track@dat$featureID)!=length(track@dat)){
-    return(plotGeneModel(track, xscale, chr, yaxis.gp))
+    return(plotGeneModel(track, xscale, chr, yaxis.gp, lollipop_style_switch_limit))
   }
   
   if(length(track@dat2)>0){
@@ -210,7 +210,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar()){
       if(length(track@dat2$score)>0) ceiling(max(c(track@dat2$score, 1), na.rm=TRUE)) else 1
     if(type=="pie.stack") scoreMax <- length(unique(track@dat2$stack.factor))
     if(!type %in% c("pie", "pie.stack")){
-      if(scoreMax>10) {
+      if(scoreMax>lollipop_style_switch_limit) {
         track@dat2$score <- 10*track@dat2$score/scoreMax
         scoreMax <- 10*scoreMax0/scoreMax
       }else{

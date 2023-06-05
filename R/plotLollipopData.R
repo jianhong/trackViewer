@@ -1,4 +1,4 @@
-plotLollipopData <- function(dat, xscale, chr, yaxis, yaxis.gp, ybase=0, side="top", main=TRUE, baselineCol="black", maxHeight){
+plotLollipopData <- function(dat, xscale, chr, yaxis, yaxis.gp, ybase=0, side="top", main=TRUE, baselineCol="black", maxHeight, lollipop_style_switch_limit=10){
   if(length(dat)>0){
     dat <- orderedGR(dat)
     xscale.gr <- GRanges(seqnames = chr, ranges=IRanges(min(xscale), max(xscale)))
@@ -26,7 +26,7 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, yaxis.gp, ybase=0, side="t
       if(length(dat$score)>0) ceiling(max(c(dat$score, 1), na.rm=TRUE)) else 1
     if(type=="pie.stack") scoreMax <- length(unique(dat$stack.factor))
     if(!type %in% c("pie", "pie.stack")){
-      if(scoreMax>10) {
+      if(scoreMax>lollipop_style_switch_limit) {
         dat$score <- 10*dat$score/scoreMax
         scoreMax <- 10*scoreMax0/scoreMax
       }else{
