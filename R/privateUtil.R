@@ -3,6 +3,14 @@ convertFont <- function(){
                         convertHeight(unit(1, "snpc"), "inches", valueOnly=TRUE))
                       ))
 }
+
+is_color <- function(x) {
+  vapply(x, FUN=function(X) {
+    tryCatch(is.matrix(col2rgb(X)), 
+             error = function(e) FALSE)
+  }, FUN.VALUE = logical(1L))
+}
+
 hrScale <- function(r){
     if(any(r<0))
       stop("'r' must be positive")

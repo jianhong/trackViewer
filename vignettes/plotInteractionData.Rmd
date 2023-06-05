@@ -58,11 +58,21 @@ head(gi)
 ## please note that metadata:score is used for plot.
 gi$border_color <- NA ## highlight some regions
 gi$border_color[sample(seq_along(gi), 20)] <- sample(1:7, 20, replace=TRUE)
+gi$tads <- NA ## add TAD information
+## The TADs will be drawn as lines at points start(first), center point, end(second).
+tads <- GInteractions(
+  GRanges("chr6", 
+          IRanges(c(51130001, 51130001, 51450001, 52210001), width = 20000)),
+  GRanges("chr6", 
+          IRanges(c(51530001, 52170001, 52210001, 53210001), width = 20000)))
+ol <- findOverlaps(gi, tads, use.region="both")
+gi$tads[queryHits(ol)] <- rep(list(gpar(col = "#E69F00", lwd=3, lty=3)),
+                              length(queryHits(ol)))
 range <- GRanges("chr6", IRanges(51120000, 53200000))
 tr <- gi2track(gi)
 ctcf <- readRDS(system.file("extdata", "ctcf.sample.rds", package="trackViewer"))
-#viewTracks(trackList(ctcf, tr, heightDist = c(1, 3)), 
-#           gr=range, autoOptimizeStyle = TRUE)
+viewTracks(trackList(ctcf, tr, heightDist = c(1, 3)), 
+           gr=range, autoOptimizeStyle = TRUE)
 ## view the interaction data back to back.
 ## Please make sure the data are normalized.
 gi2 <- gi

@@ -84,12 +84,42 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     if(length(anchor1$border_color)==length(anchor1) && length(anchor1)>0){
       cols <- anchor1$border_color
     }
+    tads <- rep(NA, length(anchor1))
+    if(length(anchor1$tads)==length(tads) && length(anchor1)>0){
+      tads <- anchor1$tads
+    }
     for(i in seq_along(anchor1)){
       if(irx[i] && iry[i]){
         grid.polygon(x=c(xa[i], xb[i], xc[i], xd[i]), 
                      y=c(ya[i], yb[i], yc[i], yd[i]), 
                      default.units="native",
                      gp = gpar(fill=mc[i], col = cols[i]))
+      }
+    }
+    for(i in seq_along(anchor1)){
+      if(irx[i] && iry[i]){
+        if(!is.na(tads[i])){
+          tad_gp <- NA
+          if(is.logical(tads[i])){
+            if(tads[i]){
+              tad_gp <- gpar(col = '#E69F00')
+            }
+          }else{
+            if(is.list(tads)){
+              tad_gp <- do.call(gpar, tads[[i]])
+            }else{
+              if(is_color(tads[i])){
+                tad_gp <- gpar(col = tads[i])
+              }
+            }
+          }
+          if(!is.na(tad_gp)[1]){
+            grid.lines(x=c(start(anchor1)[i], xc[i], end(anchor2)[i]),
+                       y=c(0, yc[i], 0),
+                       default.units = "native",
+                       gp = tad_gp)
+          }
+        }
       }
     }
   }

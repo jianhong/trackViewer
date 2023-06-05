@@ -20,6 +20,9 @@ gi2track <- function(gi, gi2){
     if(length(.gi$border_color)==length(a)){
       a$border_color <- .gi$border_color
     }
+    if(length(.gi$tads)==length(a)){
+      a$tads <- .gi$tads
+    }
     return(new("track", dat=a, dat2=second(.gi),
                type="interactionData", format="BED"))
   }
@@ -33,6 +36,9 @@ gi2track <- function(gi, gi2){
     }
     if(length(.gi$border_color)==length(a)){
       a$border_color <- .gi$border_color
+    }
+    if(length(.gi$tads)==length(a)){
+      a$tads <- .gi$tads
     }
     return(a)
   }
