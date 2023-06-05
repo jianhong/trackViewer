@@ -97,7 +97,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
       }
     }
     for(i in seq_along(anchor1)){
-      if(irx[i] && iry[i]){
+      if(irx[i]){
         if(!is.na(tads[i])){
           tad_gp <- NA
           if(is.logical(tads[i])){
