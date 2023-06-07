@@ -58,9 +58,6 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     color <- c("white", "red")
   }
   crp <- colorRampPalette(color)(length(breaks)-1)
-  inRange <- function(x, scale){
-    x>=scale[1] & x<=scale[2]
-  }
   ym <- (scale[2]-scale[1] + 1)/2
   getMC <- function(scores){
     mc <- cut(scores, breaks = breaks, labels = crp)

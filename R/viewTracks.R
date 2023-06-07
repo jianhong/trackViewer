@@ -245,6 +245,8 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                                col="score", 
                                operator=.operator)
         if(.operator !="+") .ele@dat2 <- GRanges()
+      }else{
+        warning("operator not supported for the inputs.")
       }
       .ele
     }, SIMPLIFY = FALSE)

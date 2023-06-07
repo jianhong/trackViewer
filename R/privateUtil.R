@@ -11,6 +11,10 @@ is_color <- function(x) {
   }, FUN.VALUE = logical(1L))
 }
 
+inRange <- function(x, scale){
+  x>=scale[1] & x<=scale[2]
+}
+
 hrScale <- function(r){
     if(any(r<0))
       stop("'r' must be positive")
