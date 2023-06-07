@@ -32,10 +32,7 @@ GIoperator <- function(gi_list, col="score",
   mcols(gi_add)[, col] <- 0
   gi_add <- sort(gi_add)
   ol <- findOverlaps(gi_add, gi_list[[1]], type="equal")
-  mcols(gi_add)[queryHits(ol), col] <- 
-    do.call(operator,
-            args=list(mcols(gi_add)[queryHits(ol), col], 
-                      mcols(gi_list[[1]])[subjectHits(ol), col]))
+  mcols(gi_add)[queryHits(ol), col] <- mcols(gi_list[[1]])[subjectHits(ol), col]
   for(i in seq_along(gi_list)[-1]){
     ol <- findOverlaps(gi_add, gi_list[[i]], type="equal")
     mcols(gi_add)[queryHits(ol), col] <- 
