@@ -11,6 +11,7 @@
 #' \link[grid:grid.lines]{grid.lines},
 #' and \link[grid:grid.text]{grid.text} for GRanges object;
 #' FUN is not used for numeric vector.
+#' @param panel Plot regions. Available values are "top", "bottom".
 #' @param ... Parameters will be passed to FUN.
 #' @return invisible viewport for plot region.
 #' @import grid
@@ -34,10 +35,14 @@
 #' addInteractionAnnotation(tads, "tr", grid.lines,
 #'  gp=gpar(col = "#E69F00", lwd=3, lty=3))
 #' 
-addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
+addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
+                                     panel=c("top", "bottom"), ...){
   if(!inherits(idx, c("numeric", "integer", "character")))
     stop("idx is required as a integer indexes of tracks")
   stopifnot(inherits(obj, c("GInteractions", "GRanges", "numeric")))
+  if(!all(panel %in% c("top", "bottom"))){
+    stop("panel must be 'top' and/or 'bottom'")
+  }
   if(!is.numeric(obj)){
     stopifnot(is.function(FUN))
     FUN.NAME <- deparse(substitute(FUN))
@@ -60,6 +65,7 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
   }
   xscale <- sort(lastTrackViewer$xscale)
   yscales <- lastTrackViewer$yscales
+  .dat2target <- lastTrackViewer$back2back["target2", , drop=TRUE]>0
   vp <- lastTrackViewer$vp
   if(is.character(idx)){
     if(!all(idx %in% names(lastTrackViewer$yHeights))){
@@ -71,8 +77,9 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
   yHeightsLimits1 <- c(0, yHeights)[seq_along(yHeights)]
   names(yHeightsLimits1) <- names(yHeights)
   ym <- (xscale[2]-xscale[1] + 1)/2
-  plotInteractionAnno <- function(anchor1, anchor2, scale, FUN, dots){
-    xinr <- inRange(start(anchor1), scale) | inRange(end(anchor2), scale)
+  plotInteractionAnno <- function(anchor1, anchor2, scale, FUN, dots, chromsome){
+    xinr <- (inRange(start(anchor1), scale) & seqnames(anchor1) %in% chromsome) |
+      (inRange(end(anchor2), scale) & seqnames(anchor2) %in% chromsome)
     anchor1 <- anchor1[xinr]
     anchor2 <- anchor2[xinr]
     xa <- (end(anchor1) + start(anchor2))/2
@@ -126,10 +133,10 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
     }
     
   }
-  plot2Danno <- function(gr, scale, FUN, dots){
+  plot2Danno <- function(gr, scale, FUN, dots, chromsome){
     xc <- (start(gr) + end(gr))/2
     yc <- (xc-start(gr)+1)/ym
-    xinr <- inRange(start(gr), scale) | inRange(end(gr), scale)
+    xinr <- (inRange(start(gr), scale) | inRange(end(gr), scale)) & seqnames(gr) %in% chromsome
     for(i in seq_along(gr)){
       if(xinr[i]){
         args <- switch (FUN.NAME,
@@ -152,7 +159,19 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
       }
     }
   }
-  
+  addAnno <- function(obj, xscale, FUN, dots, chromosome=lastTrackViewer$chromosome){
+    if(is(obj, "GInteractions")){
+      plotInteractionAnno(first(obj), second(obj), xscale, FUN, dots, chromosome)
+    }else{
+      if(is(obj, "numeric")){
+        plot1Danno(obj, xscale, dots)
+      }else{
+        if(is(obj, "GRanges")){
+          plot2Danno(obj, xscale, FUN, dots, chromosome)
+        }
+      }
+    }
+  }
   pushViewport(vp)
   for(i in idx){
     currentVP <- viewport(y=mean(c(yHeightsLimits1[i], yHeightsLimits2[i])),
@@ -165,17 +184,37 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon, ...){
                           just=c(0,0), 
                           xscale=xscale, 
                           yscale=sort(yscales[[i]])))
-    if(is(obj, "GInteractions")){
-      plotInteractionAnno(first(obj), second(obj), xscale, FUN, dots)
-    }else{
-      if(is(obj, "numeric")){
-        plot1Danno(obj, xscale, dots)
-      }else{
-        if(is(obj, "GRanges")){
-          plot2Danno(obj, xscale, FUN, dots)
-        }
+    if(.dat2target[i]){## two interaction heatmap, back to back
+      ## top triangle
+      if("top" %in% panel){
+        pushViewport(viewport(x=0, y=.5, 
+                              height=.5, 
+                              width=1, 
+                              clip="on",
+                              default.units = "npc",
+                              just=c(0,0), 
+                              xscale=xscale, 
+                              yscale=sort(yscales[[i]])))
+        addAnno(obj, xscale, FUN, dots, chromosome=lastTrackViewer$chromosome)
+        popViewport()
       }
+      if("bottom" %in% panel){
+        ## bottom triangle
+        pushViewport(viewport(x=0, y=0, 
+                              height=.5, 
+                              width=1, 
+                              clip="on", 
+                              default.units = "npc",
+                              just=c(0,0), 
+                              xscale=xscale, 
+                              yscale=rev(sort(yscales[[i]]))))
+        addAnno(obj, xscale, FUN, dots, chromosome=lastTrackViewer$chromosome)
+        popViewport()
+      }
+    }else{
+      addAnno(obj, xscale, FUN, dots, chromosome=lastTrackViewer$chromosome)
     }
+    
     popViewport()
     popViewport()
   }
@@ -191,6 +230,9 @@ merge_shape <- function(xa, xb, xc, xd, ya, yb, yc, yd){
   })
   r_tree <- list()
   others <- seq_along(rects)
+  if(length(others)<2){
+    return(rects)
+  }
   cbn <- combn(others, 2, simplify = FALSE)
   ol <- vapply(cbn, FUN=function(.ele){
     overlap_region(rects[.ele])

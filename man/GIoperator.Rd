@@ -4,7 +4,7 @@
 \alias{GIoperator}
 \title{GInteractions operator}
 \usage{
-GIoperator(gi_list, col = "score", operator = c("+", "-", "*"))
+GIoperator(gi_list, col = "score", operator = c("+", "-", "*", "/"))
 }
 \arguments{
 \item{gi_list}{a list of GInteractions objects}

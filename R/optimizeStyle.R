@@ -24,14 +24,19 @@ optFontSize <- function(axis, viewerStyle, height){
     }
     
     if(cex > 1) cex <- 1
-    if(cex < .3) cex <- .3
+    if(cex < getMinFont()) cex <- getMinFont()
     return(cex)
+}
+getMinFont <- function(){
+  convertHeight(stringHeight("0123456789"), 
+                unitTo="picas", valueOnly=TRUE)*5/12 # 5pt
 }
 optFontSize1 <- function(height){
     fontHeight <- convertHeight(stringHeight("0123456789"), 
                                 unitTo="npc", valueOnly=TRUE)
     cex <- height/3/fontHeight
     if(cex>2) cex <- log2(cex)
+    if(cex < getMinFont()) cex <- getMinFont()
     cex
 }
 

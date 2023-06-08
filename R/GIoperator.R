@@ -18,7 +18,7 @@
 #' GIoperator(list(gi, gi2), col="score", operator="-")
 
 GIoperator <- function(gi_list, col="score",
-                       operator=c("+", "-", "*")){
+                       operator=c("+", "-", "*", "/")){
   null <- lapply(gi_list, function(.ele){
     stopifnot(is(.ele, "GInteractions"))
     stopifnot("col in not in metadata of input" =

@@ -85,12 +85,6 @@ addInteractionAnnotation(-52900000, "heatmap", gp=gpar(col="cyan", lwd=3, lty=4)
 gi2 <- gi
 set.seed(123)
 gi2$score <- gi$score + rnorm(length(gi), sd = sd(gi$score))
-## Note, addInteractionAnnotation does not support back to back plot yet.
-## add TADs infomation need to be done by metadata in dat slot
-ol <- findOverlaps(gi, tads, use.region="both")
-gi$tads <- NA
-gi$tads[queryHits(ol)] <- rep(list(gpar(col="cyan", lwd=3, lty=2)),
-                              length(queryHits(ol)))
 back2back <- gi2track(gi, gi2)
 ## change the color
 setTrackStyleParam(back2back, "breaks", 
@@ -101,6 +95,12 @@ setTrackStyleParam(back2back, "color",
 setTrackStyleParam(back2back, "ylim", c(0, .5))
 viewTracks(trackList(ctcf, back2back, heightDist=c(1, 5)),
            gr=range, autoOptimizeStyle = TRUE)
+addInteractionAnnotation(tads, "back2back", grid.lines,
+                         gp=gpar(col="cyan", lwd=3, lty=2))
+addInteractionAnnotation(-52208000, "back2back", gp=gpar(col="blue", lwd=3),
+                         panel="top")
+addInteractionAnnotation(51508000, "back2back", gp=gpar(col="gray", lwd=3, lty=2),
+                         panel="bottom")
 ```
 
 Plot chromatin interactions track as links.

@@ -1,3 +1,7 @@
+Changes in version 1.37.11
+
+    o fix the minimal font of optimized style.
+    
 Changes in version 1.37.10
 
     o add function GIoperator.

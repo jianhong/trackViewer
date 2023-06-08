@@ -313,7 +313,14 @@ viewTracks <- function(trackList, chromosome, start, end, strand, gr=GRanges(),
                                xscale=xscale,
                                yHeightBottom=yHeightBottom,
                                yHeightTop=yHeightTop,
-                               viewerStyle=viewerStyle))
+                               viewerStyle=viewerStyle,
+                               chromosome=chromosome,
+                               back2back=vapply(trackList, FUN=function(.ele){
+                                 c(score1=length(.ele$dat$score),
+                                   score2=length(.ele$dat2$score),
+                                   target1=length(.ele$dat$target),
+                                   target2=length(.ele$dat$target))
+                               }, FUN.VALUE = numeric(4L))))
   return(invisible(viewport(x=margin[2], y=margin[1], 
                             height=1 - margin[1]- margin[3], 
                             width=1 -margin[2] - margin[4],

@@ -4,7 +4,13 @@
 \alias{addInteractionAnnotation}
 \title{Add annotation markers to the figure at a given position}
 \usage{
-addInteractionAnnotation(obj, idx, FUN = grid.polygon, ...)
+addInteractionAnnotation(
+  obj,
+  idx,
+  FUN = grid.polygon,
+  panel = c("top", "bottom"),
+  ...
+)
 }
 \arguments{
 \item{obj}{A \link[InteractionSet:GInteractions-class]{GInteractions} object,
@@ -20,6 +26,8 @@ and \link[grid:grid.text]{grid.text} for GInteractions object;
 \link[grid:grid.lines]{grid.lines},
 and \link[grid:grid.text]{grid.text} for GRanges object;
 FUN is not used for numeric vector.}
+
+\item{panel}{Plot regions. Available values are "top", "bottom".}
 
 \item{...}{Parameters will be passed to FUN.}
 }

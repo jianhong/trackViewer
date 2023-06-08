@@ -49,7 +49,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
   eachLineHeight <- 1/totalLines
   currLineBottom <- 1
   unitx <- convertWidth(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE)
-  arr_size <- min(.5, unitx/length(trs)) #determin arrow size by width/#events
+  arr_size <- min(.5, unitx/length(trs)) #determine arrow size by width/#events
   if(!any(c("fontsize", "cex") %in% names(track@style@ylabgp))){
     if(doLabels){
       track@style@ylabgp$cex <- optFontSize1(.2*y)
