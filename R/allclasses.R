@@ -10,6 +10,10 @@
 #' class \code{\link[grid]{gpar}}. This is basically a list of graphical 
 #' parameter settings of x-axis. For y-axis, see \code{\link{yaxisStyle}}
 #' @slot xaxis \code{"logical"}, draw x-axis or not
+#' @slot xat \code{"numeric"}, the values will be passed to grid.xaxis as
+#' 'at' parameter.
+#' @slot xlabel \code{"character"}, the values will be passed to grid.xaxis as
+#' 'label' parameter.
 #' @slot autolas \code{"logical"} automatic determine y label direction
 #' @slot flip \code{"logical"} flip the x-axis or not, default FALSE
 #' @import methods
@@ -24,6 +28,8 @@ setClass("trackViewerStyle",
              xlas="numeric",
              xgp="list",
              xaxis="logical",
+             xat="numeric",
+             xlabel="character",
              autolas="logical",
              flip="logical"),
          prototype(
@@ -31,6 +37,8 @@ setClass("trackViewerStyle",
              xlas=0,
              xgp=list(),
              xaxis=FALSE,
+             xat=numeric(0L),
+             xlabel=character(0L),
              autolas=FALSE,
              flip=FALSE
              ),
@@ -66,7 +74,7 @@ setGeneric("setTrackViewerStyleParam", function(tvs, attr, value)
 setMethod("setTrackViewerStyleParam", 
           signature(tvs="trackViewerStyle", attr="character", value="ANY"),
           function(tvs, attr, value){
-              if(!attr %in% c("margin", "xlas", "xgp", "xaxis", "autolas", "flip"))
+              if(!attr %in% c("margin", "xlas", "xgp", "xat", "xlabel", "xaxis", "autolas", "flip"))
                   stop("attr must be a slot name of trackViewerStyle")
               x <- tvs
               slot(x, attr, check = TRUE) <- value

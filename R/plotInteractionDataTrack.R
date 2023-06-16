@@ -45,6 +45,9 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
       rg[2] <- 1
     }
     breaks <- seq(min(0, rg[1]), rg[2], length.out = 101)
+    userdefinedbreaks <- FALSE
+  }else{
+    userdefinedbreaks <- TRUE
   }
   
   if(length(unique(color))==1){
@@ -206,7 +209,7 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     FUN(.dat, .dat1target)
   }
   # legend in y axis
-  return(list(crp=crp, breaks=breaks))
+  return(list(crp=crp, breaks=breaks, userdefinedbreaks=userdefinedbreaks))
   vp <- viewport(x = 1 - convertWidth(unit(5, "char"), "npc", valueOnly = TRUE), 
                  y= 1 - convertHeight(unit(1, "char"), "npc", valueOnly = TRUE), 
                  width = convertWidth(unit(5, "char"), "npc", valueOnly = TRUE),

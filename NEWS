@@ -1,3 +1,9 @@
+Changes in version 1.37.12
+
+    o add ARA function.
+    o fix the missleading color legend of interaction data.
+    o fix the bug in addInteractionAnnotation.
+    
 Changes in version 1.37.11
 
     o fix the minimal font of optimized style.

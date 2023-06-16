@@ -78,8 +78,10 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
   names(yHeightsLimits1) <- names(yHeights)
   ym <- (xscale[2]-xscale[1] + 1)/2
   plotInteractionAnno <- function(anchor1, anchor2, scale, FUN, dots, chromsome){
-    xinr <- (inRange(start(anchor1), scale) & seqnames(anchor1) %in% chromsome) |
-      (inRange(end(anchor2), scale) & seqnames(anchor2) %in% chromsome)
+    xinr <- (inRange(start(anchor1), scale) &
+               as.character(seqnames(anchor1)) %in% chromsome) |
+      (inRange(end(anchor2), scale) &
+         as.character(seqnames(anchor2)) %in% chromsome)
     anchor1 <- anchor1[xinr]
     anchor2 <- anchor2[xinr]
     xa <- (end(anchor1) + start(anchor2))/2
@@ -136,7 +138,8 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
   plot2Danno <- function(gr, scale, FUN, dots, chromsome){
     xc <- (start(gr) + end(gr))/2
     yc <- (xc-start(gr)+1)/ym
-    xinr <- (inRange(start(gr), scale) | inRange(end(gr), scale)) & seqnames(gr) %in% chromsome
+    xinr <- (inRange(start(gr), scale) | inRange(end(gr), scale)) &
+      as.character(seqnames(gr)) %in% chromsome
     for(i in seq_along(gr)){
       if(xinr[i]){
         args <- switch (FUN.NAME,

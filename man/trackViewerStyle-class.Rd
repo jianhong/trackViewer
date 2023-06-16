@@ -42,6 +42,12 @@ parameter settings of x-axis. For y-axis, see \code{\link{yaxisStyle}}}
 
 \item{\code{xaxis}}{\code{"logical"}, draw x-axis or not}
 
+\item{\code{xat}}{\code{"numeric"}, the values will be passed to grid.xaxis as
+'at' parameter.}
+
+\item{\code{xlabel}}{\code{"character"}, the values will be passed to grid.xaxis as
+'label' parameter.}
+
 \item{\code{autolas}}{\code{"logical"} automatic determine y label direction}
 
 \item{\code{flip}}{\code{"logical"} flip the x-axis or not, default FALSE}

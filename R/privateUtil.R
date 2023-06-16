@@ -280,9 +280,19 @@ drawXaxis <- function(xscale, style){
     interval <- scale$scale * suffix[scale$unit]
     start <- ceiling(xscale[1]/interval)
     end <- floor(xscale[2]/interval)
-    label <- interval * start:end
     if(style@flip) xscale <- rev(xscale)
-    at <- rescale(label, from=xscale)
+    if(length(style@xat)>0){
+      at <- style@xat
+      if(length(style@xlabel)==length(style@xat)){
+        label <- style@xlabel
+      }else{
+        label <- at
+      }
+      at <- rescale(at, from=xscale)
+    }else{
+      label <- interval * start:end
+      at <- rescale(label, from=xscale)
+    }
     gp <- style@xgp
     class(gp) <- "gpar"
     rot <- ifelse(style@xlas %in% c(0, 1), 0, 90)
@@ -429,7 +439,26 @@ drawYaxis <- function(ylim, yaxisStyle, curViewStyle, heatlegends=list()){
                       curViewStyle@margin[4]/4)
       x <- ifelse(yaxisStyle@main, 1.15, 1+curViewStyle@margin[4]/8)
       grid.raster(rev(heatlegends$crp), x=x, width=width, height=1)
-      grid.yaxis(at=ylim, label = round(range(heatlegends$breaks)),
+      # map breaks to ylim
+      if(heatlegends$userdefinedbreaks){
+        at <- seq(ylim[1], ylim[2], length.out=length(heatlegends$breaks))
+        label <- heatlegends$breaks
+      }else{
+        at <- ylim
+        label <- range(heatlegends$breaks)
+      }
+      tryCatch({
+        dif <- rle(diff(label))$lengths
+        w <- c(1, 1+cumsum(dif))
+        at <- at[w]
+        label <- label[w]
+      }, error=function(.e){}, warning=function(.w){})
+      tryCatch({
+        if(any(label%%1!=0)){
+          label <- formatC(label, format = "fg")
+        }
+      }, error=function(.e){}, warning=function(.w){})
+      grid.yaxis(at=at, label = label,
                  main=FALSE, gp=gp,
                  draw=yaxisStyle@draw)
     }else{
