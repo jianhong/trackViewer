@@ -669,14 +669,13 @@ setFeatureLayerID <- function(feature, range){
 
 ## bottomblank, the transcripts legend height
 plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_feature=FALSE){
-  if(label_on_feature) return(0)
   if(length(xaxis)>1 || as.logical(xaxis[1])){
     xaxisSpace <- 2
     if(is.numeric(xaxis.gp$cex)) xaxisSpace <- 2*xaxis.gp$cex
   }else{
     xaxisSpace <- 0
   }
-  if(length(names(feature))>0){ ## features legend
+  if(length(names(feature))>0 & !label_on_feature ){ ## features legend
     feature.s <- feature[!duplicated(names(feature))]
     cex <- if(length(unlist(feature.s$cex))==length(feature.s)) 
       unlist(feature.s$cex) else 1
@@ -699,7 +698,7 @@ plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_f
                 gp=gpar(col=color, fill=fill, cex=cex))
     popViewport()
   }else{
-    featureLegendSpace <- 0
+    featureLegendSpace <- 1
   }
   bottomblank <- (xaxisSpace + featureLegendSpace) * LINEH
   return(bottomblank)

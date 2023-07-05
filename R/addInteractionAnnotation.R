@@ -39,7 +39,7 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
                                      panel=c("top", "bottom"), ...){
   if(!inherits(idx, c("numeric", "integer", "character")))
     stop("idx is required as a integer indexes of tracks")
-  stopifnot(inherits(obj, c("GInteractions", "GRanges", "numeric")))
+  stopifnot(inherits(obj, c("GInteractions", "GRanges", "numeric", "integer")))
   if(!all(panel %in% c("top", "bottom"))){
     stop("panel must be 'top' and/or 'bottom'")
   }
@@ -166,7 +166,7 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
     if(is(obj, "GInteractions")){
       plotInteractionAnno(first(obj), second(obj), xscale, FUN, dots, chromosome)
     }else{
-      if(is(obj, "numeric")){
+      if(is.numeric(obj)){
         plot1Danno(obj, xscale, dots)
       }else{
         if(is(obj, "GRanges")){
