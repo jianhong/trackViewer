@@ -1,5 +1,11 @@
 Changes in version 1.37.13
 
+    o update the lollipopPlot documentation to fix the issue
+    unable to find an inherited method for function 'content' for
+    signature 'response'.
+
+Changes in version 1.37.13
+
     o fix the feature legend space.
     
 Changes in version 1.37.12

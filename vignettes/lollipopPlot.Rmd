@@ -426,7 +426,7 @@ tryCatch({ ## in case the internet connection does not work
   )
   response <- GET(featureURL)
   if(!http_error(response)){
-    content <- content(response)
+    content <- httr::content(response)
     content <- content[[1]]
     acc <- content$accession
     sequence <- content$sequence
@@ -446,7 +446,7 @@ tryCatch({ ## in case the internet connection does not work
                            "&accession=", acc)
     response <- GET(variationURL)
     if(!http_error(response)){
-      content <- content(response)
+      content <- httr::content(response)
       content <- content[[1]]
       keep <- sapply(content$features, function(.ele) length(.ele$evidences)>2 && # filter the data by at least 2 evidences
                        !grepl("Unclassified", .ele$clinicalSignificances)) # filter the data by classified clinical significances.
