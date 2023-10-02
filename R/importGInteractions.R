@@ -151,9 +151,9 @@ importGInteractions <- function(file,
                            strand = buf[, 4])
             dat2 <- GRanges(buf[, 5], IRanges(as.numeric(buf[, 6]), 
                                               width = 1),
-                            strand = buf[, ])
+                            strand = buf[, 7])
             gi <- GInteractions(anchor1=dat, anchor2 = dat2, 
-                                score = as.numeric(buf[, 7]))
+                                insert_size = as.numeric(buf[, 8]))
             subsetByOverlaps(gi, gr)
         }
         readFile(file, localFUN);
