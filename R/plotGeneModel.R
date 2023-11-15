@@ -130,8 +130,8 @@ plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
       }else{
         scoreType <- FALSE
       }
-      LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
-      LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
+      LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))/2
+      LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))/2
       ## GAP the gaps between any elements
       GAP <- .2 * LINEH
       ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
