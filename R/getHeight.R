@@ -7,8 +7,8 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
         switch(type,
                circle={
                    labels.y <- LINEW + # add gaps for labels
-                       6.5*GAP*cex + 
-                       scoreMax * LINEW * ratio.yx*cex
+                       6.5*GAP + 
+                       scoreMax * LINEW * ratio.yx
                },
                pin={
                    if(length(SNPs$score)>0) {
@@ -18,22 +18,22 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    }
                    this.scores[is.na(this.scores)] <- .5
                    labels.y <- LINEW + 
-                       6.5*GAP*cex + 
-                       (this.scores-0.5) * LINEW * ratio.yx*cex
+                       6.5*GAP + 
+                       (this.scores-0.5*cex) * LINEW * ratio.yx
                },
                pie={
                    labels.y <- LINEW*max(ratio.yx, 1.2) + 
-                       6.5*GAP*cex + 0.5 * LINEW * ratio.yx * cex
+                       6.5*GAP + 0.5 * LINEW * ratio.yx * cex
                },
                pie.stack={
                    labels.y <- LINEW + 
-                       6.5*GAP*cex + 
-                       (scoreMax-0.5) * LINEW * ratio.yx*cex
+                       6.5*GAP + 
+                       (scoreMax-0.5*cex) * LINEW * ratio.yx
                },
                flag={
                  labels.y <- LINEW + 
-                   6.5*GAP*cex + 
-                   scoreMax * LINEW * ratio.yx*cex
+                   6.5*GAP + 
+                   scoreMax * LINEW * ratio.yx
                })
         labels.y
     }else{
@@ -61,8 +61,8 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                        maxStrHeight <- 0
                    }
                    maxStrHeight <- maxStrHeight * labels.length.rate
-                   ypos <- LINEW + 6.5*GAP*cex + 
-                       scoreMax * LINEW * ratio.yx*cex + maxStrHeight
+                   ypos <- LINEW + 6.5*GAP + 
+                       scoreMax * LINEW * ratio.yx + maxStrHeight
                },
                pin={
                    if(length(names(SNPs))>0){
@@ -76,12 +76,12 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    if(length(SNPs$score)>0){
                        ypos <- 
                            max(LINEW + 
-                                   6.5*GAP*cex + 
-                                   (SNPs$score-0.5) * LINEW * ratio.yx*cex + 
+                                   6.5*GAP + 
+                                   (SNPs$score-0.5*cex) * LINEW * ratio.yx + 
                                    thisStrHeight)
                    }else{
                        ypos <- max(LINEW*max(ratio.yx, 1.2) + 
-                                       6.5*GAP*cex + thisStrHeight)
+                                       6.5*GAP + thisStrHeight)
                    }
                },
                pie={
@@ -95,7 +95,7 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    }
                    maxStrHeight <- maxStrHeight * labels.length.rate
                    ypos <- LINEW + 
-                       6.5*GAP*cex + maxStrHeight
+                       6.5*GAP + maxStrHeight
                },
                pie.stack={
                    if(length(names(SNPs))>0){
@@ -108,8 +108,8 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    }
                    maxStrHeight <- maxStrHeight * labels.length.rate
                    ypos <- LINEW + 
-                       6.5*GAP*cex + maxStrHeight +
-                       (scoreMax-0.5) * LINEW * ratio.yx*cex
+                       6.5*GAP + maxStrHeight +
+                       (scoreMax-0.5*cex) * LINEW * ratio.yx
                },
                flag={
                  if(length(names(SNPs))>0){
@@ -121,8 +121,8 @@ getHeight <- function(SNPs, ratio.yx, LINEW, GAP, cex, type, scoreMax,
                    maxStrHeight <- 0
                  }
                  maxStrHeight <- maxStrHeight * labels.length.rate
-                 ypos <- LINEW + 6.5*GAP*cex + 
-                   scoreMax * LINEW * ratio.yx*cex + maxStrHeight
+                 ypos <- LINEW + 6.5*GAP + 
+                   scoreMax * LINEW * ratio.yx + maxStrHeight
                }
         )
         ypos

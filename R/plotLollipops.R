@@ -151,6 +151,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                               yscale=c(1, 0),
                               clip="off"))
     }
+    
     if(type=="pie.stack" && length(SNPs$stack.factor)>0){
         stopifnot(is.vector(SNPs$stack.factor, mode="character"))
         if(length(SNPs$stack.factor.order)>0 || 
@@ -212,6 +213,10 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
     if(length(SNPs)>0){
         yaxisat <- NULL
         yaxisLabel <- TRUE
+        diameter <- LINEW*ratio.yx
+        y2 <- feature.height
+        y3 <- 4*GAP*cex
+        y4 <- 2.5*GAP*cex
         if(length(yaxis)>1 && is.numeric(yaxis)){
             yaxisat <- yaxis
             if(length(names(yaxis))==length(yaxis)) yaxisLabel <- names(yaxis)
@@ -219,29 +224,26 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         }
         if(yaxis && scoreMax>1 && !type %in% c("pie", "pie.stack")){
             if(side=="top"){
-                grid.yaxis(at=yaxisat,
-                           label=yaxisLabel,
-                           main = main,
-                           gp=yaxis.gp,
-                           vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
-                                       y=feature.height+5.25*GAP*cex+
-                                           scoreMax*LINEW*ratio.yx/2*cex,
-                                       width=1,
-                                       height=scoreMax*LINEW*ratio.yx*cex,
-                                       yscale=c(0, scoreMax0+.5)))
+              vp <- viewport(x=.5+ifelse(main, -1, 1) *LINEW,
+                             y=feature.height + y3 + y4 + scoreMax*diameter/2,
+                             width=1,
+                             height=(scoreMax+1)*diameter,
+                             yscale=c(0, scoreMax0+scoreMax0/scoreMax))
             }else{
-                grid.yaxis(at=yaxisat,
-                           label=yaxisLabel,
-                           main = main,
-                           gp=yaxis.gp,
-                           vp=viewport(x=.5+ifelse(main, -1, 1) *LINEW,
-                                       y=1-(feature.height+5.25*GAP*cex+
-                                           scoreMax*LINEW*ratio.yx/2*cex),
-                                       width=1,
-                                       height=scoreMax*LINEW*ratio.yx*cex,
-                                       yscale=c(scoreMax0+.5, 0)))
+              vp <- viewport(x=.5+ifelse(main, -1, 1) *LINEW,
+                             y=1-(feature.height + y3 + y4 +
+                                    scoreMax*diameter/2),
+                             width=1,
+                             height=(scoreMax+1)*diameter,
+                             yscale=c(scoreMax0+scoreMax0/scoreMax, 0))
             }
+          grid.yaxis(at=yaxisat,
+                     label=yaxisLabel,
+                     main = main,
+                     gp=yaxis.gp,
+                     vp=vp)
         }
+        
         if(length(SNPs$alpha)==length(SNPs)){
           SNPs$alpha[is.na(SNPs$alpha)] <- 0
           if(all(is.numeric(SNPs$alpha))){
@@ -317,9 +319,9 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                                   lab.pos[m], 
                                                   start(this.dat)), 
                                            "native"), "npc", valueOnly=TRUE), 
-                          y2=feature.height,
-                          y3=4*GAP*cex, y4=2.5*GAP*cex, 
-                          radius=LINEW*cex/2,
+                          y2=y2,
+                          y3=y3, y4=y4, 
+                          radius=LINEW/2,
                           col=color,
                           border=border,
                           percent=this.dat.mcols,
@@ -327,7 +329,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                           type=type,
                           ratio.yx=ratio.yx,
                           pin=pin,
-                          scoreMax=scoreMax * LINEW * cex,
+                          scoreMax=scoreMax * LINEW,
                           scoreType=scoreType,
                           id=id,
                           cex=this.cex, lwd=lwd, dashline.col=this.dashline.col,

@@ -74,16 +74,16 @@ grid.lollipop <- function (x1=.5, y1=.5,
     type <- match.arg(type)
     side <- side!="top"
     if(!type %in% c("pie", "pie.stack")){
-        this.score <- if(length(percent$score)>0) max(percent$score, 1) else 1
+        this.score <- if(length(percent$score)>0) percent$score else 1
         if(type=="circle"){
-            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-1)*2*radius*ratio.yx+(1-cex)*radius*ratio.yx)
+            y0 <- c(y1, y2, y2+y3, y2+y3+y4+(this.score-1)*2*radius*ratio.yx)
             if(scoreType) y0[4] <- y2+y3+y4
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x1, x1, x2, x2), y=y0, 
                        gp=gpar(col=border, lwd=lwd))
             y0 <- c(y2+y3+y4+this.score*2*radius*ratio.yx, 
                     y2+y3+y4+scoreMax*ratio.yx)
-            if(scoreType) y0[1] <- y2+y3+y4+this.score*2*radius*ratio.yx*cex
+            if(scoreType) y0[1] <- y2+y3+y4+this.score*2*radius*ratio.yx
             if(side) y0 <- 1 - y0
             grid.lines(x=c(x2, x2), 
                        y=y0, 
@@ -126,7 +126,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                if(length(col)==0) col <- "white"
                if(scoreType){
                    for(i in 1:this.score){
-                       y0 <- y2+y3+y4+2*radius*ratio.yx*(i-.5)*cex
+                       y0 <- y2+y3+y4+2*radius*ratio.yx*(i-.5)
                        if(side) y0 <- 1 - y0
                        switch(shape, #"circle", "square", "diamond", "triangle_point_up", "star", or "triangle_point_down"
                               circle=grid.circle1(x=x2, y=y0,
@@ -153,7 +153,7 @@ grid.lollipop <- function (x1=.5, y1=.5,
                        
                    }
                }else{
-                   y0 <- y2+y3+(this.score-.5)*2*radius*ratio.yx+y4
+                   y0 <- y2+y3+y4+(this.score-.5)*2*radius*ratio.yx
                    if(side) y0 <- 1 - y0
                    switch(shape,
                           circle=grid.circle1(x=x2, y=y0,

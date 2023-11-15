@@ -71,7 +71,7 @@ Users can control the node labels one by one by setting metadata start with 'nod
 Please note that for each node label, the node.label.gp must be a list to control the style of node labels.
 You can also simply use node.label.col, node.label.cex, node.label.fontsize, node.label.fontfamily, node.label.fontface, node.label.font to assign the node labels attributes.
 ```{r lolliplot.index, fig.width=6, fig.height=3}
-sample.gr$node.label <- as.character(1:length(sample.gr))
+sample.gr$node.label <- as.character(seq_along(sample.gr))
 sample.gr$node.label.col <- 
   ifelse(sample.gr$alpha>0.5 | sample.gr$color==1, "white", "black")
 sample.gr$node.label.cex <- sample.int(3, length(sample.gr), replace = TRUE)/2
@@ -122,6 +122,7 @@ lolliplot(sample.gr, features, yaxis=FALSE)
 ```{r lolliplot4.20, fig.width=6, fig.height=4.5}
 #Try a score value greater than 10
 sample.gr$score <- sample.int(15, length(sample.gr), replace=TRUE)
+sample.gr$node.label <- as.character(sample.gr$score)
 lolliplot(sample.gr, features)
 ```
 ```{r lolliplot4.21, fig.width=6, fig.height=5}
@@ -131,6 +132,7 @@ lolliplot(sample.gr, features, lollipop_style_switch_limit=15)
 ```{r lolliplot4.22, fig.width=6, fig.height=4.5}
 #Try a float numeric score
 sample.gr$score <- runif(length(sample.gr))*10
+sample.gr$node.label <- as.character(round(sample.gr$score, digits = 1))
 lolliplot(sample.gr, features)
 # Score should not be smaller than 1
 # remove the alpha for following samples
@@ -607,7 +609,6 @@ SNPs$score <- sample.int(5, length(SNPs), replace = TRUE)
 SNPs$color <- sample.int(6, length(SNPs), replace=TRUE)
 SNPs$border <- "gray80"
 SNPs$feature.height = .1
-SNPs$cex <- .5
 gene$dat2 <- SNPs
 extdata <- system.file("extdata", package="trackViewer",
                        mustWork=TRUE)
@@ -629,8 +630,6 @@ SNPs2$score <- sample.int(3, length(SNPs2), replace = TRUE)
 SNPs2$color <- sample.int(6, length(SNPs2), replace=TRUE)
 SNPs2$border <- "gray30"
 SNPs2$feature.height = .1
-SNPs2$cex <- .5
-SNPs$cex <- .5
 lollipopData <- new("track", dat=SNPs, dat2=SNPs2, type="lollipopData")
 gene <- geneTrack(get("HSPA8", org.Hs.egSYMBOL2EG), TxDb.Hsapiens.UCSC.hg19.knownGene)[[1]]
 optSty <- optimizeStyle(trackList(repA, lollipopData, gene, heightDist = c(3, 3, 1)), theme="col")
