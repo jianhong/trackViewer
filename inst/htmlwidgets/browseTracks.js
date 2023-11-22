@@ -4012,6 +4012,7 @@ HTMLWidgets.widget({
           if(track.dat.start.length>0){
             var geneStart=end, geneEnd=start;
             var intronStart=end+5, intronEnd=start-5;
+            var geneNames=[];
             var fLayer = Math.max(...track.dat.featureLayerID);
             var feature={
               "utr5" : Y*parameter.geneTrackHeightFactor[trackNames()[k]]/2/fLayer,
@@ -4022,74 +4023,76 @@ HTMLWidgets.widget({
             };
             for(var j=1; j<=fLayer; j++){
               var data=[];
-              var intron=[];
-
-              var trackLayerData = {start:[],end:[],feature:[],textlabel:label, strand:"*", fill:[], color:color};
-              for(var i=0; i<track.dat.start.length; i++){
-                if(track.dat.featureLayerID[i]==j){
-                  trackLayerData.start.push(+track.dat.start[i]);
-                  trackLayerData.end.push(+track.dat.end[i]);
-                  trackLayerData.feature.push(""+track.dat.feature[i]);
-                  if(typeof(track.dat.textlabel)!="undefined") trackLayerData.textlabel = track.dat.textlabel[i] || trackLayerData.textlabel;
-                  trackLayerData.strand = track.dat.strand[i];
-                  trackLayerData.fill.push(track.dat.fill[i] || color);
-                  trackLayerData.color = track.dat.fill[i] || color;
-                }
+              if(typeof(track.dat.textlabel)!="undefined"){
+                  for(var i=0; i<track.dat.start.length; i++){
+                    if(geneNames.indexOf(track.dat.textlabel[i])==-1){
+                      geneNames.push(track.dat.textlabel[i]);
+                    }
+                  }
+              }else{
+                geneNames = ['undefined']
               }
-              for(var i=0; i<trackLayerData.start.length; i++){
-                if(i > 0){
-                  intronStart = trackLayerData.end[i-1] + 1;
-                  intronEnd = trackLayerData.start[i] - 1;
-                  if(intronStart < intronEnd){
-                    intron.push({
-                      "x0" : xscale(intronStart) + 5,
-                      "x1" : xscale(intronEnd)
-                    });
-                  }
-                }
-                var clipx0 = trackLayerData.start[i];
-                var clipx1 = trackLayerData.end[i];
-                if(clipx0<=end && clipx1>=start){
-                  if(clipx0<start){
-                    clipx0 = start;
-                  }
-                  if(clipx1>end){
-                    clipx1 = end;
-                  }
-                  data.push({
-                    "x" : clipx0,
-                    "h" : feature[trackLayerData.feature[i]],
-                    "w" : clipx1 - clipx0 + 1,
-                    "c" : trackLayerData.fill[i]
-                  });
-                }
-                if(trackLayerData.start[i]<geneStart){
-                  geneStart = trackLayerData.start[i];
-                }
-                if(trackLayerData.end[i]>geneEnd){
-                  geneEnd = trackLayerData.end[i];
-                }
-              }
-
+              
               var thisYpos = Y+(j+parameter.isoformR[trackNames()[k]])/(fLayer+1+2*parameter.isoformR[trackNames()[k]])/2;
               var thisY = yscale(thisYpos);
-              // add resize line
-              self.layer.append('line')
-              .attr('stroke', 'white')
-              .attr('stroke-width', '2px')
-              .attr("x1", xscale(geneStart))
-              .attr("x2", xscale(geneEnd))
-              .attr("y1", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
-              .attr("y2", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
-              .style("opacity", 0)
-              .attr('fLayer', fLayer)
-              .attr('kvalue', k)
-              .attr("id", "geneTrackResizelineB_"+safeNames()[k]+"_"+fLayer)
-              .style("cursor", "ns-resize")
-              .on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
-              .on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
-              .call(d3.drag().on("drag", draggedResize).on("start", draggedResizeStart));
-              // add a center line
+              
+              for(var gid=0; gid<geneNames.length; gid++){
+                var intron=[];
+                geneStart=end;
+                geneEnd=start;
+                intronStart=end+5;
+                intronEnd=start-5;
+                var trackLayerData = {start:[],end:[],feature:[],textlabel:label, strand:"*", fill:[], color:color};
+                for(var i=0; i<track.dat.start.length; i++){
+                  if(track.dat.featureLayerID[i]==j && (geneNames[gid]=='undefined'|| geneNames[gid]==track.dat.textlabel[i])){
+                    trackLayerData.start.push(+track.dat.start[i]);
+                    trackLayerData.end.push(+track.dat.end[i]);
+                    trackLayerData.feature.push(""+track.dat.feature[i]);
+                    if(typeof(track.dat.textlabel)!="undefined") {
+                      trackLayerData.textlabel = track.dat.textlabel[i] || trackLayerData.textlabel;
+                    }
+                    trackLayerData.strand = track.dat.strand[i];
+                    trackLayerData.fill.push(track.dat.fill[i] || color);
+                    trackLayerData.color = track.dat.fill[i] || color;
+                  }
+                }
+                console.log(trackLayerData);
+                for(var i=0; i<trackLayerData.start.length; i++){
+                  if(i > 0){
+                    intronStart = trackLayerData.end[i-1] + 1;
+                    intronEnd = trackLayerData.start[i] - 1;
+                    if(intronStart < intronEnd){
+                      intron.push({
+                        "x0" : xscale(intronStart) + 5,
+                        "x1" : xscale(intronEnd)
+                      });
+                    }
+                  }
+                  var clipx0 = trackLayerData.start[i];
+                  var clipx1 = trackLayerData.end[i];
+                  if(clipx0<=end && clipx1>=start){
+                    if(clipx0<start){
+                      clipx0 = start;
+                    }
+                    if(clipx1>end){
+                      clipx1 = end;
+                    }
+                    data.push({
+                      "x" : clipx0,
+                      "h" : feature[trackLayerData.feature[i]],
+                      "w" : clipx1 - clipx0 + 1,
+                      "c" : trackLayerData.fill[i]
+                    });
+                  }
+                  if(trackLayerData.start[i]<geneStart){
+                    geneStart = trackLayerData.start[i];
+                  }
+                  if(trackLayerData.end[i]>geneEnd){
+                    geneEnd = trackLayerData.end[i];
+                  }
+                }
+                
+                // add a center line
               if(geneStart < start) geneStart = start;
               if(geneEnd > end) geneEnd = end;
               if(geneStart < geneEnd){
@@ -4169,25 +4172,43 @@ HTMLWidgets.widget({
                   });
                   // add gene symbols
                   var opt = textDefaultOptions();
-                  opt.angle= typeof(x.rotate[safeNames()[k]+"_"+j])=="undefined"?0:x.rotate[safeNames()[k]+"_"+j];
-                  opt.y = typeof(x.dataYlabelPos.y[safeNames()[k]+"_0_"+j])=="undefined"?thisY+4:x.dataYlabelPos.y[safeNames()[k]+"_0_"+j];
-                  opt.x = typeof(x.dataYlabelPos.x[safeNames()[k]+"_0_"+j])=="undefined"?xscale(geneStart) - 10:xscale(x.dataYlabelPos.x[safeNames()[k]+"_0_"+j]);
+                  opt.angle= typeof(x.rotate[safeNames()[k]+"_"+j+"_"+gid])=="undefined"?0:x.rotate[safeNames()[k]+"_"+j+"_"+gid];
+                  opt.y = typeof(x.dataYlabelPos.y[safeNames()[k]+"_0_"+j+"_"+gid])=="undefined"?thisY+4:x.dataYlabelPos.y[safeNames()[k]+"_0_"+j+"_"+gid];
+                  opt.x = typeof(x.dataYlabelPos.x[safeNames()[k]+"_0_"+j+"_"+gid])=="undefined"?xscale(geneStart) - 10:xscale(x.dataYlabelPos.x[safeNames()[k]+"_0_"+j+"_"+gid]);
                   opt.anchor = "end";
                   opt.cls = "trackLayerLabel_"+safeNames()[k];
                   opt.trackKey = k;
                   opt.text = trackLayerData.textlabel;
-                  if(typeof(parameter.trackLayerDataTxt[safeNames()[k]+"_"+j])!="undefined") opt.text = parameter.trackLayerDataTxt[safeNames()[k]+"_"+j];
-                  parameter.trackLayerDataTxt[safeNames()[k]+"_"+j] = opt.text;
+                  if(typeof(parameter.trackLayerDataTxt[safeNames()[k]+"_"+j+"_"+gid])!="undefined") opt.text = parameter.trackLayerDataTxt[safeNames()[k]+"_"+j+"_"+gid];
+                  parameter.trackLayerDataTxt[safeNames()[k]+"_"+j+"_"+gid] = opt.text;
                   opt.vp = self.layer;
-                  opt.fontsize = x.fontsize[safeNames()[k]+"_"+j] || defaultFontSize;
+                  opt.fontsize = x.fontsize[safeNames()[k]+"_"+j+"_"+gid] || defaultFontSize;
                   opt.color = x.color[trackNames()[k]] || opt.color;
                   opt.colorPickerId = 3;
                   opt.ref = j;
                   self.ylabel = new Label(opt);
-                }
               }
-              return(self);
-            };
+
+              // add resize line
+              self.layer.append('line')
+              .attr('stroke', 'white')
+              .attr('stroke-width', '2px')
+              .attr("x1", xscale(start))
+              .attr("x2", xscale(end))
+              .attr("y1", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+              .attr("y2", yscale(thisYpos + Y*parameter.geneTrackHeightFactor[trackNames()[k]]/fLayer/2))
+              .style("opacity", 0)
+              .attr('fLayer', fLayer)
+              .attr('kvalue', k)
+              .attr("id", "geneTrackResizelineB_"+safeNames()[k]+"_"+fLayer)
+              .style("cursor", "ns-resize")
+              .on("mouseover", function(){d3.select(this).attr("stroke", 'gray').style("opacity", 0.5)})
+              .on("mouseout", function(){d3.select(this).attr("stroke", 'white').style("opacity", 0)})
+              .call(d3.drag().on("drag", draggedResize).on("start", draggedResizeStart));
+            }
+          }
+          return(self);
+        };
 
         //lollipop plot track
         var lolliTrack = function(layer, track, start, end, xscale, yscale, wscale, line, k, label){

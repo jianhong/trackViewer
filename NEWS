@@ -1,3 +1,7 @@
+Changes in version 1.39.2
+
+    o Fix the wrong plot for multiple genes track in browseTracks.
+    
 Changes in version 1.39.1
 
     o Fix the y-axis for lollipop plot.

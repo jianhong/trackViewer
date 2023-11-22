@@ -73,6 +73,8 @@ geneTrack <- function(ids, txdb, symbols,
       }else{
         .ele$feature <- "ncRNA"
       }
+      .ele <- orderedGR(.ele)
+      names(.ele) <- rep(.name, length(.ele))
       new("track", dat=.ele, type="gene", 
           name=.name,
           style=new("trackStyle", color="lightblue"))
@@ -121,6 +123,7 @@ geneTrack <- function(ids, txdb, symbols,
         .ele$transcript <- .ele$TXNAME
         .ele$gene <- .name
       }
+      .ele <- orderedGR(.ele)
       
       new("track", dat=.ele, type="transcript", 
           name=.ele$transcript[1],
