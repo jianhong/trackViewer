@@ -684,15 +684,17 @@ HTMLWidgets.widget({
                               });
                             }
                 var txt = inp.node().value;
-                var old = self.text;
+                var old = x.tracklist[trackNames()[self.k]].ylim[self.datatrack];
                 self.text = txt;
                 self.body.text(self.text);
                 self.highlight();
                 frm.remove();
                 if(/yaxis_/.exec(self.cls)){
                   x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
-                  if(Math.abs(old-self.text)>2) plotregion.renew();
-                  message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c(0, "+self.text+"))");
+                  if(Math.abs(old-self.text)>0){
+                    plotregion.renew();
+                  }
+                  message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c("+x.tracklist[trackNames()[self.k]].ylim[0]+", "+x.tracklist[trackNames()[self.k]].ylim[1]+"))");
                 }
                 if(/dataYlabel_/.exec(self.cls)){
                   changeTrackName(self.k, self.text);
@@ -748,7 +750,7 @@ HTMLWidgets.widget({
                   });
                 }
 
-                var old = self.text;
+                var old = x.tracklist[trackNames()[self.k]].ylim[self.datatrack];
                 self.text = inp.node().value;
                 self.body.text(self.text);
                 self.highlight();
@@ -760,8 +762,8 @@ HTMLWidgets.widget({
 
                 if(/yaxis_/.exec(self.cls)){
                   x.tracklist[trackNames()[self.k]].ylim[self.datatrack]=Number(self.text);
-                  if(Math.abs(old-self.text)>2) plotregion.renew();
-                  message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c(0, "+self.text+"))");
+                  if(Math.abs(old-self.text)>0) plotregion.renew();
+                  message("setTrackStyleParam(trackList[[", tmpstatus.k, "]], 'ylim', c("+x.tracklist[trackNames()[self.k]].ylim[0]+", "+x.tracklist[trackNames()[self.k]].ylim[1]+"))");
                 }
                 if(/dataYlabel_/.exec(self.cls)){
                   changeTrackName(self.k, self.text)
@@ -4336,16 +4338,27 @@ HTMLWidgets.widget({
         var dataTrack = function(layer, track, start, end, xscale, yscale, line, k, height){
           var self = this;
           var color = track.style.color;
+          var ylim_min = Math.min(...track.ylim);
+          var ylim_max = Math.max(...track.ylim);
+          if(0>= ylim_min && 0<= ylim_max){
+            ybaseline = 0;
+          }else{
+            ybaseline = track.ylim.map(Math.abs);
+            ybaseline = Math.min(...ybaseline);
+            if(ylim_min < 0){
+              ybaseline = -ybaseline;
+            }
+          }
           //signal dat
           if(track.dat.length>0){
-            var data=[{"x":start-1, "y":0}];
+            var data=[{"x":start-1, "y":ybaseline}];
             for(var i=0; i<track.dat.length; i++){
               data.push({
                 "x" : i+start,
-                "y" : track.dat[i]
+                "y" : track.dat[i] > ylim_min ? track.dat[i] < ylim_max ? track.dat[i] : ylim_max : ylim_min
               });
             }
-            data.push({"x":end+1, "y":0});
+            data.push({"x":end+1, "y":ybaseline});
             self.dat = layer.append("path")
                             .datum(data)
                             .attr("fill", color[0])
@@ -4376,14 +4389,14 @@ HTMLWidgets.widget({
             }
             //signal dat2
             if(track.dat2.length>0){
-              var data=[{"x":start-1, "y":0}];
+              var data=[{"x":start-1, "y":ybaseline}];
               for(var i=0; i<track.dat2.length; i++){
                 data.push({
                   "x" : i+start,
-                  "y" : -track.dat2[i]
+                  "y" : -track.dat2[i] > ylim_min ? -track.dat2[i] < ylim_max ? -track.dat2[i] : ylim_max : ylim_min
                 });
               }
-              data.push({"x":end+1, "y":0});
+              data.push({"x":end+1, "y":ybaseline});
               self.dat2 =  layer.append("path")
                                 .datum(data)
                                 .attr("fill", color[1])
@@ -4415,8 +4428,8 @@ HTMLWidgets.widget({
               self.baseline =  layer.append("line")
                                     .attr("x1", xscale(start))
                                     .attr("x2", xscale(end))
-                                    .attr("y1", yscale(0))
-                                    .attr("y2", yscale(0))
+                                    .attr("y1", yscale(ybaseline))
+                                    .attr("y2", yscale(ybaseline))
                                     .attr("stroke", color[0])
                                     .attr("stroke-width", x.opacity[x.name[k]]==1 ? "1px" : "10px")
                                     .attr("opacity", x.opacity[x.name[k]])
