@@ -82,7 +82,7 @@ getDrawLabelParam <- function(SNPs){
 handleLabelParams <- function(SNPs, prefix="label.parameter.", cex=1,
                               ...){
   labels <- list(...)
-  ## change the parameter by use definations.
+  ## change the parameter by use definitions.
   for(label.parameter in names(labels)){
     label.para <- paste0(prefix, label.parameter)
     if(label.para %in% colnames(mcols(SNPs))){
@@ -127,6 +127,25 @@ handleLabelParams <- function(SNPs, prefix="label.parameter.", cex=1,
   labels$gp[duplicated(names(labels$gp))] <- NULL
   labels$gp <- do.call(gpar, labels$gp)
   return(labels)
+}
+filterThisLabel <- function(this.label){
+  na_label <- is.na(this.label$label)
+  for(key in c("x", "just", "hjust", "vjust", "rot",
+               "check.overlap", "default.units")){
+    if(length(this.label[[key]])>1 &&
+       length(this.label[[key]]==length(this.label$label))){
+      this.label[[key]] <- this.label[[key]][!na_label]
+    }
+  }
+  for(key in names(this.label$gp)){
+    if(length(this.label$gp[[key]])>1 &&
+       length(this.label$gp[[key]])==length(this.label$label)){
+      this.label$gp[[key]] <- this.label$gp[[key]][!na_label]
+    }
+  }
+  this.label$gp <- do.call(gpar, this.label$gp)
+  this.label$label <- this.label$label[!na_label]
+  this.label
 }
 plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline, 
                           type, ranges, yaxis, yaxis.gp, scoreMax, scoreMax0, scoreType,
@@ -445,13 +464,11 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 }
               }
             }else{
-              this.label$label[is.na(this.label$label)] <-
-                rep("", sum(is.na(this.label$label)))
+              if(any(is.na(this.label$label))){
+                ## grid.text will not plot if first element is empty
+                this.label <- filterThisLabel(this.label)
+              }
               if(length(this.label$label)>0){
-                if(this.label$label[1]==""){
-                  ## grid.text will not plot if first element is empty
-                  this.label$label[1] <- ' '
-                }
                 grid.text(x=this.label$x, y=this.height + feature.height, 
                           label = this.label$label,  
                           just = this.label$just, 
