@@ -1,3 +1,7 @@
+Changes in version 1.39.4
+
+    o Fix the issue if the first label is empty for lolliplot.
+    
 Changes in version 1.39.3
 
     o Fix the mismatch data track when change the ylim in browseTracks.

@@ -359,7 +359,7 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                                 hjust = NULL,
                                 vjust = NULL,
                                 rot = 90,
-                                lcheck.overlap = FALSE,
+                                check.overlap = FALSE,
                                 default.units = "native",
                                 gp = gpar(cex=cex),
                                 pfm = NULL,
@@ -445,16 +445,23 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
                 }
               }
             }else{
-              this.label$label[is.na(this.label$label)] <- rep("", sum(is.na(this.label$label)))
-              grid.text(x=this.label$x, y=this.height + feature.height, 
-                        label = this.label$label,  
-                        just = this.label$just, 
-                        hjust = this.label$hjust,
-                        vjust = this.label$vjust,
-                        rot=this.label$rot,
-                        check.overlap = this.label$check.overlap,
-                        default.units = this.label$default.units,
-                        gp=this.label$gp)
+              this.label$label[is.na(this.label$label)] <-
+                rep("", sum(is.na(this.label$label)))
+              if(length(this.label$label)>0){
+                if(this.label$label[1]==""){
+                  ## grid.text will not plot if first element is empty
+                  this.label$label[1] <- ' '
+                }
+                grid.text(x=this.label$x, y=this.height + feature.height, 
+                          label = this.label$label,  
+                          just = this.label$just, 
+                          hjust = this.label$hjust,
+                          vjust = this.label$vjust,
+                          rot=this.label$rot,
+                          check.overlap = this.label$check.overlap,
+                          default.units = this.label$default.units,
+                          gp=this.label$gp)
+              }
             }
         }
     }
