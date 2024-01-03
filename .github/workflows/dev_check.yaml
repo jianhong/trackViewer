@@ -1,8 +1,8 @@
 on:
   push:
-    branches: [master, staging]
+    branches: [devel, staging]
   pull_request:
-    branches: [master]
+    branches: [devel]
 jobs:
   build:
     strategy:
