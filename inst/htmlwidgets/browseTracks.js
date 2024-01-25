@@ -4440,7 +4440,58 @@ HTMLWidgets.widget({
 
               return(self);
             };
-
+        // interactionData
+        var interactionTrack = function(layer, track, start, end, xscale, yscale, wscale, line, k, label){
+          var self = this;
+          var color = track.style.color;
+          if(typeof(color)=="string"){
+            color = [color, color];
+          }
+          if(typeof(track.dat.startA)!='undefined'){
+            if(track.dat.startA.length>0){//plot heatmap
+              self.heatmap1=layer.append("g").attr("group", "heatmap");
+              var data = [];
+              var min_val = 0;
+              var max_val = 0;
+              ym = (end-start + 1)/2;
+              for(var i=0; i<track.dat.startA.length; i++){
+                xa = (track.dat.endA[i] + track.dat.startB[i])/2
+                xb = (track.dat.startA[i] + track.dat.startB[i])/2
+                xc = (track.dat.startA[i] + track.dat.endB[i])/2
+                xd = (track.dat.endA[i] + track.dat.endB[i])/2
+                ya = (xa-track.dat.endA[i]+1)/ym
+                yb = (xb-track.dat.startA[i]+1)/ym
+                yc = (xc-track.dat.startA[i]+1)/ym
+                yd = (xd-track.dat.endA[i]+1)/ym
+                data.push({
+                  "x": xb,
+                  "y": yb,
+                  "width": 2*(xd-xa)+start,
+                  "value": track.dat.value[i]
+                })
+                if(track.dat.value[i]>max_val){
+                  max_val = track.dat.value[i];
+                }
+              }
+              // color scale
+              var myColor = d3.scaleSequential().interpolator(d3.interpolateInferno).domain([min_val, max_val]);
+              self.dat = self.heatmap1.selectAll("rect")
+                              .data(data)
+                              .enter()
+                              .append("rect")
+                              .attr("transform", function(d){
+                                return("translate("+xscale(d.x)+","+yscale(d.y)+") rotate(45)");
+                              })
+                              .attr("width", function(d){return(xscale(d.width))})
+                              .attr("height", function(d){return(xscale(d.width))})
+                              .style("fill", function(d){return(myColor(d.value))})
+                              .style("stroke-width", 1)
+                              .style("stroke", "none")
+                              .style("opacity", 0.8);
+            }
+          }
+          return(self);
+        };
         // xaxis
         parameter.xaxOpt = {draw: true, angle: 0, fontsize: defaultFontSize, ddx: 0, ddy: 0, color: "#000"};
         var xaxis = function(layer){
@@ -4690,6 +4741,9 @@ HTMLWidgets.widget({
             case "transcript":
             self.plot = new geneTrack(self.track, currTrack, x.start, x.end, xscale(), self.yscale(), wscale(), line, k, trackNames()[k]);
             break;
+            case 'interactionData':
+            self.plot = new interactionTrack(self.track, currTrack, x.start, x.end, xscale(), self.yscale(), wscale(), line, k, trackNames()[k]);
+              break;
             default:
             //console.log(x.type[trackNames()[k]]);
           }

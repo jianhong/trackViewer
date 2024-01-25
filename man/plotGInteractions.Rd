@@ -4,7 +4,7 @@
 \alias{plotGInteractions}
 \title{plot GInteractions}
 \usage{
-plotGInteractions(gi, range, feature.gr, ...)
+plotGInteractions(gi, range, feature.gr, label_region = FALSE, ...)
 }
 \arguments{
 \item{gi}{an object of \link[InteractionSet:GInteractions-class]{GInteractions}}
@@ -12,6 +12,8 @@ plotGInteractions(gi, range, feature.gr, ...)
 \item{range}{the region to plot. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
 
 \item{feature.gr}{the feature.gr to be added. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
+
+\item{label_region}{label the region start-end or not.}
 
 \item{...}{Not used.}
 }
@@ -23,11 +25,14 @@ library(InteractionSet)
 gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
 range <- GRanges("chr2", IRanges(234500000, 235000000))
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
 feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
+symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
+feature.gr$label <- vapply(symbols, function(.ele) .ele[1], character(1L))
 feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
-feature.gr$type <- sample(c("promoter", "enhancer", "gene"), 
+feature.gr$type <- sample(c("cRE", "gene"), 
                          length(feature.gr), replace=TRUE, 
-                         prob=c(0.1, 0.2, 0.7))
+                         prob=c(0.1, 0.9))
 plotGInteractions(gi, range, feature.gr)
 }

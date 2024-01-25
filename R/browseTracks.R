@@ -169,6 +169,42 @@ browseTracks <- function(trackList,
             ZERO
         }
     }
+    getInteractionData <- function(.dat, .dat2){
+      ## copied from plotInteractionDataTrack.R. TODO: create a sub-function
+      names(.dat) <- NULL
+      ## if there is target metadata
+      .dat1target <- NULL
+      .dat2target <- NULL
+      if(length(.dat$target)==length(.dat) && is(.dat$target, "GRanges")){
+        .dat1target <- .dat$target
+        if(length(.dat2)!=0){
+          if(length(.dat2$target)==length(.dat2) && is(.dat2$target, "GRanges")){
+            names(.dat2) <- NULL
+            .dat2target <- .dat2$target
+            #mcols(.dat2) <- mcols(.dat2)[, "score"]
+            #colnames(mcols(.dat2)) <- "score"
+          }
+        }
+      }else{
+        .dat1target <- .dat2
+        .dat2 <- NULL
+      }
+      # convert to the format: startA, endA, startB, endB, value
+      createDF <- function(.d, .dt){
+        if(length(.d)==0) return(ZERO)
+        data.frame(
+          startA = start(.d),
+          endA = end(.d),
+          startB = start(.dt),
+          endB = end(.dt),
+          value = .d$score
+        )
+      }
+      return(list(
+        dat = createDF(.dat, .dat1target),
+        dat2 = createDF(.dat2, .dat2target)
+      ))
+    }
     col2Hex <- function(x){
         if(is(x, "AsIs") || is.list(x)){
           return(lapply(x, col2Hex))
@@ -273,27 +309,40 @@ browseTracks <- function(trackList,
             }
           }else{
             if(.ele$type=="scSeq"){
-              stop("Not supported.")
+              stop("scSeq data not supported.")
             }else{
-              ##gene
-              dat$textlabel <- names(.ele$dat)
-              names(dat) <- NULL
-              if(length(dat$featureLayerID)==0){
-                dat$featureLayerID <- 1
-              }
-              if(length(dat$fill)==0){
-                dat$fill <- style$color[1]
+              if(.ele$type=="interactionData"){
+                interactiondata <- getInteractionData(.ele$dat,
+                                                      .ele$dat2)
+                dat <- interactiondata$dat
+                dat2 <- interactiondata$dat2
+                if(length(dat2)>0){
+                  warning('Current back2back is not supported.')
+                }
+                ylim <- c(0, 1) ## need to be changed to track@style@ylim
+                ## however, javascript is not ready to accept the ylim yet.
               }else{
-                dat$fill <- col2Hex(dat$fill)
+                ##gene
+                dat$textlabel <- names(.ele$dat)
+                names(dat) <- NULL
+                if(length(dat$featureLayerID)==0){
+                  dat$featureLayerID <- 1
+                }
+                if(length(dat$fill)==0){
+                  dat$fill <- style$color[1]
+                }else{
+                  dat$fill <- col2Hex(dat$fill)
+                }
+                dat <- as.list(as.data.frame(dat))
+                dat$seqnames <- chromosome
+                if(length(.ele$dat2)==0){
+                  dat2 <- ZERO
+                }else{
+                  dat2 <- getLolliplotData(.ele$dat2)
+                }
+                ylim <- c(0, 1)
+                
               }
-              dat <- as.list(as.data.frame(dat))
-              dat$seqnames <- chromosome
-              if(length(.ele$dat2)==0){
-                dat2 <- ZERO
-              }else{
-                dat2 <- getLolliplotData(.ele$dat2)
-              }
-              ylim <- c(0, 1)
             }
           }
         }

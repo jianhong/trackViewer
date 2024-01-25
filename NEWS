@@ -1,3 +1,7 @@
+Changes in version 1.39.5
+
+    o Browse heatmap by js (scratch).
+    
 Changes in version 1.39.4
 
     o Fix the issue if the first label is empty for lolliplot.
