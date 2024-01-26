@@ -4,7 +4,20 @@
 \alias{plotGInteractions}
 \title{plot GInteractions}
 \usage{
-plotGInteractions(gi, range, feature.gr, label_region = FALSE, ...)
+plotGInteractions(
+  gi,
+  range,
+  feature.gr,
+  label_region = FALSE,
+  lwd.backbone = 3,
+  lwd.gene = 2,
+  lwd.nodeCircle = 1,
+  lwd.edge = 2,
+  show_tension = TRUE,
+  tension_unit = 1000,
+  label_gene = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gi}{an object of \link[InteractionSet:GInteractions-class]{GInteractions}}
@@ -14,6 +27,15 @@ plotGInteractions(gi, range, feature.gr, label_region = FALSE, ...)
 \item{feature.gr}{the feature.gr to be added. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
 
 \item{label_region}{label the region start-end or not.}
+
+\item{lwd.backbone, lwd.gene, lwd.nodeCircle, lwd.edge}{line width for the 
+linker, gene, interaction node circle and the dashed line of interaction edges.}
+
+\item{show_tension}{plot ticks in the line to show the DNA compact tension.}
+
+\item{tension_unit}{the bps for every ticks. Default is 1K.}
+
+\item{label_gene}{show gene symbol or not.}
 
 \item{...}{Not used.}
 }
