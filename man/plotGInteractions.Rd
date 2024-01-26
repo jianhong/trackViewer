@@ -10,32 +10,45 @@ plotGInteractions(
   feature.gr,
   label_region = FALSE,
   lwd.backbone = 3,
+  col.backbone = "cyan",
+  col.backbone_background = "gray",
   lwd.gene = 2,
   lwd.nodeCircle = 1,
+  col.nodeCircle = "#DDDDDD25",
   lwd.edge = 2,
+  col.edge = "gray80",
+  show_coor = 1e+05,
+  col.coor = "black",
   show_tension = TRUE,
   tension_unit = 1000,
   label_gene = TRUE,
+  col.tension_line = "black",
   ...
 )
 }
 \arguments{
-\item{gi}{an object of \link[InteractionSet:GInteractions-class]{GInteractions}}
+\item{gi}{An object of \link[InteractionSet:GInteractions-class]{GInteractions}}
 
-\item{range}{the region to plot. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
+\item{range}{The region to plot. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
 
-\item{feature.gr}{the feature.gr to be added. an object of \link[GenomicRanges:GRanges-class]{GRanges}}
+\item{feature.gr}{The annotation features to be added. An object of \link[GenomicRanges:GRanges-class]{GRanges}.}
 
-\item{label_region}{label the region start-end or not.}
+\item{label_region}{Label the region node or not.}
 
-\item{lwd.backbone, lwd.gene, lwd.nodeCircle, lwd.edge}{line width for the 
+\item{lwd.backbone, lwd.gene, lwd.nodeCircle, lwd.edge}{Line width for the 
 linker, gene, interaction node circle and the dashed line of interaction edges.}
 
-\item{show_tension}{plot ticks in the line to show the DNA compact tension.}
+\item{col.backbone, col.backbone_background, col.nodeCircle, col.edge, col.tension_line, col.coor}{Color
+for the DNA chain, the compact DNA chain, the node circle, the linker, the tension line and the coordinates marker.}
 
-\item{tension_unit}{the bps for every ticks. Default is 1K.}
+\item{show_coor}{Show the coordinates or not. Numeric(1). Set to 0
+to turn it off. The default value 1e5 means show coordinates every 0.1M bp.}
 
-\item{label_gene}{show gene symbol or not.}
+\item{show_tension}{Plot ticks in the line to show the DNA compact tension.}
+
+\item{tension_unit}{The bps for every ticks. Default is 1K.}
+
+\item{label_gene}{Show gene symbol or not.}
 
 \item{...}{Not used.}
 }
