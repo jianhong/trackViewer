@@ -592,6 +592,7 @@ bezier <- function(coefs, center, r_coefs, r, evaluation=100, w){
     # N/sum(2*pi*r_coefs) should be same as w
     N <- max(min(2*w, r/Nr, 2*N/sum(2*pi*r_coefs), na.rm = TRUE), 1.25)
   }
+  N <- 2*N # 4 points in new algorithm need 2 times strengh.
   #n2 <- floor(nrow(coefs)/2)
   center_mirror <- mirrorP(center, coefs[1, ], coefs[nrow(coefs), ], N=N)
   # x <- c(coefs[1, 1],
