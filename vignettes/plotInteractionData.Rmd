@@ -151,7 +151,7 @@ importGInteractions(file=cool, format="cool",
 ```
 
 
-Different from most of the available tools, plotGInteractions try to plot the data with the 2D structure. The nodes indicate the region with interactions and
+Different from most of the available tools, `loopBouquetPlot` try to plot the data with the 2D structure. The nodes indicate the region with interactions and
 the edges indicates the interactions. The size of the nodes are relative to the width of the region.
 The features could be the cRE or gene. The cRE are shown as
 points with symbol 11.
@@ -167,7 +167,7 @@ feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                           length(feature.gr), replace=TRUE, 
                           prob=c(0.1, 0.9))
-plotGInteractions(gi, range, feature.gr)
+loopBouquetPlot(gi, range, feature.gr)
 ```
 
 # Session Info

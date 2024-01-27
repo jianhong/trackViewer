@@ -41,12 +41,12 @@
 #' feature.gr$type <- sample(c("cRE", "gene"), 
 #'                          length(feature.gr), replace=TRUE, 
 #'                          prob=c(0.1, 0.9))
-#' plotGInteractions(gi, range, feature.gr)
-plotGInteractions <- function(gi, range, feature.gr,
+#' loopBouquetPlot(gi, range, feature.gr)
+loopBouquetPlot <- function(gi, range, feature.gr,
                               label_region=FALSE,
-                              lwd.backbone = 3, col.backbone = 'cyan',
-                              col.backbone_background = 'gray',
-                              lwd.gene = 2,
+                              lwd.backbone = 2, col.backbone = 'gray',
+                              col.backbone_background = 'gray70',
+                              lwd.gene = 5,
                               lwd.nodeCircle = 1, col.nodeCircle = '#DDDDDD25',
                               lwd.edge = 2, col.edge = "gray80",
                               show_coor = 1e5, col.coor = "black",
@@ -60,6 +60,8 @@ plotGInteractions <- function(gi, range, feature.gr,
   stopifnot(length(show_coor)==1)
   if(!missing(range)){
     stopifnot(is(range, "GRanges"))
+    stopifnot('tension_unit is too small.'=
+                width(range(range))[1]/tension_unit<1000)
     gi <- subsetByOverlaps(gi, ranges = range, ignore.strand=TRUE)
   }
   if(!missing(feature.gr)){
@@ -102,8 +104,10 @@ plotGInteractions <- function(gi, range, feature.gr,
   nodes <- unique(as.character(sort(c(anchorIds(gi, type="first"),
                                       anchorIds(gi, type="second")))))
   ## add genomic coordinates to edge
-  d <- log10(distance(reg[nodes[-length(nodes)]],
-                      reg[nodes[-1]]) + 1) + 1
+  d0 <- distance(reg[nodes[-length(nodes)]],
+                 reg[nodes[-1]])
+  d0.ups.dws <- width(reg[nodes[-length(nodes)]]) + width(reg[nodes[-1]])
+  d <- log10(d0 + 1) + 1
   # d_factor <- median(width(reg[nodes]))
   # d <- distance(reg[nodes[-length(nodes)]], reg[nodes[-1]])/d_factor + 1
   irq <- quantile(d, probs = c(.25, .75))
@@ -264,7 +268,7 @@ plotGInteractions <- function(gi, range, feature.gr,
                  nodeShape[[i+1]],
                  ab,
                  cn$x, cn$y, r=cn$r,
-                 w=2*d[i]/median(d),
+                 w=d0[i]/d0.ups.dws[i],
                  feature.gr = this_features,
                  lwd_thick_weight = this_features_tick_density + 1,
                  gr = this_reg_gap,
@@ -431,7 +435,7 @@ plotStartEndPoints <- function(xy, idx, xlim, ylim, start, arrowLen,
       y1 <- y0 <- y
       if(!missing(start)){
         if(start[1]==y){
-          y1 <- y0 <- y + ddx
+          y1 <- y0 <- y + ddy
         }
       }
     }else{
@@ -541,6 +545,7 @@ fixXY <- function(nodeXY, vertex.size, edgeL_link, lwd = 10/300){
 # Where column vector v=R-P is parallel to line but is not unit (like n),
 # P and R are two arbitrary line points; the v*t(v) is outer product;
 # I is identity matrix; the d=1/sqrt(vx*vx + vy*vy) is inverse length of v.
+# N is the tension strength.
 mirrorP <- function(Q, P, R, N) {
   I <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
   n <- R - P
@@ -548,49 +553,79 @@ mirrorP <- function(Q, P, R, N) {
   as.numeric(Q + 2*N * ( I - d2 * n %*% t(n) ) %*% ( P - Q ))
 }
 
-bezier <- function(coefs, center, r, evaluation=100, w){
+bezier0 <- function(t, ctrNodes){
+  x <- 0
+  y <- 0
+  n <- nrow(ctrNodes) - 1
+  for(i in seq.int(nrow(ctrNodes))){
+    index <- i - 1
+    if(!index){
+      x <- x + ctrNodes[i, 1] * (( 1 - t ) ^ (n - index)) * (t^index) 
+      y <- y + ctrNodes[i, 2] * (( 1 - t ) ^ (n - index)) * (t^index) 
+    }else{
+      x <- x + factorial(n) / factorial(index) / factorial(n - index) * ctrNodes[i, 1] * 
+        (( 1 - t ) ^ (n - index)) * (t^index) 
+      y <- y + factorial(n) / factorial(index) / factorial(n - index) * ctrNodes[i, 2] * 
+        (( 1 - t ) ^ (n - index)) * (t^index) 
+    }
+  }
+  return(c(x, y))
+}
+
+bezier <- function(coefs, center, r_coefs, r, evaluation=100, w){
   stopifnot('Dimention of coefs need to be 2'=length(dim(coefs))==2)
   stopifnot('Dimention of center need to be 2'=length(dim(center))==2)
   # mirror center
   center <- colMeans(center)
   # N is the strength of the bezier curve
-  # strength is determined by the distance from the center of (p1, p2) to
-  # (cx, cy)
+  # strength is determined by the distance from the center of (p1, p2)
+  # to the sum of perimeter of both nodes
   if(r==0){
-    N <- w#2
+    N <- min(w, 10)#2
   }else{
-    N <- sqrt((mean(coefs[, 1]) - center[1])^2 +
-                (mean(coefs[, 2]) - center[2])^2)
-    N <- r/N
+    # w is the ratio of distance to both node width.
+    # distance of both nodes center points
+    N <- pointsDistance(coefs[1, ], coefs[nrow(coefs), ])
+    # distance of the center of nodes center points to sub-cluster center
+    Nr <- sqrt((mean(coefs[, 1]) - center[1])^2 +
+                 (mean(coefs[, 2]) - center[2])^2)
+    # N/sum(2*pi*r_coefs) should be same as w
+    N <- max(min(2*w, r/Nr, 2*N/sum(2*pi*r_coefs), na.rm = TRUE), 1.25)
   }
   #n2 <- floor(nrow(coefs)/2)
   center_mirror <- mirrorP(center, coefs[1, ], coefs[nrow(coefs), ], N=N)
-  x <- c(coefs[1, 1],
-         center_mirror[1],
-         coefs[nrow(coefs), 1])
-  y <- c(coefs[1, 2],
-         center_mirror[2],
-         coefs[nrow(coefs), 2])
-  n <- length(x)
-  X <- Y <- single(evaluation)
-  Z <- seq(0, 1, length = evaluation)
-  X[1] <- x[1]
-  X[evaluation] <- x[n]
-  Y[1] <- y[1]
-  Y[evaluation] <- y[n]
-  for (i in 2:(evaluation - 1)) {
-    z <- Z[i]
-    xz <- yz <- 0
-    const <- (1 - z)^(n - 1)
-    for (j in 0:(n - 1)) {
-      xz <- xz + const * x[j + 1]
-      yz <- yz + const * y[j + 1]
-      const <- const * (n - 1 - j)/(j + 1) * z/(1 - z)
-    }
-    X[i] <- xz
-    Y[i] <- yz
-  }
-  list(x = as.numeric(X), y = as.numeric(Y))
+  # x <- c(coefs[1, 1],
+  #        center_mirror[1],
+  #        coefs[nrow(coefs), 1])
+  # y <- c(coefs[1, 2],
+  #        center_mirror[2],
+  #        coefs[nrow(coefs), 2])
+  # n <- length(x)
+  # X <- Y <- single(evaluation)
+  # Z <- seq(0, 1, length = evaluation)
+  # X[1] <- x[1]
+  # X[evaluation] <- x[n]
+  # Y[1] <- y[1]
+  # Y[evaluation] <- y[n]
+  # for (i in 2:(evaluation - 1)) {
+  #   z <- Z[i]
+  #   xz <- yz <- 0
+  #   const <- (1 - z)^(n - 1)
+  #   for (j in 0:(n - 1)) {
+  #     xz <- xz + const * x[j + 1]
+  #     yz <- yz + const * y[j + 1]
+  #     const <- const * (n - 1 - j)/(j + 1) * z/(1 - z)
+  #   }
+  #   X[i] <- xz
+  #   Y[i] <- yz
+  # }
+  half <- floor(nrow(coefs)/2)
+  ctrNodes <- rbind(coefs[seq.int(half), ],
+                    center_mirror,
+                    coefs[seq.int(nrow(coefs))[-seq.int(half)], ])
+  xy <- lapply((seq.int(101)-1)/100, bezier0, ctrNodes=ctrNodes)
+  xy <- do.call(rbind, xy)
+  list(x = xy[, 1], y = xy[, 2])
 }
 
 getMirrorPoint <- function(ns, a){
@@ -624,31 +659,33 @@ curveMaker <- function(ns1, ns2, ab, cx, cy, r, w, evaluation = 100,
   }else{
     c2 <- c(cx[2], cy[2])
   }
-  # if(pointsDistance(c(x1, y1), c1) < r[1]){
-  #   # find the extension point on the circle
-  #   ep1 <- getPointInNodeCircle(ns1, ab[1], c1, r[1])
-  # }else{
-  #   ep1 <- getMirrorPoint(ns1, ab[1])
-  # }
-  # r2 <- ifelse(length(r)==1, r[1] , r[2])
-  # if(pointsDistance(c(x2, y2), c2) < r2){
-  #   ep2 <- getPointInNodeCircle(ns2, ab[2], c2, r2)
-  # }else{
-  #   ep2 <- getMirrorPoint(ns2, ab[2])
-  # }
+  if(pointsDistance(c(x1, y1), c1) < r[1]){
+    # find the extension point on the circle
+    ep1 <- getPointInNodeCircle(ns1, ab[1], c1, r[1])
+  }else{
+    ep1 <- getMirrorPoint(ns1, ab[1])
+  }
+  r2 <- ifelse(length(r)==1, r[1] , r[2])
+  if(pointsDistance(c(x2, y2), c2) < r2){
+    ep2 <- getPointInNodeCircle(ns2, ab[2], c2, r2)
+  }else{
+    ep2 <- getMirrorPoint(ns2, ab[2])
+  }
   # points(ep1[1], ep1[2])
   # lines(c(x1, ep1[1]), c(y1, ep1[2]))
   # points(ep2[1], ep2[2])
   # lines(c(x2, ep2[1]), c(y2, ep2[2]))
-  # coefs <- c(x1, y1, 
-  #            ep1[1], ep1[2],
-  #            x2, y2,
-  #            ep2[1], ep2[2])
-  coefs <- c(x1, y1, 
+  coefs <- c(x1, y1,
+             ep1[1], ep1[2],
+             ep2[1], ep2[2],
              x2, y2)
+  # coefs <- c(x1, y1, 
+  #            x2, y2)
   coefs <- matrix(coefs, ncol = 2, byrow = TRUE)
   xy <- bezier(coefs = coefs,
                center = matrix(c(cx, cy), ncol = 2),
+               r_coefs = c(pointsDistance(c(x1, y1), c1),
+                           pointsDistance(c(x2, y2), c2)),
                r = ifelse(length(r)==1, r, 0), w = w,
                evaluation = evaluation)
   plotConnectionLines(xy, lwd_thick_weight=lwd_thick_weight,
@@ -722,6 +759,8 @@ getCutPos <- function(x, breaks, n){
 getSrt <- function(x, y){
   ## length of x, y must be 2
   srt <- ifelse(diff(x)[1]==0, 0, 180/pi*atan(diff(y)[1]/diff(x)[1]))
+  if(is.na(srt)[1]) srt <- 0
+  return(srt)
 }
 rotatePoint <- function(x1, y1, x2, y2){
   c(-(y2-y1)+x1, x2-x1+y1)
@@ -756,6 +795,14 @@ addGeneInNode <- function(gs, nShape, gr, arrowLen, lwd.gene,
         switch(type,
                "tick" ={
                  if(plot_tick){
+                   pD <- pointsDistance(c(A.x[1], A.y[1]), c(A.x[2], A.y[2]))
+                   if(!is.na(pD)){
+                     if(pD>arrowLen/3){
+                       r0 <- arrowLen/pD/3
+                       A.x[2] <- A.x[1] + r0*diff(A.x)
+                       A.y[2] <- A.y[1] + r0*diff(A.y)
+                     }
+                   }
                    B <- rotatePoint(A.x[1], A.y[1], A.x[2], A.y[2])
                    if(show_coor){
                      mark <- start(gs.s[i])/show_coor
@@ -802,27 +849,15 @@ addGeneInNode <- function(gs, nShape, gr, arrowLen, lwd.gene,
                      B.y[2] <- B.y[1] + r0*diff(B.y)
                      
                    if(label_gene){
-                     # if(as.character(strand(pro))=='-'){
                        B1 <- rotatePoint(B.x[1], B.y[1], B.x[2], B.y[2])
                        segments(B.x[1], B.y[1], B1[1], B1[2], col = gs.s$col[i])
                        B2 <- rotatePoint(B1[1], B1[2], B.x[1], B.y[1])
                        arrows(B1[1], B1[2], B2[1], B2[2], length = arrowLen, col = gs.s$col[i], angle=15, code = 2)
-                       text(labels=paste0(gs.s$label[i], '(', as.character(strand(gs.s))[i], ')'), B1[1], B1[2],
+                       text(labels=gs.s$label[i], B1[1], B1[2],
                             adj = c(ifelse(B1[1]>B2[1], 1, 0),
                                     ifelse(B.y[1]>B1[2], 1.5, -.5)),
                             srt = getSrt(B.x, B.y),
                             col = gs.s$col[i])
-                     # }else{
-                     #   B1 <- rotatePoint(B.x[2], B.y[2], B.x[1], B.y[1])
-                     #   segments(B.x[2], B.y[2], B1[1], B1[2], col = gs.s$col[i])
-                     #   B2 <- rotatePoint(B1[1], B1[2], B.x[2], B.y[2])
-                     #   arrows(B1[1], B1[2], B2[1], B2[2], length = arrowLen, col = gs.s$col[i], angle=15, code = 2)
-                     #   text(labels=paste0(gs.s$label[i], '(', as.character(strand(gs.s))[i], ')'), B1[1], B1[2],
-                     #        adj = c(ifelse(B1[1]>B2[1], 1, 0),
-                     #                ifelse(B.y[2]>B1[2], 1.5, -.5)),
-                     #        srt = getSrt(B.x, B.y),
-                     #        col = gs.s$col[i])
-                     # }
                    }else{
                      arrows(B.x[1], B.y[1], B.x[2], B.y[2], length = arrowLen, col = invertCol(gs.s$col[i]), angle=15, code = ifelse(as.character(strand(gs.s[i]))=='-', 2, 1))
                    }
