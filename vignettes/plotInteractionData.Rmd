@@ -24,6 +24,7 @@ output:
 suppressPackageStartupMessages({
   library(trackViewer)
   library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+  library(org.Hs.eg.db)
   library(InteractionSet)
 })
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
@@ -158,15 +159,19 @@ points with symbol 11.
 
 ```{r plotGInteractions}
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
 range <- GRanges("chr2", IRanges(234500000, 235000000))
 feature.gr <- suppressMessages(genes(TxDb.Hsapiens.UCSC.hg19.knownGene))
 feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
-feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
+feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                           length(feature.gr), replace=TRUE, 
                           prob=c(0.1, 0.9))
+symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
+symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
+feature.gr$label <- symbol
 loopBouquetPlot(gi, range, feature.gr)
 ```
 
