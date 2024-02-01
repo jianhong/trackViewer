@@ -3,16 +3,20 @@
 #' @param gi An object of \link[InteractionSet:GInteractions-class]{GInteractions}
 #' @param range The region to plot. an object of \link[GenomicRanges:GRanges-class]{GRanges}
 #' @param feature.gr The annotation features to be added. An object of \link[GenomicRanges:GRanges-class]{GRanges}.
+#' @param atacSig The ATAC-seq signals. An object of \link[GenomicRanges:GRanges-class]{GRanges} with scores or an object of \link{track}.
 #' @param label_region Label the region node or not.
+#' @param show_edges Plot the interaction edges or not.
+#' @param show_cluster Plot the cluster background or not.
 #' @param show_tension Plot ticks in the line to show the DNA compact tension.
 #' @param tension_unit The bps for every ticks. Default is 1K.
 #' @param show_coor Show the coordinates or not. Numeric(1). Set to 0
 #' to turn it off. The default value 1e5 means show coordinates every 0.1M bp.
 #' @param label_gene Show gene symbol or not.
-#' @param lwd.backbone,lwd.gene,lwd.nodeCircle,lwd.edge Line width for the 
-#' linker, gene, interaction node circle and the dashed line of interaction edges.
+#' @param lwd.backbone,lwd.gene,lwd.nodeCircle,lwd.edge,lwd.tension_line,lwd.maxAtacSig Line width for the 
+#' linker, gene, interaction node circle, the dashed line of interaction edges, the tension line and the maximal reversed ATAC signal.
 #' @param col.backbone,col.backbone_background,col.nodeCircle,col.edge,col.tension_line,col.coor Color
 #' for the DNA chain, the compact DNA chain, the node circle, the linker, the tension line and the coordinates marker.
+#' @param method Plot method. Could be 1 or 2.
 #' @param ... Not used.
 #' @importClassesFrom InteractionSet GInteractions
 #' @importMethodsFrom InteractionSet regions anchorIds
@@ -34,7 +38,7 @@
 #' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' library(org.Hs.eg.db)
 #' feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
-#' feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
+#' feature.gr <- subsetByOverlaps(feature.gr, range(regions(gi)))
 #' symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
 #' feature.gr$label <- vapply(symbols, function(.ele) .ele[1], character(1L))
 #' feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
@@ -42,20 +46,25 @@
 #'                          length(feature.gr), replace=TRUE, 
 #'                          prob=c(0.1, 0.9))
 #' loopBouquetPlot(gi, range, feature.gr)
-loopBouquetPlot <- function(gi, range, feature.gr,
-                              label_region=FALSE,
-                              lwd.backbone = 2, col.backbone = 'gray',
-                              col.backbone_background = 'gray70',
-                              lwd.gene = 5,
-                              lwd.nodeCircle = 1, col.nodeCircle = '#DDDDDD25',
-                              lwd.edge = 2, col.edge = "gray80",
-                              show_coor = 1e5, col.coor = "black",
-                              show_tension = TRUE,
-                              tension_unit = 1e3,
-                              label_gene = TRUE,
-                              col.tension_line = 'black',
-                              ...){
+loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
+                            label_region=FALSE, show_edges=TRUE, 
+                            show_cluster=TRUE,
+                            lwd.backbone = 2, col.backbone = 'gray',
+                            lwd.maxAtacSig = 8,
+                            col.backbone_background = 'gray70',
+                            lwd.gene = 2,
+                            lwd.nodeCircle = 1, col.nodeCircle = '#DDDDDD25',
+                            lwd.edge = 2, col.edge = "gray80",
+                            show_coor = 1e5, col.coor = "black",
+                            show_tension = TRUE,
+                            tension_unit = 1e3,
+                            label_gene = TRUE,
+                            col.tension_line = 'black',
+                            lwd.tension_line = 1,
+                            method = 1,
+                            ...){
   stopifnot(is(gi, "GInteractions"))
+  stopifnot('score' %in% colnames(mcols(gi)))
   stopifnot(is.numeric(show_coor))
   stopifnot(length(show_coor)==1)
   if(!missing(range)){
@@ -81,25 +90,11 @@ loopBouquetPlot <- function(gi, range, feature.gr,
   }
   if(length(feature.gr$col)==0) feature.gr$col <- rep("black", length(feature.gr))
   if(length(feature.gr$type)==0) feature.gr$type <- rep("gene", length(feature.gr))
+  if(length(feature.gr$cex)==0) feature.gr$cex <- rep(1, length(feature.gr))
   stopifnot(length(feature.gr$type)==length(feature.gr))
   stopifnot(all(feature.gr$type %in% c('cRE', 'gene')))
   feature.gr[feature.gr$type=='cRE'] <- 
     promoters(feature.gr[feature.gr$type=='cRE'], upstream = 0, downstream = 1)
-  if(show_tension){
-    r_tick <- range(reg)
-    r_tick <- r_tick[seqnames(r_tick) %in% seqnames(first(gi))[1]]
-    end(r_tick) <- ceiling(end(r_tick)/tension_unit)*tension_unit
-    start(r_tick) <- floor(start(r_tick)/tension_unit)*tension_unit
-    strand(r_tick) <- "*"
-    feature.tick <- GenomicRanges::slidingWindows(r_tick, width = 1, step=tension_unit)[[1]]
-    feature.tick$col <- col.tension_line
-    feature.tick$type <- 'tick'
-    feature.gr <- c(feature.gr, feature.tick)
-  }
-  
-  feature.gr_reg <- subsetByOverlaps(feature.gr, reg, ignore.strand = TRUE)
-  ol <- findOverlaps(feature.gr_reg, reg)
-  feature.gr_reg <- split(feature.gr_reg[queryHits(ol)], subjectHits(ol))
   
   nodes <- unique(as.character(sort(c(anchorIds(gi, type="first"),
                                       anchorIds(gi, type="second")))))
@@ -129,8 +124,6 @@ loopBouquetPlot <- function(gi, range, feature.gr,
   sGnodes <- split(names(cl$membership), cl$membership)
   g <- graph_from_data_frame(d = edgeL, directed=FALSE, vertices = nodes)
   layout <- layout_with_fr(g) ## only layout_with_fr and layout_with_kk work OK
-  # plot(g, layout = layout, main = 'Fruchterman-Reingold force-directed algorithm')
-  # axis(1); axis(2)
   
   nodeXY <- norm_coords(layout, -1, 1, -1, 1)
   rownames(nodeXY) <- nodes$names
@@ -145,8 +138,7 @@ loopBouquetPlot <- function(gi, range, feature.gr,
   d_ylim <- diff(ylim)/5
   xlim <- c(xlim[1] - d_xlim - maxv, xlim[2] + d_xlim + maxv)
   ylim <- c(ylim[1] - d_ylim - maxv, ylim[2] + d_ylim + maxv)
-  # nodeX <- nodeXY[, "X"]
-  # nodeY <- nodeXY[, "Y"]
+
   nodesSize <- nodes$size
   
   clusterCenter <- lapply(sGnodes, function(.ele){
@@ -160,7 +152,9 @@ loopBouquetPlot <- function(gi, range, feature.gr,
   
   opar <- par(mar=rep(0, 4)+.1)
   on.exit(par(opar))
-
+  
+  plotPoints <- list()
+  
   plot(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n", 
        xaxs="i", yaxs="i", xlim=xlim, ylim=ylim, frame.plot=FALSE,
        new=TRUE)
@@ -182,13 +176,16 @@ loopBouquetPlot <- function(gi, range, feature.gr,
     nodeShape[[i]] <- archPlot(nodeXY[i, "X"], nodeXY[i, "Y"], r=nodesSize[i]/vertex.factor, init.angle = init.angle[i])
   }
   ## plot the bacground circle
-  for(i in seq_along(clusterCenter)){
-    polygon(archPlot(clusterCenter[[i]]$x, clusterCenter[[i]]$y,
-                     clusterCenter[[i]]$r,
-                     angle=360, init.angle=0, length.out=100,
-                     bck = TRUE),
-            col = col.nodeCircle, lty = 4, lwd=lwd.nodeCircle)
+  if(show_cluster){
+    for(i in seq_along(clusterCenter)){
+      polygon(archPlot(clusterCenter[[i]]$x, clusterCenter[[i]]$y,
+                       clusterCenter[[i]]$r,
+                       angle=360, init.angle=0, length.out=100,
+                       bck = TRUE),
+              col = col.nodeCircle, lty = 4, lwd=lwd.nodeCircle)
+    }
   }
+  
   getNodesClusters <- function(...){
     which(vapply(sGnodes, function(.ele) any(... %in% .ele), logical(1L)))
   }
@@ -201,34 +198,15 @@ loopBouquetPlot <- function(gi, range, feature.gr,
         reg0 <- reg[rownames(nodeXY)[i]]
         this_reg_gap <- GRanges(seqnames(reg0), IRanges(end=start(reg0),
                                                         width = 10*tension_unit))
-        this_features <- subsetByOverlaps(feature.gr, this_reg_gap,
-                                          ignore.strand = TRUE)
-        this_features_tick_density <- 
-          length(this_features[this_features$type=="tick"])
-        this_features_tick_density <-
-          rescale(
-            this_features_tick_density,
-            to = c(1, 8),
-            from = c(0, max(
-              length(subsetByOverlaps(feature.gr[feature.gr$type=='tick'],
-                                      range, ignore.strand = TRUE))/
-                length(nodeShape),
-              this_features_tick_density)))
         idx <- c(i, i+1)
         ab <- getStartConnectionPoints(nodeShape[idx])
         idx <- ifelse(ab[1]==1, length(nodeShape[[1]]$x), 1)
-        plotStartEndPoints(nodeShape[[i]], idx, 
-                           xlim = xlim, ylim = ylim,
-                           arrowLen = arrowLen,
-                           col="red", pch=16,
-                           feature.gr = this_features,
-                           lwd_thick_weight = this_features_tick_density + 1,
-                           gr = this_reg_gap,
-                           lwd.backbone = lwd.backbone,
-                           col.backbone = col.backbone,
-                           col.backbone_background = col.backbone_background,
-                           lwd.gene = lwd.gene,
-                           label_gene = label_gene)
+        thisXY <- plotStartEndPoints(nodeShape[[i]], idx, 
+                           xlim = xlim, ylim = ylim)
+        plotPoints <- addPoints(plotPoints,
+                               thisXY$x, thisXY$y, 
+                               start(this_reg_gap),
+                               end(this_reg_gap))
       }else{
         idx <- seq(i, min(i+2, length(nodeShape)))
         ab <- checkConnectionPoints(nodeShape[c(i, i+1)], last_a, d[i]>median(d))
@@ -243,117 +221,92 @@ loopBouquetPlot <- function(gi, range, feature.gr,
           c(x=.ele$x, y=.ele$y, r=.ele$r))
         cn <- as.data.frame(do.call(rbind, cn))
       }
-      this_features <- GRanges()
-      this_reg_gap <- GRanges()
-      this_features_tick_density <- 0
       reg0 <- reg[rownames(nodeXY)[i]]
       reg1 <- reg[rownames(nodeXY)[i+1]]
-      if(start(reg1)>end(reg0)){
-        this_reg_gap <- GRanges(seqnames(reg0), IRanges(end(reg0),
-                                                          start(reg1)))
-        this_features <- subsetByOverlaps(feature.gr, this_reg_gap,
-                                          ignore.strand = TRUE)
-        this_features_tick_density <- 
-          length(this_features[this_features$type=="tick"])
-        this_features_tick_density <-
-          rescale(
-            this_features_tick_density,
-            to = c(1, 8),
-            from = c(0, max(
-              length(subsetByOverlaps(feature.gr[feature.gr$type=='tick'],
-                            range, ignore.strand = TRUE))/length(nodeShape),
-              this_features_tick_density)))
+      if(ab[1]==1){
+        plotPoints <- addPoints(plotPoints,
+                                rev(nodeShape[[i]]$x),
+                                rev(nodeShape[[i]]$y),
+                                start(reg0),
+                                end(reg0))
+      }else{
+        plotPoints <- addPoints(plotPoints,
+                                nodeShape[[i]]$x,
+                                nodeShape[[i]]$y,
+                                start(reg0),
+                                end(reg0))
       }
-      curveMaker(nodeShape[[i]], 
+      thisXY <- curveMaker(nodeShape[[i]], 
                  nodeShape[[i+1]],
                  ab,
                  cn$x, cn$y, r=cn$r,
                  w=d0[i]/d0.ups.dws[i],
-                 feature.gr = this_features,
-                 lwd_thick_weight = this_features_tick_density + 1,
-                 gr = this_reg_gap,
-                 arrowLen = arrowLen,
-                 lwd.backbone = lwd.backbone,
-                 col.backbone = col.backbone,
-                 col.backbone_background = col.backbone_background,
-                 lwd.gene = lwd.gene,
-                 plot_tick = show_tension,
-                 show_coor = show_coor,
-                 col.coor = col.coor,
-                 label_gene = label_gene)
-      # if(ab[1]!=1){
-      #   nodeShape[[i]] <- lapply(nodeShape[[i]], rev)
-      # }
+                 evaluation = floor(100*edgeL_coor$weight[i]),
+                 method = method)
+      plotPoints <- addPoints(plotPoints,
+                              thisXY$x, thisXY$y, 
+                              end(reg0),
+                              start(reg1))
       last_a <- ifelse(ab[2]==1, length(nodeShape[[i]]$x), 1)
     }
     if(i==length(nodeShape)){ ## mark the end point
       reg0 <- reg[rownames(nodeXY)[i]]
       this_reg_gap <- GRanges(seqnames(reg0), IRanges(end(reg0),
                                                       width = 10*tension_unit))
-      this_features <- subsetByOverlaps(feature.gr, this_reg_gap,
-                                        ignore.strand = TRUE)
-      this_features_tick_density <- 
-        length(this_features[this_features$type=="tick"])
-      this_features_tick_density <-
-        rescale(
-          this_features_tick_density,
-          to = c(1, 8),
-          from = c(0, max(
-            length(subsetByOverlaps(feature.gr[feature.gr$type=='tick'],
-                                    range,
-                                    ignore.strand = TRUE))/length(nodeShape),
-            this_features_tick_density)))
-      plotStartEndPoints(nodeShape[[i]], last_a, 
+      plotPoints <- addPoints(plotPoints,
+                              nodeShape[[i]]$x,
+                              nodeShape[[i]]$y,
+                              start(reg0), end(reg0))
+      thisXY <- plotStartEndPoints(nodeShape[[i]], last_a, 
                          xlim = xlim, ylim = ylim, 
-                         start = nodeShape[[i]]$y[1],
-                         arrowLen = arrowLen,
-                         col="orange", pch=15,
-                         feature.gr = this_features,
-                         lwd_thick_weight = this_features_tick_density + 1,
-                         gr = this_reg_gap,
-                         lwd.backbone = lwd.backbone,
-                         col.backbone = col.backbone,
-                         col.backbone_background = col.backbone_background,
-                         lwd.gene = lwd.gene,
-                         label_gene = label_gene)
-      # if(last_a==1){
-      #   nodeShape[[i]] <- lapply(nodeShape[[i]], rev)
-      # }
+                         start = nodeShape[[i]]$y[1])
+      plotPoints <- addPoints(plotPoints,
+                              thisXY$x, thisXY$y, 
+                              start(this_reg_gap),
+                              end(this_reg_gap))
     }
   }
   ## plot the edge lines
-  segments(nodeXY[as.character(edgeL_link$from), "X"], nodeXY[as.character(edgeL_link$from), "Y"], 
-           nodeXY[as.character(edgeL_link$to), "X"], nodeXY[as.character(edgeL_link$to), "Y"],
-           lwd=lwd.edge, lty=2, col = col.edge)
+  if(show_edges){
+    segments(nodeXY[as.character(edgeL_link$from), "X"], nodeXY[as.character(edgeL_link$from), "Y"], 
+             nodeXY[as.character(edgeL_link$to), "X"], nodeXY[as.character(edgeL_link$to), "Y"],
+             lwd=lwd.edge, lty=2, col = col.edge)
+  }
+  ## plot the bouquet
+  plotBouquet(pP=plotPoints,
+              fgf=feature.gr,
+              atacSig=atacSig,
+              lwd.backbone=lwd.backbone,
+              col.backbone=col.backbone,
+              lwd.maxAtacSig = lwd.maxAtacSig,
+              col.backbone_background=col.backbone_background,
+              lwd.gene=lwd.gene,
+              show_coor=show_coor,
+              col.coor=col.coor,
+              show_tension = show_tension,
+              tension_unit = tension_unit,
+              label_gene = label_gene,
+              col.tension_line = col.tension_line,
+              lwd.tension_line = lwd.tension_line,
+              arrowLen = arrowLen)
   ## 
-  for(i in seq.int(nrow(nodeXY))){
-    ## plot the shape of node
-    lines(nodeShape[[i]]$x, nodeShape[[i]]$y,
-          lwd=lwd.backbone, lty=1, col = col.backbone)
-    if(length(feature.gr_reg[[rownames(nodeXY)[i]]])>0){
-      addGeneInNode(feature.gr_reg[[rownames(nodeXY)[i]]], nodeShape[[i]], reg[rownames(nodeXY)[i]], arrowLen=arrowLen, lwd.gene = lwd.gene,
-                    plot_tick = show_tension, show_coor = show_coor,
-                    col.coor = col.coor,
-                    label_gene = label_gene)
-    }
-    ## write the start and end position of the node
-    if(label_region){
-      ## plot the node dot
-      points(nodeXY, pch=16, col="white", cex=nodesSize/strheight("0"), add=TRUE)
-      ## label the node
-      text(nodeXY, labels = rownames(nodeXY))
-    }
+  if(label_region){
+    ## plot the node dot
+    points(nodeXY, pch=16, col="white", cex=nodesSize/strheight("0"), add=TRUE)
+    ## label the node
+    text(nodeXY, labels = rownames(nodeXY))
   }
   
-  return(invisible(g))
+  return(invisible(list(plotPoints=plotPoints, feature.gr=feature.gr,
+                        xlim=xlim, ylim=ylim,
+                        nodeXY=nodeXY, edgeL_link=edgeL_link,
+                        clusterCenter=clusterCenter)))
 }
 
-ABinSameSide <- function(A, B, c1, c2){
-  return(
-    ((c1[2] - c2[2])*(A[1] - c1[1]) +
-       (c2[1] - c1[1])*(A[2] - c1[2])) *
-      ((c1[2] - c2[2])*(B[1] - c1[1]) +
-         (c2[1] - c1[1])*(B[2] - c1[2]))>0)
+addPoints <- function(pointscollection, x, y, s, e){
+  pointscollection[[length(pointscollection)+1]] <- list(
+    x=x, y=y, start=s, end=e)
+  pointscollection
 }
 
 getStartConnectionPoints <- function(shapeX){
@@ -385,12 +338,6 @@ checkConnectionPoints <- function(shapeX, a, close = TRUE){
   }
   return(ab)
 }
-plotConnectionLines <- function(xy, lwd_thick_weight=1, lwd.backbone=3, col.backbone,col.backbone_background,...){
-  lines(xy$x[-c(1, length(xy$x))], xy$y[-c(1, length(xy$y))], 
-        col=col.backbone_background, lty=1, lwd=lwd.backbone+1+lwd_thick_weight)
-  lines(xy,
-        col=col.backbone, lty=1, lwd=lwd.backbone)
-}
 
 safeEndPoint <- function(x, lim, dx){
   if(x<lim[1]) x <- lim[1] + dx
@@ -398,15 +345,7 @@ safeEndPoint <- function(x, lim, dx){
   x
 }
 
-plotStartEndPoints <- function(xy, idx, xlim, ylim, start, arrowLen, 
-                               feature.gr,
-                               lwd_thick_weight,
-                               gr,
-                               lwd.backbone, col.backbone,
-                               col.backbone_background,
-                               lwd.gene, 
-                               label_gene=TRUE,
-                               ...){
+plotStartEndPoints <- function(xy, idx, xlim, ylim, start, ...){
   # if it is the end point, the start will be the y of start point
   ## plot a horizontal line to the edge
   x <- xy$x[idx]
@@ -453,26 +392,10 @@ plotStartEndPoints <- function(xy, idx, xlim, ylim, start, arrowLen,
     x1 <- safeEndPoint(x1, xlim, ddx)
   }
 
-  plotConnectionLines(list(x=c(x0, x), 
-                           y=c(y0, y)),
-                      lwd_thick_weight=lwd_thick_weight,
-                      lwd.backbone = lwd.backbone,
-                      col.backbone = col.backbone,
-                      col.backbone_background = col.backbone_background)
-  if(length(feature.gr)>0){
-    addGeneInNode(gs = feature.gr, nShape = list(x=c(x0, x), 
-                                                 y=c(y0, y)), 
-                  gr = gr,
-                  arrowLen=arrowLen, lwd.gene = lwd.gene,
-                  plot_tick = FALSE, show_coor = FALSE, col.coor = 'black',
-                  label_gene = label_gene)
-  }
-  
-  points(x0, y0, ...)
   if(!missing(start)){
-    arrows(x1, y1, x0, y0, length = arrowLen)
+    return(list(x=c(x, x0), y=c(y, y0)))
   }else{
-    arrows(x0, y0, x1, y1, length = arrowLen)
+    return(list(x=c(x0, x), y=c(y0, y)))
   }
 }
 
@@ -491,7 +414,7 @@ moveNodes <- function(from, to, lwd, reverse = FALSE){
   pd <- pointsDistance(from[c(1, 2)], center)
   if(pd!=0){
     from <- from[c(1, 2)] - (from[c(1, 2)] - center) * 
-    (1 - (from[3] + lwd) / pd)
+      (1 - (from[3] + lwd) / pd)
   }else{
     from <- from[c(1, 2)]
   }
@@ -572,7 +495,7 @@ bezier0 <- function(t, ctrNodes){
   return(c(x, y))
 }
 
-bezier <- function(coefs, center, r_coefs, r, evaluation=100, w){
+bezier <- function(coefs, center, r_coefs, r, evaluation=100, w, method=1){
   stopifnot('Dimention of coefs need to be 2'=length(dim(coefs))==2)
   stopifnot('Dimention of center need to be 2'=length(dim(center))==2)
   # mirror center
@@ -580,46 +503,31 @@ bezier <- function(coefs, center, r_coefs, r, evaluation=100, w){
   # N is the strength of the bezier curve
   # strength is determined by the distance from the center of (p1, p2)
   # to the sum of perimeter of both nodes
-  if(r==0){
-    N <- min(w, 10)#2
+  if(method==2){
+    if(r==0){
+      N <- min(w, 10)
+    }else{
+      # w is the ratio of distance to both node width.
+      # distance of both nodes center points
+      N <- pointsDistance(coefs[1, ], coefs[nrow(coefs), ])
+      # distance of the center of nodes center points to sub-cluster center
+      Nr <- sqrt((mean(coefs[, 1]) - center[1])^2 +
+                   (mean(coefs[, 2]) - center[2])^2)
+      # N/sum(2*pi*r_coefs) should be same as w
+      N <- max(min(2*w, r/Nr, 2*N/sum(2*pi*r_coefs), na.rm = TRUE), 1.25)
+    }
+    N <- 2*N # 4 points in new algorithm need 2 times strengh.
   }else{
-    # w is the ratio of distance to both node width.
-    # distance of both nodes center points
-    N <- pointsDistance(coefs[1, ], coefs[nrow(coefs), ])
-    # distance of the center of nodes center points to sub-cluster center
-    Nr <- sqrt((mean(coefs[, 1]) - center[1])^2 +
-                 (mean(coefs[, 2]) - center[2])^2)
-    # N/sum(2*pi*r_coefs) should be same as w
-    N <- max(min(2*w, r/Nr, 2*N/sum(2*pi*r_coefs), na.rm = TRUE), 1.25)
+    if(r==0){
+      N <- 2
+    }else{
+      Nr <- sqrt((mean(coefs[, 1]) - center[1])^2 +
+                   (mean(coefs[, 2]) - center[2])^2)
+      N <- r/Nr
+    }
   }
-  N <- 2*N # 4 points in new algorithm need 2 times strengh.
-  #n2 <- floor(nrow(coefs)/2)
+  
   center_mirror <- mirrorP(center, coefs[1, ], coefs[nrow(coefs), ], N=N)
-  # x <- c(coefs[1, 1],
-  #        center_mirror[1],
-  #        coefs[nrow(coefs), 1])
-  # y <- c(coefs[1, 2],
-  #        center_mirror[2],
-  #        coefs[nrow(coefs), 2])
-  # n <- length(x)
-  # X <- Y <- single(evaluation)
-  # Z <- seq(0, 1, length = evaluation)
-  # X[1] <- x[1]
-  # X[evaluation] <- x[n]
-  # Y[1] <- y[1]
-  # Y[evaluation] <- y[n]
-  # for (i in 2:(evaluation - 1)) {
-  #   z <- Z[i]
-  #   xz <- yz <- 0
-  #   const <- (1 - z)^(n - 1)
-  #   for (j in 0:(n - 1)) {
-  #     xz <- xz + const * x[j + 1]
-  #     yz <- yz + const * y[j + 1]
-  #     const <- const * (n - 1 - j)/(j + 1) * z/(1 - z)
-  #   }
-  #   X[i] <- xz
-  #   Y[i] <- yz
-  # }
   half <- floor(nrow(coefs)/2)
   ctrNodes <- rbind(coefs[seq.int(half), ],
                     center_mirror,
@@ -644,11 +552,7 @@ getPointInNodeCircle <- function(ns, a, c1, r){
 }
 
 curveMaker <- function(ns1, ns2, ab, cx, cy, r, w, evaluation = 100,
-                       feature.gr, gr, arrowLen, lwd_thick_weight = 1,
-                       lwd.backbone = 3, col.backbone, col.backbone_background,
-                       lwd.gene = 2,
-                       plot_tick = FALSE, show_coor, col.coor,
-                       label_gene = TRUE,
+                       method = 1,
                        ...){
   x1 <- ns1$x[ab[1]]
   y1 <- ns1$y[ab[1]]
@@ -676,31 +580,24 @@ curveMaker <- function(ns1, ns2, ab, cx, cy, r, w, evaluation = 100,
   # lines(c(x1, ep1[1]), c(y1, ep1[2]))
   # points(ep2[1], ep2[2])
   # lines(c(x2, ep2[1]), c(y2, ep2[2]))
-  coefs <- c(x1, y1,
-             ep1[1], ep1[2],
-             ep2[1], ep2[2],
-             x2, y2)
-  # coefs <- c(x1, y1, 
-  #            x2, y2)
+  if(method[1]==2){
+    coefs <- c(x1, y1,
+               ep1[1], ep1[2],
+               ep2[1], ep2[2],
+               x2, y2)
+  }else{
+    coefs <- c(x1, y1, 
+               x2, y2)
+  }
   coefs <- matrix(coefs, ncol = 2, byrow = TRUE)
   xy <- bezier(coefs = coefs,
                center = matrix(c(cx, cy), ncol = 2),
                r_coefs = c(pointsDistance(c(x1, y1), c1),
                            pointsDistance(c(x2, y2), c2)),
                r = ifelse(length(r)==1, r, 0), w = w,
-               evaluation = evaluation)
-  plotConnectionLines(xy, lwd_thick_weight=lwd_thick_weight,
-                      lwd.backbone = lwd.backbone,
-                      col.backbone = col.backbone,
-                      col.backbone_background=col.backbone_background,
-                      ...)
-  if(length(feature.gr)>0){
-    addGeneInNode(gs = feature.gr, nShape = xy, gr = gr,
-                  arrowLen=arrowLen, lwd.gene = lwd.gene,
-                  plot_tick = plot_tick, show_coor = show_coor,
-                  col.coor=col.coor,
-                  label_gene = label_gene)
-  }
+               evaluation = evaluation,
+               method = method[1])
+  return(xy)
 }
 
 archPlot <- function(x, y, r, angle=300, init.angle=0, length.out=100, bck = FALSE){
@@ -732,21 +629,6 @@ archPlot <- function(x, y, r, angle=300, init.angle=0, length.out=100, bck = FAL
   return(P)
 }
 
-# plogisMaker <- function(x1, y1, x2, y2, ...){
-#   x <- NULL
-#   if(abs(x1-x2)<10){
-#     segments(x1, y1, x2, y2, ...)
-#   }else{
-#     if(x1<x2){
-#       curve( plogis( x, scale = exp(round(log10(mean(c(x1, x2)))-1)), location = (x1 + x2) /2 ) * (y2-y1) + y1, 
-#              x1, x2, add = TRUE, ...)
-#     }else{
-#       curve( plogis( x, scale = exp(round(log10(mean(c(x1, x2)))-1)), location = (x1 + x2) /2 ) * (y1-y2) + y2, 
-#              x2, x1, add = TRUE, ...)
-#     }
-#   }
-# }
-
 
 ##TODO: put the gene symbols in proper location.
 getCutPos <- function(x, breaks, n){
@@ -771,103 +653,7 @@ prettyMark <- function(x, u){
   un <- findInterval(u, c(0, 1e3, 1e6, 1e9, 1e12))
   digit <- u/10^(3*(un-1))
   paste0(round(x/10^(3*(div-1)), ifelse(digit==1, 0, 1)), 
-        c("","K","M","B","T")[div])
-}
-addGeneInNode <- function(gs, nShape, gr, arrowLen, lwd.gene,
-                          plot_tick = FALSE, show_coor, col.coor,
-                          label_gene = TRUE){
-  gs <- split(gs, gs$type)
-  n <- length(nShape$x)
-  gr.cut <- seq(start(gr)-1, end(gr), length.out = n+1)
-  mapply(function(gs.s, type){
-    if(length(gs.s)>0){
-      for(i in seq_along(gs.s)){
-        at <- getCutPos(c(start(gs.s[i]), end(gs.s[i])),
-                        breaks = gr.cut, n = n)
-        if(at[1]==at[2]){
-          if(at[1]==n){
-            at[1] <- n -1
-          }else{
-            at[2] <- at[1] + 1
-          }
-        }
-        A.x <- nShape$x[seq(at[1], at[2])]
-        A.y <- nShape$y[seq(at[1], at[2])]
-        switch(type,
-               "tick" ={
-                 if(plot_tick){
-                   pD <- pointsDistance(c(A.x[1], A.y[1]), c(A.x[2], A.y[2]))
-                   if(!is.na(pD)){
-                     if(pD>arrowLen/3){
-                       r0 <- arrowLen/pD/3
-                       A.x[2] <- A.x[1] + r0*diff(A.x)
-                       A.y[2] <- A.y[1] + r0*diff(A.y)
-                     }
-                   }
-                   B <- rotatePoint(A.x[1], A.y[1], A.x[2], A.y[2])
-                   if(show_coor){
-                     mark <- start(gs.s[i])/show_coor
-                     if(mark==round(mark)){
-                       text(labels=prettyMark(start(gs.s[i]), show_coor),
-                            x=A.x[1], y=A.y[1], 
-                            col = col.coor,
-                            adj=c(.5, 1.5),
-                            srt = getSrt(A.x, A.y))
-                       segments(A.x[1], A.y[1],
-                                B[1]+(B[1]-A.x[1]),
-                                B[2]+(B[2]-A.y[1]),
-                                col = col.coor)
-                     }else{
-                       segments(A.x[1], A.y[1], B[1], B[2],
-                                col = gs.s[i]$col)
-                     }
-                   }else{
-                     segments(A.x[1], A.y[1], B[1], B[2],
-                              col = gs.s[i]$col)
-                   }
-                 }
-               },
-               "cRE"={
-                 points(A.x[1], A.y[1], pch=11, col = gs.s$col[i])
-               }, 
-               "gene"={
-                 lines(A.x, A.y, lwd=lwd.gene, col=gs.s$col[i])
-                 pro <- promoters(gs.s[i], upstream = 0, downstream = 1)
-                 pro <- subsetByOverlaps(pro, gr, 
-                                         type = 'within', ignore.strand = TRUE)
-                 if(length(pro)>0){
-                   if(as.character(strand(pro))=='-'){
-                     at <- c(at[2], at[2]-1)
-                   }else{
-                     at <- c(at[1], at[1]+1)
-                   }
-                   B.x <- nShape$x[at]
-                   B.y <- nShape$y[at]
-                   pD <- pointsDistance(c(B.x[1], B.y[1]), c(B.x[2], B.y[2]))
-                   if(!is.na(pD)){
-                     r0 <- arrowLen/pD
-                     B.x[2] <- B.x[1] + r0*diff(B.x)
-                     B.y[2] <- B.y[1] + r0*diff(B.y)
-                     
-                   if(label_gene){
-                       B1 <- rotatePoint(B.x[1], B.y[1], B.x[2], B.y[2])
-                       segments(B.x[1], B.y[1], B1[1], B1[2], col = gs.s$col[i])
-                       B2 <- rotatePoint(B1[1], B1[2], B.x[1], B.y[1])
-                       arrows(B1[1], B1[2], B2[1], B2[2], length = arrowLen, col = gs.s$col[i], angle=15, code = 2)
-                       text(labels=gs.s$label[i], B1[1], B1[2],
-                            adj = c(ifelse(B1[1]>B2[1], 1, 0),
-                                    ifelse(B.y[1]>B1[2], 1.5, -.5)),
-                            srt = getSrt(B.x, B.y),
-                            col = gs.s$col[i])
-                   }else{
-                     arrows(B.x[1], B.y[1], B.x[2], B.y[2], length = arrowLen, col = invertCol(gs.s$col[i]), angle=15, code = ifelse(as.character(strand(gs.s[i]))=='-', 2, 1))
-                   }
-                   }
-                 }
-               })
-      }
-    }
-  }, gs, names(gs))
+         c("","K","M","B","T")[div])
 }
 
 #' @importFrom grDevices col2rgb rgb
@@ -881,3 +667,278 @@ invertCol <- function (col){
   names(int_col) <- n
   int_col
 }
+
+
+resampleDataByFun <- function(fromGR, targetGR, FUN=viewMeans, dropZERO = TRUE,
+                              ...){
+  ## resample the range
+  strand(targetGR) <- "*"
+  seqn <- as.character(seqnames(targetGR))[1]
+  stopifnot('Only one seqlevel is supported.'=
+              all(as.character(seqnames(targetGR))==
+                    seqn))
+  stopifnot('score' %in% colnames(mcols(fromGR)))
+  strand(fromGR) <- "*"
+  fromGR <- subsetByOverlaps(fromGR, targetGR)
+  cvg <- coverage(fromGR, weight = fromGR$score)
+  x <- cvg[[seqn]]
+  .vw <- Views(x, start = ranges(targetGR))
+  targetGR$score <- FUN(.vw, ...)
+  targetGR$score[is.na(targetGR$score)] <- 0
+  if(dropZERO) targetGR <- targetGR[targetGR$score!=0]
+  orderedGR(targetGR)
+}
+
+breakPointByBin <- function(x, y, start, end, seqn){
+  if(length(x)>2){
+    n <- length(x)
+  }else{
+    n <- 11
+    x <- seq(x[1], x[2], length.out=n)
+    y <- seq(y[1], y[2], length.out=n)
+  }
+  rg <- seq(start, end, length.out=n)
+  GRanges(seqn, IRanges(start=rg[-n], end = rg[-1]),
+          x0=x[-n], x1=x[-1],
+          y0=y[-n], y1=y[-1])
+}
+
+findOlPos <- function(query, subject){
+  stopifnot(all(width(query)==1))
+  ol <- findOverlaps(query, subject, type='within')
+  ol <- split(subjectHits(ol), queryHits(ol))
+  ol <- vapply(ol, function(.ol){
+    .ol[ceiling(length(.ol)/2)]
+  }, numeric(1L))
+  ol[order(as.numeric(names(ol)))]
+}
+
+calTickPos <- function(feature.tick, curve_gr, arrowLen){
+  ol <- findOlPos(feature.tick, curve_gr)
+  a <- start(feature.tick)[as.numeric(names(ol))]
+  ratio <- (a - start(curve_gr)[ol])/width(curve_gr[ol])
+  x1 <- curve_gr$x0[ol] + (curve_gr$x1-curve_gr$x0)[ol]*ratio
+  y1 <- curve_gr$y0[ol] + (curve_gr$y1-curve_gr$y0)[ol]*ratio
+  srt <- atan((curve_gr$y1-curve_gr$y0)[ol]/(curve_gr$x1-curve_gr$x0)[ol]) + pi/2
+  srt[is.na(srt)] <- 0
+  tickLen <- arrowLen/3
+  x2 <- x1 + tickLen*cos(srt)
+  y2 <- y1 + tickLen*sin(srt)
+  x3 <- x1 + 2*tickLen*cos(srt)
+  y3 <- y1 + 2*tickLen*sin(srt)
+  list(x1=x1, y1=y1, x2=x2, y2=y2,
+       x3=x3, y3=y3,
+       srt=srt,
+       id=as.numeric(names(ol)),
+       ol=ol)
+}
+
+calGenePos <- function(fgf, curve_gr, arrowLen){
+  fgf <- subsetByOverlaps(fgf, curve_gr)
+  fgf <- sort(fgf)
+  s <- e <- fgf
+  rg <- range(curve_gr)
+  missing_start <- start(s)<start(rg)
+  missing_end <- end(e)>end(rg)
+  start(s)[missing_start] <- start(rg)+1
+  width(s) <- 1
+  end(e)[missing_end] <- end(rg)-1
+  start(e) <- end(e)
+  ol_s <- calTickPos(s, curve_gr, arrowLen)
+  ol_e <- calTickPos(e, curve_gr, arrowLen)
+  f <- ifelse(as.character(strand(fgf))=='-',
+              ol_e$ol, ol_s$ol)
+  t <- ifelse(as.character(strand(fgf))=='-',
+              ol_s$ol, ol_e$ol)
+  via_points <- mapply(seq, ol_s$ol, ol_e$ol, SIMPLIFY = FALSE)
+  via_points <- lapply(via_points, function(.ele){
+    .ele[-unique(c(1, length(.ele)))]
+  })
+  via_points <- lapply(via_points, function(.ele){
+    curve_gr[.ele]
+  })
+  x1 <- mapply(function(p1, ps, pn){
+    if(length(ps)>0){
+      c(p1, ps$x0, ps$x1[length(ps)], pn)
+    }else{
+      c(p1, pn)
+    }
+  }, ol_s$x1, via_points, ol_e$x1, SIMPLIFY = FALSE)
+  y1 <- mapply(function(p1, ps, pn){
+    if(length(ps)>0){
+      c(p1, ps$y0, ps$y1[length(ps)], pn)
+    }else{
+      c(p1, pn)
+    }
+  }, ol_s$y1, via_points, ol_e$y1, SIMPLIFY = FALSE)
+  
+  # start points
+  neg_strand <- as.character(strand(fgf))=='-'
+  x2 <- ifelse(neg_strand,
+               ol_e$x1, ol_s$x1)
+  y2 <- ifelse(neg_strand,
+               ol_e$y1, ol_s$y1)
+  x3 <- ifelse(neg_strand,
+               ol_e$x3, ol_s$x3)
+  y3 <- ifelse(neg_strand,
+               ol_e$y3, ol_s$y3)
+  getFirst2EleDiff <- function(.ele, isNeg){
+    if(isNeg){
+      .ele[length(.ele) - 1]-.ele[length(.ele)]
+    }else{
+      .ele[2] - .ele[1]
+    }
+  }
+  x0diff <- mapply(getFirst2EleDiff, x1, neg_strand)
+  y0diff <- mapply(getFirst2EleDiff, y1, neg_strand)
+  srt <- atan(y0diff/x0diff) + ifelse(x0diff<0, pi, 0)
+  srt[is.na(srt)] <- 0
+  x4 <- x3 + 2/3*arrowLen*cos(srt)
+  y4 <- y3 + 2/3*arrowLen*sin(srt)
+  
+  list(xs=x1, ys=y1,
+       x1=x2, y1=y2,
+       x2=x3, y2=y3,
+       x3=x4, y3=y4,
+       srt=srt,
+       fgf=fgf,
+       x0diff=x0diff,
+       missing_start=ifelse(neg_strand,missing_end,missing_start))
+}
+
+plotBouquet <- function(pP, fgf, atacSig,
+                        lwd.backbone, col.backbone,
+                        lwd.maxAtacSig,
+                        col.backbone_background,
+                        lwd.gene,
+                        show_coor=TRUE,
+                        col.coor='black',
+                        show_tension = TRUE,
+                        tension_unit = 1e3,
+                        label_gene = TRUE,
+                        col.tension_line = 'black',
+                        lwd.tension_line = 1,
+                        arrowLen){
+  n <- nrow(pP)
+  seqn <- as.character(seqnames(fgf[1]))
+  curve_gr <- lapply(pP, function(.ele){
+    .ele$seqn <- seqn
+    do.call(breakPointByBin, .ele)
+    })
+  curve_gr <- unlist(GRangesList(curve_gr))
+  missing_atacSig <- FALSE
+  if(missing(atacSig)){
+    missing_atacSig <- TRUE
+  }else{
+    if(length(atacSig)==0){
+      missing_atacSig <- TRUE
+    }
+  }
+  if(!missing_atacSig){
+    if(is(atacSig, 'track')){
+      if(atacSig$format=='WIG'){
+        atacSig <- parseWIG(trackScore=atacSig,
+                            chrom=seqn,
+                            from=start(range(curve_gr)),
+                            to=end(range(curve_gr)))
+      }
+      atacSig <- atacSig$dat
+    }
+    stopifnot(is(atacSig, 'GRanges'))
+    stopifnot('score' %in% colnames(mcols(atacSig)))
+    atacSig <- resampleDataByFun(atacSig, curve_gr, dropZERO = FALSE,
+                                 na.rm = TRUE)
+    atacSigScoreRange <- quantile(log2(atacSig$score+1),
+                                  probs = c(.1, .99))
+    if(atacSigScoreRange[1]==atacSigScoreRange[2]){
+      atacSigScoreRange <- range(log2(atacSig$score+1))
+    }
+    if(atacSigScoreRange[1]!=atacSigScoreRange[2]){
+      atacSigBreaks <- c(-1,
+                         seq(atacSigScoreRange[1],
+                             atacSigScoreRange[2],
+                             length.out = lwd.maxAtacSig-1),
+                         max(log2(atacSig$score+1))+1)
+      atacSiglabels <- rev(seq_along(atacSigBreaks))[-1]
+      atacSig$lwd <- as.numeric(as.character(
+        cut(log2(atacSig$score+1),
+            breaks=atacSigBreaks,
+            labels = atacSiglabels)))
+      ## add atac signals
+      segments(curve_gr$x0, curve_gr$y0,
+               curve_gr$x1, curve_gr$y1,
+               lwd=lwd.backbone+atacSig$lwd,
+               col=col.backbone_background)
+    }
+  }else{
+    lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
+          c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
+          lwd=lwd.maxAtacSig/2,
+          lty=1,
+          col=col.backbone_background)
+  }
+  ## add backbone
+  lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
+        c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
+        lwd=lwd.backbone,
+        lty=1,
+        col=1)
+  
+  ## add genomic coordinates
+  if(show_tension){
+    r_tick <- range(curve_gr)
+    end(r_tick) <- ceiling(end(r_tick)/tension_unit)*tension_unit
+    start(r_tick) <- floor(start(r_tick)/tension_unit)*tension_unit
+    strand(r_tick) <- "*"
+    feature.tick <- GenomicRanges::slidingWindows(r_tick, width = 1, step=tension_unit)[[1]]
+    feature.tick$col <- col.tension_line
+    tick.xy <- calTickPos(feature.tick, curve_gr, arrowLen)
+    segments(tick.xy$x1, tick.xy$y1,
+             tick.xy$x2, tick.xy$y2,
+             col=col.tension_line,
+             lwd=lwd.tension_line)
+    if(show_coor){
+      feature.tick.mark <- feature.tick[tick.xy$id]
+      mark <- start(feature.tick.mark)/show_coor
+      keep <- which(mark==round(mark))
+      if(length(keep)>0){
+        segments(tick.xy$x1[keep], tick.xy$y1[keep],
+                 tick.xy$x3[keep], tick.xy$y3[keep],
+                 col=col.coor,
+                 lwd=lwd.tension_line)
+        for(k in keep){
+          text(labels=prettyMark(start(feature.tick.mark[k]), show_coor),
+               x=tick.xy$x3[k], y=tick.xy$y3[k],
+               col=col.coor, adj=c(.5, -.2),
+               srt=180*tick.xy$srt[k]/pi-90)
+        }
+      }
+    }
+  }
+  ## add gene annotation
+  genePos <- calGenePos(fgf, curve_gr, arrowLen)
+  null <- mapply(lines, x=genePos$xs, y=genePos$ys, col=genePos$fgf$col, lwd=lwd.gene)
+  segments(x0=genePos$x1, y0=genePos$y1,
+         x1=genePos$x2, y1=genePos$y2,
+         col=genePos$fgf$col)
+  isGene <- genePos$fgf$type=='gene' & !genePos$missing_start
+  arrows(x0=genePos$x2[isGene],
+         y0=genePos$y2[isGene],
+         x1=genePos$x3[isGene],
+         y1=genePos$y3[isGene],
+         col=genePos$fgf$col[isGene],
+         angle = 15,
+         code=2, length=arrowLen)
+  for(k in seq_along(genePos$fgf)){
+    srt <- 180*genePos$srt[k]/pi
+    text(labels=genePos$fgf$label[k],
+         x=genePos$x2[k], y=genePos$y2[k],
+         adj=c(0, ifelse(genePos$x0diff[k]<0, 1.2, -.2)),
+         srt=srt,
+         col=genePos$fgf$col[k],
+         cex=genePos$fgf$cex)
+    
+  }
+  
+}
+

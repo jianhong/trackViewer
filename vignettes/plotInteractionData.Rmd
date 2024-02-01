@@ -163,8 +163,8 @@ library(org.Hs.eg.db)
 library(InteractionSet)
 gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
 range <- GRanges("chr2", IRanges(234500000, 235000000))
-feature.gr <- suppressMessages(genes(TxDb.Hsapiens.UCSC.hg19.knownGene))
-feature.gr <- subsetByOverlaps(feature.gr, regions(gi))
+gene_hg19 <- suppressMessages(genes(TxDb.Hsapiens.UCSC.hg19.knownGene))
+feature.gr <- subsetByOverlaps(gene_hg19, range(regions(gi)))
 feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                           length(feature.gr), replace=TRUE, 
@@ -173,6 +173,32 @@ symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
 symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
 feature.gr$label <- symbol
 loopBouquetPlot(gi, range, feature.gr)
+```
+
+```{r plotRealData}
+gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
+range <- GRanges("chr6", IRanges(51120000, 53200000))
+## filter the links to simulate the real data
+keep <- distance(first(gi), second(gi)) > 5e5 & gi$score>35
+gi <- gi[keep]
+# narrow the width of anchors to ehance the plots
+reg <- regions(gi)
+wr <- floor(width(reg)/4)
+start(reg) <- start(reg) + wr
+end(reg) <- end(reg) - wr
+regions(gi) <- reg
+feature.gr <- subsetByOverlaps(gene_hg19, range(regions(gi)))
+feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
+feature.gr$type <- sample(c("cRE", "gene"), 
+                          length(feature.gr), replace=TRUE, 
+                          prob=c(0.1, 0.9))
+symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
+symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
+feature.gr$label <- symbol
+feature.gr <- c(feature.gr[sample(seq_along(feature.gr), 5)],
+                feature.gr[feature.gr$type=='cRE'][1])
+feature.gr <- unique(sort(feature.gr))
+loopBouquetPlot(gi, range, feature.gr, tension_unit = 5e4, atacSig = ctcf)
 ```
 
 # Session Info

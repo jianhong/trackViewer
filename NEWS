@@ -1,3 +1,7 @@
+Changes in version 1.39.6
+
+    o add loopBouquetPlot.
+    
 Changes in version 1.39.5
 
     o Browse heatmap by js (scratch).
