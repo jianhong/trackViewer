@@ -1,3 +1,7 @@
+Changes in version 1.39.7
+
+    o Fix the example for loopBouquetPlot.
+    
 Changes in version 1.39.6
 
     o add loopBouquetPlot.

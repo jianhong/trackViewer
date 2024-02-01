@@ -15,6 +15,7 @@ loopBouquetPlot(
   lwd.backbone = 2,
   col.backbone = "gray",
   lwd.maxAtacSig = 8,
+  reverseATACSig = TRUE,
   col.backbone_background = "gray70",
   lwd.gene = 2,
   lwd.nodeCircle = 1,
@@ -53,6 +54,8 @@ linker, gene, interaction node circle, the dashed line of interaction edges, the
 \item{col.backbone, col.backbone_background, col.nodeCircle, col.edge, col.tension_line, col.coor}{Color
 for the DNA chain, the compact DNA chain, the node circle, the linker, the tension line and the coordinates marker.}
 
+\item{reverseATACSig}{Plot the ATAC-seq signals in reverse values.}
+
 \item{show_coor}{Show the coordinates or not. Numeric(1). Set to 0
 to turn it off. The default value 1e5 means show coordinates every 0.1M bp.}
 
@@ -78,7 +81,7 @@ library(org.Hs.eg.db)
 feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 feature.gr <- subsetByOverlaps(feature.gr, range(regions(gi)))
 symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
-feature.gr$label <- vapply(symbols, function(.ele) .ele[1], character(1L))
+feature.gr$label[lengths(symbols)==1] <- unlist(symbols[lengths(symbols)==1])
 feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                          length(feature.gr), replace=TRUE, 

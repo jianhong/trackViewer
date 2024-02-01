@@ -8,6 +8,7 @@
 #' @param show_edges Plot the interaction edges or not.
 #' @param show_cluster Plot the cluster background or not.
 #' @param show_tension Plot ticks in the line to show the DNA compact tension.
+#' @param reverseATACSig Plot the ATAC-seq signals in reverse values.
 #' @param tension_unit The bps for every ticks. Default is 1K.
 #' @param show_coor Show the coordinates or not. Numeric(1). Set to 0
 #' to turn it off. The default value 1e5 means show coordinates every 0.1M bp.
@@ -40,7 +41,7 @@
 #' feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' feature.gr <- subsetByOverlaps(feature.gr, range(regions(gi)))
 #' symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
-#' feature.gr$label <- vapply(symbols, function(.ele) .ele[1], character(1L))
+#' feature.gr$label[lengths(symbols)==1] <- unlist(symbols[lengths(symbols)==1])
 #' feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 #' feature.gr$type <- sample(c("cRE", "gene"), 
 #'                          length(feature.gr), replace=TRUE, 
@@ -50,7 +51,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             label_region=FALSE, show_edges=TRUE, 
                             show_cluster=TRUE,
                             lwd.backbone = 2, col.backbone = 'gray',
-                            lwd.maxAtacSig = 8,
+                            lwd.maxAtacSig = 8, reverseATACSig = TRUE,
                             col.backbone_background = 'gray70',
                             lwd.gene = 2,
                             lwd.nodeCircle = 1, col.nodeCircle = '#DDDDDD25',
@@ -279,6 +280,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
               lwd.backbone=lwd.backbone,
               col.backbone=col.backbone,
               lwd.maxAtacSig = lwd.maxAtacSig,
+              reverseATACSig = reverseATACSig,
               col.backbone_background=col.backbone_background,
               lwd.gene=lwd.gene,
               show_coor=show_coor,
@@ -809,6 +811,7 @@ calGenePos <- function(fgf, curve_gr, arrowLen){
 plotBouquet <- function(pP, fgf, atacSig,
                         lwd.backbone, col.backbone,
                         lwd.maxAtacSig,
+                        reverseATACSig,
                         col.backbone_background,
                         lwd.gene,
                         show_coor=TRUE,
@@ -859,7 +862,10 @@ plotBouquet <- function(pP, fgf, atacSig,
                              atacSigScoreRange[2],
                              length.out = lwd.maxAtacSig-1),
                          max(log2(atacSig$score+1))+1)
-      atacSiglabels <- rev(seq_along(atacSigBreaks))[-1]
+      atacSiglabels <- seq_along(atacSigBreaks)[-length(atacSigBreaks)]
+      if(reverseATACSig){
+        atacSiglabels <- rev(atacSiglabels)
+      }
       atacSig$lwd <- as.numeric(as.character(
         cut(log2(atacSig$score+1),
             breaks=atacSigBreaks,
@@ -868,7 +874,8 @@ plotBouquet <- function(pP, fgf, atacSig,
       segments(curve_gr$x0, curve_gr$y0,
                curve_gr$x1, curve_gr$y1,
                lwd=lwd.backbone+atacSig$lwd,
-               col=col.backbone_background)
+               col=col.backbone_background,
+               lend=1)
     }
   }else{
     lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
