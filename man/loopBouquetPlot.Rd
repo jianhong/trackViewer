@@ -22,13 +22,14 @@ loopBouquetPlot(
   col.nodeCircle = "#DDDDDD25",
   lwd.edge = 2,
   col.edge = "gray80",
-  show_coor = 1e+05,
+  coor_mark_interval = 1e+05,
   col.coor = "black",
-  show_tension = TRUE,
-  tension_unit = 1000,
+  show_coor = TRUE,
+  coor_tick_unit = 1000,
   label_gene = TRUE,
   col.tension_line = "black",
   lwd.tension_line = 1,
+  length.arrow = NULL,
   method = 1,
   ...
 )
@@ -56,18 +57,20 @@ for the DNA chain, the compact DNA chain, the node circle, the linker, the tensi
 
 \item{reverseATACSig}{Plot the ATAC-seq signals in reverse values.}
 
-\item{show_coor}{Show the coordinates or not. Numeric(1). Set to 0
+\item{coor_mark_interval}{The coordinates marker interval. Numeric(1). Set to 0
 to turn it off. The default value 1e5 means show coordinates every 0.1M bp.}
 
-\item{show_tension}{Plot ticks in the line to show the DNA compact tension.}
+\item{show_coor}{Plot ticks in the line to show the DNA compact tension.}
 
-\item{tension_unit}{The bps for every ticks. Default is 1K.}
+\item{coor_tick_unit}{The bps for every ticks. Default is 1K.}
 
 \item{label_gene}{Show gene symbol or not.}
 
+\item{length.arrow}{length of the edges of the arrow head (in inches).}
+
 \item{method}{Plot method. Could be 1 or 2.}
 
-\item{...}{Not used.}
+\item{...}{Parameter will be passed to \link[igraph:layout_with_fr]{layout_with_fr}.}
 }
 \description{
 plot graph for GInteractions

@@ -7,18 +7,19 @@
 #' @param label_region Label the region node or not.
 #' @param show_edges Plot the interaction edges or not.
 #' @param show_cluster Plot the cluster background or not.
-#' @param show_tension Plot ticks in the line to show the DNA compact tension.
+#' @param show_coor Plot ticks in the line to show the DNA compact tension.
 #' @param reverseATACSig Plot the ATAC-seq signals in reverse values.
-#' @param tension_unit The bps for every ticks. Default is 1K.
-#' @param show_coor Show the coordinates or not. Numeric(1). Set to 0
+#' @param coor_tick_unit The bps for every ticks. Default is 1K.
+#' @param coor_mark_interval The coordinates marker interval. Numeric(1). Set to 0
 #' to turn it off. The default value 1e5 means show coordinates every 0.1M bp.
 #' @param label_gene Show gene symbol or not.
 #' @param lwd.backbone,lwd.gene,lwd.nodeCircle,lwd.edge,lwd.tension_line,lwd.maxAtacSig Line width for the 
 #' linker, gene, interaction node circle, the dashed line of interaction edges, the tension line and the maximal reversed ATAC signal.
 #' @param col.backbone,col.backbone_background,col.nodeCircle,col.edge,col.tension_line,col.coor Color
 #' for the DNA chain, the compact DNA chain, the node circle, the linker, the tension line and the coordinates marker.
+#' @param length.arrow length of the edges of the arrow head (in inches).
 #' @param method Plot method. Could be 1 or 2.
-#' @param ... Not used.
+#' @param ... Parameter will be passed to \link[igraph:layout_with_fr]{layout_with_fr}.
 #' @importClassesFrom InteractionSet GInteractions
 #' @importMethodsFrom InteractionSet regions anchorIds
 #' @import GenomicRanges
@@ -56,22 +57,23 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             lwd.gene = 2,
                             lwd.nodeCircle = 1, col.nodeCircle = '#DDDDDD25',
                             lwd.edge = 2, col.edge = "gray80",
-                            show_coor = 1e5, col.coor = "black",
-                            show_tension = TRUE,
-                            tension_unit = 1e3,
+                            coor_mark_interval = 1e5, col.coor = "black",
+                            show_coor = TRUE,
+                            coor_tick_unit = 1e3,
                             label_gene = TRUE,
                             col.tension_line = 'black',
                             lwd.tension_line = 1,
+                            length.arrow = NULL,
                             method = 1,
                             ...){
   stopifnot(is(gi, "GInteractions"))
   stopifnot('score' %in% colnames(mcols(gi)))
-  stopifnot(is.numeric(show_coor))
-  stopifnot(length(show_coor)==1)
+  stopifnot(is.numeric(coor_mark_interval))
+  stopifnot(length(coor_mark_interval)==1)
   if(!missing(range)){
     stopifnot(is(range, "GRanges"))
-    stopifnot('tension_unit is too small.'=
-                width(range(range))[1]/tension_unit<1000)
+    stopifnot('coor_tick_unit is too small.'=
+                width(range(range))[1]/coor_tick_unit<1000)
     gi <- subsetByOverlaps(gi, ranges = range, ignore.strand=TRUE)
   }
   if(!missing(feature.gr)){
@@ -81,6 +83,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   }
   gi <- sort(gi)
   reg <- regions(gi)
+  stopifnot('No interactions detected'=length(reg)>2)
   names(reg) <- seq_along(reg)
   if(!all(as.character(seqnames(reg))==as.character(seqnames(reg))[1])){
     warning('All interaction must within one chromosome.')
@@ -124,8 +127,8 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   cl <- igraph::components(gL, mode = "weak")
   sGnodes <- split(names(cl$membership), cl$membership)
   g <- graph_from_data_frame(d = edgeL, directed=FALSE, vertices = nodes)
-  layout <- layout_with_fr(g) ## only layout_with_fr and layout_with_kk work OK
-  
+  layout <- layout_with_fr(g, ...) ## only layout_with_fr and layout_with_kk work OK
+  stopifnot('3 dim is not supported yet'=ncol(layout)==2)
   nodeXY <- norm_coords(layout, -1, 1, -1, 1)
   rownames(nodeXY) <- nodes$names
   colnames(nodeXY) <- c("X", "Y")
@@ -155,12 +158,24 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   on.exit(par(opar))
   
   plotPoints <- list()
+
+  # plot(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n",
+  #      xaxs="i", yaxs="i", xlim=xlim, ylim=ylim, frame.plot=FALSE,
+  #      new=TRUE)
+  grid.newpage()
+  vp <- viewport(default.units = 'native',
+                 width=unit(min(1,diff(xlim)/diff(ylim)), "snpc"), # aspect ratio preserved
+                 height=unit(min(1,diff(ylim)/diff(xlim)), "snpc"),
+                 xscale=xlim, yscale=ylim)
+  pushViewport(vp)
+  on.exit(popViewport())
+  if(!is.numeric(length.arrow)){
+    sH <- stringWidth("0")
+    arrowLen <- grid::convertUnit(grid::stringHeight("0"), unitTo = "inches", valueOnly = TRUE)/3
+  }else{
+    arrowLen <- length.arrow[1]
+  }
   
-  plot(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n", 
-       xaxs="i", yaxs="i", xlim=xlim, ylim=ylim, frame.plot=FALSE,
-       new=TRUE)
-  sH <- strheight("0")
-  arrowLen <- grid::convertUnit(grid::stringHeight("0"), unitTo = "inches", valueOnly = TRUE)/3
   ## make sure the init.angle is facing to next node
   # init.angle <- 180*atan(diff(nodeY)/diff(nodeX))/pi +
   #   ifelse(diff(nodeX) >= 0, 90, -90)
@@ -176,16 +191,6 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   for(i in seq.int(nrow(nodeXY))){
     nodeShape[[i]] <- archPlot(nodeXY[i, "X"], nodeXY[i, "Y"], r=nodesSize[i]/vertex.factor, init.angle = init.angle[i])
   }
-  ## plot the bacground circle
-  if(show_cluster){
-    for(i in seq_along(clusterCenter)){
-      polygon(archPlot(clusterCenter[[i]]$x, clusterCenter[[i]]$y,
-                       clusterCenter[[i]]$r,
-                       angle=360, init.angle=0, length.out=100,
-                       bck = TRUE),
-              col = col.nodeCircle, lty = 4, lwd=lwd.nodeCircle)
-    }
-  }
   
   getNodesClusters <- function(...){
     which(vapply(sGnodes, function(.ele) any(... %in% .ele), logical(1L)))
@@ -198,7 +203,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
       if(i==1){ ## mark the start point
         reg0 <- reg[rownames(nodeXY)[i]]
         this_reg_gap <- GRanges(seqnames(reg0), IRanges(end=start(reg0),
-                                                        width = 10*tension_unit))
+                                                        width = 10*coor_tick_unit))
         idx <- c(i, i+1)
         ab <- getStartConnectionPoints(nodeShape[idx])
         idx <- ifelse(ab[1]==1, length(nodeShape[[1]]$x), 1)
@@ -253,11 +258,20 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
     if(i==length(nodeShape)){ ## mark the end point
       reg0 <- reg[rownames(nodeXY)[i]]
       this_reg_gap <- GRanges(seqnames(reg0), IRanges(end(reg0),
-                                                      width = 10*tension_unit))
-      plotPoints <- addPoints(plotPoints,
-                              nodeShape[[i]]$x,
-                              nodeShape[[i]]$y,
-                              start(reg0), end(reg0))
+                                                      width = 10*coor_tick_unit))
+      if(last_a==1){
+        plotPoints <- addPoints(plotPoints,
+                                rev(nodeShape[[i]]$x),
+                                rev(nodeShape[[i]]$y),
+                                start(reg0),
+                                end(reg0))
+      }else{
+        plotPoints <- addPoints(plotPoints,
+                                nodeShape[[i]]$x,
+                                nodeShape[[i]]$y,
+                                start(reg0),
+                                end(reg0))
+      }
       thisXY <- plotStartEndPoints(nodeShape[[i]], last_a, 
                          xlim = xlim, ylim = ylim, 
                          start = nodeShape[[i]]$y[1])
@@ -267,11 +281,24 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                               end(this_reg_gap))
     }
   }
+  ## plot the bacground circle
+  if(show_cluster){
+    for(i in seq_along(clusterCenter)){
+      grid.circle(clusterCenter[[i]]$x, clusterCenter[[i]]$y,
+                  clusterCenter[[i]]$r,
+                   default.units = "native",
+              gp=gpar(fill = col.nodeCircle,
+                      lty = 4, lwd=lwd.nodeCircle))
+    }
+  }
   ## plot the edge lines
   if(show_edges){
-    segments(nodeXY[as.character(edgeL_link$from), "X"], nodeXY[as.character(edgeL_link$from), "Y"], 
-             nodeXY[as.character(edgeL_link$to), "X"], nodeXY[as.character(edgeL_link$to), "Y"],
-             lwd=lwd.edge, lty=2, col = col.edge)
+    grid.segments(nodeXY[as.character(edgeL_link$from), "X"],
+                  nodeXY[as.character(edgeL_link$from), "Y"], 
+                  nodeXY[as.character(edgeL_link$to), "X"],
+                  nodeXY[as.character(edgeL_link$to), "Y"],
+                  default.units = "native",
+                  gp=gpar(lwd=lwd.edge, lty=2, col = col.edge))
   }
   ## plot the bouquet
   plotBouquet(pP=plotPoints,
@@ -283,20 +310,28 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
               reverseATACSig = reverseATACSig,
               col.backbone_background=col.backbone_background,
               lwd.gene=lwd.gene,
-              show_coor=show_coor,
+              coor_mark_interval=coor_mark_interval,
               col.coor=col.coor,
-              show_tension = show_tension,
-              tension_unit = tension_unit,
+              show_coor = show_coor,
+              coor_tick_unit = coor_tick_unit,
               label_gene = label_gene,
               col.tension_line = col.tension_line,
               lwd.tension_line = lwd.tension_line,
-              arrowLen = arrowLen)
+              arrowLen = arrowLen,
+              xlim=xlim, ylim=ylim)
   ## 
   if(label_region){
     ## plot the node dot
-    points(nodeXY, pch=16, col="white", cex=nodesSize/strheight("0"), add=TRUE)
+    grid.points(nodeXY[, 'X'],
+                nodeXY[, 'Y'],
+                pch=16,
+                default.units = "native",
+                gp=gpar(col="white",
+                        cex=nodesSize/strheight("0")))
     ## label the node
-    text(nodeXY, labels = rownames(nodeXY))
+    grid.text(nodeXY[, 'X'], nodeXY[, 'Y'],
+              default.units = "native",
+              label = rownames(nodeXY))
   }
   
   return(invisible(list(plotPoints=plotPoints, feature.gr=feature.gr,
@@ -430,6 +465,7 @@ moveNodes <- function(from, to, lwd, reverse = FALSE){
   return(list(from = from, to = to))
 }
 reorderEdgeLinkBySize <- function(edgeL_link, nodeXYout){
+  if(nrow(edgeL_link)==0) return(edgeL_link)
   size <- apply(edgeL_link, 1, function(.ele){
     sum(nodeXYout[.ele[c(1, 2)], 3])
   })
@@ -438,6 +474,9 @@ reorderEdgeLinkBySize <- function(edgeL_link, nodeXYout){
 fixXY <- function(nodeXY, vertex.size, edgeL_link, lwd = 10/300){
   ## rearrange nodes to make sure they are not overlap
   ## and make the interaction of nodes direct touch each other
+  if(nrow(edgeL_link)==0){
+    return(nodeXY)
+  }
   nodeXYout <- cbind(nodeXY, vertex.size)
   edgeL_link <- reorderEdgeLinkBySize(edgeL_link, nodeXYout)
   ## touch each other
@@ -808,21 +847,53 @@ calGenePos <- function(fgf, curve_gr, arrowLen){
        missing_start=ifelse(neg_strand,missing_end,missing_start))
 }
 
+textWidth <- function(xlim, ...){ 
+  convertWidth(grobWidth(...),
+               unitTo = 'npc', valueOnly = TRUE)*diff(xlim) }
+textHeight <- function(ylim, ...){
+  convertHeight(grobHeight(...),
+               unitTo = 'npc', valueOnly = TRUE)*diff(ylim) }
+## TODO fix the algorithm by the center of the cluster.
+safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE){
+  left <- textCoor$x-textCoor$w/4
+  right <- textCoor$x+textCoor$w/4
+  bottom <- textCoor$y-textCoor$h/4
+  top <- textCoor$y+textCoor$h/4
+  tg.w <- textWidth(xlim, tg)/4
+  tg.h <- textHeight(ylim, tg)/4
+  l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
+  if(logic){
+    return(!l)
+  }
+  srt[is.na(srt)] <- 0
+  for(i in seq.int(3)){
+    if(!l){
+      return(c(x, y))
+    }else{
+      x <- x+tg.w*cos(srt+pi/2)*sample(c(0, 1), 1)
+      y <- y+tg.h*sin(srt+pi/2)*sample(c(0, 1), 1)
+      l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
+    }
+  }
+  return(c(x, y))
+}
+
 plotBouquet <- function(pP, fgf, atacSig,
                         lwd.backbone, col.backbone,
                         lwd.maxAtacSig,
                         reverseATACSig,
                         col.backbone_background,
                         lwd.gene,
-                        show_coor=TRUE,
+                        coor_mark_interval=TRUE,
                         col.coor='black',
-                        show_tension = TRUE,
-                        tension_unit = 1e3,
+                        show_coor = TRUE,
+                        coor_tick_unit = 1e3,
                         label_gene = TRUE,
                         col.tension_line = 'black',
                         lwd.tension_line = 1,
-                        arrowLen){
-  n <- nrow(pP)
+                        arrowLen,xlim,ylim){
+  textCoor <- data.frame(x=numeric(), y=numeric(),
+                         w=numeric(), h=numeric())
   seqn <- as.character(seqnames(fgf[1]))
   curve_gr <- lapply(pP, function(.ele){
     .ele$seqn <- seqn
@@ -871,80 +942,147 @@ plotBouquet <- function(pP, fgf, atacSig,
             breaks=atacSigBreaks,
             labels = atacSiglabels)))
       ## add atac signals
-      segments(curve_gr$x0, curve_gr$y0,
-               curve_gr$x1, curve_gr$y1,
-               lwd=lwd.backbone+atacSig$lwd,
-               col=col.backbone_background,
-               lend=1)
+      grid.segments(curve_gr$x0, curve_gr$y0,
+                    curve_gr$x1, curve_gr$y1,
+                    default.units = "native",
+                    gp=gpar(lwd=lwd.backbone+atacSig$lwd,
+                            col=col.backbone_background,
+                            lineend=1))
     }
   }else{
-    lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
-          c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
-          lwd=lwd.maxAtacSig/2,
-          lty=1,
-          col=col.backbone_background)
+    grid.lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
+               c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
+               default.units = "native",
+               gp=gpar(lwd=lwd.maxAtacSig/2,
+                       lty=1,
+                       col=col.backbone_background))
   }
   ## add backbone
-  lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
-        c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
-        lwd=lwd.backbone,
-        lty=1,
-        col=1)
+  grid.lines(c(curve_gr$x0,curve_gr$x1[length(curve_gr)]),
+             c(curve_gr$y0,curve_gr$y1[length(curve_gr)]),
+             default.units = "native",
+             gp=gpar(lwd=lwd.backbone,
+                     lty=1,
+                     col=1))
   
   ## add genomic coordinates
-  if(show_tension){
+  if(show_coor){
     r_tick <- range(curve_gr)
-    end(r_tick) <- ceiling(end(r_tick)/tension_unit)*tension_unit
-    start(r_tick) <- floor(start(r_tick)/tension_unit)*tension_unit
+    end(r_tick) <- ceiling(end(r_tick)/coor_tick_unit)*coor_tick_unit
+    start(r_tick) <- floor(start(r_tick)/coor_tick_unit)*coor_tick_unit
     strand(r_tick) <- "*"
-    feature.tick <- GenomicRanges::slidingWindows(r_tick, width = 1, step=tension_unit)[[1]]
+    feature.tick <- GenomicRanges::slidingWindows(r_tick, width = 1, step=coor_tick_unit)[[1]]
     feature.tick$col <- col.tension_line
     tick.xy <- calTickPos(feature.tick, curve_gr, arrowLen)
-    segments(tick.xy$x1, tick.xy$y1,
-             tick.xy$x2, tick.xy$y2,
-             col=col.tension_line,
-             lwd=lwd.tension_line)
-    if(show_coor){
+    grid.segments(tick.xy$x1, tick.xy$y1,
+                  tick.xy$x2, tick.xy$y2,
+                  default.units = "native",
+                  gp=gpar(col=col.tension_line,
+                          lwd=lwd.tension_line))
+    if(coor_mark_interval){
       feature.tick.mark <- feature.tick[tick.xy$id]
-      mark <- start(feature.tick.mark)/show_coor
+      mark <- start(feature.tick.mark)/coor_mark_interval
       keep <- which(mark==round(mark))
       if(length(keep)>0){
-        segments(tick.xy$x1[keep], tick.xy$y1[keep],
+        grid.segments(tick.xy$x1[keep], tick.xy$y1[keep],
                  tick.xy$x3[keep], tick.xy$y3[keep],
-                 col=col.coor,
-                 lwd=lwd.tension_line)
+                 default.units = "native",
+                 gp=gpar(col=col.coor,
+                         lwd=lwd.tension_line))
         for(k in keep){
-          text(labels=prettyMark(start(feature.tick.mark[k]), show_coor),
-               x=tick.xy$x3[k], y=tick.xy$y3[k],
-               col=col.coor, adj=c(.5, -.2),
-               srt=180*tick.xy$srt[k]/pi-90)
+          lab <- prettyMark(start(feature.tick.mark[k]),
+                            coor_mark_interval)
+          tg <- textGrob(label=lab,
+                         x=tick.xy$x3[k], y=tick.xy$y3[k],
+                         default.units = "native",
+                         gp=gpar(col=col.coor),
+                         just=c(.5, -.2),
+                         rot=180*tick.xy$srt[k]/pi-90)
+          if(safeTextCoor(textCoor,
+                          x=tick.xy$x3[k],
+                          y=tick.xy$y3[k],
+                          tg=tg,
+                          xlim=xlim,
+                          ylim=ylim,
+                          logic=TRUE)){
+            grid.draw(tg)
+            textCoor <- rbind(textCoor,
+                              data.frame(x = tick.xy$x3[k],
+                                         y = tick.xy$y3[k],
+                                         w = textWidth(tg, xlim=xlim),
+                                         h = textHeight(tg, ylim=ylim)))
+          }
         }
       }
     }
   }
   ## add gene annotation
   genePos <- calGenePos(fgf, curve_gr, arrowLen)
-  null <- mapply(lines, x=genePos$xs, y=genePos$ys, col=genePos$fgf$col, lwd=lwd.gene)
-  segments(x0=genePos$x1, y0=genePos$y1,
-         x1=genePos$x2, y1=genePos$y2,
-         col=genePos$fgf$col)
+  null <- mapply(function(x, y, col, lwd){
+    grid.lines(x, y,
+               default.units = "native",
+               gp=gpar(col=col, lwd=lwd))
+    }, x=genePos$xs, y=genePos$ys, col=genePos$fgf$col, lwd=lwd.gene)
+  grid.segments(x0=genePos$x1, y0=genePos$y1,
+                x1=genePos$x2, y1=genePos$y2,
+                default.units = "native",
+                gp=gpar(col=genePos$fgf$col))
   isGene <- genePos$fgf$type=='gene' & !genePos$missing_start
-  arrows(x0=genePos$x2[isGene],
-         y0=genePos$y2[isGene],
-         x1=genePos$x3[isGene],
-         y1=genePos$y3[isGene],
-         col=genePos$fgf$col[isGene],
-         angle = 15,
-         code=2, length=arrowLen)
+  grid.segments(x0=genePos$x2[isGene],
+                x1=genePos$x3[isGene],
+                y0=genePos$y2[isGene],
+                y1=genePos$y3[isGene],
+                default.units = "native",
+                gp=gpar(col=genePos$fgf$col[isGene]),
+                arrow=arrow(angle = 15,
+                            type='closed',
+                            length=unit(arrowLen, units = 'inch')))
+  
   for(k in seq_along(genePos$fgf)){
+    vadj <- -.2 #ifelse(genePos$x0diff[k]<0, 1.2, -.2)
+    hadj <- 0
     srt <- 180*genePos$srt[k]/pi
-    text(labels=genePos$fgf$label[k],
-         x=genePos$x2[k], y=genePos$y2[k],
-         adj=c(0, ifelse(genePos$x0diff[k]<0, 1.2, -.2)),
-         srt=srt,
-         col=genePos$fgf$col[k],
-         cex=genePos$fgf$cex)
-    
+    if(srt>90 && srt<270){
+      srt <- srt - 180
+      hadj <- 1
+    }
+    tg <- textGrob(label=genePos$fgf$label[k],
+                    x=genePos$x2[k], y=genePos$y2[k],
+                    default.units = "native",
+                    just=c(hadj, vadj),
+                    rot=srt,
+                    gp=gpar(col=genePos$fgf$col[k],
+                            cex=genePos$fgf$cex))
+    lab.xy <- safeTextCoor(textCoor,
+                           genePos$x2[k],
+                           genePos$y2[k],
+                           tg=tg,
+                           xlim=xlim,
+                           ylim=ylim,
+                           srt=genePos$srt[k],
+                           logic=FALSE)
+    if(lab.xy[1]!=genePos$x2[k]){
+      tg <- grid.text(label=genePos$fgf$label[k],
+                      x=lab.xy[1], y=lab.xy[2],
+                      default.units = "native",
+                      just=c(hadj, vadj),
+                      gp=gpar(col=genePos$fgf$col[k],
+                              cex=genePos$fgf$cex))
+      grid.segments(genePos$x3[k], genePos$y3[k],
+               lab.xy[1],
+               lab.xy[2],
+               default.units = "native",
+               gp=gpar(col = genePos$fgf$col[k], 
+                       lwd = .5,
+                       lty = 4))
+    }else{
+      grid.draw(tg)
+    }
+    textCoor <- rbind(textCoor,
+                      data.frame(x = lab.xy[1],
+                                 y = lab.xy[2],
+                                 w = textWidth(tg, xlim=xlim),
+                                 h = textHeight(tg, ylim=ylim)))
   }
   
 }
