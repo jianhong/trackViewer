@@ -879,6 +879,9 @@ safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE){
       x <- x+tg.w*cos(srt+pi/2)*sample(c(0, 1), 1)
       y <- y+tg.h*sin(srt+pi/2)*sample(c(0, 1), 1)
       l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
+      if(is.na(l)) {
+        l <- FALSE
+      }
     }
   }
   return(c(x, y))

@@ -1,3 +1,7 @@
+Changes in version 1.39.9
+
+    o Fix multiple bugs in loopBouquetPlot.
+    
 Changes in version 1.39.8
 
     o Change loopBouquetPlot to grid plot.
