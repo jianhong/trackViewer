@@ -86,7 +86,8 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   stopifnot('No interactions detected'=length(reg)>2)
   names(reg) <- seq_along(reg)
   if(!all(as.character(seqnames(reg))==as.character(seqnames(reg))[1])){
-    warning('All interaction must within one chromosome.')
+    warning('All interaction must within one chromosome.
+            Interchromosomal interactions will be dropped.')
   }
   ol <- findOverlaps(reg, drop.self=TRUE, drop.redundant=TRUE, minoverlap = 2)
   if(length(ol)>0){
@@ -134,6 +135,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   colnames(nodeXY) <- c("X", "Y")
   vertex.factor <- 72
   vertex.size <- 1/vertex.factor * V(g)$size
+  vertex.size[is.na(vertex.size)] <- 1
   nodeXY <- fixXY(nodeXY, vertex.size, edgeL_link, lwd = lwd.backbone/300)
   maxv <- max(vertex.size)
   xlim <- range(nodeXY[, 1])
@@ -834,8 +836,8 @@ calGenePos <- function(fgf, curve_gr, arrowLen){
   y0diff <- mapply(getFirst2EleDiff, y1, neg_strand)
   srt <- atan(y0diff/x0diff) + ifelse(x0diff<0, pi, 0)
   srt[is.na(srt)] <- 0
-  x4 <- x3 + 2/3*arrowLen*cos(srt)
-  y4 <- y3 + 2/3*arrowLen*sin(srt)
+  x4 <- x3 + 1.25*arrowLen*cos(srt)
+  y4 <- y3 + 1.25*arrowLen*sin(srt)
   
   list(xs=x1, ys=y1,
        x1=x2, y1=y2,
@@ -862,6 +864,9 @@ safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE){
   tg.w <- textWidth(xlim, tg)/4
   tg.h <- textHeight(ylim, tg)/4
   l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
+  if(is.na(l)){
+    l <- FALSE
+  }
   if(logic){
     return(!l)
   }
@@ -884,7 +889,7 @@ plotBouquet <- function(pP, fgf, atacSig,
                         reverseATACSig,
                         col.backbone_background,
                         lwd.gene,
-                        coor_mark_interval=TRUE,
+                        coor_mark_interval=1e5,
                         col.coor='black',
                         show_coor = TRUE,
                         coor_tick_unit = 1e3,
@@ -1027,18 +1032,31 @@ plotBouquet <- function(pP, fgf, atacSig,
                 x1=genePos$x2, y1=genePos$y2,
                 default.units = "native",
                 gp=gpar(col=genePos$fgf$col))
-  isGene <- genePos$fgf$type=='gene' & !genePos$missing_start
-  grid.segments(x0=genePos$x2[isGene],
-                x1=genePos$x3[isGene],
-                y0=genePos$y2[isGene],
-                y1=genePos$y3[isGene],
+  isGene <- genePos$fgf$type %in% 'gene' & !genePos$missing_start
+  if(any(isGene)){
+    grid.segments(x0=genePos$x2[isGene],
+                  x1=genePos$x3[isGene],
+                  y0=genePos$y2[isGene],
+                  y1=genePos$y3[isGene],
+                  default.units = "native",
+                  gp=gpar(col=genePos$fgf$col[isGene],
+                          fill=genePos$fgf$col[isGene]),
+                  arrow=arrow(angle = 15,
+                              type='closed',
+                              length=unit(arrowLen, units = 'inch')))
+  }
+  isRE <- genePos$fgf$type %in% 'cRE'
+  if(any(isRE)){
+    grid.points(x = genePos$x1[isRE],
+                y = genePos$y1[isRE],
+                pch = 11,
+                size = unit(0.25, "char"),
                 default.units = "native",
-                gp=gpar(col=genePos$fgf$col[isGene]),
-                arrow=arrow(angle = 15,
-                            type='closed',
-                            length=unit(arrowLen, units = 'inch')))
-  
+                gp=gpar(col=genePos$fgf$col[isRE],
+                        fill=genePos$fgf$col[isRE]))
+  }
   for(k in seq_along(genePos$fgf)){
+    if(is.na(genePos$x2[k])) next
     vadj <- -.2 #ifelse(genePos$x0diff[k]<0, 1.2, -.2)
     hadj <- 0
     srt <- 180*genePos$srt[k]/pi
