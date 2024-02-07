@@ -122,8 +122,9 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
     weight = gi$score + 2*diff(irq) + irq[2])
   
   edgeL <- rbind(edgeL_coor, edgeL_link)
+  m_w_reg <- min(width(reg[nodes]))
   nodes <- data.frame(names = nodes,
-                      size = (width(reg[nodes]))/min(width(reg[nodes])))
+                      size = (width(reg[nodes]))/ifelse(m_w_reg==0, 1, m_w_reg))
   gL <- graph_from_data_frame(d = edgeL_link, directed=FALSE, vertices = nodes)
   cl <- igraph::components(gL, mode = "weak")
   sGnodes <- split(names(cl$membership), cl$membership)
@@ -135,7 +136,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   colnames(nodeXY) <- c("X", "Y")
   vertex.factor <- 72
   vertex.size <- 1/vertex.factor * V(g)$size
-  vertex.size[is.na(vertex.size)] <- 1
+  vertex.size[is.na(vertex.size)] <- 1/vertex.factor
   nodeXY <- fixXY(nodeXY, vertex.size, edgeL_link, lwd = lwd.backbone/300)
   maxv <- max(vertex.size)
   xlim <- range(nodeXY[, 1])

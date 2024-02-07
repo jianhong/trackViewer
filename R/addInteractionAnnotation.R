@@ -53,8 +53,6 @@ addInteractionAnnotation <- function(obj, idx, FUN=grid.polygon,
       stopifnot("FUN must be one of grid.lines, or grid.text"=
                   FUN.NAME %in% c("grid.lines", "grid.text"))
     }
-  }else{
-    message("FUN is not supported for numeric input.")
   }
   
   dots <- list(...)
