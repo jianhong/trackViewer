@@ -639,6 +639,20 @@ gr <- GRanges("chr11", IRanges(122929275, 122930122))
 setTrackStyleParam(trackList[[2]], "ylabgp", list(cex=.8))
 vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 addGuideLine(122929538, vp=vp)
+## plot with customized geneTrack
+dat <- gene$dat
+mcols(dat) <- NULL
+dat <- subsetByOverlaps(dat, gr)
+dat$feature <- 'exon' # feature is required
+dat$featureID <- paste0('name', seq_along(dat)) # treat each as single exon gene
+dat$color <- sample(seq.int(7), length(dat), replace = TRUE) # set the color
+dat$height <- sample(c(0.5, 1, 2), length(dat), replace = TRUE) # set the height
+dat$hide_label <- TRUE # do not add labels to the block
+gene <- new('track', dat=dat, dat2=SNPs, type='gene', name='a name')
+optSty <- optimizeStyle(trackList(fox2, gene), theme="col")
+trackList <- optSty$tracks
+viewerStyle <- optSty$style
+vp <- viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
 

@@ -196,6 +196,8 @@ ids <- getGeneIDsFromTxDb(grW, TxDb.Hsapiens.UCSC.hg19.knownGene)
 symbols <- mget(ids, org.Hs.egSYMBOL)
 genes <- geneTrack(ids, TxDb.Hsapiens.UCSC.hg19.knownGene, 
                    symbols, asList=FALSE)
+# set color to the gene
+genes$dat$color <- as.numeric(factor(genes$dat$featureID))
 optSty <- optimizeStyle(trackList(repA, fox2, genes), theme="safe")
 trackListW <- optSty$tracks
 viewerStyleW <- optSty$style

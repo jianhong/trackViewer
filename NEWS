@@ -1,3 +1,7 @@
+Changes in version 1.39.10
+
+    o Add color for geneTrack.
+    
 Changes in version 1.39.9
 
     o Fix multiple bugs in loopBouquetPlot.
