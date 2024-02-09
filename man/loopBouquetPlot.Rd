@@ -30,6 +30,7 @@ loopBouquetPlot(
   col.tension_line = "black",
   lwd.tension_line = 1,
   length.arrow = NULL,
+  safe_text_force = 3,
   method = 1,
   ...
 )
@@ -66,7 +67,9 @@ to turn it off. The default value 1e5 means show coordinates every 0.1M bp.}
 
 \item{label_gene}{Show gene symbol or not.}
 
-\item{length.arrow}{length of the edges of the arrow head (in inches).}
+\item{length.arrow}{Length of the edges of the arrow head (in inches).}
+
+\item{safe_text_force}{The loops to avoid the text overlapping.}
 
 \item{method}{Plot method. Could be 1 or 2.}
 

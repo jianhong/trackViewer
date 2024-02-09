@@ -17,7 +17,8 @@
 #' linker, gene, interaction node circle, the dashed line of interaction edges, the tension line and the maximal reversed ATAC signal.
 #' @param col.backbone,col.backbone_background,col.nodeCircle,col.edge,col.tension_line,col.coor Color
 #' for the DNA chain, the compact DNA chain, the node circle, the linker, the tension line and the coordinates marker.
-#' @param length.arrow length of the edges of the arrow head (in inches).
+#' @param length.arrow Length of the edges of the arrow head (in inches).
+#' @param safe_text_force The loops to avoid the text overlapping.
 #' @param method Plot method. Could be 1 or 2.
 #' @param ... Parameter will be passed to \link[igraph:layout_with_fr]{layout_with_fr}.
 #' @importClassesFrom InteractionSet GInteractions
@@ -64,6 +65,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             col.tension_line = 'black',
                             lwd.tension_line = 1,
                             length.arrow = NULL,
+                            safe_text_force = 3,
                             method = 1,
                             ...){
   stopifnot(is(gi, "GInteractions"))
@@ -320,6 +322,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
               label_gene = label_gene,
               col.tension_line = col.tension_line,
               lwd.tension_line = lwd.tension_line,
+              safe_text_force = safe_text_force,
               arrowLen = arrowLen,
               xlim=xlim, ylim=ylim)
   ## 
@@ -857,7 +860,7 @@ textHeight <- function(ylim, ...){
   convertHeight(grobHeight(...),
                unitTo = 'npc', valueOnly = TRUE)*diff(ylim) }
 ## TODO fix the algorithm by the center of the cluster.
-safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE){
+safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE, force=6){
   left <- textCoor$x-textCoor$w/4
   right <- textCoor$x+textCoor$w/4
   bottom <- textCoor$y-textCoor$h/4
@@ -872,7 +875,7 @@ safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE){
     return(!l)
   }
   srt[is.na(srt)] <- 0
-  for(i in seq.int(3)){
+  for(i in seq.int(force)){
     if(!l){
       return(c(x, y))
     }else{
@@ -900,6 +903,7 @@ plotBouquet <- function(pP, fgf, atacSig,
                         label_gene = TRUE,
                         col.tension_line = 'black',
                         lwd.tension_line = 1,
+                        safe_text_force = 6,
                         arrowLen,xlim,ylim){
   textCoor <- data.frame(x=numeric(), y=numeric(),
                          w=numeric(), h=numeric())
@@ -1013,7 +1017,8 @@ plotBouquet <- function(pP, fgf, atacSig,
                           tg=tg,
                           xlim=xlim,
                           ylim=ylim,
-                          logic=TRUE)){
+                          logic=TRUE,
+                          force = safe_text_force)){
             grid.draw(tg)
             textCoor <- rbind(textCoor,
                               data.frame(x = tick.xy$x3[k],
@@ -1082,7 +1087,8 @@ plotBouquet <- function(pP, fgf, atacSig,
                            xlim=xlim,
                            ylim=ylim,
                            srt=genePos$srt[k],
-                           logic=FALSE)
+                           logic=FALSE,
+                           force = safe_text_force)
     if(lab.xy[1]!=genePos$x2[k]){
       tg <- grid.text(label=genePos$fgf$label[k],
                       x=lab.xy[1], y=lab.xy[2],
