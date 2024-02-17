@@ -160,8 +160,6 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   })
   
   opar <- par(mar=rep(0, 4)+.1)
-  on.exit(par(opar))
-  
   plotPoints <- list()
 
   # plot(0, 0, type="n", asp = 1, xlab="", ylab="", xaxt="n", yaxt="n",
@@ -173,7 +171,10 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                  height=unit(min(1,diff(ylim)/diff(xlim)), "snpc"),
                  xscale=xlim, yscale=ylim)
   pushViewport(vp)
-  on.exit(popViewport())
+  on.exit({
+    popViewport()
+    par(opar)
+  })
   if(!is.numeric(length.arrow)){
     sH <- stringWidth("0")
     arrowLen <- grid::convertUnit(grid::stringHeight("0"), unitTo = "inches", valueOnly = TRUE)/3
@@ -306,25 +307,25 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                   gp=gpar(lwd=lwd.edge, lty=2, col = col.edge))
   }
   ## plot the bouquet
-  plotBouquet(pP=plotPoints,
-              fgf=feature.gr,
-              atacSig=atacSig,
-              lwd.backbone=lwd.backbone,
-              col.backbone=col.backbone,
-              lwd.maxAtacSig = lwd.maxAtacSig,
-              reverseATACSig = reverseATACSig,
-              col.backbone_background=col.backbone_background,
-              lwd.gene=lwd.gene,
-              coor_mark_interval=coor_mark_interval,
-              col.coor=col.coor,
-              show_coor = show_coor,
-              coor_tick_unit = coor_tick_unit,
-              label_gene = label_gene,
-              col.tension_line = col.tension_line,
-              lwd.tension_line = lwd.tension_line,
-              safe_text_force = safe_text_force,
-              arrowLen = arrowLen,
-              xlim=xlim, ylim=ylim)
+  objCoor <- plotBouquet(pP=plotPoints,
+                         fgf=feature.gr,
+                         atacSig=atacSig,
+                         lwd.backbone=lwd.backbone,
+                         col.backbone=col.backbone,
+                         lwd.maxAtacSig = lwd.maxAtacSig,
+                         reverseATACSig = reverseATACSig,
+                         col.backbone_background=col.backbone_background,
+                         lwd.gene=lwd.gene,
+                         coor_mark_interval=coor_mark_interval,
+                         col.coor=col.coor,
+                         show_coor = show_coor,
+                         coor_tick_unit = coor_tick_unit,
+                         label_gene = label_gene,
+                         col.tension_line = col.tension_line,
+                         lwd.tension_line = lwd.tension_line,
+                         safe_text_force = safe_text_force,
+                         arrowLen = arrowLen,
+                         xlim=xlim, ylim=ylim)
   ## 
   if(label_region){
     ## plot the node dot
@@ -343,7 +344,9 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   return(invisible(list(plotPoints=plotPoints, feature.gr=feature.gr,
                         xlim=xlim, ylim=ylim,
                         nodeXY=nodeXY, edgeL_link=edgeL_link,
-                        clusterCenter=clusterCenter)))
+                        clusterCenter=clusterCenter,
+                        objCoor=objCoor,
+                        vp = vp)))
 }
 
 addPoints <- function(pointscollection, x, y, s, e){
@@ -853,43 +856,176 @@ calGenePos <- function(fgf, curve_gr, arrowLen){
        missing_start=ifelse(neg_strand,missing_end,missing_start))
 }
 
-textWidth <- function(xlim, ...){ 
+objWidth <- function(xlim, ...){ 
   convertWidth(grobWidth(...),
                unitTo = 'npc', valueOnly = TRUE)*diff(xlim) }
-textHeight <- function(ylim, ...){
+objHeight <- function(ylim, ...){
   convertHeight(grobHeight(...),
                unitTo = 'npc', valueOnly = TRUE)*diff(ylim) }
+objX <- function(theta, ...){ 
+  convertWidth(grobX(..., theta = theta),
+               unitTo = 'npc', valueOnly = TRUE) }
+objY <- function(theta, ...){
+  convertHeight(grobY(..., theta = theta),
+                unitTo = 'npc', valueOnly = TRUE) }
+
+getFourPoints <- function(obj, x_r, y_r){
+  # x1 <- objX("west", obj)
+  # x2 <- objX("east", obj)
+  # y1 <- objY("south", obj)
+  # y2 <- objY("north", obj)
+  x <- convertX(obj$x, unitTo='native', valueOnly = TRUE)
+  y <- convertX(obj$y, unitTo='native', valueOnly = TRUE)
+  w <- convertWidth(grobWidth(obj), unitTo = 'native', valueOnly = TRUE)/2
+  h <- convertHeight(grobHeight(obj), unitTo = 'native', valueOnly = TRUE)/2
+  left <- findInterval(x-w, x_r)
+  right <- findInterval(x+w, x_r)
+  bottom <- findInterval(y-w, y_r)
+  top <- findInterval(y+w, y_r)
+  return(list(left=left, right=right, bottom=bottom, top=top))
+}
+safeSeq <- function(range, length){
+  x <- seq(range[1], range[2], length.out = length)
+  d <- diff(x)[1]/100
+  x[1] <- x[1] - d
+  x[length(x)] <- x[length(x)] + d
+  return(x)
+}
+getObjsPos <- function(objs, xlim, ylim, res_row, res_col, resolution=10){
+  x_r <- safeSeq(xlim, res_row)
+  y_r <- safeSeq(ylim, res_col)
+  if(is(objs, 'grob')){
+    objs <- list(objs)
+  }
+  coors <- lapply(objs, function(obj){
+    if(inherits(obj, c('text', 'rect', 'polygon'))){
+      rect <- getFourPoints(obj, x_r, y_r)
+      if(any(is.na(c(rect$left, rect$right, rect$top, rect$bottom)))){
+        ## points contain NA values
+        return(data.frame(x=NULL, y=NULL))
+      }
+      return(data.frame(x=rep(seq(rect$left, rect$right),
+                              each=rect$top-rect$bottom+1),
+                        y=rep(seq(rect$bottom, rect$top),
+                              rect$right-rect$left+1)))
+    }
+    if(is(obj, 'lines')){
+      obj.x <- convertX(obj$x, unitTo = 'native', valueOnly = TRUE)
+      obj.y <- convertY(obj$y, unitTo = 'native', valueOnly = TRUE)
+      obj.x <- findInterval(obj.x, x_r)
+      obj.y <- findInterval(obj.y, y_r)
+      if(any(is.na(obj.x))||any(is.na(obj.y))){
+        ## points contain NA values
+        return(data.frame(x=NULL, y=NULL))
+      }
+      return(data.frame(x=seq.int(obj.x[1], obj.x[2], length.out = resolution),
+                        y=seq.int(obj.y[1], obj.y[2], length.out = resolution)))
+    }
+    ## others not support
+    return(data.frame(x=NULL, y=NULL))
+  })
+  coors <- unique(do.call(rbind, coors))
+  coors[coors<1] <- 1
+  coors$x[coors$x>res_row] <- res_row
+  coors$y[coors$y>res_col] <- res_col
+  unique(coors)
+}
+
+getIndexInMatrix <- function(coors, nrow){
+  sort(coors$x + (coors$y-1)*nrow)
+}
+## store the points occupied by objects
+addObjCoor <- function(objCoor, objs, xlim, ylim){
+  ## check object coor and set it to 1
+  coors <- getObjsPos(objs, xlim, ylim, nrow(objCoor), ncol(objCoor))
+  objCoor[getIndexInMatrix(coors, nrow(objCoor))] <- 1
+  objCoor
+}
+getOverlapCoor <- function(objCoor, objs, xlim, ylim, force=6){
+  ##  check object coor
+  coors <- getObjsPos(objs, xlim, ylim, nrow(objCoor), ncol(objCoor))
+  ## check if 1/force percent of the position is 1
+  isOccupied <- objCoor[getIndexInMatrix(coors, nrow(objCoor))]
+  out <- length(isOccupied)/sum(isOccupied)<force
+  if(!is.logical(out)) out <- FALSE
+  if(is.na(out)) out <- FALSE
+  return(out)
+}
 ## TODO fix the algorithm by the center of the cluster.
-safeTextCoor <- function(textCoor, x, y, tg, srt, xlim, ylim, logic=TRUE, force=6){
-  left <- textCoor$x-textCoor$w/4
-  right <- textCoor$x+textCoor$w/4
-  bottom <- textCoor$y-textCoor$h/4
-  top <- textCoor$y+textCoor$h/4
-  tg.w <- textWidth(xlim, tg)/4
-  tg.h <- textHeight(ylim, tg)/4
-  l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
-  if(is.na(l)){
-    l <- FALSE
-  }
+safeObjCoor <- function(objCoor, obj, x, y, xlim, ylim, logic=TRUE, force=6){
+  ol <- getOverlapCoor(objCoor, obj, xlim, ylim, force = force)
   if(logic){
-    return(!l)
+    return(ol)
   }
-  srt[is.na(srt)] <- 0
+  if(is.na(x)||is.na(y)){
+    return(c(x, y))
+  }
+  x_r <- safeSeq(xlim, nrow(objCoor))
+  y_r <- safeSeq(ylim, ncol(objCoor))
+  x0 <- x
+  y0 <- y
+  new_obj <- obj
   for(i in seq.int(force)){
-    if(!l){
+    if(!ol){
       return(c(x, y))
     }else{
-      x <- x+tg.w*cos(srt+pi/2)*sample(c(0, 1), 1)
-      y <- y+tg.h*sin(srt+pi/2)*sample(c(0, 1), 1)
-      l <- any(x+tg.w>left & x-tg.w<right & y+tg.h>bottom & y-tg.h<top)
-      if(is.na(l)) {
-        l <- FALSE
+      xat <- findInterval(x, x_r)
+      yat <- findInterval(y, y_r)
+      ## get the maximal 0s in all direction
+      rect <- getFourPoints(new_obj, x_r, y_r)
+      x_w <- ceiling((rect$right-rect$left+1)/2)
+      y_h <- ceiling((rect$top-rect$bottom+1)/2)
+      all_pos <- list(
+        'left'=list(left=max(rect$left-x_w, 1),
+                    right=max(rect$right-x_w, 1),
+                    top=rect$top, bottom=rect$bottom),
+        'topleft'=list(left=max(rect$left-x_w, 1),
+                       right=max(rect$right-x_w, 1),
+                       top=min(rect$top+y_h, ncol(objCoor)),
+                       bottom=min(rect$bottom+y_h, ncol(objCoor))),
+        'top'=list(left=rect$left, right=rect$right,
+                   top=min(rect$top+y_h, ncol(objCoor)),
+                   bottom=min(rect$bottom+y_h, ncol(objCoor))),
+        'topright'=list(left=min(rect$left+x_w, nrow(objCoor)),
+                        right=min(rect$right+x_w, nrow(objCoor)),
+                        top=min(rect$top+y_h, ncol(objCoor)),
+                        bottom=min(rect$bottom+y_h, ncol(objCoor))),
+        'right'=list(left=min(rect$left+x_w, nrow(objCoor)),
+                     right=min(rect$right+x_w, nrow(objCoor)),
+                     top=rect$top, bottom=rect$bottom),
+        'rightbottom'=list(left=min(rect$left+x_w, nrow(objCoor)),
+                           right=min(rect$right+x_w, nrow(objCoor)),
+                           top=max(rect$top-y_h, 1),
+                           bottom=max(rect$bottom-y_h, 1)),
+        'bottom'=list(left=rect$left, right=rect$right,
+                      top=max(rect$top-y_h, 1),
+                      bottom=max(rect$bottom-y_h, 1)),
+        'leftbottom'=list(left=max(rect$left-x_w, 1),
+                          right=max(rect$right-x_w, 1),
+                          top=max(rect$top-y_h, 1),
+                          bottom=max(rect$bottom-y_h, 1))
+      )
+      all_pos_empty_count <- vapply(all_pos, function(.pos){
+        sum(as.numeric(objCoor[seq(.pos$left, .pos$right),
+                               seq(.pos$bottom, .pos$top)]==1))
+      }, numeric(1L))
+      newAt <- all_pos[[which.min(all_pos_empty_count)[1]]]
+      newXat <- ceiling((newAt$right+newAt$left+1)/2)
+      newYat <- ceiling((newAt$top+newAt$bottom+1)/2)
+      if(is.na(newXat) || is.na(newYat)){
+        return(c(x0, y0))
       }
+      x <- ifelse(newXat==1, xlim[1],
+                  ifelse(newXat==length(x_r), xlim[2], x_r[newXat]))
+      y <- ifelse(newYat==1, ylim[1],
+                  ifelse(newYat==length(y_r), ylim[2], y_r[newYat]))
+      new_obj$x <- unit(x, units = 'native')
+      new_obj$y <- unit(y, units = 'native')
+      ol <- getOverlapCoor(objCoor, new_obj, xlim, ylim, force = force)
     }
   }
   return(c(x, y))
 }
-
 plotBouquet <- function(pP, fgf, atacSig,
                         lwd.backbone, col.backbone,
                         lwd.maxAtacSig,
@@ -905,8 +1041,10 @@ plotBouquet <- function(pP, fgf, atacSig,
                         lwd.tension_line = 1,
                         safe_text_force = 6,
                         arrowLen,xlim,ylim){
-  textCoor <- data.frame(x=numeric(), y=numeric(),
-                         w=numeric(), h=numeric())
+  ## split the canvas by safe_text_force parameter
+  res_row <- ceiling(abs(diff(xlim))/objWidth(xlim, textGrob('w')))*safe_text_force
+  res_col <- ceiling(abs(diff(ylim))/objHeight(xlim, textGrob('f')))*safe_text_force
+  objCoor <- matrix(0, nrow = res_row, ncol = res_col)
   seqn <- as.character(seqnames(fgf[1]))
   curve_gr <- lapply(pP, function(.ele){
     .ele$seqn <- seqn
@@ -976,7 +1114,16 @@ plotBouquet <- function(pP, fgf, atacSig,
              default.units = "native",
              gp=gpar(lwd=lwd.backbone,
                      lty=1,
-                     col=1))
+                     col=col.backbone))
+  ## add backbone to avoidance list
+  tgs <- mapply(function(x0, x1, y0, y1){
+    linesGrob(x = c(x0, x1),
+              y = c(y0, y1),
+              default.units = 'native',
+              gp = gpar(lwd=lwd.backbone,
+                        lty=1))
+  }, curve_gr$x0, curve_gr$x1, curve_gr$y0, curve_gr$y1, SIMPLIFY = FALSE)
+  objCoor <- addObjCoor(objCoor, tgs, xlim, ylim)
   
   ## add genomic coordinates
   if(show_coor){
@@ -995,7 +1142,7 @@ plotBouquet <- function(pP, fgf, atacSig,
     if(coor_mark_interval){
       feature.tick.mark <- feature.tick[tick.xy$id]
       mark <- start(feature.tick.mark)/coor_mark_interval
-      keep <- which(mark==round(mark))
+      keep <- which(mark==round(mark) & !is.na(tick.xy$x3) & !is.na(tick.xy$y3))
       if(length(keep)>0){
         grid.segments(tick.xy$x1[keep], tick.xy$y1[keep],
                  tick.xy$x3[keep], tick.xy$y3[keep],
@@ -1011,21 +1158,32 @@ plotBouquet <- function(pP, fgf, atacSig,
                          gp=gpar(col=col.coor),
                          just=c(.5, -.2),
                          rot=180*tick.xy$srt[k]/pi-90)
-          if(safeTextCoor(textCoor,
-                          x=tick.xy$x3[k],
-                          y=tick.xy$y3[k],
-                          tg=tg,
-                          xlim=xlim,
-                          ylim=ylim,
-                          logic=TRUE,
-                          force = safe_text_force)){
+          lab.xy <- safeObjCoor(objCoor,
+                                x=tick.xy$x3[k],
+                                y=tick.xy$y3[k],
+                                obj=tg,
+                                xlim=xlim,
+                                ylim=ylim,
+                                logic=FALSE,
+                                force = safe_text_force)
+          if(lab.xy[1]!=tick.xy$x3[k] || lab.xy[2]!=tick.xy$y3[k]){
+            tg <- grid.text(label=lab,
+                            x=lab.xy[1], y=lab.xy[2],
+                            default.units = "native",
+                            just=c(.5, -.2),
+                            rot=180*tick.xy$srt[k]/pi-90,
+                            gp=gpar(col=col.coor))
+            grid.segments(tick.xy$x3[k], tick.xy$y3[k],
+                          lab.xy[1],
+                          lab.xy[2],
+                          default.units = "native",
+                          gp=gpar(col = col.coor, 
+                                  lwd = .5,
+                                  lty = 4))
+          }else{
             grid.draw(tg)
-            textCoor <- rbind(textCoor,
-                              data.frame(x = tick.xy$x3[k],
-                                         y = tick.xy$y3[k],
-                                         w = textWidth(tg, xlim=xlim),
-                                         h = textHeight(tg, ylim=ylim)))
           }
+          objCoor <- addObjCoor(objCoor, tg, xlim, ylim)
         }
       }
     }
@@ -1066,7 +1224,9 @@ plotBouquet <- function(pP, fgf, atacSig,
   }
   for(k in seq_along(genePos$fgf)){
     if(is.na(genePos$x2[k])) next
-    vadj <- -.2 #ifelse(genePos$x0diff[k]<0, 1.2, -.2)
+    if(is.na(genePos$fgf$label[k])) next
+    if(genePos$fgf$label[k]=="") next
+    vadj <- -.2
     hadj <- 0
     srt <- 180*genePos$srt[k]/pi
     if(srt>90 && srt<270){
@@ -1080,13 +1240,12 @@ plotBouquet <- function(pP, fgf, atacSig,
                     rot=srt,
                     gp=gpar(col=genePos$fgf$col[k],
                             cex=genePos$fgf$cex))
-    lab.xy <- safeTextCoor(textCoor,
-                           genePos$x2[k],
-                           genePos$y2[k],
-                           tg=tg,
+    lab.xy <- safeObjCoor(objCoor,
+                           x=genePos$x2[k],
+                           y=genePos$y2[k],
+                           obj=tg,
                            xlim=xlim,
                            ylim=ylim,
-                           srt=genePos$srt[k],
                            logic=FALSE,
                            force = safe_text_force)
     if(lab.xy[1]!=genePos$x2[k]){
@@ -1096,7 +1255,7 @@ plotBouquet <- function(pP, fgf, atacSig,
                       just=c(hadj, vadj),
                       gp=gpar(col=genePos$fgf$col[k],
                               cex=genePos$fgf$cex))
-      grid.segments(genePos$x3[k], genePos$y3[k],
+      grid.segments(genePos$x2[k], genePos$y2[k],
                lab.xy[1],
                lab.xy[2],
                default.units = "native",
@@ -1106,12 +1265,8 @@ plotBouquet <- function(pP, fgf, atacSig,
     }else{
       grid.draw(tg)
     }
-    textCoor <- rbind(textCoor,
-                      data.frame(x = lab.xy[1],
-                                 y = lab.xy[2],
-                                 w = textWidth(tg, xlim=xlim),
-                                 h = textHeight(tg, ylim=ylim)))
+    objCoor <- addObjCoor(objCoor, tgs, xlim, ylim)
   }
-  
+  return(objCoor)
 }
 

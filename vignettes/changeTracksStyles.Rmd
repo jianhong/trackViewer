@@ -119,6 +119,8 @@ for(i in 1:2){
 ## Adjust the limit of y-axis
 setTrackStyleParam(trackList[[1]], "ylim", c(0, 25))
 setTrackStyleParam(trackList[[2]], "ylim", c(-25, 0))
+## The y-axis tick labels can be turn off/on by setting the 'label' to FALSE/TRUE
+#setTrackYaxisParam(trackList[[1]], 'label', TRUE)
 viewTracks(trackList, gr=gr, viewerStyle=viewerStyle)
 ```
 
@@ -163,7 +165,6 @@ start(gr1) <- start(gr1) - 2000
 end(gr1) <- end(gr1) + 2000
 viewTracks(trackListN, gr=gr1, viewerStyle=viewerStyle)
 ```
-
 
 ## Adjust the track color
 The track color can be changed by setting the color slot in the style of each track.

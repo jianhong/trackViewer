@@ -1,3 +1,7 @@
+Changes in version 1.39.12
+
+    o Update the safe text algorithm for loopBouquetPlot.
+    
 Changes in version 1.39.11
 
     o Add parameter safe_text_force for loopBouquetPlot.
