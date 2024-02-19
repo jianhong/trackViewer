@@ -1,3 +1,7 @@
+Changes in version 1.39.13
+
+    o Handle the empty input for loopBouquetPlot.
+    
 Changes in version 1.39.12
 
     o Update the safe text algorithm for loopBouquetPlot.

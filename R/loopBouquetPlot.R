@@ -70,6 +70,17 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             ...){
   stopifnot(is(gi, "GInteractions"))
   stopifnot('score' %in% colnames(mcols(gi)))
+  if(any(is.na(mcols(gi)$score))) {
+    warning('There are NA values in the gi score. It will be removed.')
+    gi <- gi[!is.na(mcols(gi)$score)]
+  }
+  if(any(is.infinite(mcols(gi)$score))){
+    warning('There are infinite values in the gi score.',
+            ' It will be changed to .Machine$integer.max')
+    mcols(gi)$score[is.infinite(mcols(gi)$score)] <- 
+      sign(mcols(gi)$score[is.infinite(mcols(gi)$score)]) * 
+      .Machine$integer.max
+  }
   stopifnot(is.numeric(coor_mark_interval))
   stopifnot(length(coor_mark_interval)==1)
   if(!missing(range)){
@@ -78,6 +89,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                 width(range(range))[1]/coor_tick_unit<1000)
     gi <- subsetByOverlaps(gi, ranges = range, ignore.strand=TRUE)
   }
+  stopifnot('No interaction data available.'=length(gi)>0)
   if(!missing(feature.gr)){
     stopifnot(is(feature.gr, "GRanges"))
   }else{
@@ -105,6 +117,9 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   
   nodes <- unique(as.character(sort(c(anchorIds(gi, type="first"),
                                       anchorIds(gi, type="second")))))
+  if(length(nodes)==0){
+    stop('No interaction data available.')
+  }
   ## add genomic coordinates to edge
   d0 <- distance(reg[nodes[-length(nodes)]],
                  reg[nodes[-1]])
@@ -1265,7 +1280,7 @@ plotBouquet <- function(pP, fgf, atacSig,
     }else{
       grid.draw(tg)
     }
-    objCoor <- addObjCoor(objCoor, tgs, xlim, ylim)
+    objCoor <- addObjCoor(objCoor, tg, xlim, ylim)
   }
   return(objCoor)
 }
