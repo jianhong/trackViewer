@@ -183,7 +183,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
                               xscale=c(start(ranges[[i]]), end(ranges[[i]])),
                               clip = "off"))
         ## axis
-        plot.grid.xaxis(xaxis, gp=xaxis.gp)
+        plot_grid_xaxis(xaxis, gp=xaxis.gp)
         
         ## the baseline, the center of the first transcript
         baseline <- 

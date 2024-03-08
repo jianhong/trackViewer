@@ -472,10 +472,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                          xscale=c(start(ranges[[i]]), end(ranges[[i]])))
           pushViewport(vp)
           xaxis.gp$col <- "gray"
-          plot.grid.xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp)
           popViewport()
         }else{
-          plot.grid.xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp)
         }
         
         ## the baseline, the center of the first transcript

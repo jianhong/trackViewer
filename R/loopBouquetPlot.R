@@ -20,6 +20,7 @@
 #' @param length.arrow Length of the edges of the arrow head (in inches).
 #' @param safe_text_force The loops to avoid the text overlapping.
 #' @param method Plot method. Could be 1 or 2.
+#' @param doReduce Reduce the GInteractions or not.
 #' @param ... Parameter will be passed to \link[igraph:layout_with_fr]{layout_with_fr}.
 #' @importClassesFrom InteractionSet GInteractions
 #' @importMethodsFrom InteractionSet regions anchorIds
@@ -67,6 +68,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             length.arrow = NULL,
                             safe_text_force = 3,
                             method = 1,
+                            doReduce = FALSE,
                             ...){
   stopifnot(is(gi, "GInteractions"))
   stopifnot('score' %in% colnames(mcols(gi)))
@@ -87,7 +89,13 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
     stopifnot(is(range, "GRanges"))
     stopifnot('coor_tick_unit is too small.'=
                 width(range(range))[1]/coor_tick_unit<1000)
+    seqn <- as.character(seqnames(range)[1])
     gi <- subsetByOverlaps(gi, ranges = range, ignore.strand=TRUE)
+    ol1 <- countOverlaps(first(gi), range)
+    ol2 <- countOverlaps(second(gi), range)
+    gi <- gi[ol1>0 & ol2>0]
+  }else{
+    seqn <- as.character(seqnames(first(gi))[1])
   }
   stopifnot('No interaction data available.'=length(gi)>0)
   if(!missing(feature.gr)){
@@ -96,21 +104,30 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
     feature.gr <- GRanges()
   }
   gi <- sort(gi)
+  if(doReduce){
+    gi <- reduce(gi, ignore.strand=TRUE)
+  }
   reg <- regions(gi)
   stopifnot('No interactions detected'=length(reg)>2)
   names(reg) <- seq_along(reg)
   if(!all(as.character(seqnames(reg))==as.character(seqnames(reg))[1])){
     warning('All interaction must within one chromosome.
             Interchromosomal interactions will be dropped.')
+    gi <- gi[seqnames(first(gi))==seqn & seqnames(second(gi))==seqn ]
   }
   ol <- findOverlaps(reg, drop.self=TRUE, drop.redundant=TRUE, minoverlap = 2)
   if(length(ol)>0){
-    warning("There are overlaps in the input regions")
+    warning("There are overlaps in the input regions. Do reduce now.")
+    gi <- reduce(gi)
+    reg <- regions(gi)
+    stopifnot('No interactions detected'=length(reg)>2)
+    names(reg) <- seq_along(reg)
   }
   if(length(feature.gr$col)==0) feature.gr$col <- rep("black", length(feature.gr))
   if(length(feature.gr$type)==0) feature.gr$type <- rep("gene", length(feature.gr))
   if(length(feature.gr$cex)==0) feature.gr$cex <- rep(1, length(feature.gr))
   stopifnot(length(feature.gr$type)==length(feature.gr))
+  stopifnot(length(feature.gr$label)==length(feature.gr))
   stopifnot(all(feature.gr$type %in% c('cRE', 'gene')))
   feature.gr[feature.gr$type=='cRE'] <- 
     promoters(feature.gr[feature.gr$type=='cRE'], upstream = 0, downstream = 1)
@@ -127,7 +144,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   d <- log10(d0 + 1) + 1
   # d_factor <- median(width(reg[nodes]))
   # d <- distance(reg[nodes[-length(nodes)]], reg[nodes[-1]])/d_factor + 1
-  irq <- quantile(d, probs = c(.25, .75))
+  irq <- quantile(d, probs = c(.25, .75), na.rm=TRUE)
   edgeL_coor <- data.frame(
     from = nodes[-length(nodes)],
     to = nodes[-1],
@@ -225,6 +242,7 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
         reg0 <- reg[rownames(nodeXY)[i]]
         this_reg_gap <- GRanges(seqnames(reg0), IRanges(end=start(reg0),
                                                         width = 10*coor_tick_unit))
+        if(start(this_reg_gap)<1) start(this_reg_gap) <- 1
         idx <- c(i, i+1)
         ab <- getStartConnectionPoints(nodeShape[idx])
         idx <- ifelse(ab[1]==1, length(nodeShape[[1]]$x), 1)
@@ -392,6 +410,9 @@ checkConnectionPoints <- function(shapeX, a, close = TRUE){
   p2 <- data.frame(x=shapeX[[2]]$x[ab0], y=shapeX[[2]]$y[ab0])
   pD <- apply(p2, 1, pointsDistance, p1=p1)
   i <- which(pD==min(pD))[1]
+  if(length(close)==0) close <- FALSE
+  if(is.na(close[1])) close <- FALSE
+  if(!is.logical(close)) close <- FALSE
   if(close){
     ab[2] <- ab0[i]
   }else{
@@ -591,7 +612,6 @@ bezier <- function(coefs, center, r_coefs, r, evaluation=100, w, method=1){
       N <- r/Nr
     }
   }
-  
   center_mirror <- mirrorP(center, coefs[1, ], coefs[nrow(coefs), ], N=N)
   half <- floor(nrow(coefs)/2)
   ctrNodes <- rbind(coefs[seq.int(half), ],
@@ -602,11 +622,11 @@ bezier <- function(coefs, center, r_coefs, r, evaluation=100, w, method=1){
   list(x = xy[, 1], y = xy[, 2])
 }
 
-getMirrorPoint <- function(ns, a){
+getMirrorPoint <- function(ns, a, w){
   n <- length(ns$x)
   b <- ifelse(a==1, 10, n - 10)
   c <- rotatePoint(ns$x[a], ns$y[a], ns$x[b], ns$y[b])
-  mirrorP(c(ns$x[b], ns$y[b]), c(ns$x[a], ns$y[a]), c, N=1)
+  mirrorP(c(ns$x[b], ns$y[b]), c(ns$x[a], ns$y[a]), c, N=max(log2(w), 1))
 }
 
 getPointInNodeCircle <- function(ns, a, c1, r){
@@ -633,13 +653,13 @@ curveMaker <- function(ns1, ns2, ab, cx, cy, r, w, evaluation = 100,
     # find the extension point on the circle
     ep1 <- getPointInNodeCircle(ns1, ab[1], c1, r[1])
   }else{
-    ep1 <- getMirrorPoint(ns1, ab[1])
+    ep1 <- getMirrorPoint(ns1, ab[1], w)
   }
   r2 <- ifelse(length(r)==1, r[1] , r[2])
   if(pointsDistance(c(x2, y2), c2) < r2){
     ep2 <- getPointInNodeCircle(ns2, ab[2], c2, r2)
   }else{
-    ep2 <- getMirrorPoint(ns2, ab[2])
+    ep2 <- getMirrorPoint(ns2, ab[2], w)
   }
   # points(ep1[1], ep1[2])
   # lines(c(x1, ep1[1]), c(y1, ep1[2]))
@@ -666,6 +686,9 @@ curveMaker <- function(ns1, ns2, ab, cx, cy, r, w, evaluation = 100,
 }
 
 archPlot <- function(x, y, r, angle=300, init.angle=0, length.out=100, bck = FALSE){
+  if(any(is.na(init.angle))){
+    init.angle[is.na(init.angle)] <- 0
+  }
   gamma <- 2*pi * angle * (1:2) / 360 + init.angle * pi/180
   t2xy <- function(rx, t, x0, y0) list(x=rx*cos(t)+x0, y=rx*sin(t)+y0)
   P <- t2xy(r, seq.int(gamma[1], gamma[2], length.out = length.out), x, y)
@@ -799,7 +822,10 @@ calTickPos <- function(feature.tick, curve_gr, arrowLen){
 }
 
 calGenePos <- function(fgf, curve_gr, arrowLen){
-  fgf <- subsetByOverlaps(fgf, curve_gr)
+  fgf <- subsetByOverlaps(fgf, curve_gr, ignore.strand=TRUE)
+  if(length(fgf)==0){
+    return(NULL)
+  }
   fgf <- sort(fgf)
   s <- e <- fgf
   rg <- range(curve_gr)
@@ -1181,7 +1207,8 @@ plotBouquet <- function(pP, fgf, atacSig,
                                 ylim=ylim,
                                 logic=FALSE,
                                 force = safe_text_force)
-          if(lab.xy[1]!=tick.xy$x3[k] || lab.xy[2]!=tick.xy$y3[k]){
+          if((!is.na(lab.xy[1]) && lab.xy[1]!=tick.xy$x3[k]) || 
+             (!is.na(lab.xy[2]) && lab.xy[2]!=tick.xy$y3[k])){
             tg <- grid.text(label=lab,
                             x=lab.xy[1], y=lab.xy[2],
                             default.units = "native",
@@ -1205,6 +1232,7 @@ plotBouquet <- function(pP, fgf, atacSig,
   }
   ## add gene annotation
   genePos <- calGenePos(fgf, curve_gr, arrowLen)
+  if(length(genePos)>0){
   null <- mapply(function(x, y, col, lwd){
     grid.lines(x, y,
                default.units = "native",
@@ -1263,7 +1291,7 @@ plotBouquet <- function(pP, fgf, atacSig,
                            ylim=ylim,
                            logic=FALSE,
                            force = safe_text_force)
-    if(lab.xy[1]!=genePos$x2[k]){
+    if(!is.na(lab.xy[1]) && lab.xy[1]!=genePos$x2[k]){
       tg <- grid.text(label=genePos$fgf$label[k],
                       x=lab.xy[1], y=lab.xy[2],
                       default.units = "native",
@@ -1281,6 +1309,7 @@ plotBouquet <- function(pP, fgf, atacSig,
       grid.draw(tg)
     }
     objCoor <- addObjCoor(objCoor, tg, xlim, ylim)
+  }
   }
   return(objCoor)
 }

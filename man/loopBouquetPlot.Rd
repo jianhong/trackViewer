@@ -32,6 +32,7 @@ loopBouquetPlot(
   length.arrow = NULL,
   safe_text_force = 3,
   method = 1,
+  doReduce = FALSE,
   ...
 )
 }
@@ -72,6 +73,8 @@ to turn it off. The default value 1e5 means show coordinates every 0.1M bp.}
 \item{safe_text_force}{The loops to avoid the text overlapping.}
 
 \item{method}{Plot method. Could be 1 or 2.}
+
+\item{doReduce}{Reduce the GInteractions or not.}
 
 \item{...}{Parameter will be passed to \link[igraph:layout_with_fr]{layout_with_fr}.}
 }
