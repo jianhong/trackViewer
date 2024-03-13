@@ -198,7 +198,10 @@ feature.gr$label <- symbol
 feature.gr <- c(feature.gr[sample(seq_along(feature.gr), 5)],
                 feature.gr[feature.gr$type=='cRE'][1])
 feature.gr <- unique(sort(feature.gr))
-loopBouquetPlot(gi, range, feature.gr, coor_tick_unit = 5e4, atacSig = ctcf)
+loopBouquetPlot(gi, range, feature.gr,
+                coor_tick_unit = 5e4,
+                coor_mark_interval = 5e5,
+                atacSig = ctcf)
 ```
 
 # Session Info

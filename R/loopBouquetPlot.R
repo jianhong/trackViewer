@@ -175,8 +175,8 @@ loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
   maxv <- max(vertex.size)
   xlim <- range(nodeXY[, 1])
   ylim <- range(nodeXY[, 2])
-  d_xlim <- diff(xlim)/5
-  d_ylim <- diff(ylim)/5
+  d_xlim <- diff(xlim)/ifelse(length(sGnodes)>1, 5, 2)
+  d_ylim <- diff(ylim)/ifelse(length(sGnodes)>1, 5, 2)
   xlim <- c(xlim[1] - d_xlim - maxv, xlim[2] + d_xlim + maxv)
   ylim <- c(ylim[1] - d_ylim - maxv, ylim[2] + d_ylim + maxv)
 

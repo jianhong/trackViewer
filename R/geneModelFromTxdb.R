@@ -12,7 +12,8 @@
 #' to make the db again with no loss of information.
 #' @importFrom Gviz GeneRegionTrack
 #' @import GenomicRanges
-#' @import GenomicFeatures
+#' @importFrom GenomicFeatures transcripts genes
+#' @importFrom txdbmaker makeTxDb
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom BiocGenerics strand
 #' @importFrom AnnotationDbi mapIds columns

@@ -12,7 +12,6 @@
 #' @return an invisible list of a \code{\link{trackList}},
 #'  a \code{\link{trackViewerStyle}} and a \code{\link[GenomicRanges:GRanges-class]{GRanges}}
 #' @import GenomicRanges
-#' @import GenomicFeatures
 #' @import Rsamtools
 #' @importFrom BiocGenerics basename
 #' @export

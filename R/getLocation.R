@@ -6,7 +6,7 @@
 #' @import GenomicRanges
 #' @importFrom AnnotationDbi mget
 #' @importFrom GenomeInfoDb "seqlevelsStyle<-" seqlevels "seqlevels<-" seqinfo "seqinfo<-"
-#' @import GenomicFeatures
+#' @importFrom GenomicFeatures genes
 #' @import IRanges
 #' @export
 #' @examples 
