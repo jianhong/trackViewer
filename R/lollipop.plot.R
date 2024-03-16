@@ -508,8 +508,15 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                  ratio.yx, LINEW, GAP, cex, type,
                                  scoreMax=scoreMax,
                                  level="data&labels")
-        this.height <- this.height + bottomHeight + feature.height
+        this.height0 <- this.height <- this.height + bottomHeight + feature.height
         this.height <- plotLegend(legend[[i]], this.height, LINEH)
+        if('alpha' %in% names(legend[[i]])){
+          legend[[i]]$alpha <- NULL
+          if('pch' %in% names(legend[[i]])){
+            legend[[i]]$pch <- NA
+          }
+          plotLegend(legend[[i]], this.height0, LINEH)
+        }
         
         popViewport()
         
