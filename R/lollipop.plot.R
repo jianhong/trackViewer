@@ -472,10 +472,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                          xscale=c(start(ranges[[i]]), end(ranges[[i]])))
           pushViewport(vp)
           xaxis.gp$col <- "gray"
-          plot.grid.xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp)
           popViewport()
         }else{
-          plot.grid.xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp)
         }
         
         ## the baseline, the center of the first transcript
@@ -508,8 +508,15 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                  ratio.yx, LINEW, GAP, cex, type,
                                  scoreMax=scoreMax,
                                  level="data&labels")
-        this.height <- this.height + bottomHeight + feature.height
+        this.height0 <- this.height <- this.height + bottomHeight + feature.height
         this.height <- plotLegend(legend[[i]], this.height, LINEH)
+        if('alpha' %in% names(legend[[i]])){
+          legend[[i]]$alpha <- NULL
+          if('pch' %in% names(legend[[i]])){
+            legend[[i]]$pch <- NA
+          }
+          plotLegend(legend[[i]], this.height0, LINEH)
+        }
         
         popViewport()
         

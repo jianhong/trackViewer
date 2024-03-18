@@ -704,7 +704,7 @@ plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_f
   return(bottomblank)
 }
 
-plot.grid.xaxis <- function(xaxis, gp=gpar(col="black")){
+plot_grid_xaxis <- function(xaxis, gp=gpar(col="black")){
   ## axis, should be in the bottom of transcripts
   if(length(xaxis)==1 && as.logical(xaxis)) {
     grid.xaxis(gp=gp)
