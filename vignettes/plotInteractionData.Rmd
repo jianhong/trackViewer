@@ -26,6 +26,7 @@ suppressPackageStartupMessages({
   library(TxDb.Hsapiens.UCSC.hg19.knownGene)
   library(org.Hs.eg.db)
   library(InteractionSet)
+  library(rgl)
 })
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
@@ -44,7 +45,7 @@ with the interaction score. The popular format are `.validPairs`, `.hic`, and
 `.cool`. The `trackViewer` package can be used to handle those data to plot
 the heatmap or the interaction links.
 
-# Plot chromatin interactions data
+# Plot chromatin interactions data in linear layout
 
 Plot chromatin interactions tracks as heatmap.
 
@@ -151,8 +152,44 @@ importGInteractions(file=cool, format="cool",
                     out = "GInteractions")
 ```
 
+# Plot chromatin interactions data as `loopBouquet` or `MDS` plot
 
-Different from most of the available tools, `loopBouquetPlot` try to plot the data with the 2D structure. The nodes indicate the region with interactions and
+The genomic contact frequency can be converted into spatial distances and then 
+visualized using optimization-based (such as manifold learning techniques)
+or probabilistic approaches (such as Markov Chain Monte Carlo).
+Here `mdsPlot` can be used to plot the bin-based contact matrix by Kruskal's Non-metric Multidimensional Scaling.
+
+```{r mdsPlot2d}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+set.seed(1)
+feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+feature.gr <- subsetByOverlaps(feature.gr, range(regions(gi)))
+symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
+feature.gr$label[lengths(symbols)==1] <- unlist(symbols[lengths(symbols)==1])
+feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
+feature.gr$type <- sample(c("cRE", "gene"), 
+                          length(feature.gr), replace=TRUE, 
+                          prob=c(0.1, 0.9))
+mdsPlot(gi, range = range, feature.gr = feature.gr, atacSig = ctcf)
+```
+
+Or plot it in 3d.
+```{r mdsPlot3d, eval=FALSE}
+library(rgl)
+library(manipulateWidget)
+clear3d() # Remove the earlier display
+mdsPlot(gi, range = range, feature.gr = feature.gr, k=3)
+rglwidget() %>%
+  toggleWidget(tags = "minor_tick") %>%
+  toggleWidget(tags = "major_tick") %>%
+  toggleWidget(tags = "tick_labels") %>%
+  toggleWidget(tags = "labels") %>% 
+  toggleWidget(tags = "cRE") %>%
+  asRow(last = 5)
+```
+
+Different from most of the available tools, `loopBouquetPlot` try to plot the loops with the 2D structure. The nodes indicate the region with interactions and
 the edges indicates the interactions. The size of the nodes are relative to the width of the region.
 The features could be the cRE or gene. The cRE are shown as
 points with symbol 11.
