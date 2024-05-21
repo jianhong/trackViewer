@@ -98,5 +98,7 @@ feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                          length(feature.gr), replace=TRUE, 
                          prob=c(0.1, 0.9))
+feature.gr$pch <- rep(NA, length(feature.gr))
+feature.gr$pch[feature.gr$type=='cRE'] <- 11
 loopBouquetPlot(gi, range, feature.gr)
 }

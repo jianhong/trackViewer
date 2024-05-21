@@ -50,6 +50,8 @@
 #' feature.gr$type <- sample(c("cRE", "gene"), 
 #'                          length(feature.gr), replace=TRUE, 
 #'                          prob=c(0.1, 0.9))
+#' feature.gr$pch <- rep(NA, length(feature.gr))
+#' feature.gr$pch[feature.gr$type=='cRE'] <- 11
 #' loopBouquetPlot(gi, range, feature.gr)
 loopBouquetPlot <- function(gi, range, feature.gr, atacSig,
                             label_region=FALSE, show_edges=TRUE, 
@@ -394,13 +396,19 @@ parseFeature <- function(feature.gr){
     feature.gr <- GRanges()
   }
   if(length(feature.gr$col)==0) feature.gr$col <- rep("black", length(feature.gr))
-  if(length(feature.gr$type)==0) feature.gr$type <- rep("gene", length(feature.gr))
+  if(length(feature.gr$type)==0) {
+    message('Feature type is missing. Set as gene.')
+    feature.gr$type <- rep("gene", length(feature.gr))
+  }
   if(length(feature.gr$cex)==0) feature.gr$cex <- rep(1, length(feature.gr))
+  if(length(feature.gr$pch)==0) {
+    feature.gr$pch <- rep(11, length(feature.gr))
+  }
+  if(length(feature.gr$size)==0) {
+    feature.gr$size <- rep(unit(0.25, "char"), length(feature.gr))
+  }
   stopifnot(length(feature.gr$type)==length(feature.gr))
   stopifnot(length(feature.gr$label)==length(feature.gr))
-  stopifnot(all(feature.gr$type %in% c('cRE', 'gene')))
-  feature.gr[feature.gr$type=='cRE'] <- 
-    promoters(feature.gr[feature.gr$type=='cRE'], upstream = 0, downstream = 1)
   feature.gr
 }
 
@@ -861,10 +869,12 @@ calTickPos <- function(feature.tick, curve_gr, arrowLen, kd=2, rate=72){
 }
 
 calGenePos <- function(fgf, curve_gr, arrowLen, kd=2, rate=72){
-  fgf <- subsetByOverlaps(fgf, curve_gr, ignore.strand=TRUE)
-  if(length(fgf)==0){
+  ## subsetByOverlaps will not work for unit metadata
+  olcnt <- countOverlaps(fgf, curve_gr, ignore.strand=TRUE)
+  if(sum(olcnt>0)==0){
     return(NULL)
   }
+  fgf <- fgf[olcnt>0]
   fgf <- sort(fgf)
   s <- e <- fgf
   rg <- range(curve_gr)
@@ -1335,15 +1345,15 @@ plotBouquet <- function(pP, fgf, atacSig,
                                 type='closed',
                                 length=arrowLen))
     }
-    isRE <- genePos$fgf$type %in% 'cRE'
-    if(any(isRE)){
-      grid.points(x = genePos$x1[isRE],
-                  y = genePos$y1[isRE],
-                  pch = 11,
-                  size = unit(0.25, "char"),
+    notGene <- (!genePos$fgf$type %in% 'gene') & (!genePos$missing_start)
+    if(any(notGene)){
+      grid.points(x = genePos$x1[notGene],
+                  y = genePos$y1[notGene],
+                  pch = genePos$fgf$pch[notGene],
+                  size = genePos$fgf$size[notGene],
                   default.units = "native",
-                  gp=gpar(col=genePos$fgf$col[isRE],
-                          fill=genePos$fgf$col[isRE]))
+                  gp=gpar(col=genePos$fgf$col[notGene],
+                          fill=genePos$fgf$col[notGene]))
     }
     if(label_gene){
       for(k in seq_along(genePos$fgf)){

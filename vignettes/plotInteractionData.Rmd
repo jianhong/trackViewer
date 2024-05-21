@@ -171,6 +171,8 @@ feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                           length(feature.gr), replace=TRUE, 
                           prob=c(0.1, 0.9))
+feature.gr$pch <- rep(NA, length(feature.gr))
+feature.gr$pch[feature.gr$type=='cRE'] <- 11
 mdsPlot(gi, range = range, feature.gr = feature.gr, atacSig = ctcf)
 ```
 
@@ -179,14 +181,18 @@ Or plot it in 3d.
 library(rgl)
 library(manipulateWidget)
 clear3d() # Remove the earlier display
-mdsPlot(gi, range = range, feature.gr = feature.gr, k=3)
+mdsPlot(gi, range = range, feature.gr = feature.gr, atacSig = ctcf, k=3)
 rglwidget() %>%
-  toggleWidget(tags = "minor_tick") %>%
-  toggleWidget(tags = "major_tick") %>%
+  toggleWidget(tags = "tick_minor") %>%
+  toggleWidget(tags = "tick_major") %>%
   toggleWidget(tags = "tick_labels") %>%
-  toggleWidget(tags = "labels") %>% 
+  toggleWidget(tags = "atac_signal") %>% 
+  toggleWidget(tags = "backbone") %>%
+  toggleWidget(tags = "gene_body") %>%
+  toggleWidget(tags = "tss_labels") %>%
+  toggleWidget(tags = "gene_labels") %>%
   toggleWidget(tags = "cRE") %>%
-  asRow(last = 5)
+  asRow(last = 9)
 ```
 
 Different from most of the available tools, `loopBouquetPlot` try to plot the loops with the 2D structure. The nodes indicate the region with interactions and
@@ -206,6 +212,8 @@ feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
 feature.gr$type <- sample(c("cRE", "gene"), 
                           length(feature.gr), replace=TRUE, 
                           prob=c(0.1, 0.9))
+feature.gr$pch <- rep(NA, length(feature.gr))
+feature.gr$pch[feature.gr$type=='cRE'] <- 11
 symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
 symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
 feature.gr$label <- symbol
