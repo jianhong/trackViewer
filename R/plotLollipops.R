@@ -279,11 +279,29 @@ plotLollipops <- function(SNPs, feature.height, bottomHeight, baseline,
         if(type=="circle"){
           if(length(SNPs$shape)==length(SNPs)){
             ## shape could only be "circle", "square", "diamond", "triangle_point_up", "triangle_point_down"
-            if(!all(SNPs$shape %in% c("circle", "square", "diamond", "triangle_point_up", "triangle_point_down"))){
+            if(!all(unlist(SNPs$shape) %in% c("circle", "square", "diamond", "triangle_point_up", "triangle_point_down"))){
               message('shape must be "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"')
+              if(is.list(SNPs$shape)){
+                stop("The shape is a list, please confirm the format.",
+                     'It must be a list with elements of "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"')
+              }
               SNPs$shape <- as.numeric(factor(SNPs$shape))
               SNPs$shape <- rep(c("circle", "square", "diamond", "triangle_point_up", "triangle_point_down"), 
                                 max(SNPs$shape))[SNPs$shape]
+            }else{
+              if(is.list(SNPs$shape)){
+                if(any(lengths(SNPs$shape)[SNPs$score!=0]==0)){
+                  stop("The shape is a list, but zero length of shape is detected.")
+                }
+              }
+            }
+            if(scoreType){
+              if(is.list(SNPs$shape)){
+                if(!all(lengths(SNPs$shape)[SNPs$score!=0]==
+                        SNPs$score[SNPs$score!=0])){
+                  warning('Not all the length of shape equal to score.')
+                }
+              }
             }
           }else{
             SNPs$shape <- NULL

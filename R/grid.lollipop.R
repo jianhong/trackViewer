@@ -125,31 +125,63 @@ grid.lollipop <- function (x1=.5, y1=.5,
                if(length(border)==0) border <- "black"
                if(length(col)==0) col <- "white"
                if(scoreType){
-                   for(i in 1:this.score){
+                   for(i in seq_len(this.score)){
                        y0 <- y2+y3+y4+2*radius*ratio.yx*(i-.5)
                        if(side) y0 <- 1 - y0
-                       switch(shape, #"circle", "square", "diamond", "triangle_point_up", "star", or "triangle_point_down"
+                       if(length(shape)==this.score){
+                         ## multiple shape for each point
+                         this_shape <- shape[i]
+                       }else{
+                         this_shape <- ifelse(length(shape)>0, shape[1], 'circle')
+                       }
+                       if(length(border)==this.score){
+                         ## multiple border for each point
+                         this_border <- border[i]
+                       }else{
+                         this_border <- border[1]
+                       }
+                       if(length(col)==this.score){
+                         ## multiple color for each point
+                         this_col <- col[i]
+                       }else{
+                         this_col <- col[1]
+                       }
+                       if(length(lwd)==this.score){
+                         ## multiple alpha for each point
+                         this_lwd <- lwd[i]
+                       }else{
+                         this_lwd <- lwd[1]
+                       }
+                       if(length(alpha)==this.score){
+                         ## multiple alpha for each point
+                         this_alpha <- alpha[i]
+                       }else{
+                         this_alpha <- alpha[1]
+                       }
+                       if(length(this_shape)!=1) this_shape <- 'circle'
+                       this_gp <- gpar(col=this_border, fill=this_col, lwd=this_lwd, alpha=this_alpha)
+                       switch(this_shape, #"circle", "square", "diamond", "triangle_point_up", "star", or "triangle_point_down"
                               circle=grid.circle1(x=x2, y=y0,
                                                   r=radius*ratio.yx*cex, 
-                                                  gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                                  gp=this_gp),
                               square=grid.square(x=x2, y=y0,
                                                   r=radius*ratio.yx*cex, 
-                                                  gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                                  gp=this_gp),
                               diamond=grid.diamond(x=x2, y=y0,
                                                   r=radius*ratio.yx*cex, 
-                                                  gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                                  gp=this_gp),
                               triangle_point_up=grid.triangle_point_up(x=x2, y=y0,
                                                   r=radius*ratio.yx*cex, 
-                                                  gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                                  gp=this_gp),
                               triangle_point_down=grid.triangle_point_down(x=x2, y=y0,
                                                   r=radius*ratio.yx*cex, 
-                                                  gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                                  gp=this_gp),
                               star=grid.star(x=x2, y=y0,
                                              r=radius*ratio.yx*cex, 
-                                             gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)),
+                                             gp=this_gp),
                               grid.circle1(x=x2, y=y0,
                                            r=radius*ratio.yx*cex, 
-                                           gp=gpar(col=border, fill=col, lwd=lwd, alpha=alpha)))
+                                           gp=this_gp))
                        
                    }
                }else{

@@ -270,6 +270,16 @@ available.shapes <- c("circle", "square", "diamond",
 sample.gr$shape <- sample(available.shapes, size = length(sample.gr), replace = TRUE)
 sample.gr$legend <- paste0("legend", as.numeric(factor(sample.gr$shape)))
 lolliplot(sample.gr, features, type="circle", legend = "legend")
+sample.gr.mul.shape <- sample.gr
+sample.gr.mul.shape$score <- ceiling(sample.gr.mul.shape$score)
+sample.gr.mul.shape$shape <- lapply(sample.gr.mul.shape$score, function(s){
+  sample(available.shapes, size = s, replace = TRUE)
+})
+sample.gr.mul.shape$color <- lapply(sample.gr.mul.shape$score, function(s){
+  sample.int(7, size = s, replace = TRUE)
+})
+lolliplot(sample.gr.mul.shape, features, type="circle",
+          lollipop_style_switch_limit = max(sample.gr.mul.shape$score))
 ```
 
 ### Google pin

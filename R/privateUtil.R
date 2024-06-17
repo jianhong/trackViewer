@@ -561,9 +561,14 @@ handleLegend <- function(legend, len, dat){
             })
             names(gp) <- para
             names(gp)[names(gp)=="color"] <- "fill"
+            if(is.list(gp[["shape"]])){
+              warning('multiple shape for one legend is not accept. Using default')
+              gp[["shape"]] <- shapeMap[vapply(gp[["shape"]], FUN=function(.ele) .ele[1], FUN.VALUE = character(1L))]
+            }else{
+              gp[["shape"]] <- shapeMap[gp[["shape"]]]
+            }
             gp <- as.data.frame(gp, stringsAsFactors=FALSE)
             gp <- cbind(labels=labels, gp)
-            gp[, "shape"] <- shapeMap[gp[, "shape"]]
             names(gp)[names(gp)=="shape"] <- "pch"
             gp <- gp[!duplicated(gp[, "labels"]), ]
             gp <- gp[order(gp[, "labels"]), ]
