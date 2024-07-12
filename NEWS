@@ -1,3 +1,7 @@
+Changes in version 1.41.4
+
+    o Move the 3d plots to a different package.
+    
 Changes in version 1.41.3
 
     o plot lolliplot with multiple shapes in one position.

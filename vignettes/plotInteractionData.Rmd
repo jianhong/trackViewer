@@ -26,7 +26,6 @@ suppressPackageStartupMessages({
   library(TxDb.Hsapiens.UCSC.hg19.knownGene)
   library(org.Hs.eg.db)
   library(InteractionSet)
-  library(rgl)
 })
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
@@ -152,102 +151,6 @@ importGInteractions(file=cool, format="cool",
                     out = "GInteractions")
 ```
 
-# Plot chromatin interactions data as `loopBouquet` or `MDS` plot
-
-The genomic contact frequency can be converted into spatial distances and then 
-visualized using optimization-based (such as manifold learning techniques)
-or probabilistic approaches (such as Markov Chain Monte Carlo).
-Here `mdsPlot` can be used to plot the bin-based contact matrix by Kruskal's Non-metric Multidimensional Scaling.
-
-```{r mdsPlot2d}
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-library(org.Hs.eg.db)
-set.seed(1)
-feature.gr <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
-feature.gr <- subsetByOverlaps(feature.gr, range(regions(gi)))
-symbols <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound=NA)
-feature.gr$label[lengths(symbols)==1] <- unlist(symbols[lengths(symbols)==1])
-feature.gr$col <- sample(1:7, length(feature.gr), replace=TRUE)
-feature.gr$type <- sample(c("cRE", "gene"), 
-                          length(feature.gr), replace=TRUE, 
-                          prob=c(0.1, 0.9))
-feature.gr$pch <- rep(NA, length(feature.gr))
-feature.gr$pch[feature.gr$type=='cRE'] <- 11
-mdsPlot(gi, range = range, feature.gr = feature.gr, atacSig = ctcf)
-```
-
-Or plot it in 3d.
-```{r mdsPlot3d, eval=FALSE}
-library(rgl)
-library(manipulateWidget)
-clear3d() # Remove the earlier display
-mdsPlot(gi, range = range, feature.gr = feature.gr, atacSig = ctcf, k=3)
-rglwidget() %>%
-  toggleWidget(tags = "tick_minor") %>%
-  toggleWidget(tags = "tick_major") %>%
-  toggleWidget(tags = "tick_labels") %>%
-  toggleWidget(tags = "atac_signal") %>% 
-  toggleWidget(tags = "backbone") %>%
-  toggleWidget(tags = "gene_body") %>%
-  toggleWidget(tags = "tss_labels") %>%
-  toggleWidget(tags = "gene_labels") %>%
-  toggleWidget(tags = "cRE") %>%
-  asRow(last = 9)
-```
-
-Different from most of the available tools, `loopBouquetPlot` try to plot the loops with the 2D structure. The nodes indicate the region with interactions and
-the edges indicates the interactions. The size of the nodes are relative to the width of the region.
-The features could be the cRE or gene. The cRE are shown as
-points with symbol 11.
-
-```{r plotGInteractions}
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-library(org.Hs.eg.db)
-library(InteractionSet)
-gi <- readRDS(system.file("extdata", "gi.rds", package="trackViewer"))
-range <- GRanges("chr2", IRanges(234300000, 235000000))
-gene_hg19 <- suppressMessages(genes(TxDb.Hsapiens.UCSC.hg19.knownGene))
-feature.gr <- subsetByOverlaps(gene_hg19, range(regions(gi)))
-feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
-feature.gr$type <- sample(c("cRE", "gene"), 
-                          length(feature.gr), replace=TRUE, 
-                          prob=c(0.1, 0.9))
-feature.gr$pch <- rep(NA, length(feature.gr))
-feature.gr$pch[feature.gr$type=='cRE'] <- 11
-symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
-symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
-feature.gr$label <- symbol
-loopBouquetPlot(gi, range, feature.gr)
-```
-
-```{r plotRealData}
-gi <- readRDS(system.file("extdata", "nij.chr6.51120000.53200000.gi.rds", package="trackViewer"))
-range <- GRanges("chr6", IRanges(51120000, 53200000))
-## filter the links to simulate the real data
-keep <- distance(first(gi), second(gi)) > 5e5 & gi$score>35
-gi <- gi[keep]
-# narrow the width of anchors to ehance the plots
-reg <- regions(gi)
-wr <- floor(width(reg)/4)
-start(reg) <- start(reg) + wr
-end(reg) <- end(reg) - wr
-regions(gi) <- reg
-feature.gr <- subsetByOverlaps(gene_hg19, range(regions(gi)))
-feature.gr$col <- sample(2:7, length(feature.gr), replace=TRUE)
-feature.gr$type <- sample(c("cRE", "gene"), 
-                          length(feature.gr), replace=TRUE, 
-                          prob=c(0.1, 0.9))
-symbol <- mget(feature.gr$gene_id, org.Hs.egSYMBOL, ifnotfound = NA)
-symbol <- unlist(lapply(symbol, function(.ele) .ele[1]))
-feature.gr$label <- symbol
-feature.gr <- c(feature.gr[sample(seq_along(feature.gr), 5)],
-                feature.gr[feature.gr$type=='cRE'][1])
-feature.gr <- unique(sort(feature.gr))
-loopBouquetPlot(gi, range, feature.gr,
-                coor_tick_unit = 5e4,
-                coor_mark_interval = 5e5,
-                atacSig = ctcf)
-```
 
 # Session Info
 ```{r sessionInfo, results='asis'}
