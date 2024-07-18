@@ -1,3 +1,7 @@
+Changes in version 1.41.5
+
+    o Export the method `$` for trackStyle class.
+    
 Changes in version 1.41.4
 
     o Move the 3d plots to a different package.

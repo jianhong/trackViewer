@@ -11,7 +11,9 @@
 \alias{seqlevelsStyle<-,track-method}
 \alias{show,track-method}
 \alias{$,track-method}
+\alias{$,trackStyle-method}
 \alias{$<-,track-method}
+\alias{$<-,trackStyle-method}
 \alias{setTrackStyleParam}
 \alias{setTrackStyleParam,track,character-method}
 \alias{setTrackStyleParam,track,character,ANY-method}
@@ -48,13 +50,13 @@ setTrackYaxisParam(ts, attr, value)
 \S4method{setTrackYaxisParam}{track,character}(ts, attr, value)
 }
 \arguments{
-\item{x}{an object of trackStyle}
+\item{x}{an object of trackStyle or track}
 
 \item{value}{values to be assigned.}
 
 \item{object}{an object of trackStyle.}
 
-\item{name}{slot name of trackStyle}
+\item{name}{slot name of trackStyle or track}
 
 \item{ts}{An object of \code{track}.}
 

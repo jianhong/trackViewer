@@ -370,19 +370,27 @@ setMethod("show", "track", function(object){
 })
 #' Method $
 #' @rdname trackStyle-class
-#' @param x an object of trackStyle
-#' @param name slot name of trackStyle
+#' @param x an object of trackStyle or track
+#' @param name slot name of trackStyle or track
 #' @exportMethod $
 #' @aliases $,track-method
+#' @aliases $,trackStyle-method
 setMethod("$", "track", function(x, name) slot(x, name))
+setMethod("$", "trackStyle", function(x, name) slot(x, name))
 #' Method $<-
 #' @rdname trackStyle-class
 #' @exportMethod $<-
 #' @aliases $<-,track-method
+#' @aliases $<-,trackStyle-method
 setReplaceMethod("$", "track", 
                  function(x, name, value){
                      slot(x, name, check = TRUE) <- value
                      x
+                 })
+setReplaceMethod("$", "trackStyle", 
+                 function(x, name, value){
+                   slot(x, name, check = TRUE) <- value
+                   x
                  })
 #' Method setTrackStyleParam
 #' @rdname trackStyle-class
