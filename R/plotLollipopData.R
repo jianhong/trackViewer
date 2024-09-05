@@ -41,7 +41,7 @@ plotLollipopData <- function(dat, xscale, chr, yaxis, yaxis.gp, ybase=0, side="t
     LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))/2
     ## GAP the gaps between any elements
     GAP <- .2 * LINEH
-    ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+    ratio.yx <- getYXratio()
     feature.height <- 
       if(is.list(dat$feature.height)) dat$feature.height[[1]] else dat$feature.height[1]
     if(length(feature.height)==0) feature.height <- GAP

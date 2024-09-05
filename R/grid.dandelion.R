@@ -2,7 +2,7 @@ Y1pos <- function(SNPs.groups, xscale, lineW, base, cex, ypos, plotYaxis, height
   ratio.Yy <- 1/diff(xscale)
   sg <- split(SNPs.groups, SNPs.groups$gps)
   sg <- sg[order(sapply(sg, length), decreasing=FALSE)]
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   t2xy <- function(t, rX, rY, angle) {
     t2p <- angle * t - (angle-pi)/2
     list(x = -rX * cos(t2p), y = rY * sin(t2p))
@@ -174,7 +174,7 @@ grid.dan <- function (x=.5, y=.5,
   if (is.null(col)) 
     col <- "white"
   twopi <- 2 * pi
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   t2xy <- function(t) {
     t2p <- twopi * t + pi/2 + alpha
     list(x = radius * cos(t2p), y = radius * sin(t2p) * ratio.yx)

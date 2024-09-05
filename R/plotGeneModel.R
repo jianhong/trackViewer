@@ -134,7 +134,7 @@ plotGeneModel <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
       LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))/2
       ## GAP the gaps between any elements
       GAP <- .2 * LINEH
-      ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+      ratio.yx <- getYXratio()
       plotLollipops(track@dat2, feature.height=y+unit, bottomHeight=0, baseline=y, 
                     type=type, ranges=xscale.gr, yaxis=FALSE, yaxis.gp=yaxis.gp,
                     scoreMax=scoreMax, scoreMax0=scoreMax0, scoreType=scoreType, 

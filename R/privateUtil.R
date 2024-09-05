@@ -527,6 +527,19 @@ getColNum <- function(labels, spaces="WW", cex){
     ncol
 }
 
+checkLegendPosition <- function(legendPosition){
+  positions <- c('top', 'left', 'right')
+  if(!is.list(legendPosition)){
+    legendPosition <- list(
+      position = match.arg(legendPosition, choices = positions)
+    )
+  }else{
+    legendPosition$position <- 
+      match.arg(legendPosition$position,
+                choices = positions)
+  }
+  return(legendPosition)
+}
 ############### handle legend ####################
 ## set the legend as a list, 
 ## if all the legend for different tracks is same
@@ -603,6 +616,42 @@ handleLegend <- function(legend, len, dat){
     }
   }
   return(legend)
+}
+
+legendNchar <- function(legend){
+  n <- 0
+  if(length(legend)>0){
+    if(is.list(legend)){
+      thisLabels <- legend[["labels"]]
+    }else{
+      thisLabels <- names(legend)
+    }
+    if(length(thisLabels)>0){
+      n <- nchar(thisLabels)
+    }
+  }
+  return(n)
+}
+
+getMaxYlimNchar <- function(SNP.gr, minVal, types){
+  if(!is.list(SNP.gr)){
+    SNP.gr <- list(SNP.gr)
+  }
+  m <- lapply(SNP.gr[types!='pie'], function(.ele){
+    .e <- .ele$score
+    if(length(.e)>0){
+      return(max(.e[!is.infinite(.e)], na.rm=TRUE))
+    }else{
+      return(0)
+    }
+  })
+  m <- max(c(1, unlist(m, recursive = TRUE)))
+  m <- nchar(as.character(round(m))) + 3.5
+  if(m<minVal){
+    return(minVal)
+  }else{
+    return(min(10, m))
+  }
 }
 ################ handle ranges #####################
 ## if !missing(ranges) set ranges as feature ranges
@@ -721,6 +770,10 @@ plot_grid_xaxis <- function(xaxis, gp=gpar(col="black")){
   }
 }
 
+getYXratio <- function(){
+  as.numeric(convertHeight(unit(1, 'snpc'), 'npc'))/
+    as.numeric(convertWidth(unit(1, "snpc"), "npc"))
+}
 #"circle", "square", "diamond", "triangle_point_up", "star", or "triangle point_down"
 grid.circle1 <- function(x = 0.5, y = 0.5, r = 0.5, 
                          default.units = "npc", name = NULL, 
@@ -731,7 +784,7 @@ grid.circle1 <- function(x = 0.5, y = 0.5, r = 0.5,
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
   twopi <- 2 * pi
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   t2xy <- function(t) {
     t2p <- twopi * t + pi/2
     list(x = r * cos(t2p)/ratio.yx, y = r * sin(t2p))
@@ -749,7 +802,7 @@ grid.square <- function(x = 0.5, y = 0.5, r = 0.5,
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   invisible(grid.rect(unit(x,"npc"), unit(y, "npc"), 
                       width = unit(r*2/ratio.yx, "npc"), 
                       height = unit(r*2, "npc"),
@@ -764,7 +817,7 @@ grid.diamond <- function(x = 0.5, y = 0.5, r = 0.5,
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   P <- 
     list(x = c(0, r/ratio.yx, 0, -r/ratio.yx), 
          y = c(-r, 0, r, 0))
@@ -780,7 +833,7 @@ grid.triangle_point_up <- function(x = 0.5, y = 0.5, r = 0.5,
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   P <- 
     list(x = c(-r/ratio.yx, r/ratio.yx, 0, -r/ratio.yx), 
          y = c(-r, -r, r, -r))
@@ -796,7 +849,7 @@ grid.triangle_point_down <- function(x = 0.5, y = 0.5, r = 0.5,
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   P <- 
     list(x = c(-r/ratio.yx, r/ratio.yx, 0, -r/ratio.yx), 
          y = c(r, r, -r, r))
@@ -813,7 +866,7 @@ grid.star <- function(x = 0.5, y = 0.5, r = 0.5,
   lwd <- if(length(gp$lwd)>0) gp$lwd else 1
   alpha <- gp$alpha
   if(is.null(fill)) fill <- "white"
-  ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+  ratio.yx <- getYXratio()
   i <- 1:11
   angle <- 180
   alpha <- 2*pi / 10

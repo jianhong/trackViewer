@@ -165,7 +165,7 @@ lolliplot(sample.gr, features, jitter="label")
 ```
 
 ## Add a legend
-```{r lolliplot.legend, fig.width=6, fig.height=5}
+```{r lolliplot.legend, fig.width=6, fig.height=4.5}
 legend <- 1:6 ## legend fill color
 names(legend) <- paste0("legend", letters[1:6]) ## legend labels
 lolliplot(sample.gr, features, legend=legend)
@@ -176,14 +176,21 @@ legend <- list(labels=paste0("legend", LETTERS[1:6]),
 lolliplot(sample.gr, features, legend=legend)
 ## if you have multiple tracks, please try to set the legend by list.
 ## see more examples in the section [Plot multiple samples](#plot-multiple-samples)
-legend <- list(legend)
-lolliplot(sample.gr, features, legend=legend)
+legendList <- list(legend)
+lolliplot(sample.gr, features, legend=legendList)
 
 # from version 1.21.8, users can also try to set legend 
 # as a column name in the metadata of GRanges.
 sample.gr.newlegend <- sample.gr
 sample.gr.newlegend$legend <- LETTERS[sample.gr$color]
 lolliplot(sample.gr.newlegend, features, legend="legend")
+# from version 1.41.6, users can set the legend position to right
+lolliplot(sample.gr, features, legend=legend,
+          legendPosition = list(position='right',
+                                width=unit(1, 'inch')))
+## use ncol or nrow to control the legend layout.
+legendList[[1]]$ncol <- 2 # if legend is not a list of list, use legend$ncol <- 2
+lolliplot(sample.gr, features, legend=legendList, legendPosition = 'right')
 ```
 
 ## Control the labels
@@ -193,7 +200,7 @@ label.parameter  such as label.parameter.rot or label.parameter.gp.
 Note: label.parameter.label can be used to plot snp labels other than the names of inputs.
 The parameter is used for [grid.text](https://www.rdocumentation.org/packages/grid/topics/grid.text).
 
-```{r lolliplot.labels.control, fig.width=6, fig.height=5}
+```{r lolliplot.labels.control, fig.width=6, fig.height=4}
 sample.gr.rot <- sample.gr
 sample.gr.rot$label.parameter.rot <- 45
 lolliplot(sample.gr.rot, features, legend=legend)
@@ -219,7 +226,7 @@ lolliplot(sample.gr.rot, features, legend=legend)
 Users can also control the labels one by one by setting label.parameter.gp. 
 Please note that for each label, the label.parameter.gp must be a list.
 
-```{r lolliplot.labels.ctl.one.by.one, fig.width=6, fig.height=5}
+```{r lolliplot.labels.ctl.one.by.one, fig.width=6, fig.height=4}
 label.parameter.gp.brown <- gpar(col="brown")
 label.parameter.gp.blue <- gpar(col="blue")
 label.parameter.gp.red <- gpar(col="red")
@@ -232,7 +239,7 @@ lolliplot(sample.gr, features)
 
 User can write the labels of the features directly on them and not in the 
 legend by set the parameter label_on_feature to `TRUE`.
-```{r lolliplot.labels.on.feature, fig.width=6, fig.height=5}
+```{r lolliplot.labels.on.feature, fig.width=6, fig.height=4}
 lolliplot(sample.gr, features, label_on_feature=TRUE)
 ```
 

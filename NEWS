@@ -1,3 +1,7 @@
+Changes in version 1.41.6
+
+    o Add `legendPosition` parameter for lollipop plot.
+    
 Changes in version 1.41.5
 
     o Export the method `$` for trackStyle class.

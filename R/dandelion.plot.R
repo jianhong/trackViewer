@@ -244,7 +244,7 @@ dandelion.plot <- function(SNP.gr, features=NULL, ranges=NULL,
           }else{
             maxStrHeight <- 0
           }
-          ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+          ratio.yx <- getYXratio()
           ypos <- LINEW*max(ratio.yx, 1.2) + maxStrHeight*cex + LINEH*cex 
           if(length(legend[[i]])>0){
             if(!is.null(legend[[i]]$gp$cex)){

@@ -242,7 +242,7 @@ plotTrack <- function(name, track, curViewStyle, curYpos,
             LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
             ## GAP the gaps between any elements
             GAP <- .2 * LINEH
-            ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+            ratio.yx <- getYXratio()
             getMaxHeight <- function(lollipopData){
               if(length(lollipopData)==0) return(0)
               TYPES <- c("circle", "pie", "pin", "pie.stack", "flag")

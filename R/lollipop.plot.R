@@ -22,6 +22,8 @@
 #' points if it has names. 
 #' @param ylab.gp,xaxis.gp,yaxis.gp An object of class gpar for ylab, xaxis or yaxis.
 #' @param legend If it is a list with named color vectors, a legend will be added.
+#' @param legendPosition The position of legend. Possible positions are 'top',
+#' 'right', and 'left'.
 #' @param cex cex will control the size of circle.
 #' @param dashline.col color for the dashed line.
 #' @param jitter jitter the position of nodes or labels.
@@ -86,7 +88,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                       newpage=TRUE, ylab=TRUE, ylab.gp=gpar(col="black"),
                       yaxis=TRUE, yaxis.gp=gpar(col="black"), 
                       xaxis=TRUE, xaxis.gp=gpar(col="black"), 
-                      legend=NULL, cex=1, 
+                      legend=NULL, legendPosition='top', cex=1, 
                       dashline.col="gray80", 
                       jitter=c("node", "label"), 
                       rescale=FALSE, 
@@ -96,6 +98,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     stopifnot(inherits(SNP.gr, c("GRanges", "GRangesList", "list")))
     stopifnot(inherits(features, c("GRanges", "GRangesList", "list")))
     jitter <- match.arg(jitter)
+    legendPosition <- checkLegendPosition(legendPosition)
     rescale.old <- rescale
     xaxis.old <- xaxis
     if(any(type!="circle"&jitter=="label")){
@@ -151,6 +154,21 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
     ##cut all SNP.gr by the range
     SNP.gr <- cutSNP(SNP.gr, ranges, len)
     
+    dots <- list(...)
+    if(length(dots$maxYlimNchar)>0) {
+      maxYlimNchar<- dots$maxYlimNchar
+    } else {
+      if(all(c(TRUE, vapply(yaxis, isTRUE, logical(1L))))){
+        maxYlimNchar <- getMaxYlimNchar(SNP.gr, 3.5, types)
+      } else {
+        if(length(yaxis)>1){
+          maxYlimNchar <- max(c(1, nchar(as.character(yaxis))), na.rm = TRUE) +
+            4
+        }else{
+          maxYlimNchar<- 2.5
+        }
+      }
+    }
     
     ################## plot ############################
     ## total height == 1
@@ -171,7 +189,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           args$features <- features[[i]]
           args$type <- types[i]
           args$legend <- legend[[i]]
+          args$legendPosition <- legendPosition
           args$height0 <- height0
+          args$maxYlimNchar <- maxYlimNchar
           height0 <- do.call(what = lolliplot, args = args)
         }
       }else{## is GRanges with length==1
@@ -183,8 +203,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           pin <- NULL
         }
         ## Here we don't know the real height of each tracks
-        vp <- viewport(x=.5, y=height0 + height*0.5, width=1, height=height)
-        pushViewport(vp)
+        vp0 <- viewport(x=.5, y=height0 + height*0.5,
+                       width=1, height=height)
+        pushViewport(vp0)
         LINEW <- as.numeric(convertX(unit(1, "line"), "npc"))
         LINEH <- as.numeric(convertY(unit(1, "line"), "npc"))
         totalH <- as.numeric(unit(1, "npc"))
@@ -194,8 +215,6 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         
         ## GAP the gaps between any elements
         GAP <- .2 * LINEH
-        ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
-        
         
         SNPs <- SNP.gr[[i]]
         strand(SNPs) <- "*"
@@ -387,6 +406,11 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           }
         }
         
+        ## top legend
+        if(legendPosition$position=='bottom'){
+          ## not supported yet.
+          message('not suppport yet.')
+        }
         ## convert height to npc number
         feature$height <- convertHeight2NPCnum(feature$height)
         ## multiple transcripts in one gene could be separated by featureLayerID
@@ -449,12 +473,45 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         if(!IsCaterpillar){
           bottomblank <- bottomblank
         }
-        pushViewport(viewport(x=LINEW + .5, y=bottomblank/2 + .5, 
-                              width= 1 - 7*LINEW,
-                              height= 1 - bottomblank,
-                              xscale=c(start(ranges[[i]]), end(ranges[[i]])),
-                              clip="off"))
         
+        ## decide the legend position
+        # right side keep 3 lines TODO: figure out the plot region to decide the right side margin
+        plotRegionWidth <- unit(1 - (maxYlimNchar+3)*LINEW, 'npc')
+        plotRegionX <- unit(maxYlimNchar*LINEW, 'npc')
+        if(legendPosition$position %in% c('left', 'right')){
+          if(length(legendPosition$width)>0){
+            if(is.unit(legendPosition$width)){
+              plotRegionWidth <- plotRegionWidth - legendPosition$width
+            }else if(is.numeric(legendPosition$width)){
+              if(legendPosition$width>0 && legendPosition$width<1){
+                legendPosition$width <- unit(legendPosition$width, 'npc')
+                plotRegionWidth <- plotRegionWidth - legendPosition$width
+              }else{
+                stop('legendPosition$width must be a number in the range of 0 ~ 1')
+              }
+            }else{
+              stop('legendPosition$width must be a number of a unit.')
+            }
+          }else{
+            legendPosition$width <- convertX(
+              unit(max(legendNchar(legend[[i]]))+3, 'char'),
+              'npc')
+            plotRegionWidth <- plotRegionWidth - legendPosition$width
+          }
+          if(legendPosition$position=='left'){
+            plotRegionX <- legendPosition$width + unit(2*LINEW, 'npc')
+          }else{
+            plotRegionX <- unit(maxYlimNchar*LINEW, 'npc')
+          }
+        }
+        vp_track <- viewport(x=plotRegionX, y=bottomblank/2 + .5, 
+                             width= plotRegionWidth,
+                             height= 1 - bottomblank,
+                             xscale=c(start(ranges[[i]]), end(ranges[[i]])),
+                             clip="off",
+                             just = 'left')
+        pushViewport(vp_track)
+        ratio.yx <- getYXratio()
         ## plot xaxis
         bottomHeight <- 0
         if(IsCaterpillar){
@@ -503,52 +560,68 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                         side="top", jitter=jitter)
         }
         
-        ## legend
+        ## top legend
         this.height <- getHeight(SNPs.top, 
                                  ratio.yx, LINEW, GAP, cex, type,
                                  scoreMax=scoreMax,
                                  level="data&labels")
         this.height0 <- this.height <- this.height + bottomHeight + feature.height
-        this.height <- plotLegend(legend[[i]], this.height, LINEH)
-        if('alpha' %in% names(legend[[i]])){
-          legend[[i]]$alpha <- NULL
-          if('pch' %in% names(legend[[i]])){
-            legend[[i]]$pch <- NA
+        if(legendPosition$position=='top'){
+          this.height <- plotLegend(legend[[i]], this.height, LINEH)
+          if('alpha' %in% names(legend[[i]])){
+            legend[[i]]$alpha <- NULL
+            if('pch' %in% names(legend[[i]])){
+              legend[[i]]$pch <- NA
+            }
+            plotLegend(legend[[i]], this.height0, LINEH)
           }
-          plotLegend(legend[[i]], this.height0, LINEH)
         }
-        
-        popViewport()
+        popViewport()## vp_track
         
         this.height <- bottomblank + 
           this.height * (1 - bottomblank)
         
         ## ylab
-        if(length(yaxis)>1 && is.numeric(yaxis)){
-          x <- LINEW
-        }else{
-          x <- unit(3, "lines")
-          if(yaxis){
-            x <- LINEW
-          }
-        }
-        vp <- viewport(x=.5, y=this.height*0.5, 
-                       width=1, height=this.height)
-        pushViewport(vp)
+        vp_ylab <- viewport(x=ifelse(legendPosition$position!='left', 0, 
+                                     convertX(legendPosition$width, 'npc',
+                                              valueOnly = TRUE)),
+                            y=this.height*0.5, 
+                            width=plotRegionWidth +
+                              unit(2*maxYlimNchar*LINEW, 'npc'),
+                            height=this.height,
+                            just='left')
+        pushViewport(vp_ylab)
         if(is.logical(ylab)){
           if(ylab && length(names(SNP.gr))>0){
-            grid.text(names(SNP.gr)[i], x = x, 
+            grid.text(names(SNP.gr)[i], x = LINEW, 
                       y = .5, rot = 90, gp=ylab.gp)
           }
         }
         if(is.character(ylab)){
           if(length(ylab)==1) ylab <- rep(ylab, len)
-          grid.text(ylab[i], x = x,
+          grid.text(ylab[i], x = LINEW,
                     y = .5, rot = 90, gp=ylab.gp)
         }
-        popViewport()
+        popViewport()#vp_ylab
         
-        popViewport()
+        ## left or right legend
+        if(legendPosition$position %in% c('left', 'right')){
+          legendRegionWidth <- legendPosition$width
+          if(legendPosition$position=='left'){
+            legendRegionX <- unit(0, 'npc')
+          }else{
+            legendRegionX <- unit(1, 'npc') - legendPosition$width
+          }
+          vp_legend <- viewport(x=legendRegionX, y=.5, 
+                                width= legendRegionWidth,
+                                height= 1,
+                                just = 'left')
+          pushViewport(vp_legend)
+          plotLegend(legend[[i]], 0, LINEH)
+          popViewport()## vp_legend
+        }
+        
+        popViewport()#vp0
         height0 <-  height0 + this.height*height
       }
     }

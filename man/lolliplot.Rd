@@ -17,6 +17,7 @@ lolliplot(
   xaxis = TRUE,
   xaxis.gp = gpar(col = "black"),
   legend = NULL,
+  legendPosition = "top",
   cex = 1,
   dashline.col = "gray80",
   jitter = c("node", "label"),
@@ -58,6 +59,9 @@ And the names of the vector will be used to as labels to be placed at the tick
 points if it has names.}
 
 \item{legend}{If it is a list with named color vectors, a legend will be added.}
+
+\item{legendPosition}{The position of legend. Possible positions are 'top',
+'right', and 'left'.}
 
 \item{cex}{cex will control the size of circle.}
 

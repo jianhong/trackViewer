@@ -30,7 +30,7 @@ grid.pie <- function (x=.5, y=.5,
     if (!is.null(border)) 
         border <- rep_len(border, nx)
     twopi <- 2 * pi
-    ratio.yx <- 1/as.numeric(convertX(unit(1, "snpc"), "npc"))
+    ratio.yx <- getYXratio()
     t2xy <- function(t) {
         t2p <- twopi * t + pi/2
         list(x = radius * cos(t2p), y = radius * sin(t2p) * ratio.yx)

@@ -509,29 +509,41 @@ plotLegend <- function(legend, this.height, LINEH){
     if(length(legend)>0){
         if(is.list(legend)){
             thisLabels <- legend[["labels"]]
-            if("pch" %in% names(legend)) pch <- legend[["pch"]]
-            gp <- legend[!names(legend) %in% c("labels", "pch")]
+            if(is.null(legend$gp)){
+              gp <- legend[!names(legend) %in% formalArgs(legendGrob)]
+              class(gp) <- "gpar"
+              legend$gp <- gp
+            }else{
+              gp <- legend$gp
+            }
             if(is.null(gp$cex)) gp$cex <- 1
-            class(gp) <- "gpar"
         }else{
-            thisLabels <- names(legend)
-            gp <- gpar(fill=legend, cex=1) 
+          thisLabels <- names(legend)
+          gp <- gpar(fill=legend, cex=1)
+          legend <- list(
+            labels = thisLabels,
+            gp = gp
+          )
         }
-        if(length(thisLabels)>0){
-            ncol <- getColNum(thisLabels, cex=gp$cex)
-            topblank <- ceiling(length(thisLabels) / ncol) * gp$cex[1]
-            pushViewport(viewport(x=.5, 
-                                  y=ypos+(topblank+.2*gp$cex[1])*LINEH/2, 
-                                  width=1,
-                                  height=topblank*LINEH,
-                                  just="bottom"))
-            this.height <- ypos + (topblank+.2*gp$cex[1])*LINEH 
-            grid.legend(label=thisLabels, ncol=ncol,
-                        byrow=TRUE, vgap=unit(.1*gp$cex[1], "lines"), 
-                        hgap=unit(.5*gp$cex[1], "lines"),
-                        pch=pch,
-                        gp=gp)
-            popViewport()
+        if(length(thisLabels)>0){ 
+          if(is.null(legend$byrow)) legend$byrow <- TRUE
+          if(is.null(legend$vgap)) legend$vgap <- unit(.1*gp$cex[1], "lines")
+          if(is.null(legend$hgap)) legend$hgap <- unit(.5*gp$cex[1], "lines")
+          if(is.null(legend$ncol)){
+            legend$ncol <- getColNum(thisLabels, cex=gp$cex)
+          }
+          ncol <- legend$ncol
+          if(is.null(legend$pch)) legend$pch <- pch
+          legend <- legend[names(legend) %in% formalArgs(legendGrob)]
+          topblank <- ceiling(length(thisLabels) / ncol) * gp$cex[1]
+          pushViewport(viewport(x=.5, 
+                                y=ypos+(topblank+.2*gp$cex[1])*LINEH/2, 
+                                width=1,
+                                height=topblank*LINEH,
+                                just="bottom"))
+          this.height <- ypos + (topblank+.2*gp$cex[1])*LINEH
+          do.call(grid.legend, legend)
+          popViewport()
         }
     }
     this.height + LINEH
