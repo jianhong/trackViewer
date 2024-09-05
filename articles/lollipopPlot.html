@@ -6,20 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>trackViewer Vignette: lollipopPlot • trackViewer</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="trackViewer Vignette: lollipopPlot">
-<meta property="og:description" content="trackViewer">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">trackViewer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.6</span>
       </span>
     </div>
 
@@ -48,7 +47,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -75,7 +74,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -84,9 +83,9 @@
                         <h4 data-toc-skip class="author">Jianhong Ou,
 Lihua Julie Zhu</h4>
             
-            <h4 data-toc-skip class="date">11 November 2022</h4>
+            <h4 data-toc-skip class="date">5 September 2024</h4>
       
-      
+
       <div class="hidden name"><code>lollipopPlot.Rmd</code></div>
 
     </div>
@@ -120,7 +119,7 @@ methylation/variant/mutation data.</p>
 <p><img src="lollipopPlot_files/figure-html/lolliplot1-2.png" width="576"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Define the range</span></span>
-<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">104</span>, <span class="fl">109</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">features</span><span class="op">)</span>, ranges <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">104</span>, <span class="fl">109</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot1-3.png" width="576"></p>
 <div class="section level3">
 <h3 id="change-the-lolliplot-color">Change the lolliplot color<a class="anchor" aria-label="anchor" href="#change-the-lolliplot-color"></a>
@@ -147,20 +146,30 @@ methylation/variant/mutation data.</p>
 <div class="section level3">
 <h3 id="add-the-index-labels-in-the-node">Add the index labels in the node<a class="anchor" aria-label="anchor" href="#add-the-index-labels-in-the-node"></a>
 </h3>
+<p>Users can control the node labels one by one by setting metadata
+start with ‘node.label.’ Please note that for each node label, the
+node.label.gp must be a list to control the style of node labels. You
+can also simply use node.label.col, node.label.cex, node.label.fontsize,
+node.label.fontfamily, node.label.fontface, node.label.font to assign
+the node labels attributes.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">label.col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">alpha</span><span class="op">&gt;</span><span class="fl">0.5</span>, <span class="st">"white"</span>, <span class="st">"black"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label.col</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">alpha</span><span class="op">&gt;</span><span class="fl">0.5</span> <span class="op">|</span> <span class="va">sample.gr</span><span class="op">$</span><span class="va">color</span><span class="op">==</span><span class="fl">1</span>, <span class="st">"white"</span>, <span class="st">"black"</span><span class="op">)</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label.cex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.index-1.png" width="576"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label.cex</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="co">## change it back for pretty showcase.</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="change-the-height-of-the-features">Change the height of the features<a class="anchor" aria-label="anchor" href="#change-the-height-of-the-features"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features</span><span class="op">$</span><span class="va">height</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.05</span>, <span class="fl">0.08</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot4-1.png" width="576"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Specifying the height and its unit</span></span>
 <span><span class="va">features</span><span class="op">$</span><span class="va">height</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">16</span>, <span class="st">"inches"</span><span class="op">)</span>,</span>
 <span>                        <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">3</span>, <span class="st">"mm"</span><span class="op">)</span>,</span>
@@ -173,7 +182,7 @@ methylation/variant/mutation data.</p>
 </h3>
 <p>The metadata ‘featureLayerID’ are used for drawing features in
 different layers.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">features.mul</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">features</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">features.mul</span><span class="op">$</span><span class="va">height</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">8</span>, <span class="st">"inches"</span><span class="op">)</span>,</span>
 <span>                                 <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"lines"</span><span class="op">)</span>,</span>
@@ -188,7 +197,7 @@ different layers.</p>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">features</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, sep<span class="op">=</span><span class="st">"_"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features.mul</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.mul.features-1.png" width="576"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## One name per transcript</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">features.mul</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">features.mul</span><span class="op">$</span><span class="va">featureLayerID</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features.mul</span><span class="op">)</span></span></code></pre></div>
@@ -197,26 +206,32 @@ different layers.</p>
 <div class="section level3">
 <h3 id="change-the-height-of-a-lollipop-plot">Change the height of a lollipop plot<a class="anchor" aria-label="anchor" href="#change-the-height-of-a-lollipop-plot"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Note: the score value is an integer less than 10</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot4.1-1.png" width="576"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Remove y-axis</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, yaxis<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot4.1-2.png" width="576"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Try a score value greater than 10</span></span>
-<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
-<p><img src="lollipopPlot_files/figure-html/lolliplot4.2-1.png" width="576"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Try a score value greater than 10</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplot4.20-1.png" width="576"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#increase the cutoff value of style switch.</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, lollipop_style_switch_limit<span class="op">=</span><span class="fl">15</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplot4.21-1.png" width="576"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Try a float numeric score</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">10</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span><span class="op">)</span></span></code></pre></div>
-<p><img src="lollipopPlot_files/figure-html/lolliplot4.2-2.png" width="576"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><img src="lollipopPlot_files/figure-html/lolliplot4.22-1.png" width="576"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Score should not be smaller than 1</span></span>
 <span><span class="co"># remove the alpha for following samples</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div>
@@ -224,11 +239,11 @@ different layers.</p>
 <div class="section level3">
 <h3 id="customize-the-x-axis-label-position">Customize the x-axis label position<a class="anchor" aria-label="anchor" href="#customize-the-x-axis-label-position"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xaxis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">200</span>, <span class="fl">400</span>, <span class="fl">701</span>, <span class="fl">1000</span>, <span class="fl">1200</span>, <span class="fl">1402</span><span class="op">)</span> <span class="co">## define the position</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, xaxis<span class="op">=</span><span class="va">xaxis</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.xaxis-1.png" width="576"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xaxis</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">xaxis</span> <span class="co"># define the labels</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xaxis</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"center"</span> </span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, xaxis<span class="op">=</span><span class="va">xaxis</span><span class="op">)</span></span></code></pre></div>
@@ -237,7 +252,7 @@ different layers.</p>
 <div class="section level3">
 <h3 id="customize-the-y-axis-label-position">Customize the y-axis label position<a class="anchor" aria-label="anchor" href="#customize-the-y-axis-label-position"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#yaxis &lt;- c(0, 5) ## define the position</span></span>
 <span><span class="co">#lolliplot(sample.gr, features, yaxis=yaxis)</span></span>
 <span><span class="va">yaxis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span><span class="op">)</span> <span class="co">## define the position</span></span>
@@ -249,7 +264,7 @@ different layers.</p>
 <div class="section level3">
 <h3 id="jitter-the-label">Jitter the label<a class="anchor" aria-label="anchor" href="#jitter-the-label"></a>
 </h3>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">dashline.col</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span><span class="op">$</span><span class="va">color</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, jitter<span class="op">=</span><span class="st">"label"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.jitter-1.png" width="576"></p>
@@ -257,54 +272,80 @@ different layers.</p>
 <div class="section level3">
 <h3 id="add-a-legend">Add a legend<a class="anchor" aria-label="anchor" href="#add-a-legend"></a>
 </h3>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span> <span class="co">## legend fill color</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">legend</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"legend"</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span> <span class="co">## legend labels</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.legend-1.png" width="576"></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## use list to define more attributes. see ?grid::gpar to get more details.</span></span>
 <span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"legend"</span>, <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>               col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span>, </span>
 <span>               fill<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="va">legend</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.legend-2.png" width="576"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## if you have multiple tracks, please try to set the legend by list.</span></span>
 <span><span class="co">## see more examples in the section [Plot multiple samples](#plot-multiple-samples)</span></span>
-<span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">legend</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">legendList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">legend</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legendList</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.legend-3.png" width="576"></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># from version 1.21.8, users can also try to set legend </span></span>
 <span><span class="co"># as a column name in the metadata of GRanges.</span></span>
 <span><span class="va">sample.gr.newlegend</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span></span>
 <span><span class="va">sample.gr.newlegend</span><span class="op">$</span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">color</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.newlegend</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="st">"legend"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.legend-4.png" width="576"></p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># from version 1.41.6, users can set the legend position to right</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span>,</span>
+<span>          legendPosition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>position<span class="op">=</span><span class="st">'right'</span>,</span>
+<span>                                width<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">'inch'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplot.legend-5.png" width="576"></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## use ncol or nrow to control the legend layout.</span></span>
+<span><span class="va">legendList</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ncol</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="co"># if legend is not a list of list, use legend$ncol &lt;- 2</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legendList</span>, legendPosition <span class="op">=</span> <span class="st">'right'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplot.legend-6.png" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="control-the-labels">Control the labels<a class="anchor" aria-label="anchor" href="#control-the-labels"></a>
 </h3>
 <p>Users can control the parameters of labels by naming the metadata
 start as label.parameter such as label.parameter.rot or
-label.parameter.gp. The parameter is used for <a href="https://www.rdocumentation.org/packages/grid/topics/grid.text" class="external-link">grid.text</a>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+label.parameter.gp. Note: label.parameter.label can be used to plot snp
+labels other than the names of inputs. The parameter is used for <a href="https://www.rdocumentation.org/packages/grid/topics/grid.text" class="external-link">grid.text</a>.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr.rot</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span></span>
 <span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.rot</span> <span class="op">&lt;-</span> <span class="fl">45</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.rot</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.labels.control-1.png" width="576"></p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.rot</span> <span class="op">&lt;-</span> <span class="fl">60</span></span>
-<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.gp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>col<span class="op">=</span><span class="st">"brown"</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.col</span> <span class="op">&lt;-</span> <span class="st">"brown"</span></span>
+<span><span class="co">## change the label text into user-defined names other than names of the sample.gr</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span></span>
+<span><span class="va">random_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.label</span><span class="op">[</span><span class="va">random_ids</span><span class="op">]</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"new label"</span>, <span class="va">random_ids</span><span class="op">)</span></span>
+<span><span class="va">random_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.label</span><span class="op">[</span><span class="va">random_ids</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span> <span class="co">## remove some labels</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.rot</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.labels.control-2.png" width="576"></p>
-<p>If you want to change the text in the ylab, please try to set the
-labels in the ylab.</p>
-<p>Users can control the labels one by one by setting
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## try different colors</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">7</span>,</span>
+<span>                                                <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>,</span>
+<span>                                                replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.draw</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.draw</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span> <span class="co">## another method to remove the first label</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.rot</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplot.labels.control-3.png" width="576"></p>
+<p>Users can also control the labels one by one by setting
 label.parameter.gp. Please note that for each label, the
 label.parameter.gp must be a list.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">label.parameter.gp.brown</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>col<span class="op">=</span><span class="st">"brown"</span><span class="op">)</span></span>
 <span><span class="va">label.parameter.gp.blue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>col<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span></span>
 <span><span class="va">label.parameter.gp.red</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span>
@@ -317,13 +358,13 @@ label.parameter.gp must be a list.</p>
 <p>User can write the labels of the features directly on them and not in
 the legend by set the parameter label_on_feature to
 <code>TRUE</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, label_on_feature<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.labels.on.feature-1.png" width="576"></p>
 <p>Please note that <strong>lolliplot</strong> does not support any
 parameters to set the title and xlab. If you want to add the title and
 xlab, please try to add them by <a href="https://www.rdocumentation.org/packages/grid/topics/grid.text" class="external-link">grid.text</a>.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.rot</span>, <span class="va">features</span>, legend<span class="op">=</span><span class="va">legend</span>, ylab<span class="op">=</span><span class="st">"y label here"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid.text</a></span><span class="op">(</span><span class="st">"label of x-axis here"</span>, x<span class="op">=</span><span class="fl">.5</span>, y<span class="op">=</span><span class="fl">.01</span>, just<span class="op">=</span><span class="st">"bottom"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid.text</a></span><span class="op">(</span><span class="st">"title here"</span>, x<span class="op">=</span><span class="fl">.5</span>, y<span class="op">=</span><span class="fl">.98</span>, just<span class="op">=</span><span class="st">"top"</span>, </span>
@@ -334,7 +375,7 @@ can also plot motifs as labels. The parameters are controlled by the
 parameters of labels by naming the metadata start as label.parameter
 such as label.parameter.pfm or label.parameter.font. The parameter is
 used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plotMotifLogoA" class="external-link">plotMotifLogoA</a>.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">motifStack</span><span class="op">)</span></span>
 <span><span class="va">pcms</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/pkg/motifStack/man/readPCM.html" class="external-link">readPCM</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/find.package.html" class="external-link">find.package</a></span><span class="op">(</span><span class="st">"motifStack"</span><span class="op">)</span>, <span class="st">"extdata"</span><span class="op">)</span>,<span class="st">"pcm$"</span><span class="op">)</span></span>
 <span><span class="va">sample.gr.rot</span><span class="op">$</span><span class="va">label.parameter.pfm</span> <span class="op">&lt;-</span> <span class="va">pcms</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">pcms</span><span class="op">)</span>,</span>
@@ -349,7 +390,7 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <div class="section level4">
 <h4 id="change-the-shape-for-circle-plot">Change the shape for “circle” plot<a class="anchor" aria-label="anchor" href="#change-the-shape-for-circle-plot"></a>
 </h4>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## shape must be "circle", "square", "diamond", "triangle_point_up", or "triangle_point_down"</span></span>
 <span><span class="va">available.shapes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"diamond"</span>, </span>
 <span>                      <span class="st">"triangle_point_up"</span>, <span class="st">"triangle_point_down"</span><span class="op">)</span></span>
@@ -357,14 +398,26 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"legend"</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">shape</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"circle"</span>, legend <span class="op">=</span> <span class="st">"legend"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplotShape-1.png" width="576"></p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sample.gr.mul.shape</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span></span>
+<span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">score</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">shape</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">score</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">available.shapes</span>, size <span class="op">=</span> <span class="va">s</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">score</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">7</span>, size <span class="op">=</span> <span class="va">s</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.mul.shape</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"circle"</span>,</span>
+<span>          lollipop_style_switch_limit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sample.gr.mul.shape</span><span class="op">$</span><span class="va">score</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/lolliplotShape-2.png" width="576"></p>
 </div>
 <div class="section level4">
 <h4 id="google-pin">Google pin<a class="anchor" aria-label="anchor" href="#google-pin"></a>
 </h4>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"pin"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot5-1.png" width="576"></p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">$</span><span class="va">color</span>, <span class="kw">function</span><span class="op">(</span><span class="va">.ele</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">.ele</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">border</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNP</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"pin"</span><span class="op">)</span></span></code></pre></div>
@@ -373,7 +426,7 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <div class="section level4">
 <h4 id="flag">Flag<a class="anchor" aria-label="anchor" href="#flag"></a>
 </h4>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr.flag</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span></span>
 <span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span> <span class="co">## move the names to metadata:label</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample.gr.flag</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
@@ -381,9 +434,11 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <span><span class="co">#          ranges=GRanges("chr1", IRanges(0, 1600)), ## use ranges to leave more space on the right margin.</span></span>
 <span><span class="co">#          type="flag")</span></span>
 <span><span class="co">## change the flag rotation angle</span></span>
-<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">label.rot</span> <span class="op">&lt;-</span> <span class="fl">15</span></span>
-<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">label.rot</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span>, <span class="op">-</span><span class="fl">15</span><span class="op">)</span></span>
+<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">node.label.rot</span> <span class="op">&lt;-</span> <span class="fl">15</span></span>
+<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">node.label.rot</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span>, <span class="op">-</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">label</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"I have a long name"</span></span>
+<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">node.label.cex</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">sample.gr.flag</span><span class="op">$</span><span class="va">node.label.cex</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.flag</span>, <span class="va">features</span>, </span>
 <span>          ranges<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1600</span><span class="op">)</span><span class="op">)</span>,<span class="co">## use ranges to leave more space on the right margin. </span></span>
 <span>          type<span class="op">=</span><span class="st">"flag"</span><span class="op">)</span></span></code></pre></div>
@@ -392,10 +447,10 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <div class="section level4">
 <h4 id="pie-plot">Pie plot<a class="anchor" aria-label="anchor" href="#pie-plot"></a>
 </h4>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="cn">NULL</span> <span class="co">## must be removed, because pie will consider all the numeric columns except column "color", "fill", "alpha", "shape", "lwd", "id" and "id.col".</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">label</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
-<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">label.col</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="va">sample.gr</span><span class="op">$</span><span class="va">node.label.col</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNP</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">value1</span> <span class="op">&lt;-</span> <span class="va">x</span></span>
 <span><span class="va">sample.gr</span><span class="op">$</span><span class="va">value2</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">-</span> <span class="va">x</span> <span class="co"># for pie plot, 2 value columns are required.</span></span>
@@ -412,7 +467,7 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <div class="section level4">
 <h4 id="multiple-layers">Multiple layers<a class="anchor" aria-label="anchor" href="#multiple-layers"></a>
 </h4>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SNP2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">4000</span><span class="op">:</span><span class="fl">8000</span>, <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNP2</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">sample2.gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr3"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="va">SNP2</span>, width<span class="op">=</span><span class="fl">1</span>, names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"snp"</span>, <span class="va">SNP2</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -432,7 +487,7 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <span>          type<span class="op">=</span><span class="st">"pie"</span>, legend<span class="op">=</span><span class="va">legends</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot7-1.png" width="576"></p>
 <p>Different layouts are also possible.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample2.gr</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="va">sample2.gr</span><span class="op">$</span><span class="va">value1</span> <span class="co">## The circle layout needs the score column </span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>A<span class="op">=</span><span class="va">sample.gr</span>, B<span class="op">=</span><span class="va">sample2.gr</span><span class="op">)</span>, </span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">features</span>, y<span class="op">=</span><span class="va">features2</span><span class="op">)</span>, </span>
@@ -442,7 +497,7 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <div class="section level4">
 <h4 id="pie-stack-layout">pie.stack layout<a class="anchor" aria-label="anchor" href="#pie-stack-layout"></a>
 </h4>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand.id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, <span class="fl">3</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">rand.id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">rand.id</span><span class="op">)</span></span>
 <span><span class="va">sample.gr.mul.patient</span> <span class="op">&lt;-</span> <span class="va">sample.gr</span><span class="op">[</span><span class="va">rand.id</span><span class="op">]</span></span>
@@ -465,6 +520,12 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 <span>    <span class="va">patient.color.set</span><span class="op">[</span><span class="va">sample.gr.mul.patient</span><span class="op">$</span><span class="va">stack.factor</span><span class="op">]</span></span>
 <span><span class="va">legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labels<span class="op">=</span><span class="va">stack.factors</span>, col<span class="op">=</span><span class="st">"gray80"</span>, </span>
 <span>               fill<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">patient.color.set</span>, <span class="va">`[`</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## remove one mutation label</span></span>
+<span><span class="va">sample.gr.mul.patient</span><span class="op">$</span><span class="va">label.parameter.draw</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">sample.gr.mul.patient</span><span class="op">$</span><span class="va">label.parameter.draw</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample.gr.mul.patient</span><span class="op">)</span><span class="op">==</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sample.gr.mul.patient</span><span class="op">)</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span></span>
+<span>  <span class="cn">FALSE</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr.mul.patient</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"pie.stack"</span>, </span>
 <span>          legend<span class="op">=</span><span class="va">legend</span>, dashline.col<span class="op">=</span><span class="st">"gray"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.pie.stack-1.png" width="576"></p>
@@ -474,14 +535,14 @@ used for <a href="https://www.rdocumentation.org/packages/motifStack/topics/plot
 </h4>
 <p>Metadata SNPsideID is used to trigger caterpillar layout. SNPsideID
 must be ‘top’ or ‘bottom’.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample.gr</span><span class="op">$</span><span class="va">SNPsideID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"top"</span>, <span class="st">"bottom"</span><span class="op">)</span>, </span>
 <span>                               <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample.gr</span><span class="op">)</span>,</span>
 <span>                               replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">sample.gr</span>, <span class="va">features</span>, type<span class="op">=</span><span class="st">"pie"</span>, </span>
 <span>          legend<span class="op">=</span><span class="va">legends</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/lolliplot.caterpillar-1.png" width="576"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Two layers</span></span>
 <span><span class="va">sample2.gr</span><span class="op">$</span><span class="va">SNPsideID</span> <span class="op">&lt;-</span> <span class="st">"top"</span></span>
 <span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sample2.gr</span><span class="op">)</span>, <span class="fl">15</span><span class="op">)</span></span>
@@ -498,7 +559,7 @@ must be ‘top’ or ‘bottom’.</p>
 </h3>
 <p>Following code will show how to use <a href="https://www.ebi.ac.uk/proteins/api/doc/" class="external-link">EBI Proteins REST API</a>
 to get annotations of protein domains.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://httr.r-lib.org/" class="external-link">httr</a></span><span class="op">)</span> <span class="co"># load library to get data from REST API</span></span>
 <span><span class="va">APIurl</span> <span class="op">&lt;-</span> <span class="st">"https://www.ebi.ac.uk/proteins/api/"</span> <span class="co"># base URL of the API</span></span>
 <span><span class="va">taxid</span> <span class="op">&lt;-</span> <span class="st">"9606"</span> <span class="co"># human tax ID</span></span>
@@ -520,7 +581,7 @@ to get annotations of protein domains.</p>
 <span>  <span class="op">)</span></span>
 <span>  <span class="va">response</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="va">featureURL</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://httr.r-lib.org/reference/http_error.html" class="external-link">http_error</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="va">content</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr.r-lib.org/reference/content.html" class="external-link">content</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span></span>
+<span>    <span class="va">content</span> <span class="op">&lt;-</span> <span class="fu">httr</span><span class="fu">::</span><span class="fu"><a href="https://httr.r-lib.org/reference/content.html" class="external-link">content</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span></span>
 <span>    <span class="va">content</span> <span class="op">&lt;-</span> <span class="va">content</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span>    <span class="va">acc</span> <span class="op">&lt;-</span> <span class="va">content</span><span class="op">$</span><span class="va">accession</span></span>
 <span>    <span class="va">sequence</span> <span class="op">&lt;-</span> <span class="va">content</span><span class="op">$</span><span class="va">sequence</span></span>
@@ -540,7 +601,7 @@ to get annotations of protein domains.</p>
 <span>                           <span class="st">"&amp;accession="</span>, <span class="va">acc</span><span class="op">)</span></span>
 <span>    <span class="va">response</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="va">variationURL</span><span class="op">)</span></span>
 <span>    <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://httr.r-lib.org/reference/http_error.html" class="external-link">http_error</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>      <span class="va">content</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr.r-lib.org/reference/content.html" class="external-link">content</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span></span>
+<span>      <span class="va">content</span> <span class="op">&lt;-</span> <span class="fu">httr</span><span class="fu">::</span><span class="fu"><a href="https://httr.r-lib.org/reference/content.html" class="external-link">content</a></span><span class="op">(</span><span class="va">response</span><span class="op">)</span></span>
 <span>      <span class="va">content</span> <span class="op">&lt;-</span> <span class="va">content</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span>      <span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">content</span><span class="op">$</span><span class="va">features</span>, <span class="kw">function</span><span class="op">(</span><span class="va">.ele</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.ele</span><span class="op">$</span><span class="va">evidences</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">2</span> <span class="op">&amp;&amp;</span> <span class="co"># filter the data by at least 2 evidences</span></span>
 <span>                       <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Unclassified"</span>, <span class="va">.ele</span><span class="op">$</span><span class="va">clinicalSignificances</span><span class="op">)</span><span class="op">)</span> <span class="co"># filter the data by classified clinical significances.</span></span>
@@ -579,7 +640,7 @@ to get annotations of protein domains.</p>
 <div class="section level3">
 <h3 id="variant-call-format-vcf-data">Variant Call Format (VCF) data<a class="anchor" aria-label="anchor" href="#variant-call-format-vcf-data"></a>
 </h3>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">VariantAnnotation</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">TxDb.Hsapiens.UCSC.hg19.knownGene</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span><span class="op">)</span></span>
@@ -588,7 +649,7 @@ to get annotations of protein domains.</p>
 <span><span class="kw">if</span><span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span><span class="op">!=</span><span class="st">"windows"</span><span class="op">)</span><span class="op">{</span><span class="co"># This line is for avoiding error from VariantAnnotation in the windows platform, which will be removed when VariantAnnotation's issue gets fixed.</span></span>
 <span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Rsamtools/man/TabixFile-class.html" class="external-link">TabixFile</a></span><span class="op">(</span><span class="va">fl</span><span class="op">)</span></span>
 <span><span class="va">vcf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/VariantAnnotation/man/readVcf-methods.html" class="external-link">readVcf</a></span><span class="op">(</span><span class="va">fl</span>, <span class="st">"hg19"</span>, param<span class="op">=</span><span class="va">gr</span><span class="op">)</span></span>
-<span><span class="va">mutation.frequency</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">vcf</span><span class="op">)</span></span>
+<span><span class="va">mutation.frequency</span> <span class="op">&lt;-</span> <span class="fu">rowRanges</span><span class="op">(</span><span class="va">vcf</span><span class="op">)</span></span>
 <span><span class="fu">mcols</span><span class="op">(</span><span class="va">mutation.frequency</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">mutation.frequency</span><span class="op">)</span>, </span>
 <span>                                   <span class="fu">VariantAnnotation</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/VariantAnnotation/man/VCF-class.html" class="external-link">info</a></span><span class="op">(</span><span class="va">vcf</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mutation.frequency</span><span class="op">$</span><span class="va">border</span> <span class="op">&lt;-</span> <span class="st">"gray30"</span></span>
@@ -618,7 +679,7 @@ to get annotations of protein domains.</p>
 <div class="section level3">
 <h3 id="methylation-data">Methylation data<a class="anchor" aria-label="anchor" href="#methylation-data"></a>
 </h3>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
 <span><span class="va">session</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/browserSession-methods.html" class="external-link">browserSession</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">query</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/UCSCTableQuery-class.html" class="external-link">ucscTableQuery</a></span><span class="op">(</span><span class="va">session</span>, </span>
@@ -629,7 +690,7 @@ to get annotations of protein domains.</p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/UCSCTableQuery-class.html" class="external-link">tableName</a></span><span class="op">(</span><span class="va">query</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/UCSCTableQuery-class.html" class="external-link">tableNames</a></span><span class="op">(</span><span class="va">query</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">methy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trackStyle-class.html">track</a></span><span class="op">(</span><span class="va">query</span><span class="op">)</span></span>
 <span><span class="va">methy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="va">methy</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, type<span class="op">=</span><span class="st">"pin"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
 </div>
@@ -638,21 +699,21 @@ to get annotations of protein domains.</p>
 </h3>
 <p>In the above example, some of the nodes overlap each other. To change
 the node size, cex prameter could be used.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">methy</span><span class="op">$</span><span class="va">lwd</span> <span class="op">&lt;-</span> <span class="fl">.5</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, type<span class="op">=</span><span class="st">"pin"</span>, cex<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#lolliplot(methy, features, ranges=gr, type="circle", cex=.5)</span></span>
 <span><span class="va">methy</span><span class="op">$</span><span class="va">score2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">methy</span><span class="op">$</span><span class="va">score</span><span class="op">)</span> <span class="op">-</span> <span class="va">methy</span><span class="op">$</span><span class="va">score</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, type<span class="op">=</span><span class="st">"pie"</span>, cex<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-3-2.png" width="576"></p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## We can change it one by one</span></span>
 <span><span class="va">methy</span><span class="op">$</span><span class="va">cex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">methy</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, type<span class="op">=</span><span class="st">"pin"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-3-3.png" width="576"></p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#lolliplot(methy, features, ranges=gr, type="circle")</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -661,18 +722,18 @@ the node size, cex prameter could be used.</p>
 <p>In the above examples, some of the nodes are moved too far from the
 original coordinates. To rescale, the x-axis could be reset as
 below.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">methy</span><span class="op">$</span><span class="va">cex</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, rescale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-4-1.png" width="576"></p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## by set percentage for features and non-features segments</span></span>
 <span><span class="va">xaxis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50968014</span>, <span class="fl">50968514</span>, <span class="fl">50968710</span>, <span class="fl">50968838</span>, <span class="fl">50970514</span><span class="op">)</span></span>
 <span><span class="va">rescale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.3</span>, <span class="fl">.4</span>, <span class="fl">.3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, type<span class="op">=</span><span class="st">"pin"</span>,</span>
 <span>          rescale <span class="op">=</span> <span class="va">rescale</span>, xaxis <span class="op">=</span> <span class="va">xaxis</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-4-2.png" width="576"></p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## by set data.frame to rescale</span></span>
 <span><span class="va">rescale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  from.start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50968014</span>, <span class="fl">50968515</span>, <span class="fl">50968838</span><span class="op">)</span>, </span>
@@ -685,14 +746,14 @@ below.</p>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-4-3.png" width="576"></p>
 <p>Rescale the region to emphasize exons region only or introns region
 only. Here “exon” indicates all regions in features.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, rescale <span class="op">=</span> <span class="st">"exon"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-5-1.png" width="576"></p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># exon region occupy 99% of the plot region.</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, rescale <span class="op">=</span> <span class="st">"exon_99"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-5-2.png" width="576"></p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">gr</span>, rescale <span class="op">=</span> <span class="st">"intron"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-5-3.png" width="576"></p>
 </div>
@@ -703,7 +764,7 @@ only. Here “exon” indicates all regions in features.</p>
 ignored. It will be better to plot the data into multiple layers. This
 can be done by setting parameter <code>ranges</code> into a
 <code>GRangesList</code> object.</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grSplited</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IPosRanges-class.html" class="external-link">tile</a></span><span class="op">(</span><span class="va">gr</span>, n<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/lolliplot.html">lolliplot</a></span><span class="op">(</span><span class="va">methy</span>, <span class="va">features</span>, ranges<span class="op">=</span><span class="va">grSplited</span>, type<span class="op">=</span><span class="st">"pin"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-6-1.png" width="864"></p>
@@ -712,14 +773,13 @@ can be done by setting parameter <code>ranges</code> into a
 <div class="section level2">
 <h2 id="plot-the-lollipop-plot-with-the-coverage-and-annotation-tracks">Plot the lollipop plot with the coverage and annotation tracks<a class="anchor" aria-label="anchor" href="#plot-the-lollipop-plot-with-the-coverage-and-annotation-tracks"></a>
 </h2>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geneTrack.html">geneTrack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"HSPA8"</span>, <span class="va">org.Hs.egSYMBOL2EG</span><span class="op">)</span>, <span class="va">TxDb.Hsapiens.UCSC.hg19.knownGene</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">SNPs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr11"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">122929275</span><span class="op">:</span><span class="fl">122930122</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, strand<span class="op">=</span><span class="st">"-"</span><span class="op">)</span></span>
 <span><span class="va">SNPs</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNPs</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">SNPs</span><span class="op">$</span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNPs</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">SNPs</span><span class="op">$</span><span class="va">border</span> <span class="op">&lt;-</span> <span class="st">"gray80"</span></span>
 <span><span class="va">SNPs</span><span class="op">$</span><span class="va">feature.height</span> <span class="op">=</span> <span class="fl">.1</span></span>
-<span><span class="va">SNPs</span><span class="op">$</span><span class="va">cex</span> <span class="op">&lt;-</span> <span class="fl">.5</span></span>
 <span><span class="va">gene</span><span class="op">$</span><span class="va">dat2</span> <span class="op">&lt;-</span> <span class="va">SNPs</span></span>
 <span><span class="va">extdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package<span class="op">=</span><span class="st">"trackViewer"</span>,</span>
 <span>                       mustWork<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
@@ -735,7 +795,7 @@ can be done by setting parameter <code>ranges</code> into a
 <span><span class="fu"><a href="../reference/trackStyle-class.html">setTrackStyleParam</a></span><span class="op">(</span><span class="va">trackList</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="st">"ylabgp"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">.8</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/viewTracks.html">viewTracks</a></span><span class="op">(</span><span class="va">trackList</span>, gr<span class="op">=</span><span class="va">gr</span>, viewerStyle<span class="op">=</span><span class="va">viewerStyle</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## lollipopData track</span></span>
 <span><span class="va">SNPs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr11"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">122929275</span><span class="op">:</span><span class="fl">122930122</span>, size <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, strand<span class="op">=</span><span class="st">"-"</span><span class="op">)</span></span>
 <span><span class="va">SNPs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">SNPs2</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/intra-range-methods.html" class="external-link">promoters</a></span><span class="op">(</span><span class="va">gene</span><span class="op">$</span><span class="va">dat</span>, upstream <span class="op">=</span> <span class="fl">0</span>, downstream <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -743,8 +803,6 @@ can be done by setting parameter <code>ranges</code> into a
 <span><span class="va">SNPs2</span><span class="op">$</span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">SNPs2</span><span class="op">)</span>, replace<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">SNPs2</span><span class="op">$</span><span class="va">border</span> <span class="op">&lt;-</span> <span class="st">"gray30"</span></span>
 <span><span class="va">SNPs2</span><span class="op">$</span><span class="va">feature.height</span> <span class="op">=</span> <span class="fl">.1</span></span>
-<span><span class="va">SNPs2</span><span class="op">$</span><span class="va">cex</span> <span class="op">&lt;-</span> <span class="fl">.5</span></span>
-<span><span class="va">SNPs</span><span class="op">$</span><span class="va">cex</span> <span class="op">&lt;-</span> <span class="fl">.5</span></span>
 <span><span class="va">lollipopData</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/new.html" class="external-link">new</a></span><span class="op">(</span><span class="st">"track"</span>, dat<span class="op">=</span><span class="va">SNPs</span>, dat2<span class="op">=</span><span class="va">SNPs2</span>, type<span class="op">=</span><span class="st">"lollipopData"</span><span class="op">)</span></span>
 <span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/geneTrack.html">geneTrack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"HSPA8"</span>, <span class="va">org.Hs.egSYMBOL2EG</span><span class="op">)</span>, <span class="va">TxDb.Hsapiens.UCSC.hg19.knownGene</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">optSty</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optimizeStyle.html">optimizeStyle</a></span><span class="op">(</span><span class="fu"><a href="../reference/trackList-class.html">trackList</a></span><span class="op">(</span><span class="va">repA</span>, <span class="va">lollipopData</span>, <span class="va">gene</span>, heightDist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, theme<span class="op">=</span><span class="st">"col"</span><span class="op">)</span></span>
@@ -755,17 +813,34 @@ can be done by setting parameter <code>ranges</code> into a
 <span><span class="va">vp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/viewTracks.html">viewTracks</a></span><span class="op">(</span><span class="va">trackList</span>, gr<span class="op">=</span><span class="va">gr</span>, viewerStyle<span class="op">=</span><span class="va">viewerStyle</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/addGuideLine.html">addGuideLine</a></span><span class="op">(</span><span class="fl">122929538</span>, vp<span class="op">=</span><span class="va">vp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="lollipopPlot_files/figure-html/unnamed-chunk-7-2.png" width="768"></p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## plot with customized geneTrack</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">gene</span><span class="op">$</span><span class="va">dat</span></span>
+<span><span class="fu">mcols</span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">subsetByOverlaps</span><span class="op">(</span><span class="va">dat</span>, <span class="va">gr</span><span class="op">)</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">feature</span> <span class="op">&lt;-</span> <span class="st">'exon'</span> <span class="co"># feature is required</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">featureID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span> <span class="co"># treat each as single exon gene</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># set the color</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">height</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># set the height</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">hide_label</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span> <span class="co"># do not add labels to the block</span></span>
+<span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/new.html" class="external-link">new</a></span><span class="op">(</span><span class="st">'track'</span>, dat<span class="op">=</span><span class="va">dat</span>, dat2<span class="op">=</span><span class="va">SNPs</span>, type<span class="op">=</span><span class="st">'gene'</span>, name<span class="op">=</span><span class="st">'a name'</span><span class="op">)</span></span>
+<span><span class="va">optSty</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/optimizeStyle.html">optimizeStyle</a></span><span class="op">(</span><span class="fu"><a href="../reference/trackList-class.html">trackList</a></span><span class="op">(</span><span class="va">fox2</span>, <span class="va">gene</span><span class="op">)</span>, theme<span class="op">=</span><span class="st">"col"</span><span class="op">)</span></span>
+<span><span class="va">trackList</span> <span class="op">&lt;-</span> <span class="va">optSty</span><span class="op">$</span><span class="va">tracks</span></span>
+<span><span class="va">viewerStyle</span> <span class="op">&lt;-</span> <span class="va">optSty</span><span class="op">$</span><span class="va">style</span></span>
+<span><span class="va">vp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/viewTracks.html">viewTracks</a></span><span class="op">(</span><span class="va">trackList</span>, gr<span class="op">=</span><span class="va">gr</span>, viewerStyle<span class="op">=</span><span class="va">viewerStyle</span><span class="op">)</span></span></code></pre></div>
+<p><img src="lollipopPlot_files/figure-html/unnamed-chunk-7-3.png" width="768"></p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>R Under development (unstable) (2022-11-07 r83308) Platform:
-x86_64-pc-linux-gnu (64-bit) Running under: Ubuntu 22.04.1 LTS</p>
+<p>R version 4.4.1 (2024-06-14) Platform: x86_64-pc-linux-gnu Running
+under: Ubuntu 22.04.4 LTS</p>
 <p>Matrix products: default BLAS:
 /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 LAPACK:
-/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so</p>
+/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;
+LAPACK version 3.10.0</p>
 <p>locale: [1] LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C<br>
 [3] LC_TIME=en_US.UTF-8 LC_COLLATE=en_US.UTF-8<br>
 [5] LC_MONETARY=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8<br>
@@ -775,109 +850,106 @@ x86_64-pc-linux-gnu (64-bit) Running under: Ubuntu 22.04.1 LTS</p>
 <p>time zone: Etc/UTC tzcode source: system (glibc)</p>
 <p>attached base packages: [1] grid stats4 stats graphics grDevices
 utils datasets [8] methods base</p>
-<p>other attached packages: [1] motifStack_1.43.0<br>
-[2] httr_1.4.4<br>
-[3] VariantAnnotation_1.45.0<br>
-[4] Rsamtools_2.15.0<br>
-[5] Biostrings_2.67.0<br>
-[6] XVector_0.39.0<br>
-[7] SummarizedExperiment_1.29.1<br>
-[8] MatrixGenerics_1.11.0<br>
-[9] matrixStats_0.62.0<br>
-[10] org.Hs.eg.db_3.16.0<br>
+<p>other attached packages: [1] motifStack_1.49.1<br>
+[2] httr_1.4.7<br>
+[3] VariantAnnotation_1.51.0<br>
+[4] Rsamtools_2.21.1<br>
+[5] Biostrings_2.73.1<br>
+[6] XVector_0.45.0<br>
+[7] SummarizedExperiment_1.35.1<br>
+[8] MatrixGenerics_1.17.0<br>
+[9] matrixStats_1.4.0<br>
+[10] org.Hs.eg.db_3.19.1<br>
 [11] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2 [12]
-GenomicFeatures_1.51.2<br>
-[13] AnnotationDbi_1.61.0<br>
-[14] Biobase_2.59.0<br>
-[15] rtracklayer_1.59.0<br>
-[16] trackViewer_1.35.1<br>
-[17] Rcpp_1.0.9<br>
-[18] GenomicRanges_1.51.1<br>
-[19] GenomeInfoDb_1.35.2<br>
-[20] IRanges_2.33.0<br>
-[21] S4Vectors_0.37.0<br>
-[22] BiocGenerics_0.45.0</p>
-<p>loaded via a namespace (and not attached): [1] splines_4.3.0
-BiocIO_1.9.0<br>
-[3] bitops_1.0-7 filelock_1.0.2<br>
-[5] R.oo_1.25.0 tibble_3.1.8<br>
-[7] graph_1.77.0 XML_3.99-0.12<br>
-[9] rpart_4.1.19 DirichletMultinomial_1.41.0 [11] lifecycle_1.0.3
-rprojroot_2.0.3<br>
-[13] lattice_0.20-45 ensembldb_2.23.1<br>
-[15] MASS_7.3-58.1 backports_1.4.1<br>
-[17] magrittr_2.0.3 Hmisc_4.7-1<br>
-[19] sass_0.4.2 rmarkdown_2.18<br>
-[21] jquerylib_0.1.4 yaml_2.3.6<br>
-[23] plotrix_3.8-2 grImport2_0.2-0<br>
-[25] Gviz_1.43.0 CNEr_1.35.0<br>
-[27] DBI_1.1.3 RColorBrewer_1.1-3<br>
-[29] ade4_1.7-20 zlibbioc_1.45.0<br>
-[31] R.utils_2.12.1 purrr_0.3.5<br>
-[33] AnnotationFilter_1.23.0 biovizBase_1.47.0<br>
-[35] RCurl_1.98-1.9 pracma_2.4.2<br>
-[37] nnet_7.3-18 rappdirs_0.3.3<br>
-[39] GenomeInfoDbData_1.2.9 grImport_0.9-5<br>
-[41] seqLogo_1.65.0 BiocStyle_2.27.0<br>
-[43] annotate_1.77.0 pkgdown_2.0.6<br>
-[45] codetools_0.2-18 DelayedArray_0.25.0<br>
-[47] xml2_1.3.3 tidyselect_1.2.0<br>
-[49] BiocFileCache_2.7.0 base64enc_0.1-3<br>
-[51] GenomicAlignments_1.35.0 jsonlite_1.8.3<br>
-[53] ellipsis_0.3.2 Formula_1.2-4<br>
-[55] survival_3.4-0 systemfonts_1.0.4<br>
-[57] tools_4.3.0 progress_1.2.2<br>
-[59] ragg_1.2.4 TFMPvalue_0.0.9<br>
-[61] glue_1.6.2 gridExtra_2.3<br>
-[63] xfun_0.34 dplyr_1.0.10<br>
-[65] BiocManager_1.30.19 fastmap_1.1.0<br>
-[67] latticeExtra_0.6-30 rhdf5filters_1.11.0<br>
-[69] fansi_1.0.3 caTools_1.18.2<br>
-[71] digest_0.6.30 R6_2.5.1<br>
-[73] textshaping_0.3.6 colorspace_2.0-3<br>
-[75] GO.db_3.16.0 poweRlaw_0.70.6<br>
-[77] gtools_3.9.3 jpeg_0.1-9<br>
-[79] dichromat_2.0-0.1 biomaRt_2.55.0<br>
-[81] RSQLite_2.2.18 R.methodsS3_1.8.2<br>
-[83] utf8_1.2.2 generics_0.1.3<br>
-[85] data.table_1.14.4 prettyunits_1.1.1<br>
-[87] InteractionSet_1.27.0 htmlwidgets_1.5.4<br>
-[89] TFBSTools_1.37.0 pkgconfig_2.0.3<br>
-[91] gtable_0.3.1 blob_1.2.3<br>
-[93] htmltools_0.5.3 ProtGenerics_1.31.0<br>
-[95] scales_1.2.1 png_0.1-7<br>
-[97] knitr_1.40 rstudioapi_0.14<br>
-[99] reshape2_1.4.4 tzdb_0.3.0<br>
-[101] rjson_0.2.21 checkmate_2.1.0<br>
-[103] curl_4.3.3 cachem_1.0.6<br>
-[105] rhdf5_2.43.0 stringr_1.4.1<br>
-[107] parallel_4.3.0 foreign_0.8-83<br>
-[109] restfulr_0.0.15 desc_1.4.2<br>
-[111] pillar_1.8.1 vctrs_0.5.0<br>
-[113] dbplyr_2.2.1 xtable_1.8-4<br>
-[115] cluster_2.1.4 htmlTable_2.4.1<br>
-[117] Rgraphviz_2.43.0 evaluate_0.18<br>
-[119] readr_2.1.3 cli_3.4.1<br>
-[121] compiler_4.3.0 rlang_1.0.6<br>
-[123] crayon_1.5.2 interp_1.1-3<br>
-[125] plyr_1.8.7 fs_1.5.2<br>
-[127] stringi_1.7.8 deldir_1.0-6<br>
-[129] BiocParallel_1.33.0 assertthat_0.2.1<br>
-[131] munsell_0.5.0 lazyeval_0.2.2<br>
-[133] Matrix_1.5-1 BSgenome_1.67.1<br>
-[135] hms_1.1.2 bit64_4.0.5<br>
-[137] ggplot2_3.4.0 Rhdf5lib_1.21.0<br>
-[139] KEGGREST_1.39.0 highr_0.9<br>
-[141] memoise_2.0.1 bslib_0.4.1<br>
-[143] bit_4.0.4</p>
+GenomicFeatures_1.57.0<br>
+[13] AnnotationDbi_1.67.0<br>
+[14] Biobase_2.65.1<br>
+[15] rtracklayer_1.65.0<br>
+[16] trackViewer_1.41.6<br>
+[17] GenomicRanges_1.57.1<br>
+[18] GenomeInfoDb_1.41.1<br>
+[19] IRanges_2.39.2<br>
+[20] S4Vectors_0.43.2<br>
+[21] BiocGenerics_0.51.1</p>
+<p>loaded via a namespace (and not attached): [1] BiocIO_1.15.2
+bitops_1.0-8<br>
+[3] filelock_1.0.3 R.oo_1.26.0<br>
+[5] tibble_3.2.1 XML_3.99-0.17<br>
+[7] rpart_4.1.23 DirichletMultinomial_1.47.0 [9] lifecycle_1.0.4
+httr2_1.0.3<br>
+[11] pwalign_1.1.0 lattice_0.22-6<br>
+[13] ensembldb_2.29.1 MASS_7.3-61<br>
+[15] backports_1.5.0 magrittr_2.0.3<br>
+[17] Hmisc_5.1-3 sass_0.4.9<br>
+[19] rmarkdown_2.28 jquerylib_0.1.4<br>
+[21] yaml_2.3.10 grImport2_0.3-3<br>
+[23] Gviz_1.49.0 DBI_1.2.3<br>
+[25] CNEr_1.41.0 RColorBrewer_1.1-3<br>
+[27] ade4_1.7-22 abind_1.4-5<br>
+[29] zlibbioc_1.51.1 R.utils_2.12.3<br>
+[31] AnnotationFilter_1.29.0 biovizBase_1.53.0<br>
+[33] RCurl_1.98-1.16 pracma_2.4.4<br>
+[35] nnet_7.3-19 rappdirs_0.3.3<br>
+[37] GenomeInfoDbData_1.2.12 grImport_0.9-7<br>
+[39] seqLogo_1.71.0 BiocStyle_2.33.1<br>
+[41] annotate_1.83.0 pkgdown_2.1.0<br>
+[43] codetools_0.2-20 DelayedArray_0.31.11<br>
+[45] xml2_1.3.6 tidyselect_1.2.1<br>
+[47] UCSC.utils_1.1.0 BiocFileCache_2.13.0<br>
+[49] base64enc_0.1-3 GenomicAlignments_1.41.0<br>
+[51] jsonlite_1.8.8 Formula_1.2-5<br>
+[53] systemfonts_1.1.0 tools_4.4.1<br>
+[55] progress_1.2.3 ragg_1.3.2<br>
+[57] strawr_0.0.92 TFMPvalue_0.0.9<br>
+[59] Rcpp_1.0.13 glue_1.7.0<br>
+[61] gridExtra_2.3 SparseArray_1.5.31<br>
+[63] xfun_0.47 dplyr_1.1.4<br>
+[65] BiocManager_1.30.25 fastmap_1.2.0<br>
+[67] latticeExtra_0.6-30 rhdf5filters_1.17.0<br>
+[69] fansi_1.0.6 caTools_1.18.3<br>
+[71] digest_0.6.37 R6_2.5.1<br>
+[73] textshaping_0.4.0 colorspace_2.1-1<br>
+[75] GO.db_3.19.1 poweRlaw_0.80.0<br>
+[77] gtools_3.9.5 jpeg_0.1-10<br>
+[79] dichromat_2.0-0.1 biomaRt_2.61.3<br>
+[81] RSQLite_2.3.7 R.methodsS3_1.8.2<br>
+[83] utf8_1.2.4 generics_0.1.3<br>
+[85] data.table_1.16.0 prettyunits_1.2.0<br>
+[87] InteractionSet_1.33.0 htmlwidgets_1.6.4<br>
+[89] S4Arrays_1.5.7 TFBSTools_1.43.0<br>
+[91] pkgconfig_2.0.3 gtable_0.3.5<br>
+[93] blob_1.2.4 htmltools_0.5.8.1<br>
+[95] ProtGenerics_1.37.1 scales_1.3.0<br>
+[97] png_0.1-8 knitr_1.48<br>
+[99] rstudioapi_0.16.0 reshape2_1.4.4<br>
+[101] tzdb_0.4.0 rjson_0.2.22<br>
+[103] checkmate_2.3.2 curl_5.2.2<br>
+[105] cachem_1.1.0 rhdf5_2.49.0<br>
+[107] stringr_1.5.1 parallel_4.4.1<br>
+[109] foreign_0.8-87 restfulr_0.0.15<br>
+[111] desc_1.4.3 pillar_1.9.0<br>
+[113] vctrs_0.6.5 dbplyr_2.5.0<br>
+[115] xtable_1.8-4 cluster_2.1.6<br>
+[117] htmlTable_2.4.3 evaluate_0.24.0<br>
+[119] readr_2.1.5 cli_3.6.3<br>
+[121] compiler_4.4.1 rlang_1.1.4<br>
+[123] crayon_1.5.3 interp_1.1-6<br>
+[125] plyr_1.8.9 fs_1.6.4<br>
+[127] stringi_1.8.4 deldir_2.0-4<br>
+[129] BiocParallel_1.39.0 txdbmaker_1.1.1<br>
+[131] munsell_0.5.1 lazyeval_0.2.2<br>
+[133] Matrix_1.7-0 BSgenome_1.73.0<br>
+[135] hms_1.1.3 bit64_4.0.5<br>
+[137] ggplot2_3.5.1 Rhdf5lib_1.27.0<br>
+[139] KEGGREST_1.45.1 highr_0.11<br>
+[141] memoise_2.0.1 bslib_0.8.0<br>
+[143] bit_4.0.5</p>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -890,16 +962,16 @@ rprojroot_2.0.3<br>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

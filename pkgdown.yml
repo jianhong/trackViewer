@@ -1,5 +1,5 @@
-pandoc: 2.19.2
-pkgdown: 2.0.6
+pandoc: '3.3'
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   changeTracksStyles: changeTracksStyles.html
@@ -7,5 +7,4 @@ articles:
   lollipopPlot: lollipopPlot.html
   plotInteractionData: plotInteractionData.html
   trackViewer: trackViewer.html
-last_built: 2022-11-11T14:43Z
-
+last_built: 2024-09-05T19:01Z

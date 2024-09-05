@@ -1,156 +1,57 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/articles/changeTracksStyles.html</loc>
-  </url>
-  <url>
-    <loc>/articles/dandelionPlot.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/lollipopPlot.html</loc>
-  </url>
-  <url>
-    <loc>/articles/plotInteractionData.html</loc>
-  </url>
-  <url>
-    <loc>/articles/trackViewer.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/GRoperator.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addArrowMark.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addGuideLine.html</loc>
-  </url>
-  <url>
-    <loc>/reference/browseTracks-shiny.html</loc>
-  </url>
-  <url>
-    <loc>/reference/browseTracks.html</loc>
-  </url>
-  <url>
-    <loc>/reference/coverageGR.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dandelion.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/geneModelFromTxdb.html</loc>
-  </url>
-  <url>
-    <loc>/reference/geneTrack.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getCurTrackViewport.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getGeneIDsFromTxDb.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getLocation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gi2track.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gieStain.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gridPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ideogramPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/importBam.html</loc>
-  </url>
-  <url>
-    <loc>/reference/importData.html</loc>
-  </url>
-  <url>
-    <loc>/reference/importGInteractions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/importScSeqScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/importScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/listChromosomes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/listResolutions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/loadIdeogram.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lolliplot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/optimizeStyle.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parse2GRanges.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parseWIG.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotGInteractions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotGRanges.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotIdeo.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotOneIdeo.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pos-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trackList-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trackStyle-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trackViewer-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trackViewerStyle-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/viewGene.html</loc>
-  </url>
-  <url>
-    <loc>/reference/viewTracks.html</loc>
-  </url>
-  <url>
-    <loc>/reference/xscale-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/yaxisStyle-class.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/changeTracksStyles.html</loc></url>
+<url><loc>/articles/dandelionPlot.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/lollipopPlot.html</loc></url>
+<url><loc>/articles/plotInteractionData.html</loc></url>
+<url><loc>/articles/trackViewer.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/ARA.html</loc></url>
+<url><loc>/reference/GIoperator.html</loc></url>
+<url><loc>/reference/GRoperator.html</loc></url>
+<url><loc>/reference/addArrowMark.html</loc></url>
+<url><loc>/reference/addGuideLine.html</loc></url>
+<url><loc>/reference/addInteractionAnnotation.html</loc></url>
+<url><loc>/reference/browseTracks-shiny.html</loc></url>
+<url><loc>/reference/browseTracks.html</loc></url>
+<url><loc>/reference/coverageGR.html</loc></url>
+<url><loc>/reference/dandelion.plot.html</loc></url>
+<url><loc>/reference/geneModelFromTxdb.html</loc></url>
+<url><loc>/reference/geneTrack.html</loc></url>
+<url><loc>/reference/getCurTrackViewport.html</loc></url>
+<url><loc>/reference/getGeneIDsFromTxDb.html</loc></url>
+<url><loc>/reference/getLocation.html</loc></url>
+<url><loc>/reference/gi2track.html</loc></url>
+<url><loc>/reference/gieStain.html</loc></url>
+<url><loc>/reference/gridPlot.html</loc></url>
+<url><loc>/reference/ideogramPlot.html</loc></url>
+<url><loc>/reference/importBam.html</loc></url>
+<url><loc>/reference/importData.html</loc></url>
+<url><loc>/reference/importGInteractions.html</loc></url>
+<url><loc>/reference/importScSeqScore.html</loc></url>
+<url><loc>/reference/importScore.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/listChromosomes.html</loc></url>
+<url><loc>/reference/listResolutions.html</loc></url>
+<url><loc>/reference/loadIdeogram.html</loc></url>
+<url><loc>/reference/lolliplot.html</loc></url>
+<url><loc>/reference/optimizeStyle.html</loc></url>
+<url><loc>/reference/parse2GRanges.html</loc></url>
+<url><loc>/reference/parseWIG.html</loc></url>
+<url><loc>/reference/plotGRanges.html</loc></url>
+<url><loc>/reference/plotIdeo.html</loc></url>
+<url><loc>/reference/plotOneIdeo.html</loc></url>
+<url><loc>/reference/pos-class.html</loc></url>
+<url><loc>/reference/reduce-GInteractions-method.html</loc></url>
+<url><loc>/reference/trackList-class.html</loc></url>
+<url><loc>/reference/trackStyle-class.html</loc></url>
+<url><loc>/reference/trackViewer-package.html</loc></url>
+<url><loc>/reference/trackViewerStyle-class.html</loc></url>
+<url><loc>/reference/viewGene.html</loc></url>
+<url><loc>/reference/viewTracks.html</loc></url>
+<url><loc>/reference/xscale-class.html</loc></url>
+<url><loc>/reference/yaxisStyle-class.html</loc></url>
 </urlset>
+
