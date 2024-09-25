@@ -49,6 +49,6 @@ plotGRanges <- function(..., range=GRanges(),
     names(tracks) <- names
     viewTracks(tracks, gr=range, 
                viewerStyle=viewerStyle,
-               autoOptimizeStyle=FALSE,
-               newpage=TRUE)
+               autoOptimizeStyle=autoOptimizeStyle,
+               newpage=newpage)
 }

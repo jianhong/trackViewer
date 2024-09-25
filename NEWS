@@ -1,3 +1,7 @@
+Changes in version 1.41.7
+
+    o Fix the bug that newpage parameter not used for plotGRanges.
+    
 Changes in version 1.41.6
 
     o Add `legendPosition` parameter for lollipop plot.

@@ -99,6 +99,13 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
           hide_this_label <- FALSE
         }
       }
+      must_have_label <- FALSE
+      if(length(curr_trs$must_have_label)>0){
+        must_have_label <- unlist(curr_trs$must_have_label)[1]
+        if(!is.logical(must_have_label)){
+          must_have_label <- FALSE
+        }
+      }
       ## plot center line
       grid.lines(x=c(start(curr_rg), end(curr_rg)), 
                  y=c(gene_y, gene_y), 
@@ -128,7 +135,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
                      arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
                      gp=gpar(col=this_color, fill=this_color))
           ## add gene name at TSS
-          if(doLabels){
+          if(doLabels || must_have_label){
             if(start(curr_rg) >= stringStopPos[1]){
               grid.text(label = names(curr_rg), x = 0, y = 0, hjust = 0, vjust=1.5,
                         gp = do.call(gpar, track@style@ylabgp))
@@ -163,7 +170,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
                      arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
                      gp=gpar(col=this_color, fill=this_color))
           ## add gene name at TSS
-          if(doLabels){
+          if(doLabels || must_have_label){
             if(end(curr_rg)-stringW >= stringStopPos[1]){
               grid.text(label = names(curr_rg), x = 1, y = 0, hjust = 1, vjust=1.5,
                         gp = do.call(gpar, track@style@ylabgp))
