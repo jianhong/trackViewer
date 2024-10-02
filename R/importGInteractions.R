@@ -58,7 +58,7 @@ importGInteractions <- function(file,
                         out=c("track", "GInteractions"),
                         resolution = 100000,
                         unit=c("BP", "FRAG"),
-                        normalization =c("NONE", "VC", "VC_SORT", "KR", 
+                        normalization =c("NONE", "VC", "VC_SQRT", "KR", 
                                          "SCALE", "GW_KR", "GW_SCALE", "GW_VC",
                                          "INTER_KR", "INTER_SCALE", "INTER_VC",
                                          "balanced"),
@@ -72,12 +72,12 @@ importGInteractions <- function(file,
     unit <- match.arg(unit)
     matrixType <- match.arg(matrixType)
     normalization <- match.arg(normalization)
-    if(format=="hic"){
-      if(!normalization %in% readHicNormTypes(fname=file)){
-        stop("normalization must be available at file. ",
-             "Available normalization are",
-             readHicNormTypes(fname=file))
-      }
+    available_normalization <- listNormalizations(file=file, format = format)
+    if(!normalization %in% available_normalization){
+      available_normalization <- paste(available_normalization, collapse=', ')
+      stop("normalization must be available at file. ",
+           "Available normalization are ",
+           available_normalization)
     }
     
     #    res <- GRanges(score=numeric(0))
@@ -133,7 +133,7 @@ importGInteractions <- function(file,
                             score=df$counts)
     }
     readcool <- function(file){
-        gi <- cooler_pixels(file, resolution, gr)
+        gi <- cooler_pixels(file, resolution, gr, normalization)
         if(normalization=="NONE"){
             gi$score <- gi$count
         }else{
@@ -187,6 +187,7 @@ importGInteractions <- function(file,
         return(res)
     }
     res <- readFiles(file, format)
+    if(length(res)==0) return(NULL)
     if(any(duplicated(res))){
         res_uniq <- res[!duplicated(res)]
         res_dup <- res[duplicated(res)]

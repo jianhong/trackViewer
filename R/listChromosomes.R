@@ -2,7 +2,7 @@
 #' @description List the chromosomes available in the file.
 #' @param file character(1). File name of .hic or .cool/.mcool/.scool
 #' @param format character(1). File format, "hic" or "cool".
-#' @importFrom rhdf5 H5Fopen h5ls
+#' @importFrom rhdf5 H5Fopen h5ls H5close
 #' @importFrom strawr readHicChroms
 #' @export
 #' @examples
@@ -17,12 +17,15 @@ listChromosomes <- function(file, format=c("hic", "cool")){
     readHicChroms(fname=file)
   }else{
     coolfile <- checkCoolFile(file)
-    coolfileRootName <- coolfileRootName(coolfile)
-    res <- h5ls(coolfile&coolfileRootName, recursive = FALSE)$name
-    chroms <- lapply(res, function(.ele){
-      res0 <- paste0("coolfile$", coolfileRootName, "$`", .ele, "`$chroms$name")
-      eval(parse(text=res0))
-    })
-    sort(unique(unlist(chroms)))
+    if(isMcool(file)){
+      coolfileRootName <- coolfileRootName(coolfile)
+      res <- h5ls(coolfile&coolfileRootName, recursive = FALSE)$name
+      res <- res[which.max(as.numeric(res))]
+      chroms <- h5read(coolfile,
+                       coolfilePathName(coolfileRootName, res, "chroms"))$name
+    }else{
+      chroms <- h5read(coolfile, "chroms")$name
+    }
+    chroms
   }
 }

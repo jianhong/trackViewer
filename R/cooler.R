@@ -17,19 +17,24 @@ checkCoolFile <- function(coolfile){
 }
 isMcool <- function(coolfile){
   coolRootName <- coolfileRootName(coolfile)
-  return(!all(c("bins", "chroms", "indexes", "pixels") %in%
-           coolRootName))
+  return(coolRootName[1]!='')
 }
 
 coolfileRootName <- function(coolfile){
   coolfile <- checkCoolFile(coolfile)
-  h5ls(coolfile, recursive = FALSE)$name
+  level1 <- h5ls(coolfile, recursive = FALSE)$name
+  if(all(c("bins", "chroms", "indexes", "pixels") %in%
+         level1)){
+    return('')
+  }else{
+    return(level1)
+  }
 }
 
 coolfileGetByPath <- function(coolfile, resolution, subPath){
   coolfile <- checkCoolFile(coolfile)
   if(!isMcool(coolfile)){
-    res0 <- "coolfile"
+    res0 <- ""
   }else{
     available_res <- listResolutions(coolfile, "cool")
     if(!resolution %in% available_res){
@@ -39,15 +44,15 @@ coolfileGetByPath <- function(coolfile, resolution, subPath){
       ))
     }
     coolfileRootName <- coolfileRootName(coolfile)
-    res0 <- paste0("coolfile$", coolfileRootName, "$`", resolution, "`")
+    res0 <- paste(coolfileRootName, resolution, sep='/')
   }
   if(!missing(subPath)){
     subPath <- subPath[1]
     if(subPath!="" && !is.na(subPath)){
-      res0 <- paste0(res0, "$", subPath)
+      res0 <- paste(res0, subPath, sep='/')
     }
   }
-  eval(parse(text=res0))
+  h5read(coolfile, res0)
 }
 
 cooler_indexes <- function(coolfile, resolution){
@@ -60,7 +65,7 @@ coolfilePathName <- function(rootName, resolution, subPath){
          paste(rootName, resolution, subPath, sep="/"))
 }
 
-cooler_bins <- function(coolfile, resolution, seqname){
+cooler_bins <- function(coolfile, resolution, seqname, normalization){
   seqs <- coolfileGetByPath(coolfile, resolution, "chroms")
   if(!all(seqname %in% seqs$name)){
     stop(paste("The given seqname is not available in file.",
@@ -89,20 +94,25 @@ cooler_bins <- function(coolfile, resolution, seqname){
   bins <- do.call(rbind, bins)
   gr <- GRanges(seqnames = bins$chrom, 
                 IRanges(bins$start+1, bins$end, names = bins$bin))
-  if(length(bins$weight)){
-    gr$weight <- bins$weight
+  if(normalization %in% colnames(bins)){
+    gr$weight <- bins[, normalization, drop=TRUE]
   }else{
     gr$weight <- 1
   }
   gr
 }
 
-cooler_pixels <- function(coolfile, resolution, gr=GRanges()){
+cooler_pixels <- function(coolfile, resolution, gr=GRanges(),
+                          normalization='balanced'){
   stopifnot(is(gr, "GRanges"))
   stopifnot(length(gr)<3)
   if(length(gr)==0) return(NULL)
+  if(normalization=='balanced'){
+    normalization <- 'weight'
+  }
+  if(!isMcool(coolfile)) resolution <- NULL
   seqname <- as.character(seqnames(gr))
-  bins <- cooler_bins(coolfile, resolution, seqname)
+  bins <- cooler_bins(coolfile, resolution, seqname, normalization)
   bins1 <- subsetByOverlaps(bins, gr[1])
   if(length(gr)==1){
     bins2 <- bins1
@@ -112,7 +122,7 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges()){
   if(length(bins)==0) return(NULL)
   indexes <- cooler_indexes(coolfile, resolution)
   bins_index <- IRanges(indexes$bin1_offset[-length(indexes$bin1_offset)]+1,
-                        indexes$bin1_offset[-1],
+                        indexes$bin1_offset[-1]+1,
                         names = seq.int(length(indexes$bin1_offset)-1)-1)
   ## read bin1
   bins_index_1 <- bins_index[names(bins1)]
@@ -120,6 +130,7 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges()){
   ir0 <- reduce(bins_index_1)
   rootName <- coolfileRootName(coolfile)
   name <- coolfilePathName(rootName, resolution, "pixels")
+  name1 <- coolfilePathName(rootName, resolution, "bins")
   pixels <- list()
   on.exit(h5closeAll())
   for(i in seq_along(ir0)){
@@ -134,10 +145,11 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges()){
     pixels[[i]] <- curr_pixels
   }
   pixels <- do.call(rbind, pixels)
+  if(nrow(pixels)==0) return(NULL)
   gi <- GInteractions(anchor1 = bins[as.character(pixels$bin1_id)],
                       anchor2 = bins[as.character(pixels$bin2_id)],
                       count = pixels$count)
-  gi$balanced <- gi$count/(gi$anchor1.weight*gi$anchor2.weight)
+  gi$balanced <- gi$count*(gi$anchor1.weight*gi$anchor2.weight)
   gi$anchor1.weight <- NULL
   gi$anchor2.weight <- NULL
   gi

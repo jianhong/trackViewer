@@ -1,3 +1,7 @@
+Changes in version 1.41.8
+
+    o Add listNormalizations function.
+    
 Changes in version 1.41.7
 
     o Fix the bug that newpage parameter not used for plotGRanges.

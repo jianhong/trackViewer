@@ -12,7 +12,7 @@ importGInteractions(
   out = c("track", "GInteractions"),
   resolution = 1e+05,
   unit = c("BP", "FRAG"),
-  normalization = c("NONE", "VC", "VC_SORT", "KR", "SCALE", "GW_KR", "GW_SCALE", "GW_VC",
+  normalization = c("NONE", "VC", "VC_SQRT", "KR", "SCALE", "GW_KR", "GW_SCALE", "GW_VC",
     "INTER_KR", "INTER_SCALE", "INTER_VC", "balanced"),
   matrixType = c("observed", "oe", "expected"),
   ...

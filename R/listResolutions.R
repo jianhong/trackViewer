@@ -2,7 +2,7 @@
 #' @description List the resolutions available in the file.
 #' @param file character(1). File name of .hic or .cool/.mcool/.scool
 #' @param format character(1). File format, "hic" or "cool".
-#' @importFrom rhdf5 H5Fopen h5ls
+#' @importFrom rhdf5 H5Fopen h5ls H5close
 #' @importFrom strawr readHicBpResolutions
 #' @export
 #' @examples
@@ -16,8 +16,12 @@ listResolutions <- function(file, format=c("hic", "cool")){
   if(format=="hic"){
     readHicBpResolutions(fname=file)
   }else{
-    coolfile <- checkCoolFile(file)
-    coolfileRootName <- coolfileRootName(coolfile)
-    h5ls(coolfile&coolfileRootName, recursive = FALSE)$name
+    if(isMcool(file)){
+      coolfile <- checkCoolFile(file)
+      coolfileRootName <- coolfileRootName(coolfile)
+      h5ls(coolfile&coolfileRootName, recursive = FALSE)$name
+    }else{
+      return(NULL)
+    }
   }
 }
