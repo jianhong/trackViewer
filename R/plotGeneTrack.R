@@ -91,7 +91,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
       str_neg <- curr_str=="-"
       this_color <- if(is.list(curr_trs$color)) curr_trs$color[[1]] else if(length(curr_trs$color)) curr_trs$color else col
       this_height <- 
-        if(is.list(curr_trs$height)) curr_trs$height[[1]] else if(length(curr_trs$height)) curr_trs$height else gene_h/ifelse(curr_trs$feature %in% c("CDS", "exon"), 2, 4)
+        if(is.list(curr_trs$height)) curr_trs$height[[1]] else if(length(curr_trs$height)) curr_trs$height else gene_h/ifelse(tolower(curr_trs$feature) %in% c('gene', 'transcripts', "cds", "exon"), 2, 4)
       hide_this_label <- FALSE
       if(length(curr_trs$hide_label)>0){
         hide_this_label <- unlist(curr_trs$hide_label)[1]
@@ -106,17 +106,61 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
           must_have_label <- FALSE
         }
       }
+      plot_arrow <- TRUE
+      curr_width <- unit(width(curr_trs)/diff(xscale), units = 'npc')
+      if(length(curr_trs)==1 &&
+         all(tolower(curr_trs$feature) %in% c('gene', 'transcripts'))){
+        ## one element per gene/transcripts
+        ## no center line
+        if(convertUnit(curr_width, unitTo = 'points', valueOnly = TRUE)<6){
+          plot_arrow <- TRUE
+        }else{
+          plot_arrow <- FALSE
+        }
+      }
       ## plot center line
       grid.lines(x=c(start(curr_rg), end(curr_rg)), 
                  y=c(gene_y, gene_y), 
                  gp = gpar(col=col),
                  default.units = "native")
-      ## plot exons by the feature type
-      grid.rect(x=(start(curr_trs)+end(curr_trs))/2, y=gene_y, 
-                width =width(curr_trs), 
-                height=this_height, 
-                gp=gpar(col=NA, fill=this_color), 
-                default.units = "native")
+      if(plot_arrow){
+        ## plot exons by the feature type
+        grid.rect(x=(start(curr_trs)+end(curr_trs))/2, y=gene_y, 
+                  width =width(curr_trs), 
+                  height=this_height, 
+                  gp=gpar(col=NA, fill=this_color), 
+                  default.units = "native")
+      }else{
+        ## plot exons by the feature type
+        grid.rect(x=ifelse(!str_neg, start(curr_trs), end(curr_trs)),
+                  just = c(ifelse(!str_neg, 0, 1), 0.5),
+                  y=gene_y, 
+                  width = curr_width - unit(6, units = 'points'), 
+                  height=this_height, 
+                  gp=gpar(col=NA, fill=this_color), 
+                  default.units = "native")
+        ptW <- ifelse(str_neg[1], 5, 6)
+        pt1 <- convertWidth(unit(ptW, units='points'), 'npc', valueOnly = TRUE)
+        curr_x <- ifelse(!str_neg,
+                         end(curr_trs)/diff(xscale) - pt1,
+                         start(curr_trs)/diff(xscale) + pt1)
+        curr_x1 <- ifelse(!str_neg,
+                         end(curr_trs)/diff(xscale),
+                         start(curr_trs)/diff(xscale))
+        grid.lines(
+          x=c(curr_x, curr_x1),
+          y=c(gene_y, gene_y),
+          arrow = arrow(type="closed",
+                        angle=atan2(this_height/2,
+                                    convertHeight(unit(ptW, units='points'),
+                                                        unitTo = 'npc',
+                                                  valueOnly = TRUE))*180/pi,
+                        length = unit(ptW, units='points')),
+          gp=gpar(col=this_color, fill=this_color),
+          default.units = 'npc'
+        )
+      }
+      
       ## plot direction at TSS
       stringW <- convertWidth(stringWidth(names(curr_rg)), unitTo = "native", valueOnly = TRUE)
       pushViewport(viewport(x=ifelse(!str_neg, start(curr_rg), end(curr_rg)),
@@ -130,10 +174,12 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
                             default.units = "native"))
       if(!hide_this_label){
         if(!str_neg){
-          grid.lines(x=unit(c(0, 0, 1), "npc"),
-                     y=unit(c(.5, 0, 0), "npc"),
-                     arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
-                     gp=gpar(col=this_color, fill=this_color))
+          if(plot_arrow){
+            grid.lines(x=unit(c(0, 0, 1), "npc"),
+                       y=unit(c(.5, 0, 0), "npc"),
+                       arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
+                       gp=gpar(col=this_color, fill=this_color))
+          }
           ## add gene name at TSS
           if(doLabels || must_have_label){
             if(start(curr_rg) >= stringStopPos[1]){
@@ -165,10 +211,12 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
             }
           }
         }else{
-          grid.lines(x=unit(c(1, 1, 0), "npc"),
-                     y=unit(c(.5, 0, 0), "npc"),
-                     arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
-                     gp=gpar(col=this_color, fill=this_color))
+          if(plot_arrow){
+            grid.lines(x=unit(c(1, 1, 0), "npc"),
+                       y=unit(c(.5, 0, 0), "npc"),
+                       arrow = arrow(type="closed", angle = 15, length = unit(arr_size, "lines")),
+                       gp=gpar(col=this_color, fill=this_color))
+          }
           ## add gene name at TSS
           if(doLabels || must_have_label){
             if(end(curr_rg)-stringW >= stringStopPos[1]){
@@ -203,7 +251,6 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
       }
       popViewport()
       
-        
     }
     popViewport()
     currLineBottom <- currLineBottom - eachLineHeight

@@ -1,5 +1,9 @@
 Changes in version 1.41.8
 
+    o Add a simple gene track plot model.
+    
+Changes in version 1.41.8
+
     o Add listNormalizations function.
     
 Changes in version 1.41.7
