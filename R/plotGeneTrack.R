@@ -107,7 +107,7 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
         }
       }
       plot_arrow <- TRUE
-      curr_width <- unit(width(curr_trs)/diff(xscale), units = 'npc')
+      curr_width <- unit(width(curr_trs)/(diff(xscale)+1), units = 'npc')
       if(length(curr_trs)==1 &&
          all(tolower(curr_trs$feature) %in% c('gene', 'transcripts'))){
         ## one element per gene/transcripts
@@ -132,40 +132,29 @@ plotGeneTrack <- function(track, xscale, chr, yaxis.gp=gpar(), lollipop_style_sw
                   default.units = "native")
       }else{
         ## plot exons by the feature type
-        grid.rect(x=ifelse(!str_neg, start(curr_trs), end(curr_trs)),
-                  just = c(ifelse(!str_neg, 0, 1), 0.5),
-                  y=gene_y, 
-                  width = curr_width - unit(6, units = 'points'), 
-                  height=this_height, 
-                  gp=gpar(col=NA, fill=this_color), 
-                  default.units = "native")
-        ptW <- ifelse(str_neg[1], 5, 6)
-        pt1 <- convertWidth(unit(ptW, units='points'), 'npc', valueOnly = TRUE)
-        curr_x <- ifelse(!str_neg,
-                         end(curr_trs)/diff(xscale) - pt1,
-                         start(curr_trs)/diff(xscale) + pt1)
-        curr_x1 <- ifelse(!str_neg,
-                         end(curr_trs)/diff(xscale),
-                         start(curr_trs)/diff(xscale))
-        grid.lines(
-          x=c(curr_x, curr_x1),
-          y=c(gene_y, gene_y),
-          arrow = arrow(type="closed",
-                        angle=atan2(this_height/2,
-                                    convertHeight(unit(ptW, units='points'),
-                                                        unitTo = 'npc',
-                                                  valueOnly = TRUE))*180/pi,
-                        length = unit(ptW, units='points')),
-          gp=gpar(col=this_color, fill=this_color),
-          default.units = 'npc'
-        )
+        curr_width <- width(curr_trs)/(diff(xscale)+1)
+        pt1 <- convertWidth(unit(6, units='points'),
+                                    'npc', valueOnly = TRUE)*
+          (diff(xscale)+1)
+        curr_x1 <- ifelse(!str_neg, start(curr_trs), end(curr_trs))
+        curr_x2 <- ifelse(!str_neg, end(curr_trs) - pt1,
+                          start(curr_trs) + pt1)
+        curr_x3 <- ifelse(!str_neg, end(curr_trs), start(curr_trs))
+        grid.polygon(x=c(curr_x1, curr_x1,
+                         curr_x2, curr_x3,
+                         curr_x2, curr_x1), 
+                     y=c(gene_y-this_height/2, gene_y+this_height/2,
+                         gene_y+this_height/2, gene_y,
+                         gene_y-this_height/2, gene_y-this_height/2),
+                     gp=gpar(col=NA, fill=this_color), 
+                     default.units = "native")
       }
       
       ## plot direction at TSS
       stringW <- convertWidth(stringWidth(names(curr_rg)), unitTo = "native", valueOnly = TRUE)
       pushViewport(viewport(x=ifelse(!str_neg, start(curr_rg), end(curr_rg)),
                             y=gene_y, 
-                            width = unit(max(min(gene_h/2, 2*width(curr_rg)/abs(diff(xscale))),
+                            width = unit(max(min(gene_h/2, 2*width(curr_rg)/abs(diff(xscale)+1)),
                                              convertWidth(unit(8, "lines"),
                                                           unitTo = "npc",
                                                           valueOnly = TRUE)), "snpc"), 
