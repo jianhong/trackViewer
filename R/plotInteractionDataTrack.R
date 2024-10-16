@@ -89,14 +89,14 @@ plotInteractionDataTrack <- function(.dat, .dat2, scale, color, yscale, breaks,
     if(length(anchor1$tads)==length(tads) && length(anchor1)>0){
       tads <- anchor1$tads
     }
-    for(i in seq_along(anchor1)){
-      if(irx[i] && iry[i]){
-        grid.polygon(x=c(xa[i], xb[i], xc[i], xd[i]), 
-                     y=c(ya[i], yb[i], yc[i], yd[i]), 
-                     default.units="native",
-                     gp = gpar(fill=mc[i], col = cols[i]))
-      }
-    }
+    polygon_data_x <- rbind(xa, xb, xc, xd)
+    polygon_data_y <- rbind(ya, yb, yc, yd)
+    keep <- irx & iry
+    grid.polygon(x=polygon_data_x[, keep, drop=FALSE],
+                 y=polygon_data_y[, keep, drop=FALSE],
+                 default.units="native",
+                 id.lengths = rep(4, sum(keep)),
+                 gp = gpar(fill=mc[keep], col = cols[keep]))
     for(i in seq_along(anchor1)){
       if(xinr[i]){
         if(!is.na(tads[i])){

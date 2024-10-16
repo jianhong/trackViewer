@@ -1,4 +1,8 @@
-Changes in version 1.41.8
+Changes in version 1.41.10
+
+    o Improve the plot speed for interaction data.
+    
+Changes in version 1.41.9
 
     o Add a simple gene track plot model.
     
