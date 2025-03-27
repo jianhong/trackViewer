@@ -122,7 +122,7 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges(),
   if(length(bins)==0) return(NULL)
   indexes <- cooler_indexes(coolfile, resolution)
   bins_index <- IRanges(indexes$bin1_offset[-length(indexes$bin1_offset)]+1,
-                        indexes$bin1_offset[-1]+1,
+                        indexes$bin1_offset[-1],
                         names = seq.int(length(indexes$bin1_offset)-1)-1)
   ## read bin1
   bins_index_1 <- bins_index[names(bins1)]

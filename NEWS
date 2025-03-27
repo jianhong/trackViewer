@@ -1,4 +1,8 @@
-Changes in version 1.43.5
+Changes in version 1.43.7
+
+    o Fix a potential bug in reading sparse cool file.
+    
+Changes in version 1.43.6
 
     o Update email address.
     
