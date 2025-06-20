@@ -110,7 +110,11 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges(),
   if(normalization=='balanced'){
     normalization <- 'weight'
   }
-  if(!isMcool(coolfile)) resolution <- NULL
+  if(!isMcool(coolfile)) {
+    resolution <- NULL
+  } else{
+    resolution <- format(resolution, scientific = FALSE)
+  }
   seqname <- as.character(seqnames(gr))
   bins <- cooler_bins(coolfile, resolution, seqname, normalization)
   bins1 <- subsetByOverlaps(bins, gr[1])
