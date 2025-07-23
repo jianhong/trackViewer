@@ -14,7 +14,8 @@
 #' @param withCoverageTrack plot coverage track or not.
 #' @param flag An integer(2) vector used to filter reads based on their 
 #' 'flag' entry. 
-#' @importFrom GenomeInfoDb seqlevelsStyle Seqinfo isCircular genome
+#' @importFrom Seqinfo Seqinfo isCircular genome
+#' @importFrom GenomeInfoDb seqlevelsStyle
 #' @examples 
 #' \dontrun{
 #' library(TxDb.Hsapiens.UCSC.hg19.knownGene)

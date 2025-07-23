@@ -14,7 +14,7 @@
 #' @import GenomicRanges
 #' @importFrom GenomicFeatures transcripts genes
 #' @importFrom txdbmaker makeTxDb
-#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Seqinfo seqnames
 #' @importFrom BiocGenerics strand
 #' @importFrom AnnotationDbi mapIds columns
 #' @return Generate a list of \code{\link{track}} from a TxDb object.
