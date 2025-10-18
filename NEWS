@@ -1,3 +1,7 @@
+Changes in version 1.45.2
+
+    o Fix a bug in reading mcool file.
+    
 Changes in version 1.45.1
 
     o Fix a bug in reading mcool file.

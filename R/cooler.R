@@ -132,6 +132,9 @@ cooler_pixels <- function(coolfile, resolution, gr=GRanges(),
   bins_index_1 <- bins_index[names(bins1)]
   bins_index_1 <- bins_index_1[width(bins_index_1)>0]
   ir0 <- reduce(bins_index_1)
+  if(length(ir0)==0){
+    return(NULL)
+  }
   rootName <- coolfileRootName(coolfile)
   name <- coolfilePathName(rootName, resolution, "pixels")
   name1 <- coolfilePathName(rootName, resolution, "bins")
