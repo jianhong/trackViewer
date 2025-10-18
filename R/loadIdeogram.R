@@ -6,7 +6,7 @@
 #' @param ... Additional arguments to pass to the 
 #' \link[GenomicRanges:GRanges-class]{GRanges} constructor.
 #' @importFrom rtracklayer import getTable ucscTableQuery GRangesForUCSCGenome browserSession
-#' @importFrom GenomeInfoDb "genome<-"
+#' @importFrom Seqinfo "genome<-"
 #' @export
 #' @return A \link[GenomicRanges:GRanges-class]{GRanges} object.
 #' @seealso See Also as \code{\link{ideogramPlot}}

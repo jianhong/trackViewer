@@ -5,7 +5,8 @@
 #' @param org org package name
 #' @import GenomicRanges
 #' @importFrom AnnotationDbi mget
-#' @importFrom GenomeInfoDb "seqlevelsStyle<-" seqlevels "seqlevels<-" seqinfo "seqinfo<-"
+#' @importFrom Seqinfo seqlevels "seqlevels<-" seqinfo "seqinfo<-"
+#' @importFrom GenomeInfoDb "seqlevelsStyle<-"
 #' @importFrom GenomicFeatures genes
 #' @import IRanges
 #' @export

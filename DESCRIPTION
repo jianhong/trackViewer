@@ -11,9 +11,9 @@ Description: Visualize mapped reads along with annotation as track layers for NG
   such as ChIP-seq, RNA-seq, miRNA-seq, DNA-seq, SNPs and methylation data.
 License: GPL (>= 2)
 Depends: R (>= 3.5.0), grDevices, methods, GenomicRanges, grid
-Imports: GenomeInfoDb, GenomicAlignments, GenomicFeatures, Gviz, Rsamtools, S4Vectors,
-        rtracklayer, BiocGenerics, scales, tools, IRanges, AnnotationDbi, grImport,
-        htmlwidgets, InteractionSet, utils, rhdf5,
+Imports: Seqinfo, GenomeInfoDb, GenomicAlignments, GenomicFeatures, Gviz, Rsamtools,
+        S4Vectors, rtracklayer, BiocGenerics, scales, tools, IRanges, AnnotationDbi,
+        grImport, htmlwidgets, InteractionSet, utils, rhdf5,
         strawr, txdbmaker
 Suggests: biomaRt, TxDb.Hsapiens.UCSC.hg19.knownGene, RUnit, org.Hs.eg.db,
         BiocStyle, knitr, VariantAnnotation, httr, htmltools, rmarkdown,
