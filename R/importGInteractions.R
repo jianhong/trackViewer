@@ -23,7 +23,7 @@
 #' @importFrom strawr straw readHicNormTypes
 #' @export
 #' @seealso See Also as \code{\link{listResolutions}}, \code{\link{listChromosomes}}, 
-#' \code{\link{readHicNormTypes}}
+#' \code{\link[strawr]{readHicNormTypes}}
 #' @examples 
 #' #import a ginteractions file
 #' #gi <- system.file("extdata", "test.ginteractions.tsv", package="trackViewer",

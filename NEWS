@@ -1,5 +1,9 @@
 Changes in version 1.45.2
 
+    o Use yaxis to control draw or not for the interaction legend.
+    
+Changes in version 1.45.2
+
     o Fix a bug in reading mcool file.
     
 Changes in version 1.45.1

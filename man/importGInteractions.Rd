@@ -80,5 +80,5 @@ dat <- importGInteractions(file=cool, format="cool",
 }
 \seealso{
 See Also as \code{\link{listResolutions}}, \code{\link{listChromosomes}}, 
-\code{\link{readHicNormTypes}}
+\code{\link[strawr]{readHicNormTypes}}
 }

@@ -494,7 +494,9 @@ drawYaxis <- function(ylim, yaxisStyle, curViewStyle, heatlegends=list()){
                          just=c(0,0), yscale=ylim)
         }
         pushViewport(vp)
-        grid.raster(rev(heatlegends$crp[[i]]), x=x, width=width, height=1)
+        if(isTRUE(yaxisStyle@draw)){
+          grid.raster(rev(heatlegends$crp[[i]]), x=x, width=width, height=1)
+        }
         # map breaks to ylim
         if(heatlegends$userdefinedbreaks){
           this_breaks <- heatlegends$breaks[[i]]
