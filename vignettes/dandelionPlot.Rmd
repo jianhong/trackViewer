@@ -33,7 +33,7 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 
 
 # Dandelion Plot
-Sometimes, there are as many as hundreds of SNPs invoved in one gene. Dandelion plot can be used to depict such dense SNPs. Please note that the height of the dandelion indicates the desity of the SNPs.
+Sometimes, there are as many as hundreds of SNPs invoved in one gene. Dandelion plot can be used to depict such dense SNPs. Please note that the height of the dandelion indicates the density of the SNPs.
 ```{r fig.width=4.5,fig.height=3}
 library(trackViewer)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
