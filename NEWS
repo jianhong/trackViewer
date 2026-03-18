@@ -1,4 +1,8 @@
-Changes in version 1.45.2
+Changes in version 1.47.1
+
+    o Fix the mis-match y-axis for dandelion.plot when max score is smaller than 1.
+    
+Changes in version 1.45.3
 
     o Use yaxis to control draw or not for the interaction legend.
     
