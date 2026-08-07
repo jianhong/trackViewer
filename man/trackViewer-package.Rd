@@ -41,6 +41,7 @@ addArrowMark(list(x=unit(.5, "npc"),
 
 Authors:
 \itemize{
+  \item Jianhong Ou \email{jou@morgridge.org} (\href{https://orcid.org/0000-0002-8652-2488}{ORCID})
   \item Julie Lihua Zhu \email{Julie.Zhu@umassmed.edu}
 }
 

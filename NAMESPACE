@@ -63,61 +63,94 @@ import(grid)
 import(htmlwidgets)
 import(methods)
 importClassesFrom(grImport,Picture)
-importFrom(AnnotationDbi,columns)
-importFrom(AnnotationDbi,mapIds)
-importFrom(AnnotationDbi,mget)
-importFrom(AnnotationDbi,select)
-importFrom(BiocGenerics,basename)
-importFrom(BiocGenerics,strand)
-importFrom(GenomeInfoDb,"seqlevelsStyle<-")
-importFrom(GenomeInfoDb,seqlevelsStyle)
-importFrom(GenomicFeatures,genes)
-importFrom(GenomicFeatures,transcripts)
-importFrom(Gviz,GeneRegionTrack)
-importFrom(IRanges,Views)
-importFrom(IRanges,viewMaxs)
-importFrom(InteractionSet,GInteractions)
-importFrom(InteractionSet,`regions<-`)
-importFrom(InteractionSet,anchorIds)
-importFrom(InteractionSet,regions)
-importFrom(S4Vectors,first)
-importFrom(S4Vectors,second)
-importFrom(Seqinfo,"genome<-")
-importFrom(Seqinfo,"seqinfo<-")
-importFrom(Seqinfo,"seqlevels<-")
-importFrom(Seqinfo,Seqinfo)
-importFrom(Seqinfo,genome)
-importFrom(Seqinfo,isCircular)
-importFrom(Seqinfo,seqinfo)
-importFrom(Seqinfo,seqlengths)
-importFrom(Seqinfo,seqlevels)
-importFrom(Seqinfo,seqnames)
-importFrom(grDevices,as.raster)
-importFrom(grDevices,col2rgb)
-importFrom(grDevices,colorRampPalette)
-importFrom(grDevices,palette)
-importFrom(grDevices,rgb)
-importFrom(grImport,grid.picture)
-importFrom(grImport,readPicture)
-importFrom(rhdf5,H5Fopen)
-importFrom(rhdf5,H5close)
-importFrom(rhdf5,h5closeAll)
-importFrom(rhdf5,h5ls)
-importFrom(rhdf5,h5read)
-importFrom(rtracklayer,GRangesForUCSCGenome)
-importFrom(rtracklayer,browserSession)
-importFrom(rtracklayer,getTable)
-importFrom(rtracklayer,import)
-importFrom(rtracklayer,ucscTableQuery)
+importFrom(AnnotationDbi,
+  columns,
+  mapIds,
+  mget,
+  select
+)
+importFrom(BiocGenerics,
+  basename,
+  end,
+  start,
+  strand
+)
+importFrom(GenomeInfoDb,
+  "seqlevelsStyle<-",
+  seqlevelsStyle
+)
+importFrom(GenomicFeatures,
+  cdsBy,
+  exonsBy,
+  fiveUTRsByTranscript,
+  genes,
+  threeUTRsByTranscript,
+  transcripts
+)
+importFrom(IRanges,
+  Views,
+  viewMaxs
+)
+importFrom(InteractionSet,
+  GInteractions,
+  "regions<-",
+  anchorIds,
+  regions
+)
+importFrom(S4Vectors,
+  first,
+  second
+)
+importFrom(Seqinfo,
+  "genome<-",
+  "seqinfo<-",
+  "seqlevels<-",
+  Seqinfo,
+  genome,
+  isCircular,
+  seqinfo,
+  seqlengths,
+  seqlevels,
+  seqnames
+)
+importFrom(grDevices,
+  as.raster,
+  col2rgb,
+  colorRampPalette,
+  palette,
+  rgb
+)
+importFrom(grImport,
+  grid.picture,
+  readPicture
+)
+importFrom(rhdf5,
+  H5Fopen,
+  H5close,
+  h5closeAll,
+  h5ls,
+  h5read
+)
+importFrom(rtracklayer,
+  GRangesForUCSCGenome,
+  browserSession,
+  getTable,
+  import,
+  ucscTableQuery
+)
 importFrom(scales,rescale)
 importFrom(stats,ksmooth)
-importFrom(strawr,readHicBpResolutions)
-importFrom(strawr,readHicChroms)
-importFrom(strawr,readHicNormTypes)
-importFrom(strawr,straw)
+importFrom(strawr,
+  readHicBpResolutions,
+  readHicChroms,
+  readHicNormTypes,
+  straw
+)
 importFrom(tools,file_ext)
 importFrom(txdbmaker,makeTxDb)
-importFrom(utils,combn)
-importFrom(utils,installed.packages)
+importFrom(utils,
+  combn,
+  installed.packages
+)
 importMethodsFrom(GenomicRanges,range)
 importMethodsFrom(GenomicRanges,reduce)

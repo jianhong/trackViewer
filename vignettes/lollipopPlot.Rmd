@@ -531,8 +531,8 @@ seqlevelsStyle(gr) <- "UCSC"
 trs <- geneModelFromTxdb(TxDb.Hsapiens.UCSC.hg19.knownGene,
                          org.Hs.eg.db,
                          gr=gr)
-features <- c(range(trs[[1]]$dat), range(trs[[5]]$dat))
-names(features) <- c(trs[[1]]$name, trs[[5]]$name)
+features <- c(range(trs[[1]]$dat), range(trs[[2]]$dat))
+names(features) <- c(trs[[1]]$name, trs[[2]]$name)
 features$fill <- c("lightblue", "mistyrose")
 features$height <- c(.02, .04)
 if(.Platform$OS.type!="windows"){

@@ -1,3 +1,7 @@
+Changes in version 1.49.1
+
+    o add help function getGeneModel.
+    
 Changes in version 1.47.1
 
     o Fix the mis-match y-axis for dandelion.plot when max score is smaller than 1.

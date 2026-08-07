@@ -10,12 +10,11 @@
 #' @param strand strand
 #' @param txdump output of as.list(txdb), a list of data frames that can be used 
 #' to make the db again with no loss of information.
-#' @importFrom Gviz GeneRegionTrack
 #' @import GenomicRanges
-#' @importFrom GenomicFeatures transcripts genes
+#' @importFrom GenomicFeatures transcripts genes exonsBy cdsBy fiveUTRsByTranscript threeUTRsByTranscript
 #' @importFrom txdbmaker makeTxDb
 #' @importFrom Seqinfo seqnames
-#' @importFrom BiocGenerics strand
+#' @importFrom BiocGenerics strand start end
 #' @importFrom AnnotationDbi mapIds columns
 #' @return Generate a list of \code{\link{track}} from a TxDb object.
 #' @export
@@ -52,8 +51,8 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
     stopifnot(is(gr, "GRanges"))
     chrom <- as.character(seqnames(gr))
     strand <- as.character(strand(gr))
-    start <- gr@ranges@start
-    end <- start + gr@ranges@width - 1
+    start <- BiocGenerics::start(gr)
+    end <- BiocGenerics::end(gr)
     if(strand=="*"){
         genes <- suppressMessages(transcripts(txdb, columns="exon_id",
                                               filter=list(tx_chrom=chrom)))
@@ -65,22 +64,9 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
     ignore.strand <- strand=="*"
     ol <- findOverlaps(gr, genes, ignore.strand=ignore.strand)
     if(length(ol)>0){
-        exon <- genes[subjectHits(ol)]
-        r <- range(exon)
-        ##subset txdb
-        if(is.null(txdump)) txdump <- as.list(txdb)
-        txdump$chrominfo <- txdump$chrominfo[txdump$chrominfo$chrom==chrom, , drop=FALSE]
-        txdump$transcripts <- txdump$transcripts[txdump$transcripts$tx_chrom==chrom &
-                                                 txdump$transcripts$tx_start<end(r) &
-                                                 txdump$transcripts$tx_end>start(r), , drop=FALSE]
-        txdump$genes <- txdump$genes[txdump$genes$tx_id %in% txdump$transcripts$tx_id, , drop=FALSE]
-        txdump$splicings <- txdump$splicings[txdump$splicings$tx_id %in% txdump$transcripts$tx_id, , drop=FALSE]
-        txdb <- do.call(makeTxDb, txdump)
-        exons <- GeneRegionTrack(txdb, chromosome=chrom,
-                                 start=start(r), end=end(r), strand=strand)##time comsuming
-        exons <- exons@range
+        exons <- getGeneModel(txdb, chrom, start, end, strand)
         if(!missing(orgDb)){
-            if(all(exons$symbol==exons$transcript) && "SYMBOL" %in% columns(orgDb)){
+            if("SYMBOL" %in% columns(orgDb)){
               suppressMessages(symbol <- tryCatch(mapIds(x=orgDb, keys=exons$gene, 
                                                          column="SYMBOL", keytype="ENTREZID",
                                                          multiVals="first"), 
@@ -106,4 +92,56 @@ geneModelFromTxdb <- function(txdb, orgDb, gr,
     }else{
         stop("No transcripts in the given range.")
     }
+}
+
+getGeneModel <- function(txdb, chrom, start, end, strand){
+  txs <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"),
+                     filter=list(tx_chrom=chrom))
+  txs <- subsetByOverlaps(txs, ranges=GRanges(chrom, IRanges(start, end),
+                                              strand=strand))
+  txs$gene_id <- vapply(txs$gene_id, function(.ele) .ele[1], character(1L))
+  exons <- exonsBy(txdb, by='tx')
+  cds <- cdsBy(txdb, by='tx')
+  utr5 <- fiveUTRsByTranscript(txdb)
+  utr3 <- threeUTRsByTranscript(txdb)
+  exons <- subsetByOverlaps(exons, ranges=txs)
+  cds <- subsetByOverlaps(cds, ranges=txs)
+  utr5 <- subsetByOverlaps(utr5, ranges = txs)
+  utr3 <- subsetByOverlaps(utr3, ranges = txs)
+  gene_model <- lapply(names(exons), function(tx_id){
+    tx <- GRanges()
+    if(tx_id %in% names(utr5)){
+      ele <- utr5[[tx_id]]
+      ele$feature <- 'utr5'
+      tx <- c(tx, ele)
+    }
+    if(tx_id %in% names(cds)){
+      ele <- cds[[tx_id]]
+      ele$feature <- 'CDS'
+      tx <- c(tx, ele)
+    }
+    if(tx_id %in% names(utr3)){
+      ele <- utr3[[tx_id]]
+      ele$feature <- 'utr3'
+      tx <- c(tx, ele)
+    }
+    if(length(tx)==0){
+      tx <- exons[[tx_id]]
+      tx$feature <- 'ncRNA'
+    }
+    tx
+  })
+  
+  
+  gene_model_ul <- unlist(GRangesList(gene_model))
+  gene_model_ul$tx_id <- rep(names(exons), lengths(gene_model))
+  idx <- match(gene_model_ul$tx_id, txs$tx_id)
+  gene_model_ul$transcript <- txs$tx_name[idx]
+  gene_model_ul$gene <- txs$gene_id[idx]
+  gene_model_ul$symbol <- gene_model_ul$transcript
+  gene_model_ul$exon_id <- NULL
+  gene_model_ul$exon_name <- NULL
+  gene_model_ul$cds_id <- NULL
+  gene_model_ul$cds_name <- NULL
+  return(gene_model_ul)
 }
