@@ -736,8 +736,11 @@ handleRanges <- function(ranges, SNP.gr, features, len){
         ranges <- split(rep(ranges, len)[seq.int(len)],
                         seq.int(len))
       }else{
-        ranges <- split(rep(ranges, len),
-                        rep(seq.int(len), each=len))[seq.int(len)]
+        if(length(ranges)!=len){
+          ranges <- rep(GRangesList(ranges), seq.int(len))[seq.int(len)]
+        }else{
+          # no need to change ranges
+        }
       }
     }else{## GRangesList
       if(length(ranges)!=len){
@@ -831,7 +834,7 @@ plotFeatureLegend <- function(feature, LINEH, range, xaxis, xaxis.gp, label_on_f
   return(bottomblank)
 }
 
-plot_grid_xaxis <- function(xaxis, gp=gpar(col="black")){
+plot_grid_xaxis <- function(xaxis, gp=gpar(col="black"), gaps=NULL){
   ## axis, should be in the bottom of transcripts
   if(length(xaxis)==1 && as.logical(xaxis)) {
     grid.xaxis(gp=gp)
@@ -840,6 +843,10 @@ plot_grid_xaxis <- function(xaxis, gp=gpar(col="black")){
     xaxisLabel <- names(xaxis)
     if(length(xaxisLabel)!=length(xaxis)) xaxisLabel <- TRUE
     grid.xaxis(at=xaxis, label=xaxisLabel, gp=gp)
+  }
+  if(length(gaps) && inherits(gaps, 'GRanges') &&
+     all(c('percentage', 'type') %in% colnames(mcols(gaps)))){
+    plotBreakX(gaps, y01=0, invert=TRUE)
   }
 }
 

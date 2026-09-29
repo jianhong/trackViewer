@@ -23,8 +23,34 @@ convertHeight2NPCnum <- function(.ele){
     }
   }
 }
+plotBreakX <- function(gaps, y01, invert=FALSE){
+  x <- c(0, cumsum(gaps$percentage))
+  x0 <- x[-length(x)]
+  x1 <- x[-1]
+  keep <- gaps$type != 'gap'
+  vgap <- convertWidth(unit(0.20, "lines"), 
+                       unitTo = "npc",
+                       valueOnly = TRUE)
+  if(!invert){
+    grid.segments(x0=x0[keep],
+                  y0=y01,
+                  x1=x1[keep],
+                  y1=y01)
+  }else{
+    current_gpar <- get.gpar()
+    grid.segments(x0=x0[!keep],
+                  y0=y01,
+                  x1=x1[!keep],
+                  y1=y01,
+                  gp = gpar(col=current_gpar$fill,
+                            lwd=current_gpar$lwd * 1.1))
+  }
+  x0c <- (x0[!keep]+x1[!keep])/2
+  grid.text(label = "~", x = x0c-vgap, y=y01, rot = 60)
+  grid.text(label = "~", x = x0c+vgap, y=y01, rot = 60)
+}
 plotFeatures <- function(feature.splited, LINEH, bottomHeight, 
-                         label_on_feature=FALSE){
+                         label_on_feature=FALSE, gaps=NULL){
     feature.height <- 0
     for(n in seq_along(feature.splited)){
         this.feature.height <- 
@@ -32,8 +58,13 @@ plotFeatures <- function(feature.splited, LINEH, bottomHeight,
                   .0001)) + 0.2 * LINEH
         feature.height <- feature.height + this.feature.height
         ##baseline
-        grid.lines(x=c(0, 1), y=c(bottomHeight+feature.height, 
-                                  bottomHeight+feature.height))
+        y01 <- bottomHeight+feature.height
+        if(length(gaps) && inherits(gaps, 'GRanges') &&
+           all(c('percentage', 'type') %in% colnames(mcols(gaps)))){
+          plotBreakX(gaps, y01)
+        }else{
+          grid.lines(x=c(0, 1), y=c(y01, y01))
+        }
         for(m in seq_along(feature.splited[[n]])){
             this.dat <- feature.splited[[n]][m]
             color <- if(is.list(this.dat$color)) this.dat$color[[1]] else 

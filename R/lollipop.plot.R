@@ -225,6 +225,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
         ## rescale
         rescale <- rescale.old
         xaxis <- xaxis.old
+        xgaps <- NULL
         if(is.logical(rescale)[1]){
           if(rescale[1]){
             range.tile <- tile(ranges[[i]], n = 5)[[1]]
@@ -328,28 +329,90 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                   stop("Something wrong with the auto-scale setting. Please report the bug to https://github.com/jianhong/trackViewer/issues")
                 }
               }
+            }else{
+                ################ x-axis breaks #####################
+                if(isTRUE(inherits(rescale, c('GRanges')))){
+                  ## parameter check move to top
+                  if(length(rescale)==1){
+                    stop('When `rescale` is a `GRanges` object with `length == 1`, please use `ranges()` instead.')
+                  }
+                  seqn <- unique(as.character(seqnames(rescale)))
+                  if(length(seqn)>1){
+                    stop("rescale has multiple seqnames.")
+                  }
+                  ol <- findOverlaps(rescale, drop.self=TRUE, drop.redundant=TRUE, minoverlap=2L)
+                  if(length(ol)){
+                    stop("There are overlaps of the rescale regions.")
+                  }
+                  rescale <- restrict(rescale, start=min(start(ranges[[i]])), end=max(end(ranges[[i]])))
+                  ## check the gap
+                  strand(rescale) <- rep('*', length(rescale))
+                  xgap <- gaps(rescale, start=min(start(rescale)), end=max(end(rescale)))
+                  xgap <- xgap[strand(xgap)=='*' & seqnames(xgap)==as.character(seqnames(rescale))[1]]
+                  if(length(rescale$percentage)==0){
+                    rescale$percentage <- width(rescale)/sum(width(rescale))
+                  }
+                  rescale$percentage <- rescale$percentage/sum(rescale$percentage, na.rm = TRUE)
+                  rescale$percentage[is.na(rescale$percentage)] <- 0
+                  if(length(dots$wavyLineWidth)){
+                    wavyLineWidth <- dots$wavyLineWidth
+                    if(isTRUE(wavyLineWidth>=1 || wavyLineWidth<=0)){
+                      stop("wavyLineWidth should be smaller than 1 and greater than 0")
+                    }
+                  }else{
+                    wavyLineWidth <- convertWidth(unit(1, "lines"), 
+                                                  unitTo = "npc", 
+                                                  valueOnly = TRUE)*2
+                  }
+                  if(length(xgap)){
+                    wGap <- width(xgap)
+                    wGap_ratio <- mean(wGap)/wGap
+                    xgap$type <- rep('gap', length(xgap))
+                    xgap$percentage <- wavyLineWidth*wGap_ratio
+                    rescale$type <- rep('plotRegion', length(rescale))
+                    rescale$percentage <- rescale$percentage/(1+length(xgap)*wavyLineWidth)
+                    rescale <- sort(c(rescale, xgap))
+                  }
+                  rescale.ir.new.width <- 
+                    cumsum(round(width(rescale)*rescale$percentage, digits = 0))
+
+                  rescale <- data.frame(from.start=start(rescale), 
+                                        from.end=end(rescale),
+                                        to.start=min(start(rescale)) + 
+                                          c(0, rescale.ir.new.width[-length(rescale.ir.new.width)]),
+                                        to.end=min(start(rescale)) + rescale.ir.new.width,
+                                        type = rescale$type)
+                  
+                  xgaps <- GRanges(seqn,
+                                   IRanges(rescale$to.start, rescale$to.end),
+                                   type = rescale$type)
+                  xgaps$percentage <- width(xgaps)/sum(width(xgaps))
+                }  
             }
           }
         }
         if(is.data.frame(rescale)){
           if(all(c("from.start", "from.end", "to.start", "to.end") %in% colnames(rescale))){
+            if(length(rescale$type)!=nrow(rescale)){
+              rescale$type <- rep('plotRegion', nrow(rescale))
+            }
             ## check the from coverage the whole region.
             checkflank <- function(x){
               to <- IRanges(x$to.start, x$to.end)
               xol <- findOverlaps(to, drop.self=TRUE, 
                                   drop.redundant=TRUE,minoverlap=2L)
               if(length(xol)>1){
-                stop("There is overlaps of the rescale region for 'to' columns.")
+                stop("There are overlaps of the rescale region for 'to' columns.")
               }
               x <- IRanges(x$from.start, x$from.end)
               xol <- findOverlaps(x, drop.self=TRUE, 
                                   drop.redundant=TRUE,minoverlap=2L)
               if(length(xol)>1){
-                stop("There is overlaps of the rescale region for 'from' columns.")
+                stop("There are overlaps of the rescale region for 'from' columns.")
               }
               xgap <- gaps(x, start=min(start(x)), end=max(end(x)))
               if(length(xgap)>0){
-                stop("There is gaps of the rescale region for 'from' columns.")
+                stop("There are gaps of the rescale region for 'from' columns.")
               }
             }
             checkflank(rescale)
@@ -360,6 +423,10 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 y <- c(x.start, x.end)
                 x.cut <- cut(y, breaks=c(rescale$from.start[1], rescale$from.end+1),
                              labels=seq.int(nrow(rescale)), right=FALSE)
+                # drop the elemnt in gap
+                keep <- rescale$type[as.numeric(as.character(x.cut))]!='gap'
+                keep <- matrix(keep, ncol=2)
+                keep <- apply(keep, 1, any)
                 y <- mapply(function(a, b){
                   if(!is.na(b)) {
                     rescale(a, to=c(rescale$to.start[b], rescale$to.end[b]),
@@ -372,7 +439,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 start(x) <- 1
                 end(x) <- y[seq_along(x)+length(x)]
                 start(x) <- y[seq_along(x)]
-                x
+                x[keep]
               }else{
                 x.cut <- cut(x, breaks=c(rescale$from.start[1], rescale$from.end+1),
                              labels=seq.int(nrow(rescale)), right=FALSE)
@@ -390,6 +457,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
             }
             feature <- rescale.gr(feature)
             SNPs <- rescale.gr(SNPs)
+            ranges[[i]] <- rescale.gr(ranges[[i]])
             if(is.logical(xaxis)[1]){
               if(xaxis[1]){
                 xaxis <- c(rescale$to.start[1], rescale$to.end)
@@ -511,6 +579,8 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                              clip="off",
                              just = 'left')
         pushViewport(vp_track)
+        nVP <- 1
+        on.exit(popViewport(n=nVP))
         ratio.yx <- getYXratio()
         ## plot xaxis
         bottomHeight <- 0
@@ -528,11 +598,13 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
           vp <- viewport(y=bottomHeight, just="bottom",
                          xscale=c(start(ranges[[i]]), end(ranges[[i]])))
           pushViewport(vp)
+          nVP <- nVP+1
           xaxis.gp$col <- "gray"
-          plot_grid_xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp, gaps=xgaps)
           popViewport()
+          nVP <- nVP-1
         }else{
-          plot_grid_xaxis(xaxis, gp=xaxis.gp)
+          plot_grid_xaxis(xaxis, gp=xaxis.gp, gaps=xgaps)
         }
         
         ## the baseline, the center of the first transcript
@@ -544,7 +616,9 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                 .0001)) + 0.2 * LINEH
         
         ##plot features
-        feature.height <- plotFeatures(feature.splited, LINEH, bottomHeight, label_on_feature)
+        feature.height <- plotFeatures(feature.splited, LINEH,
+                                       bottomHeight, label_on_feature,
+                                       gaps=xgaps)
         
         if(length(SNPs.bottom)>0){
           plotLollipops(SNPs.bottom, feature.height, bottomHeight, baselineN, 
@@ -591,6 +665,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                             height=this.height,
                             just='left')
         pushViewport(vp_ylab)
+        nVP <- nVP + 1
         if(is.logical(ylab)){
           if(ylab && length(names(SNP.gr))>0){
             grid.text(names(SNP.gr)[i], x = LINEW, 
@@ -603,6 +678,7 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                     y = .5, rot = 90, gp=ylab.gp)
         }
         popViewport()#vp_ylab
+        nVP <- nVP - 1
         
         ## left or right legend
         if(legendPosition$position %in% c('left', 'right')){
@@ -617,11 +693,15 @@ lolliplot <- function(SNP.gr, features=NULL, ranges=NULL,
                                 height= 1,
                                 just = 'left')
           pushViewport(vp_legend)
+          nVP <- nVP + 1
           plotLegend(legend[[i]], 0, LINEH)
           popViewport()## vp_legend
+          nVP <- nVP - 1
         }
         
         popViewport()#vp0
+        nVP <- nVP - 1
+        on.exit()
         height0 <-  height0 + this.height*height
       }
     }

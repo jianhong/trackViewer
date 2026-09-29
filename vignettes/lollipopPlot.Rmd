@@ -549,12 +549,14 @@ query <- ucscTableQuery(session,
                         table="wgEncodeHaibMethylRrbs", 
                         range=GRangesForUCSCGenome("hg19", 
                                                    seqnames(gr),
-                                                   ranges(gr)))
+                                                   ranges(gr)),
+                        genome='hg19')
 tableName(query) <- tableNames(query)[1]
 methy <- track(query)
 methy <- GRanges(methy)
 ```
-```{r methylation.hide, echo=FALSE}
+If retrieve data via online not work, load the example data locally.
+```{r methylation.hide, echo=TRUE}
 methy <- import(system.file("extdata", "methy.bed", package="trackViewer"), "BED")
 ```
 ```{r fig.width=6,fig.height=4}
@@ -605,6 +607,18 @@ lolliplot(methy, features, ranges=gr, rescale = "exon")
 # exon region occupy 99% of the plot region.
 lolliplot(methy, features, ranges=gr, rescale = "exon_99")
 lolliplot(methy, features, ranges=gr, rescale = "intron")
+```
+
+If `rescale` is set to a `GRanges` object, the track can be plotted with breaks.
+
+Please note that data within the gaps will not be displayed. And the rescale region will be restricted within the `ranges`.
+
+If the default break width is not sufficient, the hidden parameter `wavyLineWidth` can be used to adjust the size of the break spaces.
+
+```{r lolliplotWithBreaks, fig.width=6,fig.height=2.5}
+lolliplot(methy, features, 
+          ranges=GRanges('chr22', IRanges(50967500, 50970500)),
+          rescale = features, wavyLineWidth=0.1)
 ```
 
 
