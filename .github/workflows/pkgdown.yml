@@ -1,0 +1,41 @@
+name: Build pkgdown
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout package source
+        uses: actions/checkout@v4
+        with:
+          ref: devel
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::knitr
+            any::rmarkdown
+            any::pkgdown
+            any::BiocManager
+
+      - name: Build pkgdown
+        run: |
+           Rscript -e "BiocManager::install(ask=FALSE)"; Rscript -e "pkgdown::build_site()"
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: docs
+          

@@ -1,0 +1,34 @@
+name: Test R-universe
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: R-universe testing
+    uses: r-universe-org/workflows/.github/workflows/build.yml@v3
+    with:
+      universe: bioc
+      organization: bioconductor # for BiocCheck checks
+      
+  trigger-pkgdown:
+    name: Trigger pkgdown deployment
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/devel'
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: write
+
+    steps:
+      - name: Trigger pkgdown workflow on deploy branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "pkgdown.yaml",
+              ref: "staging"
+            })
