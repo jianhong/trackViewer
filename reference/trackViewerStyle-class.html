@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">trackViewer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.3</span>
       </span>
     </div>
 
@@ -96,6 +96,71 @@
 <dd><p>values to be assigned.</p></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p>An object of class <code>trackViewerStyle</code> with the modified
+slot, returned invisibly. The variable supplied as <code>tvs</code> is updated as
+a side effect.</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p><code>setTrackViewerStyleParam</code> changes one slot of a
+<code>trackViewerStyle</code> object. Unlike <code>setTrackStyleParam</code> and
+its siblings, this style is not attached to a single track: it controls the
+figure-wide x-axis shared by every track in a plot (drawn once, beneath the
+bottom-most track), so this function is typically called on the
+<code>trackViewerStyle</code> object passed to <code>viewTracks</code>, not on a track
+itself.</p>
+<p>Accepted values of <code>attr</code>, all slots of <code>trackViewerStyle</code>:</p><dl><dt><code>margin</code></dt>
+<dd><p><code>"numeric"</code> of length 4, the bottom, left, top
+  and right margins of the whole plot, as fractions of the device (each
+  value must be between 0 and 0.8). Default <code>c(.01, .05, 0, 0)</code>.</p></dd>
+
+  <dt><code>xlas</code></dt>
+<dd><p><code>"numeric"</code> in {0, 1, 2, 3}, the rotation of the
+  x-axis tick labels. See <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a>:las</code>. Ignored when
+  <code>autolas</code> is <code>TRUE</code>.</p></dd>
+
+  <dt><code>xgp</code></dt>
+<dd><p><code>"list"</code> of graphical parameters for the x-axis,
+  converted to <code><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></code>, e.g. <code>list(cex=.8, col="black")</code>.
+  For the equivalent y-axis settings, see <code><a href="yaxisStyle-class.html">yaxisStyle</a></code> and
+  <code><a href="trackStyle-class.html">setTrackYaxisParam</a></code>, which are per-track rather than
+  figure-wide.</p></dd>
+
+  <dt><code>xaxis</code></dt>
+<dd><p><code>"logical"</code>, whether the shared x-axis is drawn at
+  all. Default <code>FALSE</code>.</p></dd>
+
+  <dt><code>xat</code></dt>
+<dd><p><code>"numeric"</code> vector of genomic positions at which
+  x-axis tick marks are drawn, passed to <code>grid.xaxis</code> as <code>at</code>. If
+  left at its default (<code>numeric(0)</code>), positions are chosen
+  automatically from the plotted range.</p></dd>
+
+  <dt><code>xlabel</code></dt>
+<dd><p><code>"character"</code> vector of labels for the ticks in
+  <code>xat</code>, passed to <code>grid.xaxis</code> as <code>label</code>. Should be the
+  same length as <code>xat</code> when both are set explicitly; left at its
+  default, labels are generated automatically from the tick positions.</p></dd>
+
+  <dt><code>autolas</code></dt>
+<dd><p><code>"logical"</code>, whether the y-axis label direction
+  is chosen automatically rather than following <code>xlas</code>. Default
+  <code>FALSE</code>.</p></dd>
+
+  <dt><code>flip</code></dt>
+<dd><p><code>"logical"</code>, whether the x-axis (and the whole
+  plot) is flipped, e.g. to display a feature on the minus strand
+  5' to 3' left to right. Default <code>FALSE</code>.</p></dd>
+
+
+</dl><p>Any other value of <code>attr</code> is rejected. Values are assigned with
+<code>check = TRUE</code>, so the validity method of
+<code>trackViewerStyle</code> runs on every call — an <code>xlas</code> outside
+0:3 or a <code>margin</code> outside [0, 0.8] fails immediately with a descriptive
+message rather than surfacing later as a plotting error.</p>
+    </div>
     <div id="slots">
     <h2>Slots</h2>
 
@@ -138,12 +203,51 @@ parameter settings of x-axis. For y-axis, see <code><a href="yaxisStyle-class.ht
 
 
 </dl></div>
+    <div id="assignment-in-the-calling-frame">
+    <h2>Assignment in the calling frame</h2>
+
+
+<p>Like <code><a href="trackStyle-class.html">setTrackStyleParam</a></code>, this method assigns the updated
+object back to the variable passed as <code>tvs</code> in the caller's
+environment, so <code>setTrackViewerStyleParam(tvs, "xaxis", TRUE)</code> is
+sufficient on its own and the result need not be re-assigned. It is also
+returned invisibly for use in contexts, such as <code>lapply</code>, where that
+calling-frame assignment has no visible target — see
+<code><a href="trackStyle-class.html">setTrackStyleParam</a></code> for a worked example of that case.</p>
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p><code>trackViewerStyle</code>, <code><a href="trackStyle-class.html">setTrackStyleParam</a></code>,
+<code><a href="trackStyle-class.html">setTrackXscaleParam</a></code>, <code><a href="trackStyle-class.html">setTrackYaxisParam</a></code></p></div>
+    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tvs</span> <span class="op">&lt;-</span> <span class="fu">trackViewerStyle</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xaxis"</span>, <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tvs</span> <span class="op">&lt;-</span> <span class="fu">trackViewerStyle</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## turn on the shared x-axis and rotate its labels</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xaxis"</span>, <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xlas"</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## choose explicit tick positions and labels</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xat"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">122929000</span>, <span class="fl">122929500</span>, <span class="fl">122930000</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xlabel"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"122,929,000"</span>, <span class="st">"122,929,500"</span>, <span class="st">"122,930,000"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## tighten the plot margins</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"margin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.02</span>, <span class="fl">.08</span>, <span class="fl">.01</span>, <span class="fl">.01</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## flip the plot, e.g. for a minus-strand gene</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"flip"</span>, <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co">## rejected: xlas must be one of 0:3</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"xlas"</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## rejected: not a slot of trackViewerStyle</span></span></span>
+<span class="r-in"><span><span class="fu">setTrackViewerStyleParam</span><span class="op">(</span><span class="va">tvs</span>, <span class="st">"color"</span>, <span class="st">"red"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -158,7 +262,7 @@ parameter settings of x-axis. For y-axis, see <code><a href="yaxisStyle-class.ht
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer></div>
